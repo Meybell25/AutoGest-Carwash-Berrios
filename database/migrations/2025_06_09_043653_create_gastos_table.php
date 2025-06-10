@@ -13,7 +13,7 @@ return new class extends Migration
     {
       Schema::create('gastos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('set null');
+            $table->foreignId('usuario_id')->nullable()->constrained('usuarios')->nullOnDelete();
 
             $table->enum('tipo', ['stock','sueldos','personal','mantenimiento','otro']);
             $table->string('detalle');
