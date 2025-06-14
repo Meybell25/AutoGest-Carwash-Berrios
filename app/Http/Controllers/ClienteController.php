@@ -8,13 +8,13 @@ use App\Models\Vehiculo;
 use App\Models\Servicio;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth; // ← Agregar esta línea
+use Illuminate\Support\Facades\Auth; 
 
 class ClienteController extends Controller
 {
     public function dashboard(): View
     {
-        $user = Auth::user(); // ← Cambiar auth()->user() por Auth::user()
+        $user = Auth::user(); 
         
         $mis_vehiculos = Vehiculo::where('usuario_id', $user->id)->get();
         
@@ -38,7 +38,7 @@ class ClienteController extends Controller
 
     public function vehiculos(): View
     {
-        $vehiculos = Vehiculo::where('usuario_id', Auth::id()) // ← Cambiar auth()->id() por Auth::id()
+        $vehiculos = Vehiculo::where('usuario_id', Auth::id()) 
             ->with('citas')
             ->paginate(10);
 
@@ -47,7 +47,7 @@ class ClienteController extends Controller
 
     public function citas(): View
     {
-        $citas = Cita::where('usuario_id', Auth::id()) // ← Cambiar auth()->id() por Auth::id()
+        $citas = Cita::where('usuario_id', Auth::id()) 
             ->with(['vehiculo', 'servicios'])
             ->orderBy('fecha_hora', 'desc')
             ->paginate(10);

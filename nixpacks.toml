@@ -1,21 +1,18 @@
 <?php
 
-use App\Models\Usuario;
-
 return [
-
     'defaults' => [
-        'guard'     => 'web',
+        'guard' => 'web',
         'passwords' => 'usuarios',
     ],
 
     'guards' => [
         'web' => [
-            'driver'   => 'session',
+            'driver' => 'session',
             'provider' => 'usuarios',
         ],
         'api' => [
-            'driver'   => 'sanctum',
+            'driver' => 'sanctum',
             'provider' => 'usuarios',
         ],
     ],
@@ -23,15 +20,15 @@ return [
     'providers' => [
         'usuarios' => [
             'driver' => 'eloquent',
-            'model'  => Usuario::class,
+            'model' => App\Models\Usuario::class,
         ],
     ],
 
     'passwords' => [
         'usuarios' => [
             'provider' => 'usuarios',
-            'table'    => 'password_reset_tokens',
-            'expire'   => 60,
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
             'throttle' => 60,
         ],
     ],
