@@ -1,37 +1,17 @@
-<?php
+[phases.setup]
+nixPkgs = ['php82', 'php82Packages.composer', 'nodejs-18_x', 'npm']
 
-return [
-    'defaults' => [
-        'guard' => 'web',
-        'passwords' => 'usuarios',
-    ],
+[phases.install]
+cmds = [
+    'composer install --no-dev --optimize-autoloader'
+]
 
-    'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'usuarios',
-        ],
-        'api' => [
-            'driver' => 'sanctum',
-            'provider' => 'usuarios',
-        ],
-    ],
+[phases.build]
+cmds = [
+    'php artisan config:cache',
+    'php artisan route:cache', 
+    'php artisan view:cache'
+]
 
-    'providers' => [
-        'usuarios' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Usuario::class,
-        ],
-    ],
-
-    'passwords' => [
-        'usuarios' => [
-            'provider' => 'usuarios',
-            'table' => 'password_reset_tokens',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-    ],
-
-    'password_timeout' => 10800,
-];
+[start]
+cmd = 'php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT'
