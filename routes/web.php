@@ -1,51 +1,35 @@
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\ClienteController;
 
-return Application::configure(basePath: dirname(__DIR__))
-    ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
-        health: '/up',
-    )
-    ->withMiddleware(function (Middleware $middleware) {
-        // Si no usas Inertia.js, no necesitas middleware global adicional
-        // $middleware->web(append: [
-        //     // Aquí puedes agregar middleware global si lo necesitas
-        // ]);
+Route::get('/', function () {
+    return view('welcome');
+});
 
-        // Middleware aliases (esto es lo importante para tu error)
-        $middleware->alias([
-            'auth' => \App\Http\Middleware\Authenticate::class,
-            'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-            'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
-            'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-            'can' => \Illuminate\Auth\Middleware\Authorize::class,
-            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-            'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
-            'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
-            'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-            
-            // Tus middlewares personalizados - ESTO ES LO QUE FALTA
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'empleado' => \App\Http\Middleware\EmpleadoMiddleware::class,
-            'cliente' => \App\Http\Middleware\ClienteMiddleware::class,
-        ]);
+Route::get('/login', function() {
+    return "Login page";
+})->name('login');
 
-        // Grupos de middleware
-        $middleware->group('web', [
-            \App\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        ]);
-    })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
+Route::get('/home', function() {
+    return "Home page";
+})->name('home');
+
+// Rutas protegidas por rol
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
+});
+
+Route::middleware(['auth', 'empleado'])->prefix('empleado')->group(function () {
+    Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('empleado.dashboard');
+    Route::get('/citas', [EmpleadoController::class, 'citas'])->name('empleado.citas');
+});
+
+Route::middleware(['auth', 'cliente'])->prefix('cliente')->group(function () {
+    Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('cliente.dashboard');
+    Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('cliente.vehiculos');
+    Route::get('/citas', [ClienteController::class, 'citas'])->name('cliente.citas');
+});
