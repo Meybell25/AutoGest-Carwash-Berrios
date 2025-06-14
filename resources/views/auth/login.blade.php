@@ -113,15 +113,15 @@
                     <circle cx="30" cy="5" r="0.8" opacity="0.4"/>
                 </svg>
             </div>
-            <h1 class="text-3xl font-bold text-white mb-2">AutoGest Carwash</h1>
-            <p class="text-white text-opacity-80">Berrios - Sistema de Gestión</p>
+            <h1 class="text-3xl font-bold text-white mb-2">AutoGest Carwash Berrios</h1>
+            <p class="text-white text-opacity-80">El mejor servicio para tu coche.</p>
         </div>
 
         <!-- Formulario de login -->
         <div class="glass-effect rounded-2xl shadow-2xl p-8">
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Iniciar Sesión</h2>
-                <p class="text-gray-600 mt-2">Accede a tu panel de control</p>
+                <p class="text-gray-600 mt-2">Sistema de gestion de citas</p>
             </div>
 
             <form method="POST" action="{{ route('login') }}" class="space-y-6">
@@ -215,7 +215,7 @@
         <!-- Footer -->
         <div class="text-center mt-8">
             <p class="text-white text-opacity-70 text-sm">
-                © 2024 AutoGest Carwash Berrios. Todos los derechos reservados.
+                © 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
             </p>
         </div>
     </div>

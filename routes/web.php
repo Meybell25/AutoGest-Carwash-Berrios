@@ -1,91 +1,51 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\EmpleadoController;
-use App\Http\Controllers\ClienteController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        // Si no usas Inertia.js, no necesitas middleware global adicional
+        // $middleware->web(append: [
+        //     // Aquí puedes agregar middleware global si lo necesitas
+        // ]);
 
-// Ruta principal
-Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('dashboard');
-    }
-    return redirect()->route('login');
-});
+        // Middleware aliases (esto es lo importante para tu error)
+        $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
+            'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+            'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
+            'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+            'can' => \Illuminate\Auth\Middleware\Authorize::class,
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+            'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+            'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+            'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+            
+            // Tus middlewares personalizados - ESTO ES LO QUE FALTA
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'empleado' => \App\Http\Middleware\EmpleadoMiddleware::class,
+            'cliente' => \App\Http\Middleware\ClienteMiddleware::class,
+        ]);
 
-// Rutas de autenticación
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
-});
-
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
-    // Dashboard general (redirecciona según rol)
-    Route::get('/dashboard', function () {
-        $user = Auth::user(); // ← Cambiar auth()->user() por Auth::user()
-        switch ($user->rol) {
-            case 'admin':
-                return redirect()->route('admin.dashboard');
-            case 'empleado':
-                return redirect()->route('empleado.dashboard');
-            case 'cliente':
-                return redirect()->route('cliente.dashboard');
-            default:
-                return redirect('/');
-        }
-    })->name('dashboard');
-});
-
-// Rutas de Admin (solo administradores)
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
-    
-    // Aquí puedes agregar más rutas de admin:
-    // Route::resource('servicios', ServicioController::class);
-    // Route::resource('horarios', HorarioController::class);
-    // Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
-});
-
-// Rutas de Empleado (solo empleados)
-Route::middleware(['auth', 'role:empleado'])->prefix('empleado')->name('empleado.')->group(function () {
-    Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
-    Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
-    
-    // Aquí puedes agregar más rutas de empleado:
-    // Route::put('/citas/{cita}/actualizar', [EmpleadoController::class, 'actualizarCita'])->name('citas.actualizar');
-    // Route::get('/calendario', [EmpleadoController::class, 'calendario'])->name('calendario');
-});
-
-// Rutas de Cliente (solo clientes)
-Route::middleware(['auth', 'role:cliente'])->prefix('cliente')->name('cliente.')->group(function () {
-    Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
-    Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
-    Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
-    
-    // Aquí puedes agregar más rutas de cliente:
-    // Route::get('/citas/crear', [CitaController::class, 'create'])->name('citas.crear');
-    // Route::post('/citas', [CitaController::class, 'store'])->name('citas.store');
-    // Route::resource('vehiculos', VehiculoController::class)->except(['index']);
-});
-
-// Rutas que requieren autenticación pero sin restricción de rol específico
-Route::middleware('auth')->group(function () {
-    Route::get('/perfil', function () {
-        return view('perfil');
-    })->name('perfil');
-    
-    // Aquí puedes agregar rutas generales para usuarios autenticados
-});
+        // Grupos de middleware
+        $middleware->group('web', [
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();

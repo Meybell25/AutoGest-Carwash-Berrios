@@ -1,128 +1,139 @@
 <?php
-// app/Models/Notificacion.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Notificacion extends Model
+class Pago extends Model
 {
     use HasFactory;
 
-    protected $table = 'notificaciones';
+    protected $table = 'pagos';
 
     protected $fillable = [
-        'usuario_id',
-        'mensaje',
-        'canal',
-        'leido',
-        'fecha_envio',
+        'cita_id',
+        'monto',
+        'monto_recibido',
+        'vuelto',
+        'metodo',
+        'referencia',
+        'estado',
+        'pasarela_id',
+        'fecha_pago',
     ];
 
     protected $casts = [
-        'leido' => 'boolean',
-        'fecha_envio' => 'datetime',
+        'monto' => 'float',
+        'monto_recibido' => 'float',
+        'vuelto' => 'float',
+        'fecha_pago' => 'datetime',
     ];
 
-    // Desactivar timestamps automáticos ya que usamos fecha_envio
+    // Desactivar timestamps automáticos ya que usamos fecha_pago
     public $timestamps = false;
 
-    // Canales de notificación
-    const CANAL_SISTEMA = 'sistema';
-    const CANAL_EMAIL = 'email';
-    const CANAL_SMS = 'sms';
-    const CANAL_PUSH = 'push';
+    // Métodos de pago
+    const METODO_EFECTIVO = 'efectivo';
+    const METODO_TRANSFERENCIA = 'transferencia';
+    const METODO_PASARELA = 'pasarela';
+
+    // Estados de pago
+    const ESTADO_PENDIENTE = 'pendiente';
+    const ESTADO_PAGADO = 'pagado';
+    const ESTADO_RECHAZADO = 'rechazado';
 
     // Relaciones
-    public function usuario()
+    public function cita()
     {
-        return $this->belongsTo(Usuario::class, 'usuario_id');
+        return $this->belongsTo(Cita::class, 'cita_id');
     }
 
     // Scopes
-    public function scopeNoLeidas($query)
+    public function scopePendientes($query)
     {
-        return $query->where('leido', false);
+        return $query->where('estado', self::ESTADO_PENDIENTE);
     }
 
-    public function scopeLeidas($query)
+    public function scopePagados($query)
     {
-        return $query->where('leido', true);
+        return $query->where('estado', self::ESTADO_PAGADO);
     }
 
-    public function scopeByUsuario($query, $usuarioId)
+    public function scopeRechazados($query)
     {
-        return $query->where('usuario_id', $usuarioId);
+        return $query->where('estado', self::ESTADO_RECHAZADO);
     }
 
-    public function scopeByCanal($query, $canal)
+    public function scopeByMetodo($query, $metodo)
     {
-        return $query->where('canal', $canal);
+        return $query->where('metodo', $metodo);
     }
 
-    public function scopeRecientes($query, $dias = 30)
+    public function scopeEfectivo($query)
     {
-        return $query->where('fecha_envio', '>=', now()->subDays($dias));
+        return $query->where('metodo', self::METODO_EFECTIVO);
     }
 
-    public function scopeHoy($query)
+    public function scopeTransferencia($query)
     {
-        return $query->whereDate('fecha_envio', today());
+        return $query->where('metodo', self::METODO_TRANSFERENCIA);
+    }
+
+    public function scopePasarela($query)
+    {
+        return $query->where('metodo', self::METODO_PASARELA);
     }
 
     // Métodos
-    public function marcarComoLeida(): bool
+    public function marcarComoPagado(): bool
     {
-        return $this->update(['leido' => true]);
-    }
-
-    public function marcarComoNoLeida(): bool
-    {
-        return $this->update(['leido' => false]);
-    }
-
-    // Métodos estáticos para crear notificaciones
-    public static function crear(int $usuarioId, string $mensaje, string $canal = self::CANAL_SISTEMA): self
-    {
-        return self::create([
-            'usuario_id' => $usuarioId,
-            'mensaje' => $mensaje,
-            'canal' => $canal,
-            'leido' => false,
-            'fecha_envio' => now(),
+        return $this->update([
+            'estado' => self::ESTADO_PAGADO,
+            'fecha_pago' => now(),
         ]);
     }
 
-    public static function citaCreada(int $usuarioId, $fechaCita): self
+    public function marcarComoRechazado(): bool
     {
-        return self::crear(
-            $usuarioId,
-            "Tu cita ha sido programada para el " . $fechaCita->format('d/m/Y H:i')
-        );
+        return $this->update(['estado' => self::ESTADO_RECHAZADO]);
     }
 
-    public static function citaConfirmada(int $usuarioId, $fechaCita): self
+    public function calcularVuelto(): float
     {
-        return self::crear(
-            $usuarioId,
-            "Tu cita del " . $fechaCita->format('d/m/Y H:i') . " ha sido confirmada"
-        );
+        if ($this->metodo === self::METODO_EFECTIVO && $this->monto_recibido) {
+            return max(0, $this->monto_recibido - $this->monto);
+        }
+        return 0;
     }
 
-    public static function citaCancelada(int $usuarioId, $fechaCita): self
+    public function isPendiente(): bool
     {
-        return self::crear(
-            $usuarioId,
-            "Tu cita del " . $fechaCita->format('d/m/Y H:i') . " ha sido cancelada"
-        );
+        return $this->estado === self::ESTADO_PENDIENTE;
     }
 
-    public static function recordatorioCita(int $usuarioId, $fechaCita): self
+    public function isPagado(): bool
     {
-        return self::crear(
-            $usuarioId,
-            "Recordatorio: Tienes una cita mañana a las " . $fechaCita->format('H:i')
-        );
+        return $this->estado === self::ESTADO_PAGADO;
+    }
+
+    public function isRechazado(): bool
+    {
+        return $this->estado === self::ESTADO_RECHAZADO;
+    }
+
+    public function isEfectivo(): bool
+    {
+        return $this->metodo === self::METODO_EFECTIVO;
+    }
+
+    public function isTransferencia(): bool
+    {
+        return $this->metodo === self::METODO_TRANSFERENCIA;
+    }
+
+    public function isPasarela(): bool
+    {
+        return $this->metodo === self::METODO_PASARELA;
     }
 }
