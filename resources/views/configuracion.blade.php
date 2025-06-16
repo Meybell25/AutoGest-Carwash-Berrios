@@ -11,9 +11,14 @@
 
                 <div class="card-body">
                     @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
+                        <script>
+                            swalWithBootstrapButtons.fire({
+                                title: '¡Éxito!',
+                                text: '{{ session('success') }}',
+                                icon: 'success',
+                                confirmButtonText: 'Aceptar'
+                            });
+                        </script>
                     @endif
 
                     <div class="mb-4">

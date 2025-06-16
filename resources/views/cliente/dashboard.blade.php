@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Cliente - Carwash Berríos</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -1054,7 +1055,6 @@
             .footer-brand h3 {
                 font-size: 24px;
             }
-        }
 
         .sparkle {
             position: absolute;
@@ -1541,32 +1541,32 @@
 
 
      <!-- Modal para editar perfil -->
-        <div id="editProfileModal" class="modal">
-            <div class="modal-content">
-    <span class="close-modal" onclick="closeEditModal()">&times;</span>
-    <h2 style="color: #4facfe; margin-bottom: 20px;">
-        <i class="fas fa-user-edit"></i> Editar Perfil
-    </h2>
-    <form id="profileForm" action="{{ route('perfil.update') }}" method="POST">
-        @csrf
-        <div class="form-group">
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" name="nombre" value="{{ $user->nombre ?? '' }}" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ $user->email ?? '' }}" required>
-        </div>
-        <div class="form-group">
-            <label for="telefono">Teléfono:</label>
-            <input type="text" id="telefono" name="telefono" value="{{ $user->telefono ?? '' }}">
-        </div>
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> Guardar Cambios
-        </button>
-    </form>
+<div id="editProfileModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeEditModal()">&times;</span>
+        <h2 style="color: #4facfe; margin-bottom: 20px;">
+            <i class="fas fa-user-edit"></i> Editar Perfil
+        </h2>
+        <form id="profileForm" action="{{ route('perfil.update') }}" method="POST">
+            @csrf
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" value="{{ $user->nombre ?? '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="text" id="telefono" name="telefono" value="{{ $user->telefono ?? '' }}">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="text" value="{{ $user->email ?? '' }}" disabled style="background: #f1f1f1; cursor: not-allowed;">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </form>
+    </div>
 </div>
-        </div>
 
         <!-- Modal para imprimir recibo -->
         <div id="receiptModal" class="modal">
@@ -1636,22 +1636,23 @@
     </footer>
 
     <script>
-        // Funciones para el modal de edición de perfil
-        
+       // Configuración de SweetAlert con estilos personalizados
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+            confirmButton: 'btn btn-primary',
+            cancelButton: 'btn btn-outline mr-2'
+        },
+        buttonsStyling: false
+        });
+
+    // Funciones para el modal de edición de perfil
     function openEditModal() {
         const modal = document.getElementById('editProfileModal');
         modal.style.display = 'block';
     
         // Rellenar el formulario con los datos actuales
-        const user = {
-            nombre: '{{ $user->nombre ?? "" }}',
-            email: '{{ $user->email ?? "" }}',
-            telefono: '{{ $user->telefono ?? "" }}'
-        };
-    
-        document.getElementById('nombre').value = user.nombre;
-        document.getElementById('email').value = user.email;
-        document.getElementById('telefono').value = user.telefono;
+        document.getElementById('nombre').value = '{{ $user->nombre ?? "" }}';
+        document.getElementById('telefono').value = '{{ $user->telefono ?? "" }}';
     }
 
     function closeEditModal() {
@@ -1660,7 +1661,7 @@
 
     // Manejar el envío del formulario
     document.getElementById('profileForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+           e.preventDefault();
     
         const formData = new FormData(this);
     
@@ -1672,18 +1673,18 @@
                 'Accept': 'application/json'
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if(data.success) {
                 closeEditModal();
             
-                // Mostrar mensaje de éxito
-                alert('Perfil actualizado correctamente');
+                // Mostrar alerta de éxito con SweetAlert
+                swalWithBootstrapButtons.fire({
+                    title: '¡Perfil actualizado!',
+                    text: 'Tus datos se han actualizado correctamente',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                });
             
                 // Actualizar la información en la página
                 document.querySelector('.profile-info h3').textContent = data.user.nombre;
@@ -1695,7 +1696,12 @@
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error al actualizar el perfil: ' + error.message);
+            swalWithBootstrapButtons.fire({
+                title: 'Error',
+                text: 'Ocurrió un error al actualizar el perfil: ' + error.message,
+                icon: 'error',
+                confirmButtonText: 'Entendido'
+            });
         });
     });
 

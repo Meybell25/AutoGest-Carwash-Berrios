@@ -16,28 +16,21 @@ class PerfilController extends Controller
         return view('perfil.edit', compact('user'));
     }
 
-   public function update(Request $request)
+    public function update(Request $request)
     {
         $user = Auth::user();
     
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'nombre' => 'required|string|max:255',
             'telefono' => 'nullable|string|max:20',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
         $user->update([
             'nombre' => $request->nombre,
             'telefono' => $request->telefono,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'user' => $user
-        ]);
+        return back()->with('success', 'Perfil actualizado correctamente');
     }
 
     public function configuracion()

@@ -71,10 +71,11 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class.':cliente'
     Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
 });
 
+
 // Rutas para perfil de usuario
 Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
-    Route::get('/', [PerfilController::class, 'edit'])->name('edit'); // Muestra el formulario
-    Route::post('/actualizar', [PerfilController::class, 'update'])->name('update'); // Procesa el formulario
+    Route::get('/', [PerfilController::class, 'edit'])->name('edit');
+    Route::post('/actualizar', [PerfilController::class, 'update'])->name('update');
 });
 
 Route::middleware('auth')->prefix('configuracion')->name('configuracion.')->group(function () {
