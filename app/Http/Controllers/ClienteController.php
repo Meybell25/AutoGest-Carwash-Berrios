@@ -22,23 +22,26 @@ public function dashboard(): View
     }
 
     try {
-        $vehiculos = $user->vehiculos()->latest()->take(3)->get();
-        $citas = $user->citas()->with(['vehiculo', 'servicios'])->latest()->take(3)->get();
+        $vehiculos = $user->vehiculos()->get();
+        $citas = $user->citas()->with(['vehiculo', 'servicios'])->get();
 
         return view('cliente.dashboard', [
             'user' => $user,
             'stats' => [
                 'total_vehiculos' => $vehiculos->count(),
-                'total_citas' => $user->citas()->count(),
-                'citas_pendientes' => $user->citas()->where('estado', 'pendiente')->count(),
-                'citas_confirmadas' => $user->citas()->where('estado', 'confirmada')->count(),
+                'total_citas' => $citas->count(),
+                'citas_pendientes' => $citas->where('estado', 'pendiente')->count(),
+                'citas_confirmadas' => $citas->where('estado', 'confirmada')->count(),
             ],
-            'mis_vehiculos' => $vehiculos,
-            'mis_citas' => $citas
+            'mis_vehiculos' => $vehiculos->take(3),
+            'mis_citas' => $citas->take(3)
         ]);
     } catch (\Exception $e) {
-        Log::error('Dashboard error: '.$e->getMessage());
-        
+        Log::error('Dashboard error', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
         return view('cliente.dashboard', [
             'user' => $user,
             'stats' => [

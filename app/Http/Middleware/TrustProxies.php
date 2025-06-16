@@ -11,7 +11,8 @@ class TrustProxies extends Middleware
 {
     protected $proxies = '*';
     
-    protected $headers = Request::HEADER_X_FORWARDED_FOR |
+    protected $headers =
+        Request::HEADER_X_FORWARDED_FOR |
         Request::HEADER_X_FORWARDED_HOST |
         Request::HEADER_X_FORWARDED_PORT |
         Request::HEADER_X_FORWARDED_PROTO |
@@ -19,7 +20,7 @@ class TrustProxies extends Middleware
 
     public function handle(Request $request, Closure $next): Response
     {
-        $request->setTrustedProxies([$request->getClientIp()], $this->headers);
+        $request->setTrustedProxies(['127.0.0.1', '::1'], $this->headers);
         return $next($request);
     }
 }
