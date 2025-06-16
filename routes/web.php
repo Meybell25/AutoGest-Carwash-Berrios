@@ -77,6 +77,11 @@ Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () 
     Route::post('/actualizar', [PerfilController::class, 'update'])->name('update'); // Procesa el formulario
 });
 
+Route::middleware('auth')->prefix('configuracion')->name('configuracion.')->group(function () {
+    Route::get('/', [PerfilController::class, 'configuracion'])->name('index');
+    Route::post('/actualizar-email', [PerfilController::class, 'updateEmail'])->name('update-email');
+    Route::post('/actualizar-password', [PerfilController::class, 'updatePassword'])->name('update-password');
+});
 
 
 
