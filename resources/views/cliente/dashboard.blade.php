@@ -854,6 +854,230 @@
             border-radius: 8px;
             font-size: 16px;
         }
+
+        .footer {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            margin-top: 30px;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary-gradient);
+        }
+
+        .footer-content {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .footer-brand {
+            margin-bottom: 15px;
+        }
+
+        .footer-brand h3 {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 8px 0;
+            text-shadow: none;
+        }
+
+        .footer-slogan {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 25px;
+            opacity: 0.8;
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .info-item i {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--secondary-gradient);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+        }
+
+        .location-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .location-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary-gradient);
+            transition: width 0.3s ease;
+        }
+
+        .location-link:hover::after {
+            width: 100%;
+        }
+
+        .location-link:hover {
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+            margin: 20px 0;
+        }
+
+        .footer-copyright {
+            color: var(--text-secondary);
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .social-icon.facebook:hover {
+            background: #1877f2;
+            color: white;
+            border-color: #1877f2;
+        }
+
+        .social-icon.whatsapp:hover {
+            background: #25d366;
+            color: white;
+            border-color: #25d366;
+        }
+
+        .social-icon.instagram:hover {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            border-color: #bc1888;
+        }
+
+        .schedule-item {
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .schedule-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .schedule-main {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .schedule-closed {
+            font-size: 13px;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+            .footer-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .footer-content {
+                padding: 30px 20px;
+            }
+            
+            .footer-brand h3 {
+                font-size: 24px;
+            }
+    
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--secondary-gradient);
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+
+        .sparkle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .sparkle:nth-child(2) { top: 60%; right: 15%; animation-delay: 0.5s; }
+        .sparkle:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 1s; }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
         
     </style>
 </head>
@@ -1254,70 +1478,74 @@
         </div>
 
         <!-- Sección de Facturas/Recibos -->
-        <div class="card">
-            <div class="card-header">
-                <h2>
-                    <div class="icon">
-                        <i class="fas fa-file-invoice-dollar"></i>
+      <!-- Reemplaza la sección de Facturas/Recibos con este código -->
+<div class="card" style="margin-top: 30px;">
+    <div class="card-header">
+        <h2>
+            <div class="icon">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            Facturas y Recibos
+        </h2>
+    </div>
+    <div class="card-body">
+        @if(isset($mis_citas) && count($mis_citas) > 0)
+            <div class="services-grid">
+                @foreach($mis_citas->take(3) as $cita)
+                <div class="service-card" style="text-align: left;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <div>
+                            <h3>Factura #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}-{{ date('Y') }}</h3>
+                            <p style="color: #666; font-size: 0.9rem;">
+                                {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y') }}
+                            </p>
+                        </div>
+                        <div>
+                            @php
+                                $total = $cita->servicios->sum('precio');
+                            @endphp
+                            <div style="font-weight: 700; color: #4facfe; font-size: 1.3rem; text-align: right;">${{ number_format($total, 2) }}</div>
+                            <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; margin-top: 5px;">PAGADO</span>
+                        </div>
                     </div>
-                    Facturas y Recibos
-                </h2>
-            </div>
-            <div class="card-body">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-                    @if(isset($mis_citas) && count($mis_citas) > 0)
-                        @foreach($mis_citas->take(3) as $cita)
-                        <div style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; transition: all 0.3s ease;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                                <div>
-                                    <h4 style="color: #333; margin-bottom: 5px;">Factura #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}-{{ date('Y') }}</h4>
-                                    <p style="color: #666; font-size: 0.9rem;">
-                                        {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y') }} - 
-                                        @if($cita->servicios && count($cita->servicios) > 0)
-                                            {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                        @else
-                                            Servicio no especificado
-                                        @endif
-                                    </p>
-                                </div>
-                                <div style="text-align: right;">
-                                    @php
-                                        $total = $cita->servicios->sum('precio');
-                                    @endphp
-                                    <div style="font-weight: 700; color: #4facfe; font-size: 1.1rem;">${{ number_format($total, 2) }}</div>
-                                    <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">PAGADO</span>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn btn-sm btn-outline">
-                                    <i class="fas fa-eye"></i>
-                                    Ver
-                                </button>
-                                <button class="btn btn-sm btn-primary">
-                                    <i class="fas fa-download"></i>
-                                    Descargar PDF
-                                </button>
-                            </div>
-                        </div>
-                        @endforeach
-                    @else
-                        <div class="empty-state" style="grid-column: 1 / -1;">
-                            <i class="fas fa-file-invoice"></i>
-                            <h3>No hay facturas disponibles</h3>
-                            <p>Agenda tu primera cita para generar facturas</p>
-                        </div>
-                    @endif
+                    
+                    <div style="margin-bottom: 15px;">
+                        <p><strong>Servicios:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 5px;">
+                            @foreach($cita->servicios as $servicio)
+                            <li>{{ $servicio->nombre }} - ${{ number_format($servicio->precio, 2) }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-sm btn-outline" style="flex: 1;">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        <button class="btn btn-sm btn-primary" style="flex: 1;">
+                            <i class="fas fa-download"></i> PDF
+                        </button>
+                    </div>
                 </div>
-                
-                <div style="text-align: center; margin-top: 20px;">
-                    <button class="btn btn-outline">
-                        <i class="fas fa-history"></i>
-                        Ver Todas las Facturas
-                    </button>
-                </div>
+                @endforeach
             </div>
+        @else
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <i class="fas fa-file-invoice"></i>
+                <h3>No hay facturas disponibles</h3>
+                <p>Agenda tu primera cita para generar facturas</p>
+            </div>
+        @endif
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn btn-outline">
+                <i class="fas fa-history"></i> Ver Todas las Facturas
+            </button>
         </div>
     </div>
+</div>
+
+
      <!-- Modal para editar perfil -->
         <div id="editProfileModal" class="modal">
             <div class="modal-content">
@@ -1365,60 +1593,127 @@
         </div>
     </div>
 
-    <footer class="footer" style="background: var(--glass-bg); padding: 20px; margin-top: 30px; border-radius: 15px; text-align: center;">
-    <div class="footer-content">
-        <h3>AutoGest Carwash Berrios</h3>
-        <p><i class="fas fa-phone"></i> Teléfono: 75855197</p>
-        <p><i class="fas fa-map-marker-alt"></i> 
-            <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" style="color: #4facfe;">
-                Ver ubicación en mapa
-            </a>
-        </p>
-        <p>&copy; {{ date('Y') }} Carwash Berrios. Todos los derechos reservados.</p>
-    </div>
-</footer>
+   <footer class="footer">
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
+            </div>
+            
+            <div class="footer-info">
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>75855197</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
+                        Ver ubicación en mapa
+                    </a>
+                </div>
+                <div class="info-item schedule-item">
+                    <i class="fas fa-clock"></i>
+                    <div class="schedule-info">
+                        <span class="schedule-main">Lun - Sáb: 7:00 AM - 6:00 PM</span>
+                        <span class="schedule-closed">Dom: Cerrado</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="#" class="social-icon instagram" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+
+            <div class="footer-divider"></div>
+            
+            <p class="footer-copyright">
+                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+            </p>
+        </div>
+    </footer>
 
     <script>
         // Funciones para el modal de edición de perfil
-        function openEditModal() {
-            document.getElementById('editProfileModal').style.display = 'block';
-        }
-
-        function closeEditModal() {
-            document.getElementById('editProfileModal').style.display = 'none';
-        }
-
         
-        // Cerrar modal al hacer clic fuera del contenido
-        window.onclick = function(event) {
-            if (event.target.className === 'modal') {
-                event.target.style.display = 'none';
-            }
-        }
-
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+    function openEditModal() {
+        const modal = document.getElementById('editProfileModal');
+        modal.style.display = 'block';
     
-                fetch(this.action, {
-                    method: 'POST',
-                    body: new FormData(this),
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                if(data.success) {
-                    closeEditModal();
-                    alert('Perfil actualizado correctamente');
-                    // Actualizar la información en la página sin recargar
-                    document.querySelector('.profile-info h3').textContent = data.user.nombre;
-                    document.querySelector('.profile-info p:nth-of-type(2)').innerHTML = 
+        // Rellenar el formulario con los datos actuales
+        const user = {
+            nombre: '{{ $user->nombre ?? "" }}',
+            email: '{{ $user->email ?? "" }}',
+            telefono: '{{ $user->telefono ?? "" }}'
+        };
+    
+        document.getElementById('nombre').value = user.nombre;
+        document.getElementById('email').value = user.email;
+        document.getElementById('telefono').value = user.telefono;
+    }
+
+    function closeEditModal() {
+        document.getElementById('editProfileModal').style.display = 'none';
+    }
+
+    // Manejar el envío del formulario
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+    
+        const formData = new FormData(this);
+    
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if(data.success) {
+                closeEditModal();
+            
+                // Mostrar mensaje de éxito
+                alert('Perfil actualizado correctamente');
+            
+                // Actualizar la información en la página
+                document.querySelector('.profile-info h3').textContent = data.user.nombre;
+                document.querySelector('.profile-info p:nth-of-type(2)').innerHTML = 
                     `<i class="fas fa-phone"></i> ${data.user.telefono || 'No especificado'}`;
-                }
-             })
-            .catch(error => console.error('Error:', error));
+            } else {
+                throw new Error(data.message || 'Error al actualizar el perfil');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al actualizar el perfil: ' + error.message);
         });
+    });
+
+    // Cerrar modal al hacer clic fuera del contenido
+    window.addEventListener('click', function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    });
         
         // Función para marcar notificaciones como leídas
         //function markAsRead(notificacionId) {
