@@ -111,7 +111,7 @@ Route::get('/debug-session', function() {
 Route::get('/test-middleware', function() {
     return response()->json([
         'message' => 'Middleware test passed',
-        'user' => auth()->user(),
-        'role' => auth()->user()->rol ?? null
+        'user' => Auth::user(),
+        'role' => Auth::user()->rol ?? null
     ]);
 })->middleware(['auth', 'role:cliente']);
