@@ -9,32 +9,48 @@ use App\Models\Servicio;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth; // ← Agregar esta línea
+use Illuminate\Support\Facades\Log;
 
 class ClienteController extends Controller
 {
-    public function dashboard(): View
-    {
-        $user = Auth::user(); // ← Cambiar auth()->user() por Auth::user()
-        
-        $mis_vehiculos = Vehiculo::where('usuario_id', $user->id)->get();
-        
-        $mis_citas = Cita::where('usuario_id', $user->id)
-            ->with(['vehiculo', 'servicios'])
-            ->orderBy('fecha_hora', 'desc')
-            ->limit(5)
-            ->get();
+public function dashboard(): View
+{
+    $user = Auth::user();
+    
+    try {
+        // Usa relaciones directamente (están bien definidas)
+        $vehiculos = $user->vehiculos()->latest()->take(3)->get();
+        $citas = $user->citas()->with(['vehiculo', 'servicios'])->latest()->take(3)->get();
 
-        $stats = [
-            'total_vehiculos' => $mis_vehiculos->count(),
-            'total_citas' => Cita::where('usuario_id', $user->id)->count(),
-            'citas_pendientes' => Cita::where('usuario_id', $user->id)
-                ->where('estado', 'pendiente')->count(),
-            'citas_confirmadas' => Cita::where('usuario_id', $user->id)
-                ->where('estado', 'confirmada')->count(),
-        ];
-
-        return view('cliente.dashboard', compact('mis_vehiculos', 'mis_citas', 'stats'));
+        return view('cliente.dashboard', [
+            'user' => $user,
+            'stats' => [
+                'total_vehiculos' => $vehiculos->count(),
+                'total_citas' => $user->citas()->count(),
+                'citas_pendientes' => $user->citas()->where('estado', 'pendiente')->count(),
+                'citas_confirmadas' => $user->citas()->where('estado', 'confirmada')->count(),
+            ],
+            'mis_vehiculos' => $vehiculos,
+            'mis_citas' => $citas
+        ]);
+    } catch (\Exception $e) {
+        //Log del error
+        Log::error('Error en dashboard: ' . $e->getMessage());
+        
+        // Retorna vista con datos vacíos
+        return view('cliente.dashboard', [
+            'user' => $user,
+            'stats' => [
+                'total_vehiculos' => 0,
+                'total_citas' => 0,
+                'citas_pendientes' => 0,
+                'citas_confirmadas' => 0,
+            ],
+            'mis_vehiculos' => collect(),
+            'mis_citas' => collect()
+        ]);
     }
+}
 
     public function vehiculos(): View
     {

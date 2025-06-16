@@ -90,7 +90,12 @@ Route::middleware('auth')->group(function () {
     
     // Aquí puedes agregar rutas generales para usuarios autenticados
 });
-Route::get('/clear-cache', function() {
-    Artisan::call('cache:clear');
-    return "Cache cleared";
+Route::get('/debug', function() {
+    $user = App\Models\Usuario::first();
+    
+    return [
+        'user' => $user->toArray(),
+        'vehiculos' => $user->vehiculos->toArray(),
+        'citas' => $user->citas->toArray()
+    ];
 });
