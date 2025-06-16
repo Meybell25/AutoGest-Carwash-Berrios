@@ -813,18 +813,21 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="#" class="btn btn-primary">
+                    <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
                     </a>
-                    <a href="#" class="btn btn-success">
+                    <a href="{{ route('perfil') }}" class="btn btn-success">
                         <i class="fas fa-user-edit"></i>
                         Mi Perfil
                     </a>
-                    <button class="btn btn-outline">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Cerrar Sesión
-                    </button>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn btn-outline">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Cerrar Sesión
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -844,45 +847,76 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <!-- Próxima cita destacada -->
-                        <div class="next-appointment">
-                            <div class="appointment-date-time">
-                                <div class="date-badge">
-                                    <span class="day">28</span>
-                                    <span class="month">Jun</span>
+                        @if(isset($mis_citas) && count($mis_citas) > 0)
+                            <!-- Próxima cita destacada -->
+                            @php $nextAppointment = $mis_citas->first(); @endphp
+                            <div class="next-appointment">
+                                <div class="appointment-date-time">
+                                    <div class="date-badge">
+                                        <span class="day">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('d') }}</span>
+                                        <span class="month">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('M') }}</span>
+                                    </div>
+                                    <div class="time-info">
+                                        <div class="time">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('h:i A') }}</div>
+                                        <div class="service">
+                                            @if($nextAppointment->servicios && count($nextAppointment->servicios) > 0)
+                                                {{ $nextAppointment->servicios->pluck('nombre')->join(', ') }}
+                                            @else
+                                                Sin servicios especificados
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <span class="appointment-status status-{{ $nextAppointment->estado }}">
+                                        {{ ucfirst($nextAppointment->estado) }}
+                                    </span>
                                 </div>
-                                <div class="time-info">
-                                    <div class="time">2:00 PM</div>
-                                    <div class="service">Lavado Premium + Encerado</div>
+                                <div class="appointment-actions">
+                                    <button class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                        Modificar
+                                    </button>
+                                    <button class="btn btn-sm btn-outline">
+                                        <i class="fas fa-times"></i>
+                                        Cancelar
+                                    </button>
                                 </div>
-                                <span class="appointment-status status-confirmado">Confirmado</span>
                             </div>
-                            <div class="appointment-actions">
-                                <button class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                    Modificar
-                                </button>
-                                <button class="btn btn-sm btn-outline">
-                                    <i class="fas fa-times"></i>
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
 
-                        <!-- Otras citas próximas -->
-                        <div style="max-height: 200px; overflow-y: auto;">
-                            <div class="appointment-date-time" style="padding: 15px; border-bottom: 1px solid #eee;">
-                                <div class="date-badge" style="width: 60px; height: 60px; font-size: 0.8rem;">
-                                    <span class="day">05</span>
-                                    <span class="month">Jul</span>
+                            <!-- Otras citas próximas -->
+                            <div style="max-height: 200px; overflow-y: auto;">
+                                @foreach($mis_citas->slice(1) as $cita)
+                                <div class="appointment-date-time" style="padding: 15px; border-bottom: 1px solid #eee;">
+                                    <div class="date-badge" style="width: 60px; height: 60px; font-size: 0.8rem;">
+                                        <span class="day">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d') }}</span>
+                                        <span class="month">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('M') }}</span>
+                                    </div>
+                                    <div class="time-info">
+                                        <div class="time" style="font-size: 1.1rem;">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('h:i A') }}</div>
+                                        <div class="service">
+                                            @if($cita->servicios && count($cita->servicios) > 0)
+                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                            @else
+                                                Sin servicios especificados
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <span class="appointment-status status-{{ $cita->estado }}">
+                                        {{ ucfirst($cita->estado) }}
+                                    </span>
                                 </div>
-                                <div class="time-info">
-                                    <div class="time" style="font-size: 1.1rem;">10:30 AM</div>
-                                    <div class="service">Lavado Rápido</div>
-                                </div>
-                                <span class="appointment-status status-pendiente">Pendiente</span>
+                                @endforeach
                             </div>
-                        </div>
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-alt"></i>
+                                <h3>No tienes citas programadas</h3>
+                                <p>Agenda tu primera cita de lavado</p>
+                                <a href="{{ route('cliente.citas') }}" class="btn btn-primary" style="margin-top: 15px;">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    Agendar Cita
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -897,50 +931,41 @@
                         </h2>
                     </div>
                     <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        <div class="service-history-item">
-                            <div class="service-icon">
-                                <i class="fas fa-car-wash"></i>
+                        @if(isset($mis_citas) && count($mis_citas) > 0)
+                            @foreach($mis_citas as $cita)
+                            <div class="service-history-item">
+                                <div class="service-icon">
+                                    <i class="fas fa-car-wash"></i>
+                                </div>
+                                <div class="service-details">
+                                    <h4>
+                                        @if($cita->servicios && count($cita->servicios) > 0)
+                                            {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                        @else
+                                            Servicio no especificado
+                                        @endif
+                                    </h4>
+                                    <p><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y - h:i A') }}</p>
+                                    <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }} {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
+                                    <a href="#" class="repeat-service">
+                                        <i class="fas fa-redo"></i> Volver a agendar
+                                    </a>
+                                </div>
+                                <div class="service-price">
+                                    @php
+                                        $total = $cita->servicios->sum('precio');
+                                    @endphp
+                                    ${{ number_format($total, 2) }}
+                                </div>
                             </div>
-                            <div class="service-details">
-                                <h4>Lavado Premium + Encerado</h4>
-                                <p><i class="fas fa-calendar"></i> 15 Jun 2025 - 3:00 PM</p>
-                                <p><i class="fas fa-car"></i> Honda Civic - ABC-1234</p>
-                                <a href="#" class="repeat-service">
-                                    <i class="fas fa-redo"></i> Volver a agendar
-                                </a>
+                            @endforeach
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <h3>No hay historial de servicios</h3>
+                                <p>Agenda tu primera cita para comenzar a ver tu historial</p>
                             </div>
-                            <div class="service-price">$35.00</div>
-                        </div>
-
-                        <div class="service-history-item">
-                            <div class="service-icon">
-                                <i class="fas fa-spray-can"></i>
-                            </div>
-                            <div class="service-details">
-                                <h4>Lavado Completo</h4>
-                                <p><i class="fas fa-calendar"></i> 08 Jun 2025 - 11:00 AM</p>
-                                <p><i class="fas fa-car"></i> Toyota Corolla - XYZ-5678</p>
-                                <a href="#" class="repeat-service">
-                                    <i class="fas fa-redo"></i> Volver a agendar
-                                </a>
-                            </div>
-                            <div class="service-price">$25.00</div>
-                        </div>
-
-                        <div class="service-history-item">
-                            <div class="service-icon">
-                                <i class="fas fa-tint"></i>
-                            </div>
-                            <div class="service-details">
-                                <h4>Lavado Rápido</h4>
-                                <p><i class="fas fa-calendar"></i> 01 Jun 2025 - 9:30 AM</p>
-                                <p><i class="fas fa-car"></i> Honda Civic - ABC-1234</p>
-                                <a href="#" class="repeat-service">
-                                    <i class="fas fa-redo"></i> Volver a agendar
-                                </a>
-                            </div>
-                            <div class="service-price">$15.00</div>
-                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -1020,25 +1045,25 @@
                                 <i class="fas fa-user"></i>
                             </div>
                             <div class="profile-info">
-                                <h3>Meybell García</h3>
-                                <p><i class="fas fa-envelope"></i> meybell@email.com</p>
-                                <p><i class="fas fa-phone"></i> +503 7890-1234</p>
-                                <p><i class="fas fa-calendar"></i> Cliente desde Mar 2024</p>
+                                <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
+                                <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-calendar"></i> Cliente desde {{ $user->created_at->format('M Y') }}</p>
                             </div>
                             <div class="profile-stats">
                                 <div class="profile-stat">
-                                    <span class="number">15</span>
+                                    <span class="number">{{ $stats['total_citas'] ?? 0 }}</span>
                                     <span class="label">Servicios</span>
                                 </div>
                                 <div class="profile-stat">
-                                    <span class="number">4.9</span>
-                                    <span class="label">Rating</span>
+                                    <span class="number">{{ $stats['total_vehiculos'] ?? 0 }}</span>
+                                    <span class="label">Vehículos</span>
                                 </div>
                             </div>
-                            <button class="btn btn-outline" style="margin-top: 15px; width: 100%;">
+                            <a href="{{ route('perfil') }}" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
                                 <i class="fas fa-edit"></i>
                                 Editar Perfil
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -1051,7 +1076,7 @@
                                 <i class="fas fa-bell"></i>
                             </div>
                             Notificaciones
-                            <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">3</span>
+                            <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">1</span>
                         </h2>
                     </div>
                     <div class="card-body" style="max-height: 300px; overflow-y: auto;">
@@ -1061,12 +1086,12 @@
                             </div>
                             <div class="notification-content">
                                 <h4>Cita Confirmada</h4>
-                                <p>Tu cita del 28 de Junio ha sido confirmada</p>
+                                <p>Tu cita ha sido confirmada</p>
                             </div>
                             <div class="notification-time">Hace 2h</div>
                         </div>
 
-                        <div class="notification-item unread">
+                        <div class="notification-item read">
                             <div class="notification-icon info">
                                 <i class="fas fa-gift"></i>
                             </div>
@@ -1077,26 +1102,15 @@
                             <div class="notification-time">Hace 5h</div>
                         </div>
 
-                        <div class="notification-item unread">
+                        <div class="notification-item read">
                             <div class="notification-icon warning">
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="notification-content">
                                 <h4>Recordatorio</h4>
-                                <p>Tu cita es mañana a las 2:00 PM</p>
+                                <p>Tu cita es mañana</p>
                             </div>
                             <div class="notification-time">Hace 1d</div>
-                        </div>
-
-                        <div class="notification-item read">
-                            <div class="notification-icon info">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <div class="notification-content">
-                                <h4>Califica tu servicio</h4>
-                                <p>¿Cómo estuvo tu último lavado premium?</p>
-                            </div>
-                            <div class="notification-time">Hace 3d</div>
                         </div>
                     </div>
                 </div>
@@ -1112,79 +1126,49 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div class="service-history-item" style="margin-bottom: 15px;">
-                            <div class="service-icon" style="background: var(--secondary-gradient);">
+                        @if(isset($mis_vehiculos) && count($mis_vehiculos) > 0)
+                            @foreach($mis_vehiculos as $vehiculo)
+                            <div class="service-history-item" style="margin-bottom: 15px;">
+                                <div class="service-icon" style="background: var(--secondary-gradient);">
+                                    @switch($vehiculo->tipo)
+                                        @case('sedan')
+                                            <i class="fas fa-car"></i>
+                                            @break
+                                        @case('pickup')
+                                            <i class="fas fa-truck-pickup"></i>
+                                            @break
+                                        @case('camion')
+                                            <i class="fas fa-truck"></i>
+                                            @break
+                                        @case('moto')
+                                            <i class="fas fa-motorcycle"></i>
+                                            @break
+                                        @default
+                                            <i class="fas fa-car"></i>
+                                    @endswitch
+                                </div>
+                                <div class="service-details">
+                                    <h4>{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
+                                    <p><i class="fas fa-palette"></i> {{ $vehiculo->color }}</p>
+                                    <p><i class="fas fa-id-card"></i> {{ $vehiculo->placa }}</p>
+                                </div>
+                                <a href="{{ route('cliente.citas') }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </a>
+                            </div>
+                            @endforeach
+                        @else
+                            <div class="empty-state">
                                 <i class="fas fa-car"></i>
+                                <h3>No tienes vehículos registrados</h3>
+                                <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
                             </div>
-                            <div class="service-details">
-                                <h4>Honda Civic 2020</h4>
-                                <p><i class="fas fa-palette"></i> Azul Marino</p>
-                                <p><i class="fas fa-id-card"></i> ABC-1234</p>
-                            </div>
-                            <button class="btn btn-sm btn-primary">
-                                <i class="fas fa-calendar-plus"></i>
-                            </button>
-                        </div>
+                        @endif
 
-                        <div class="service-history-item" style="margin-bottom: 15px;">
-                            <div class="service-icon" style="background: var(--success-gradient);">
-                                <i class="fas fa-car"></i>
-                            </div>
-                            <div class="service-details">
-                                <h4>Toyota Corolla 2019</h4>
-                                <p><i class="fas fa-palette"></i> Blanco Perla</p>
-                                <p><i class="fas fa-id-card"></i> XYZ-5678</p>
-                            </div>
-                            <button class="btn btn-sm btn-primary">
-                                <i class="fas fa-calendar-plus"></i>
-                            </button>
-                        </div>
-
-                        <button class="btn btn-outline" style="width: 100%; margin-top: 10px;">
+                        <a href="{{ route('cliente.vehiculos') }}" class="btn btn-outline" style="width: 100%; margin-top: 10px;">
                             <i class="fas fa-plus"></i>
                             Agregar Vehículo
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Métodos de Pago -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-credit-card"></i>
-                            </div>
-                            Métodos de Pago
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        <div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 10px; margin-bottom: 10px;">
-                            <div style="background: linear-gradient(45deg, #1e3c72, #2a5298); width: 50px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px;">
-                                VISA
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #333;">•••• •••• •••• 1234</div>
-                                <div style="color: #666; font-size: 0.8rem;">Expira 12/26</div>
-                            </div>
-                            <div style="color: #4facfe;">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 10px; margin-bottom: 15px;">
-                            <div style="background: linear-gradient(45deg, #eb001b, #f79e1b); width: 50px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px;">
-                                MC
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #333;">•••• •••• •••• 5678</div>
-                                <div style="color: #666; font-size: 0.8rem;">Expira 08/27</div>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-outline" style="width: 100%;">
-                            <i class="fas fa-plus"></i>
-                            Agregar Método de Pago
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -1202,74 +1186,48 @@
             </div>
             <div class="card-body">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-                    <div style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; transition: all 0.3s ease;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                            <div>
-                                <h4 style="color: #333; margin-bottom: 5px;">Factura #001-2025</h4>
-                                <p style="color: #666; font-size: 0.9rem;">15 Jun 2025 - Lavado Premium</p>
+                    @if(isset($mis_citas) && count($mis_citas) > 0)
+                        @foreach($mis_citas->take(3) as $cita)
+                        <div style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; transition: all 0.3s ease;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                                <div>
+                                    <h4 style="color: #333; margin-bottom: 5px;">Factura #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}-{{ date('Y') }}</h4>
+                                    <p style="color: #666; font-size: 0.9rem;">
+                                        {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y') }} - 
+                                        @if($cita->servicios && count($cita->servicios) > 0)
+                                            {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                        @else
+                                            Servicio no especificado
+                                        @endif
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    @php
+                                        $total = $cita->servicios->sum('precio');
+                                    @endphp
+                                    <div style="font-weight: 700; color: #4facfe; font-size: 1.1rem;">${{ number_format($total, 2) }}</div>
+                                    <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">PAGADO</span>
+                                </div>
                             </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: 700; color: #4facfe; font-size: 1.1rem;">$35.00</div>
-                                <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">PAGADO</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="btn btn-sm btn-outline">
-                                <i class="fas fa-eye"></i>
-                                Ver
-                            </button>
-                            <button class="btn btn-sm btn-primary">
-                                <i class="fas fa-download"></i>
-                                Descargar PDF
-                            </button>
-                        </div>
-                    </div>
-
-                    <div style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; transition: all 0.3s ease;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                            <div>
-                                <h4 style="color: #333; margin-bottom: 5px;">Factura #002-2025</h4>
-                                <p style="color: #666; font-size: 0.9rem;">08 Jun 2025 - Lavado Completo</p>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: 700; color: #4facfe; font-size: 1.1rem;">$25.00</div>
-                                <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">PAGADO</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="btn btn-sm btn-outline">
-                                <i class="fas fa-eye"></i>
-                                Ver
-                            </button>
-                            <button class="btn btn-sm btn-primary">
-                                <i class="fas fa-download"></i>
-                                Descargar PDF
-                            </button>
-                        </div>
-                    </div>
-
-                    <div style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; transition: all 0.3s ease;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                            <div>
-                                <h4 style="color: #333; margin-bottom: 5px;">Factura #003-2025</h4>
-                                <p style="color: #666; font-size: 0.9rem;">01 Jun 2025 - Lavado Rápido</p>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: 700; color: #4facfe; font-size: 1.1rem;">$15.00</div>
-                                <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">PAGADO</span>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-sm btn-outline">
+                                    <i class="fas fa-eye"></i>
+                                    Ver
+                                </button>
+                                <button class="btn btn-sm btn-primary">
+                                    <i class="fas fa-download"></i>
+                                    Descargar PDF
+                                </button>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="btn btn-sm btn-outline">
-                                <i class="fas fa-eye"></i>
-                                Ver
-                            </button>
-                            <button class="btn btn-sm btn-primary">
-                                <i class="fas fa-download"></i>
-                                Descargar PDF
-                            </button>
+                        @endforeach
+                    @else
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <i class="fas fa-file-invoice"></i>
+                            <h3>No hay facturas disponibles</h3>
+                            <p>Agenda tu primera cita para generar facturas</p>
                         </div>
-                    </div>
+                    @endif
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px;">
@@ -1277,75 +1235,6 @@
                         <i class="fas fa-history"></i>
                         Ver Todas las Facturas
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Reseñas -->
-        <div class="card" style="margin-top: 30px;">
-            <div class="card-header">
-                <h2>
-                    <div class="icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    Mis Reseñas y Calificaciones
-                </h2>
-            </div>
-            <div class="card-body">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
-                    <div style="border: 2px solid #e9ecef; border-radius: 10px; padding: 20px; background: linear-gradient(45deg, #f8f9fa, #ffffff);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <div>
-                                <h4 style="color: #333; margin-bottom: 5px;">Lavado Premium</h4>
-                                <p style="color: #666; font-size: 0.9rem;">15 Jun 2025</p>
-                            </div>
-                            <div style="display: flex; gap: 2px;">
-                                <i class="fas fa-star" style="color: #ffc107;"></i>
-                                <i class="fas fa-star" style="color: #ffc107;"></i>
-                                <i class="fas fa-star" style="color: #ffc107;"></i>
-                                <i class="fas fa-star" style="color: #ffc107;"></i>
-                                <i class="fas fa-star" style="color: #ffc107;"></i>
-                            </div>
-                        </div>
-                        <p style="color: #333; font-style: italic; line-height: 1.5; margin-bottom: 10px;">"Excelente servicio, mi auto quedó como nuevo. El personal es muy profesional y atento."</p>
-                        <div style="color: #4facfe; font-weight: 600; font-size: 0.9rem;">✓ Reseña verificada</div>
-                    </div>
-
-                    <div style="border: 2px solid #e9ecef; border-radius: 10px; padding: 20px; background: linear-gradient(45deg, #f8f9fa, #ffffff);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <div>
-                                <h4 style="color: #333; margin-bottom: 5px;">Lavado Completo</h4>
-                                <p style="color: #666; font-size: 0.9rem;">08 Jun 2025</p>
-                            </div>
-                            <div style="display: flex; gap: 2px;">
-                                <i class="fas fa-star" style="color: #ffc107;"></i>
-                                <i class="fas fa-star" style="color: #ffc107;"></i>
-                                <i class="fas fa-star" style="color: #ffc107;"></i>
-                                <i class="fas fa-star" style="color: #ffc107;"></i>
-                                <i class="far fa-star" style="color: #ddd;"></i>
-                            </div>
-                        </div>
-                        <p style="color: #333; font-style: italic; line-height: 1.5; margin-bottom: 10px;">"Muy buen servicio, rápido y eficiente. El interior quedó impecable."</p>
-                        <div style="color: #4facfe; font-weight: 600; font-size: 0.9rem;">✓ Reseña verificada</div>
-                    </div>
-                </div>
-
-                <!-- Servicios pendientes de calificar -->
-                <div style="margin-top: 25px; padding: 20px; background: linear-gradient(45deg, #fff3cd, #fefefe); border-radius: 12px; border-left: 4px solid #ffc107;">
-                    <h4 style="color: #856404; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-clock"></i>
-                        Servicios Pendientes de Calificar
-                    </h4>
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 8px;">
-                        <div>
-                            <h5 style="color: #333; margin-bottom: 5px;">Lavado Rápido</h5>
-                            <p style="color: #666; font-size: 0.9rem;">01 Jun 2025</p>
-                        </div>
-                        <button class="btn btn-warning">
-                            <i class="fas fa-star"></i>
-                            Calificar Servicio
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1385,12 +1274,6 @@
                     this.classList.add('read');
                 });
             });
-
-            // Simulación de tiempo real para las notificaciones
-            function updateNotificationTimes() {
-                const times = document.querySelectorAll('.notification-time');
-                // Aquí podrías actualizar los tiempos reales
-            }
 
             // Efecto de pulsación para botones
             const buttons = document.querySelectorAll('.btn');
@@ -1477,17 +1360,3 @@
     </style>
 </body>
 </html>
-                                <div class="service-icon">
-                                    <i class="fas fa-tint"></i>
-                                </div>
-                                <h3>Lavado Rápido</h3>
-                                <p class="description">Limpieza exterior básica, ideal para mantenimiento diario</p>
-                                <div class="price">$15.00</div>
-                                <div class="duration">⏱️ 15-20 min</div>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Ahora
-                                </button>
-                            </div>
-
-                            <div class="service-card">
