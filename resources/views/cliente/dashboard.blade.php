@@ -906,7 +906,9 @@
         .footer-info {
             display: flex;
             justify-content: center;
-            flex-wrap: wrap;
+            align-items: center;
+            flex-direction: row;
+            flex-wrap: nowrap;
             gap: 30px;
             margin-bottom: 25px;
         }
@@ -1052,6 +1054,7 @@
             .footer-brand h3 {
                 font-size: 24px;
             }
+        }
 
         .sparkle {
             position: absolute;
@@ -1595,7 +1598,7 @@
                 <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
             </div>
             
-             <div class="footer-info">
+            <div class="footer-info">
                 <div class="info-item">
                     <i class="fas fa-phone"></i>
                     <span>75855197</span>
