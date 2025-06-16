@@ -99,3 +99,16 @@ Route::get('/debug', function() {
         'citas' => $user->citas->toArray()
     ];
 });
+
+Route::get('/debug-session', function() {
+    return [
+        'session_id' => session()->getId(),
+        'session_data' => session()->all(),
+        'user' => Auth::user(),
+        'session_config' => [
+            'driver' => config('session.driver'),
+            'cookie' => config('session.cookie'),
+            'secure' => config('session.secure')
+        ]
+    ];
+});

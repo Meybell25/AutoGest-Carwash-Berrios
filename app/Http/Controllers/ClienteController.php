@@ -8,7 +8,7 @@ use App\Models\Vehiculo;
 use App\Models\Servicio;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth; // ← Agregar esta línea
+use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Log;
 
 class ClienteController extends Controller
@@ -17,8 +17,11 @@ public function dashboard(): View
 {
     $user = Auth::user();
     
+    if (!$user || !$user->isCliente()) {
+        abort(403, 'Acceso no autorizado');
+    }
+
     try {
-        // Usa relaciones directamente (están bien definidas)
         $vehiculos = $user->vehiculos()->latest()->take(3)->get();
         $citas = $user->citas()->with(['vehiculo', 'servicios'])->latest()->take(3)->get();
 
@@ -34,10 +37,8 @@ public function dashboard(): View
             'mis_citas' => $citas
         ]);
     } catch (\Exception $e) {
-        //Log del error
-        Log::error('Error en dashboard: ' . $e->getMessage());
+        Log::error('Dashboard error: '.$e->getMessage());
         
-        // Retorna vista con datos vacíos
         return view('cliente.dashboard', [
             'user' => $user,
             'stats' => [
