@@ -1101,46 +1101,46 @@
                 </div>
             </div>
 
-            <!-- Sección Sidebar -->
-            <div class="sidebar-section">
-                <!-- Perfil del Cliente -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            Mi Perfil
-                        </h2>
+          <!-- Sección Sidebar -->
+<div class="sidebar-section">
+    <!-- Perfil del Cliente -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <div class="icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                Mi Perfil
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="profile-summary">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-info">
+                    <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
+                    <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
+                    <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
+                    <p><i class="fas fa-calendar"></i> Cliente desde {{ $user->created_at->format('M Y') }}</p>
+                </div>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <span class="number">{{ $stats['total_citas'] ?? 0 }}</span>
+                        <span class="label">Servicios</span>
                     </div>
-                    <div class="card-body">
-                        <div class="profile-summary">
-                            <div class="profile-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="profile-info">
-                                <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
-                                <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-calendar"></i> Cliente desde {{ $user->created_at->format('M Y') }}</p>
-                            </div>
-                            <div class="profile-stats">
-                                <div class="profile-stat">
-                                    <span class="number">{{ $stats['total_citas'] ?? 0 }}</span>
-                                    <span class="label">Servicios</span>
-                                </div>
-                                <div class="profile-stat">
-                                    <span class="number">{{ $stats['total_vehiculos'] ?? 0 }}</span>
-                                    <span class="label">Vehículos</span>
-                                </div>
-                            </div>
-                            <a href="{{ route('perfil') }}" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
-                                <i class="fas fa-edit"></i>
-                                Editar Perfil
-                            </a>
-                        </div>
+                    <div class="profile-stat">
+                        <span class="number">{{ $stats['total_vehiculos'] ?? 0 }}</span>
+                        <span class="label">Vehículos</span>
                     </div>
                 </div>
+                <button onclick="openEditModal()" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
+                    <i class="fas fa-edit"></i> Editar Perfil
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- Notificaciones actualizadas -->
         <div class="card">
