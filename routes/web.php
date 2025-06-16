@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\PerfilController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Artisan;
@@ -54,21 +55,13 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
-    
-    // Aquí puedes agregar más rutas de admin:
-    // Route::resource('servicios', ServicioController::class);
-    // Route::resource('horarios', HorarioController::class);
-    // Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
+
 });
 
 // Rutas de Empleado (solo empleados)
 Route::middleware(['auth', 'role:empleado'])->prefix('empleado')->name('empleado.')->group(function () {
     Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
     Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
-    
-    // Aquí puedes agregar más rutas de empleado:
-    // Route::put('/citas/{cita}/actualizar', [EmpleadoController::class, 'actualizarCita'])->name('citas.actualizar');
-    // Route::get('/calendario', [EmpleadoController::class, 'calendario'])->name('calendario');
 });
 
 // Rutas de Cliente (solo clientes)
@@ -78,14 +71,16 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class.':cliente'
     Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
 });
 
-// Rutas que requieren autenticación pero sin restricción de rol específico
-Route::middleware('auth')->group(function () {
-    Route::get('/perfil', function () {
-        return view('perfil');
-    })->name('perfil');
-    
-    // Aquí puedes agregar rutas generales para usuarios autenticados
+// Rutas para perfil de usuario
+Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
+    Route::get('/', [PerfilController::class, 'edit'])->name('edit'); // Muestra el formulario
+    Route::post('/actualizar', [PerfilController::class, 'update'])->name('update'); // Procesa el formulario
 });
+
+
+
+
+//RUTAS DE PRUEBA
 Route::get('/debug', function() {
     $user = App\Models\Usuario::first();
     
@@ -118,6 +113,7 @@ Route::get('/test-middleware', function() {
     ]);
 })->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class.':cliente']);
 
+/*
 Route::post('/notificaciones/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarComoLeida'])
     ->name('notificaciones.marcar-leida')
-    ->middleware('auth');
+    ->middleware('auth');*/

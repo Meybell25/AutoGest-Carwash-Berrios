@@ -1322,37 +1322,29 @@
      <!-- Modal para editar perfil -->
         <div id="editProfileModal" class="modal">
             <div class="modal-content">
-                <span class="close-modal" onclick="closeEditModal()">&times;</span>
-                <h2 style="color: #4facfe; margin-bottom: 20px;">
-                    <i class="fas fa-user-edit"></i> Editar Perfil
-                </h2>
-                <form id="profileForm" action="{{ route('perfil.actualizar') }}" method="POST">
-                    @csrf
-                    <div class="form-group">
-                        <label for="nombre">Nombre:</label>
-                        <input type="text" id="nombre" name="nombre" value="{{ $user->nombre ?? '' }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" value="{{ $user->email ?? '' }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="tel" id="telefono" name="telefono" value="{{ $user->telefono ?? '' }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Nueva Contraseña (opcional):</label>
-                        <input type="password" id="password" name="password">
-                    </div>
-                    <div class="form-group">
-                        <label for="password_confirmation">Confirmar Contraseña:</label>
-                        <input type="password" id="password_confirmation" name="password_confirmation">
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        <i class="fas fa-save"></i> Guardar Cambios
-                    </button>
-                </form>
-            </div>
+    <span class="close-modal" onclick="closeEditModal()">&times;</span>
+    <h2 style="color: #4facfe; margin-bottom: 20px;">
+        <i class="fas fa-user-edit"></i> Editar Perfil
+    </h2>
+    <form id="profileForm" action="{{ route('perfil.update') }}" method="POST">
+        @csrf
+        <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" value="{{ $user->nombre ?? '' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ $user->email ?? '' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="telefono">Teléfono:</label>
+            <input type="text" id="telefono" name="telefono" value="{{ $user->telefono ?? '' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Guardar Cambios
+        </button>
+    </form>
+</div>
         </div>
 
         <!-- Modal para imprimir recibo -->

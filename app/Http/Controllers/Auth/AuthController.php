@@ -23,67 +23,71 @@ class AuthController extends Controller
     }
 
     /**
-     * Procesar login
+     * Mostrar formulario de registro
      */
-
-
-public function login(Request $request): RedirectResponse
-{
-    $credentials = $request->validate([
-        'email' => ['required', 'string', 'email'],
-        'password' => ['required', 'string'],
-    ]);
-
-    if (Auth::attempt($credentials, $request->boolean('remember'))) {
-        $request->session()->regenerate();
-
-        $user = Auth::user();
-        
-        if (!$user->estado) {
-            Auth::logout();
-            return back()->withErrors([
-                'email' => 'Tu cuenta está desactivada. Contacta al administrador.',
-            ])->onlyInput('email');
-        }
-
-        return $this->redirectByRole($user);
+    public function showRegister(): View
+    {
+        return view('auth.register');
     }
 
-    return back()->withErrors([
-        'email' => 'Las credenciales no coinciden con nuestros registros.',
-    ])->onlyInput('email');
-}
+    /**
+     * Procesar login
+     */
+    public function login(Request $request): RedirectResponse
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
 
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
 
+            $user = Auth::user();
+            
+            if (!$user->estado) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Tu cuenta está desactivada. Contacta al administrador.',
+                ])->onlyInput('email');
+            }
+
+            return $this->redirectByRole($user);
+        }
+
+        return back()->withErrors([
+            'email' => 'Las credenciales no coinciden con nuestros registros.',
+        ])->onlyInput('email');
+    }
     
     /**
      * Procesar registro
      */
     public function register(Request $request): RedirectResponse
-{
-    $request->validate([
-        'nombre' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'string', 'email', 'max:255', 'unique:usuarios'],
-        'telefono' => ['nullable', 'string', 'max:20'],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
-    ]);
+    {
+        $request->validate([
+            'nombre' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:usuarios'],
+            'telefono' => ['nullable', 'string', 'max:20'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-    $user = Usuario::create([
-        'nombre' => $request->nombre,
-        'email' => $request->email,
-        'telefono' => $request->telefono,
-        'password' => Hash::make($request->password),
-        'rol' => Usuario::ROL_CLIENTE,
-        'estado' => true,
-    ]);
+        $user = Usuario::create([
+            'nombre' => $request->nombre,
+            'email' => $request->email,
+            'telefono' => $request->telefono,
+            'password' => Hash::make($request->password),
+            'rol' => Usuario::ROL_CLIENTE,
+            'estado' => true,
+        ]);
 
-    event(new Registered($user));
+        event(new Registered($user));
 
-    Auth::login($user);
+        Auth::login($user);
 
-    return redirect()->route('cliente.dashboard')
-        ->with('success', '¡Registro exitoso! Bienvenido a nuestro sistema.');
-}
+        return redirect()->route('cliente.dashboard')
+            ->with('success', '¡Registro exitoso! Bienvenido a nuestro sistema.');
+    }
    
     /**
      * Logout
