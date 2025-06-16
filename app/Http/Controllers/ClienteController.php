@@ -16,7 +16,7 @@ class ClienteController extends Controller
 public function dashboard(): View
 {
     $user = Auth::user();
-    
+
     if (!$user || !$user->isCliente()) {
         abort(403, 'Acceso no autorizado');
     }
@@ -24,6 +24,10 @@ public function dashboard(): View
     try {
         $vehiculos = $user->vehiculos()->get();
         $citas = $user->citas()->with(['vehiculo', 'servicios'])->get();
+        
+        // Cambia 'leida' por 'leido' para coincidir con la base de datos
+        $notificaciones = $user->notificaciones()->orderBy('fecha_envio', 'desc')->get();
+        $notificacionesNoLeidas = $user->notificaciones()->where('leido', false)->count();
 
         return view('cliente.dashboard', [
             'user' => $user,
@@ -34,8 +38,11 @@ public function dashboard(): View
                 'citas_confirmadas' => $citas->where('estado', 'confirmada')->count(),
             ],
             'mis_vehiculos' => $vehiculos->take(3),
-            'mis_citas' => $citas->take(3)
+            'mis_citas' => $citas->take(3),
+            'notificaciones' => $notificaciones,
+            'notificacionesNoLeidas' => $notificacionesNoLeidas
         ]);
+        
     } catch (\Exception $e) {
         Log::error('Dashboard error', [
             'error' => $e->getMessage(),
@@ -51,14 +58,16 @@ public function dashboard(): View
                 'citas_confirmadas' => 0,
             ],
             'mis_vehiculos' => collect(),
-            'mis_citas' => collect()
+            'mis_citas' => collect(),
+            'notificaciones' => collect(),
+            'notificacionesNoLeidas' => 0
         ]);
     }
 }
 
     public function vehiculos(): View
     {
-        $vehiculos = Vehiculo::where('usuario_id', Auth::id()) // ← Cambiar auth()->id() por Auth::id()
+        $vehiculos = Vehiculo::where('usuario_id', Auth::id()) 
             ->with('citas')
             ->paginate(10);
 
@@ -67,7 +76,7 @@ public function dashboard(): View
 
     public function citas(): View
     {
-        $citas = Cita::where('usuario_id', Auth::id()) // ← Cambiar auth()->id() por Auth::id()
+        $citas = Cita::where('usuario_id', Auth::id()) 
             ->with(['vehiculo', 'servicios'])
             ->orderBy('fecha_hora', 'desc')
             ->paginate(10);

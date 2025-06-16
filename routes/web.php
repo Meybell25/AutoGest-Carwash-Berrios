@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\NotificacionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Artisan;
@@ -116,3 +117,7 @@ Route::get('/test-middleware', function() {
         'role' => Auth::user()->rol ?? null
     ]);
 })->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class.':cliente']);
+
+Route::post('/notificaciones/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarComoLeida'])
+    ->name('notificaciones.marcar-leida')
+    ->middleware('auth');

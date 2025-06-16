@@ -1134,7 +1134,7 @@
                         <span class="label">Vehículos</span>
                     </div>
                 </div>
-                <button onclick="openEditModal()" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
+               <button onclick="openEditModal()" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
                     <i class="fas fa-edit"></i> Editar Perfil
                 </button>
             </div>
@@ -1142,39 +1142,79 @@
     </div>
 </div>
 
-                <!-- Notificaciones actualizadas -->
-        <div class="card">
-            <div class="card-header">
-                <h2>
-                    <div class="icon">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    Notificaciones
-                    @if($notificacionesNoLeidas > 0)
-                    <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
-                    @endif
-                </h2>
+              <!-- Notificaciones actualizadas -->
+<div class="card">
+    <div class="card-header">
+        <h2>
+            <div class="icon">
+                <i class="fas fa-bell"></i>
             </div>
-            <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                @forelse($notificaciones as $notificacion)
-                <div class="notification-item {{ $notificacion->leida ? 'read' : 'unread' }}" onclick="markAsRead({{ $notificacion->id }})">
-                    <div class="notification-icon {{ $notificacion->tipo }}">
-                        <i class="fas fa-{{ $notificacion->icono }}"></i>
-                    </div>
-                    <div class="notification-content">
-                        <h4>{{ $notificacion->titulo }}</h4>
-                        <p>{{ $notificacion->mensaje }}</p>
-                    </div>
-                    <div class="notification-time">{{ $notificacion->created_at->diffForHumans() }}</div>
-                </div>
-                @empty
-                <div class="empty-state" style="padding: 20px;">
-                    <i class="fas fa-bell-slash"></i>
-                    <h3>No hay notificaciones</h3>
-                </div>
-                @endforelse
+            Notificaciones
+            @if($notificacionesNoLeidas > 0)
+            <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
+            @endif
+        </h2>
+    </div>
+    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+        @forelse($notificaciones as $notificacion)
+        <div class="notification-item {{ $notificacion->leido ? 'read' : 'unread' }}" onclick="markAsRead({{ $notificacion->id }})">
+            <div class="notification-icon info">
+                @switch($notificacion->canal)
+                    @case('sistema')
+                        <i class="fas fa-bell"></i>
+                        @break
+                    @case('email')
+                        <i class="fas fa-envelope"></i>
+                        @break
+                    @case('sms')
+                        <i class="fas fa-comment-alt"></i>
+                        @break
+                    @default
+                        <i class="fas fa-info-circle"></i>
+                @endswitch
+            </div>
+            <div class="notification-content">
+                <h4>
+                    @switch($notificacion->canal)
+                        @case('sistema')
+                            Notificación del Sistema
+                            @break
+                        @case('email')
+                            Correo Electrónico
+                            @break
+                        @case('sms')
+                            Mensaje SMS
+                            @break
+                        @default
+                            Notificación
+                    @endswitch
+                </h4>
+                <p>{{ $notificacion->mensaje }}</p>
+            </div>
+            <div class="notification-time">
+                {{ $notificacion->fecha_envio->diffForHumans() }}
+                @if($notificacion->fecha_envio->isToday())
+                    <span style="color: #4facfe;">(Hoy)</span>
+                @endif
             </div>
         </div>
+        @empty
+        <div class="empty-state" style="padding: 20px;">
+            <i class="fas fa-bell-slash"></i>
+            <h3>No hay notificaciones</h3>
+            <p>No tienes ninguna notificación pendiente</p>
+        </div>
+        @endforelse
+        
+        @if($notificaciones->count() > 0)
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="{{ route('notificaciones') }}" class="btn btn-outline">
+                <i class="fas fa-list"></i> Ver todas las notificaciones
+            </a>
+        </div>
+        @endif
+    </div>
+</div>
 
                 <!-- Mis Vehículos -->
                 <div class="card">
@@ -1374,18 +1414,18 @@
         
         // Función para marcar notificaciones como leídas
         function markAsRead(notificacionId) {
-            fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                }
-            }).then(response => {
-                if(response.ok) {
-                    location.reload();
-                }
-            });
+    fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
         }
+    }).then(response => {
+        if(response.ok) {
+            location.reload();
+        }
+    });
+}
         
         // Función para generar recibo
         function generateReceipt(citaId) {

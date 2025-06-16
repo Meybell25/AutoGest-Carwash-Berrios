@@ -111,8 +111,8 @@ class Usuario extends Authenticatable
     }
 
     public function notificaciones()
-    {
-        return $this->hasMany(Notificacion::class, 'usuario_id');
+    {   
+        return $this->hasMany(Notificacion::class, 'usuario_id')->orderBy('fecha_envio', 'desc');
     }
 
     public function bitacoras()

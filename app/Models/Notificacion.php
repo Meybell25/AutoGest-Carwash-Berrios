@@ -16,7 +16,7 @@ class Notificacion extends Model
         'usuario_id',
         'mensaje',
         'canal',
-        'leido',
+        'leido', 
         'fecha_envio',
     ];
 
