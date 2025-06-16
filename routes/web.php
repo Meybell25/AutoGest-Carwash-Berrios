@@ -71,9 +71,10 @@ Route::middleware(['auth', 'role:empleado'])->prefix('empleado')->name('empleado
 });
 
 // Rutas de Cliente (solo clientes)
-Route::middleware(['auth', 'role:cliente'])->prefix('cliente')->name('cliente.')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class.':cliente'])->prefix('cliente')->name('cliente.')->group(function () {
     Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
-   
+    Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
+    Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
 });
 
 // Rutas que requieren autenticación pero sin restricción de rol específico
@@ -114,4 +115,4 @@ Route::get('/test-middleware', function() {
         'user' => Auth::user(),
         'role' => Auth::user()->rol ?? null
     ]);
-})->middleware(['auth', 'role:cliente']);
+})->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class.':cliente']);
