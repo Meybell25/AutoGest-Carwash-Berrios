@@ -854,7 +854,6 @@
             border-radius: 8px;
             font-size: 16px;
         }
-
         .footer {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -1025,16 +1024,9 @@
             border-color: #bc1888;
         }
 
-        .schedule-item {
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
         .schedule-info {
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 2px;
         }
 
@@ -1060,7 +1052,7 @@
             .footer-brand h3 {
                 font-size: 24px;
             }
-    
+
         .sparkle {
             position: absolute;
             width: 4px;
@@ -1478,7 +1470,6 @@
         </div>
 
         <!-- Sección de Facturas/Recibos -->
-      <!-- Reemplaza la sección de Facturas/Recibos con este código -->
 <div class="card" style="margin-top: 30px;">
     <div class="card-header">
         <h2>
@@ -1604,7 +1595,7 @@
                 <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
             </div>
             
-            <div class="footer-info">
+             <div class="footer-info">
                 <div class="info-item">
                     <i class="fas fa-phone"></i>
                     <span>75855197</span>
@@ -1615,12 +1606,9 @@
                         Ver ubicación en mapa
                     </a>
                 </div>
-                <div class="info-item schedule-item">
+                <div class="info-item">
                     <i class="fas fa-clock"></i>
-                    <div class="schedule-info">
-                        <span class="schedule-main">Lun - Sáb: 7:00 AM - 6:00 PM</span>
-                        <span class="schedule-closed">Dom: Cerrado</span>
-                    </div>
+                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
                 </div>
             </div>
 
