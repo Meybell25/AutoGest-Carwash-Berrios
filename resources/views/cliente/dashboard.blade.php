@@ -209,6 +209,15 @@
             color: white;
             box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
         }
+        .btn-profile {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+
+        .btn-profile:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
 
         /* Dashboard Grid Layout */
         .dashboard-grid {
@@ -856,11 +865,11 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon">
-                            <i class="fas fa-hand-wave"></i>
+                            <i class="fas fa-car"></i>
                         </div>
                         ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
                     </h1>
-                    <p>Bienvenid@ a tu panel de control personal</p>
+                   <p>Gestiona tus citas de lavado de forma sencilla</p>
                     <div class="welcome-stats">
                         <div class="welcome-stat">
                             <span class="number">{{ $stats['total_citas'] ?? 0 }}</span>
@@ -891,10 +900,9 @@
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
                     </a>
-                    <button class="btn btn-profile" onclick="openEditModal()">
-                        <i class="fas fa-user-edit"></i>
-                        Editar Perfil
-                    </button>
+                    <a href="{{ route('configuracion.index') }}" class="btn btn-profile">
+                        <i class="fas fa-cog"></i> Configurar Cuenta
+                    </a>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn btn-outline">
@@ -1104,42 +1112,33 @@
           <!-- Sección Sidebar -->
 <div class="sidebar-section">
     <!-- Perfil del Cliente -->
-    <div class="card">
-        <div class="card-header">
-            <h2>
-                <div class="icon">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                Mi Perfil
-            </h2>
-        </div>
-        <div class="card-body">
-            <div class="profile-summary">
-                <div class="profile-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="profile-info">
-                    <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
-                    <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
-                    <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
-                    <p><i class="fas fa-calendar"></i> Cliente desde {{ $user->created_at->format('M Y') }}</p>
-                </div>
-                <div class="profile-stats">
-                    <div class="profile-stat">
-                        <span class="number">{{ $stats['total_citas'] ?? 0 }}</span>
-                        <span class="label">Servicios</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="number">{{ $stats['total_vehiculos'] ?? 0 }}</span>
-                        <span class="label">Vehículos</span>
-                    </div>
-                </div>
-               <button onclick="openEditModal()" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
-                    <i class="fas fa-edit"></i> Editar Perfil
-                </button>
+   <div class="card">
+    <div class="card-header">
+        <h2>
+            <div class="icon">
+                <i class="fas fa-user-circle"></i>
             </div>
+            Mi Perfil
+        </h2>
+    </div>
+    <div class="card-body">
+        <div class="profile-summary">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+                <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
+                <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
+                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
+                <p><i class="fas fa-calendar"></i> Cliente desde {{ $user->created_at->format('M Y') }}</p>
+            </div>
+            
+            <button onclick="openEditModal()" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
+                <i class="fas fa-edit"></i> Editar Perfil
+            </button>
         </div>
     </div>
+</div>
 </div>
 
              <!-- Notificaciones actualizadas -->
@@ -1366,15 +1365,29 @@
         </div>
     </div>
 
+    <footer class="footer" style="background: var(--glass-bg); padding: 20px; margin-top: 30px; border-radius: 15px; text-align: center;">
+    <div class="footer-content">
+        <h3>AutoGest Carwash Berrios</h3>
+        <p><i class="fas fa-phone"></i> Teléfono: 75855197</p>
+        <p><i class="fas fa-map-marker-alt"></i> 
+            <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" style="color: #4facfe;">
+                Ver ubicación en mapa
+            </a>
+        </p>
+        <p>&copy; {{ date('Y') }} Carwash Berrios. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
     <script>
         // Funciones para el modal de edición de perfil
         function openEditModal() {
             document.getElementById('editProfileModal').style.display = 'block';
         }
-        
+
         function closeEditModal() {
             document.getElementById('editProfileModal').style.display = 'none';
         }
+
         
         // Cerrar modal al hacer clic fuera del contenido
         window.onclick = function(event) {
@@ -1382,6 +1395,30 @@
                 event.target.style.display = 'none';
             }
         }
+
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+                fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                if(data.success) {
+                    closeEditModal();
+                    alert('Perfil actualizado correctamente');
+                    // Actualizar la información en la página sin recargar
+                    document.querySelector('.profile-info h3').textContent = data.user.nombre;
+                    document.querySelector('.profile-info p:nth-of-type(2)').innerHTML = 
+                    `<i class="fas fa-phone"></i> ${data.user.telefono || 'No especificado'}`;
+                }
+             })
+            .catch(error => console.error('Error:', error));
+        });
         
         // Función para marcar notificaciones como leídas
         //function markAsRead(notificacionId) {

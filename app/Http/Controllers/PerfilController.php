@@ -16,36 +16,59 @@ class PerfilController extends Controller
         return view('perfil.edit', compact('user'));
     }
 
-    public function update(Request $request)
+   public function update(Request $request)
     {
         $user = Auth::user();
-        
+    
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:usuarios,email,'.$user->id,
             'telefono' => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $data = [
+        $user->update([
             'nombre' => $request->nombre,
-            'email' => $request->email,
             'telefono' => $request->telefono,
-        ];
+        ]);
 
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
+        return response()->json([
+            'success' => true,
+            'user' => $user
+        ]);
+    }
+
+    public function configuracion()
+    {
+        return view('configuracion', ['user' => Auth::user()]);
+    }
+
+    public function updateEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email|max:255|unique:usuarios,email,'.Auth::id(),
+        ]);
+
+        Auth::user()->update(['email' => $request->email]);
+
+        return back()->with('success', 'Email actualizado correctamente');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (!Hash::check($request->current_password, Auth::user()->password)) {
+            return back()->withErrors(['current_password' => 'La contraseña actual no es correcta']);
         }
 
-        $user->update($data);
+        Auth::user()->update(['password' => Hash::make($request->password)]);
 
-        return redirect()->route('perfil.edit')
-            ->with('success', 'Perfil actualizado correctamente');
+        return back()->with('success', 'Contraseña actualizada correctamente');
     }
 }
