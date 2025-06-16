@@ -12,7 +12,7 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !Auth::user()->isAdmin()) { // ← Cambiar auth() por Auth
+        if (!Auth::check() || !Auth::user()->isAdmin()) { 
             abort(403, 'Acceso denegado. Solo administradores pueden acceder.');
         }
 

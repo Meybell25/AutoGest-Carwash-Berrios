@@ -23,7 +23,7 @@ return [
     'providers' => [
         'usuarios' => [
             'driver' => 'eloquent',
-            'model'  => Usuario::class,
+            'model' => App\Models\Usuario::class,
             'table'  => 'usuarios',
         ],
     ],

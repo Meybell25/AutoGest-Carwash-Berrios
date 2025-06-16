@@ -12,7 +12,7 @@ class ClienteMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !Auth::user()->isCliente()) { // ← Cambiar auth() por Auth
+        if (!Auth::check() || !Auth::user()->isCliente()) { 
             abort(403, 'Acceso denegado. Solo clientes pueden acceder.');
         }
 

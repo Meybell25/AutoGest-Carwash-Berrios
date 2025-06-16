@@ -6,6 +6,7 @@ use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\ClienteController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -88,4 +89,8 @@ Route::middleware('auth')->group(function () {
     })->name('perfil');
     
     // Aquí puedes agregar rutas generales para usuarios autenticados
+});
+Route::get('/clear-cache', function() {
+    Artisan::call('cache:clear');
+    return "Cache cleared";
 });
