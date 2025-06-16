@@ -204,6 +204,11 @@
             background: var(--warning-gradient);
             color: white;
         }
+         .btn-profile {
+            background: var(--secondary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
 
         /* Dashboard Grid Layout */
         .dashboard-grid {
@@ -782,6 +787,65 @@
             background: linear-gradient(45deg, #4facfe, #00f2fe);
             border-radius: 10px;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background: var(--glass-bg);
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4facfe;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
     </style>
 </head>
 <body>
@@ -794,20 +858,30 @@
                         <div class="welcome-icon">
                             <i class="fas fa-hand-wave"></i>
                         </div>
-                        ¡Hola, Meybell!
+                        ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
                     </h1>
-                    <p>Bienvenida a tu panel de control personal</p>
+                    <p>Bienvenid@ a tu panel de control personal</p>
                     <div class="welcome-stats">
                         <div class="welcome-stat">
-                            <span class="number">15</span>
+                            <span class="number">{{ $stats['total_citas'] ?? 0 }}</span>
                             <span class="label">Servicios</span>
                         </div>
                         <div class="welcome-stat">
-                            <span class="number">$450</span>
+                            @php
+                                $totalGastado = 0;
+                                if(isset($mis_citas)) {
+                                    foreach($mis_citas as $cita) {
+                                        if($cita->estado == 'finalizada' || $cita->estado == 'pagada') {
+                                            $totalGastado += $cita->servicios->sum('precio');
+                                        }
+                                    }
+                                }
+                            @endphp
+                            <span class="number">${{ number_format($totalGastado, 2) }}</span>
                             <span class="label">Total Gastado</span>
                         </div>
                         <div class="welcome-stat">
-                            <span class="number">2</span>
+                            <span class="number">{{ $stats['citas_pendientes'] ?? 0 }}</span>
                             <span class="label">Pendientes</span>
                         </div>
                     </div>
@@ -817,10 +891,10 @@
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
                     </a>
-                    <a href="{{ route('perfil') }}" class="btn btn-success">
+                    <button class="btn btn-profile" onclick="openEditModal()">
                         <i class="fas fa-user-edit"></i>
-                        Mi Perfil
-                    </a>
+                        Editar Perfil
+                    </button>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn btn-outline">
@@ -1068,52 +1142,39 @@
                     </div>
                 </div>
 
-                <!-- Notificaciones -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            Notificaciones
-                            <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">1</span>
-                        </h2>
+                <!-- Notificaciones actualizadas -->
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <div class="icon">
+                        <i class="fas fa-bell"></i>
                     </div>
-                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                        <div class="notification-item unread">
-                            <div class="notification-icon success">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="notification-content">
-                                <h4>Cita Confirmada</h4>
-                                <p>Tu cita ha sido confirmada</p>
-                            </div>
-                            <div class="notification-time">Hace 2h</div>
-                        </div>
-
-                        <div class="notification-item read">
-                            <div class="notification-icon info">
-                                <i class="fas fa-gift"></i>
-                            </div>
-                            <div class="notification-content">
-                                <h4>¡Promoción Especial!</h4>
-                                <p>20% de descuento en lavado premium este fin de semana</p>
-                            </div>
-                            <div class="notification-time">Hace 5h</div>
-                        </div>
-
-                        <div class="notification-item read">
-                            <div class="notification-icon warning">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="notification-content">
-                                <h4>Recordatorio</h4>
-                                <p>Tu cita es mañana</p>
-                            </div>
-                            <div class="notification-time">Hace 1d</div>
-                        </div>
+                    Notificaciones
+                    @if($notificacionesNoLeidas > 0)
+                    <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
+                    @endif
+                </h2>
+            </div>
+            <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                @forelse($notificaciones as $notificacion)
+                <div class="notification-item {{ $notificacion->leida ? 'read' : 'unread' }}" onclick="markAsRead({{ $notificacion->id }})">
+                    <div class="notification-icon {{ $notificacion->tipo }}">
+                        <i class="fas fa-{{ $notificacion->icono }}"></i>
                     </div>
+                    <div class="notification-content">
+                        <h4>{{ $notificacion->titulo }}</h4>
+                        <p>{{ $notificacion->mensaje }}</p>
+                    </div>
+                    <div class="notification-time">{{ $notificacion->created_at->diffForHumans() }}</div>
                 </div>
+                @empty
+                <div class="empty-state" style="padding: 20px;">
+                    <i class="fas fa-bell-slash"></i>
+                    <h3>No hay notificaciones</h3>
+                </div>
+                @endforelse
+            </div>
+        </div>
 
                 <!-- Mis Vehículos -->
                 <div class="card">
@@ -1239,8 +1300,170 @@
             </div>
         </div>
     </div>
+     <!-- Modal para editar perfil -->
+        <div id="editProfileModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeEditModal()">&times;</span>
+                <h2 style="color: #4facfe; margin-bottom: 20px;">
+                    <i class="fas fa-user-edit"></i> Editar Perfil
+                </h2>
+                <form id="profileForm" action="{{ route('perfil.actualizar') }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" value="{{ $user->nombre ?? '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="{{ $user->email ?? '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="tel" id="telefono" name="telefono" value="{{ $user->telefono ?? '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Nueva Contraseña (opcional):</label>
+                        <input type="password" id="password" name="password">
+                    </div>
+                    <div class="form-group">
+                        <label for="password_confirmation">Confirmar Contraseña:</label>
+                        <input type="password" id="password_confirmation" name="password_confirmation">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal para imprimir recibo -->
+        <div id="receiptModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
+                <div id="receiptContent" style="background: white; padding: 20px; border-radius: 10px;">
+                    <!-- Contenido del recibo se generará dinámicamente -->
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="printReceipt()">
+                        <i class="fas fa-print"></i> Imprimir Recibo
+                    </button>
+                    <button class="btn btn-outline" onclick="downloadReceipt()">
+                        <i class="fas fa-download"></i> Descargar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
+        // Funciones para el modal de edición de perfil
+        function openEditModal() {
+            document.getElementById('editProfileModal').style.display = 'block';
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+            }
+        }
+        
+        // Función para marcar notificaciones como leídas
+        function markAsRead(notificacionId) {
+            fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if(response.ok) {
+                    location.reload();
+                }
+            });
+        }
+        
+        // Función para generar recibo
+        function generateReceipt(citaId) {
+            fetch(`/citas/${citaId}/recibo`)
+                .then(response => response.json())
+                .then(data => {
+                    const receiptContent = document.getElementById('receiptContent');
+                    receiptContent.innerHTML = `
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <h2 style="color: #4facfe;">Carwash Berríos</h2>
+                            <p>Recibo de Servicio</p>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <p><strong>Fecha:</strong> ${data.fecha}</p>
+                            <p><strong>Cliente:</strong> ${data.cliente}</p>
+                            <p><strong>Vehículo:</strong> ${data.vehiculo}</p>
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <thead>
+                                <tr style="background: #f1f3f4;">
+                                    <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;">Servicio</th>
+                                    <th style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.servicios.map(servicio => `
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td style="padding: 8px; text-align: right; font-weight: bold;">Total:</td>
+                                    <td style="text-align: right; padding: 8px; font-weight: bold;">$${data.total.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; text-align: right;">Estado:</td>
+                                    <td style="text-align: right; padding: 8px;">
+                                        <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                                            ${data.estado.toUpperCase()}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div style="text-align: center; margin-top: 30px; font-size: 0.9rem; color: #666;">
+                            <p>¡Gracias por su preferencia!</p>
+                            <p>Recibo #${data.id}</p>
+                        </div>
+                    `;
+                    
+                    document.getElementById('receiptModal').style.display = 'block';
+                });
+        }
+        
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+        
+        function printReceipt() {
+            const printContent = document.getElementById('receiptContent').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            location.reload();
+        }
+        
+        function downloadReceipt() {
+            // Aquí iría la lógica para generar y descargar el PDF
+            alert('Descargando recibo como PDF...');
+        }
+        
+      
+    
         // Simulación de interactividad
         document.addEventListener('DOMContentLoaded', function() {
             // Animación de entrada para las cards
