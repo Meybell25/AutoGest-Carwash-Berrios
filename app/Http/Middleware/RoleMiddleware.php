@@ -15,9 +15,7 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-      $user = \App\Models\Usuario::find(Auth::id());
-      // Debug: Verifica qué está llegando
-    logger()->info('User rol:', ['rol' => $user->rol, 'expected' => $roles]);
+        $user = Auth::user();
         
         if (!in_array($user->rol, $roles)) {
             abort(403, 'No tienes permisos para acceder a esta sección.');

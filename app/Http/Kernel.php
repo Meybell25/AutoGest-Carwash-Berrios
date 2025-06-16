@@ -11,7 +11,7 @@ class Kernel extends HttpKernel
      * The application's global HTTP middleware stack.
      */
     protected $middleware = [
-        \App\Http\Middleware\FixRailwayCookies::class, // Nuevo middleware agregado
+        \App\Http\Middleware\FixRailwayCookies::class,
         \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
@@ -42,17 +42,6 @@ class Kernel extends HttpKernel
     ];
 
     /**
-     * The application's middleware priority.
-     */
-    protected $middlewarePriority = [
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \App\Http\Middleware\Authenticate::class,
-        \Illuminate\Session\Middleware\AuthenticateSession::class,
-        \Illuminate\Routing\Middleware\SubstituteBindings::class,
-    ];
-
-    /**
      * The application's middleware aliases.
      */
     protected $middlewareAliases = [
@@ -67,7 +56,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         
-        // Middlewares personalizados del sistema
+        // Middlewares personalizados - Asegúrate que estas clases existan
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'empleado' => \App\Http\Middleware\EmpleadoMiddleware::class,

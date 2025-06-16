@@ -73,13 +73,7 @@ Route::middleware(['auth', 'role:empleado'])->prefix('empleado')->name('empleado
 // Rutas de Cliente (solo clientes)
 Route::middleware(['auth', 'role:cliente'])->prefix('cliente')->name('cliente.')->group(function () {
     Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
-    Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
-    Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
-    
-    // Aquí puedes agregar más rutas de cliente:
-    // Route::get('/citas/crear', [CitaController::class, 'create'])->name('citas.crear');
-    // Route::post('/citas', [CitaController::class, 'store'])->name('citas.store');
-    // Route::resource('vehiculos', VehiculoController::class)->except(['index']);
+   
 });
 
 // Rutas que requieren autenticación pero sin restricción de rol específico
@@ -112,3 +106,12 @@ Route::get('/debug-session', function() {
         ]
     ];
 });
+
+// Ruta de prueba modificada
+Route::get('/test-middleware', function() {
+    return response()->json([
+        'message' => 'Middleware test passed',
+        'user' => auth()->user(),
+        'role' => auth()->user()->rol ?? null
+    ]);
+})->middleware(['auth', 'role:cliente']);
