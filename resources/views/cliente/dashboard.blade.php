@@ -1142,7 +1142,7 @@
     </div>
 </div>
 
-              <!-- Notificaciones actualizadas -->
+             <!-- Notificaciones actualizadas -->
 <div class="card">
     <div class="card-header">
         <h2>
@@ -1150,69 +1150,48 @@
                 <i class="fas fa-bell"></i>
             </div>
             Notificaciones
-            @if($notificacionesNoLeidas > 0)
+            {{-- Comentado temporalmente hasta que tengamos los controladores --}}
+            <!-- @if($notificacionesNoLeidas > 0)
             <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
-            @endif
+            @endif -->
+            <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">0</span>
         </h2>
     </div>
     <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-        @forelse($notificaciones as $notificacion)
-        <div class="notification-item {{ $notificacion->leido ? 'read' : 'unread' }}" onclick="markAsRead({{ $notificacion->id }})">
+        {{-- Comentado el forelse original --}}
+        <!-- @forelse($notificaciones as $notificacion) -->
+        
+        {{-- Ejemplo estático de notificación (puedes dejarlo o quitarlo) --}}
+        <div class="notification-item unread">
             <div class="notification-icon info">
-                @switch($notificacion->canal)
-                    @case('sistema')
-                        <i class="fas fa-bell"></i>
-                        @break
-                    @case('email')
-                        <i class="fas fa-envelope"></i>
-                        @break
-                    @case('sms')
-                        <i class="fas fa-comment-alt"></i>
-                        @break
-                    @default
-                        <i class="fas fa-info-circle"></i>
-                @endswitch
+                <i class="fas fa-bell"></i>
             </div>
             <div class="notification-content">
-                <h4>
-                    @switch($notificacion->canal)
-                        @case('sistema')
-                            Notificación del Sistema
-                            @break
-                        @case('email')
-                            Correo Electrónico
-                            @break
-                        @case('sms')
-                            Mensaje SMS
-                            @break
-                        @default
-                            Notificación
-                    @endswitch
-                </h4>
-                <p>{{ $notificacion->mensaje }}</p>
+                <h4>Notificación del Sistema</h4>
+                <p>Ejemplo de notificación (modo desarrollo)</p>
             </div>
             <div class="notification-time">
-                {{ $notificacion->fecha_envio->diffForHumans() }}
-                @if($notificacion->fecha_envio->isToday())
-                    <span style="color: #4facfe;">(Hoy)</span>
-                @endif
+                Hace unos momentos <span style="color: #4facfe;">(Hoy)</span>
             </div>
         </div>
-        @empty
+        
+        {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
+        <!-- @empty -->
         <div class="empty-state" style="padding: 20px;">
             <i class="fas fa-bell-slash"></i>
             <h3>No hay notificaciones</h3>
             <p>No tienes ninguna notificación pendiente</p>
         </div>
-        @endforelse
+        <!-- @endforelse -->
         
-        @if($notificaciones->count() > 0)
+        {{-- Comentado el enlace a todas las notificaciones --}}
+        <!-- @if($notificaciones->count() > 0) -->
         <div style="text-align: center; margin-top: 15px;">
-            <a href="{{ route('notificaciones') }}" class="btn btn-outline">
+            <a href="#" class="btn btn-outline">
                 <i class="fas fa-list"></i> Ver todas las notificaciones
             </a>
         </div>
-        @endif
+        <!-- @endif -->
     </div>
 </div>
 
@@ -1413,19 +1392,19 @@
         }
         
         // Función para marcar notificaciones como leídas
-        function markAsRead(notificacionId) {
-    fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json'
-        }
-    }).then(response => {
-        if(response.ok) {
-            location.reload();
-        }
-    });
-}
+        //function markAsRead(notificacionId) {
+     //fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
+       // method: 'POST',
+      //  headers: {
+        //    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+         //   'Content-Type': 'application/json'
+        //}
+    //}).then(response => {
+      //  if(response.ok) {
+        //    location.reload();
+        //}
+    //});
+//}
         
         // Función para generar recibo
         function generateReceipt(citaId) {

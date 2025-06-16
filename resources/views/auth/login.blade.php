@@ -56,11 +56,46 @@
             color: #3b82f6;
             transform: scale(1.1);
         }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .container-mobile {
+                min-height: 100vh;
+                padding: 1rem;
+            }
+            
+            .logo-mobile {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .title-mobile {
+                font-size: 1.5rem;
+            }
+            
+            .form-mobile {
+                padding: 1.5rem;
+            }
+            
+            .decorative-element {
+                display: none;
+            }
+        }
+        
+        @media (max-height: 700px) and (max-width: 640px) {
+            .compact-spacing {
+                margin-bottom: 1rem;
+            }
+            
+            .compact-form {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen wave-animation flex items-center justify-center p-4 relative overflow-hidden">
-    <!-- Elementos decorativos de fondo -->
-    <div class="absolute inset-0 overflow-hidden">
+<body class="wave-animation">
+    <!-- Elementos decorativos de fondo - Solo en desktop -->
+    <div class="absolute inset-0 overflow-hidden decorative-element">
         <!-- Burbujas flotantes -->
         <div class="absolute top-20 left-20 w-4 h-4 bg-white bg-opacity-20 rounded-full float-animation"></div>
         <div class="absolute top-40 right-32 w-6 h-6 bg-white bg-opacity-15 rounded-full float-animation" style="animation-delay: 2s;"></div>
@@ -97,126 +132,128 @@
         </div>
     </div>
 
-    <!-- Contenedor principal del login -->
-    <div class="w-full max-w-md relative z-10">
-        <!-- Logo y título -->
-        <div class="text-center mb-8">
-            <div class="mx-auto w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm border border-white border-opacity-30">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="white">
-                    <path d="M8 30h24M5 25h30c1.5 0 3-1.5 3-3v-6c0-1.5-1.5-3-3-3h-7l-3-7h-18l-3 7h-9c-1.5 0-3 1.5-3 3v6c0 1.5 1.5 3 3 3z"/>
-                    <circle cx="12" cy="27" r="3"/>
-                    <circle cx="28" cy="27" r="3"/>
-                    <!-- Gotas de agua cayendo -->
-                    <circle cx="10" cy="8" r="1.5" opacity="0.7"/>
-                    <circle cx="15" cy="6" r="1" opacity="0.5"/>
-                    <circle cx="25" cy="7" r="1.2" opacity="0.6"/>
-                    <circle cx="30" cy="5" r="0.8" opacity="0.4"/>
-                </svg>
-            </div>
-            <h1 class="text-3xl font-bold text-white mb-2">AutoGest Carwash</h1>
-            <p class="text-white text-opacity-80">Berrios - Sistema de Gestión</p>
-        </div>
-
-        <!-- Formulario de login -->
-        <div class="glass-effect rounded-2xl shadow-2xl p-8">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Iniciar Sesión</h2>
-                <p class="text-gray-600 mt-2">Accede a tu panel de control</p>
-            </div>
-
-            <form method="POST" action="{{ route('login') }}" class="space-y-6">
-                @csrf
-                
-                <!-- Campo Email -->
-                <div class="space-y-2">
-                    <label for="email" class="block text-sm font-semibold text-gray-700">
-                        Correo Electrónico
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
-                            </svg>
-                        </div>
-                        <input id="email" name="email" type="email" required
-                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 @error('email') border-red-500 @enderror"
-                               placeholder="tu@email.com" value="{{ old('email') }}">
-                    </div>
-                    @error('email')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Campo Contraseña -->
-                <div class="space-y-2">
-                    <label for="password" class="block text-sm font-semibold text-gray-700">
-                        Contraseña
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                        </div>
-                        <input id="password" name="password" type="password" required
-                               class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 @error('password') border-red-500 @enderror"
-                               placeholder="••••••••">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <button type="button" class="password-toggle text-gray-400 hover:text-blue-500" onclick="togglePassword('password', 'eyeIcon')">
-                                <svg id="eyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    @error('password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Checkbox Recordarme -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="remember" name="remember" type="checkbox" 
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <label for="remember" class="ml-2 block text-sm text-gray-700">
-                            Recordarme
-                        </label>
-                    </div>
-                    <div>
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-500 transition-colors">
-                            ¿Olvidaste tu contraseña?
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Botón de login -->
-                <button type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+    <!-- Contenedor principal responsive -->
+    <div class="container-mobile min-h-screen flex flex-col justify-center items-center p-4 sm:p-6 relative z-10">
+        <div class="w-full max-w-md">
+            <!-- Logo y título -->
+            <div class="text-center compact-spacing mb-6 sm:mb-8">
+                <div class="mx-auto logo-mobile w-16 h-16 sm:w-20 sm:h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-3 sm:mb-4 backdrop-blur-sm border border-white border-opacity-30">
+                    <svg width="32" height="32" class="sm:w-10 sm:h-10" viewBox="0 0 40 40" fill="white">
+                        <path d="M8 30h24M5 25h30c1.5 0 3-1.5 3-3v-6c0-1.5-1.5-3-3-3h-7l-3-7h-18l-3 7h-9c-1.5 0-3 1.5-3 3v6c0 1.5 1.5 3 3 3z"/>
+                        <circle cx="12" cy="27" r="3"/>
+                        <circle cx="28" cy="27" r="3"/>
+                        <!-- Gotas de agua cayendo -->
+                        <circle cx="10" cy="8" r="1.5" opacity="0.7"/>
+                        <circle cx="15" cy="6" r="1" opacity="0.5"/>
+                        <circle cx="25" cy="7" r="1.2" opacity="0.6"/>
+                        <circle cx="30" cy="5" r="0.8" opacity="0.4"/>
                     </svg>
-                    Ingresar al Sistema
-                </button>
-
-                <!-- Enlace a registro -->
-                <div class="text-center pt-4 border-t border-gray-200">
-                    <p class="text-sm text-gray-600">
-                        ¿No tienes cuenta? 
-                        <a href="{{ route('register') }}" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                            Regístrate aquí
-                        </a>
-                    </p>
                 </div>
-            </form>
-        </div>
+                <h1 class="title-mobile text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">AutoGest Carwash</h1>
+                <p class="text-white text-opacity-80 text-sm sm:text-base">Berrios - Sistema de Gestión</p>
+            </div>
 
-        <!-- Footer -->
-        <div class="text-center mt-8">
-            <p class="text-white text-opacity-70 text-sm">
-                © 2024 AutoGest Carwash Berrios. Todos los derechos reservados.
-            </p>
+            <!-- Formulario de login -->
+            <div class="glass-effect rounded-2xl shadow-2xl form-mobile compact-form p-6 sm:p-8">
+                <div class="text-center compact-spacing mb-4 sm:mb-6">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Iniciar Sesión</h2>
+                    <p class="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Accede a tu panel de control</p>
+                </div>
+
+                <form method="POST" action="{{ route('login') }}" class="space-y-4 sm:space-y-6">
+                    @csrf
+                    
+                    <!-- Campo Email -->
+                    <div class="space-y-1 sm:space-y-2">
+                        <label for="email" class="block text-sm font-semibold text-gray-700">
+                            Correo Electrónico
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                                </svg>
+                            </div>
+                            <input id="email" name="email" type="email" required
+                                   class="block w-full pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base @error('email') border-red-500 @enderror"
+                                   placeholder="tu@email.com" value="{{ old('email') }}">
+                        </div>
+                        @error('email')
+                            <p class="text-red-500 text-xs sm:text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Campo Contraseña -->
+                    <div class="space-y-1 sm:space-y-2">
+                        <label for="password" class="block text-sm font-semibold text-gray-700">
+                            Contraseña
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </div>
+                            <input id="password" name="password" type="password" required
+                                   class="block w-full pl-9 sm:pl-10 pr-12 py-2.5 sm:py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base @error('password') border-red-500 @enderror"
+                                   placeholder="••••••••">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <button type="button" class="password-toggle text-gray-400 hover:text-blue-500" onclick="togglePassword('password', 'eyeIcon')">
+                                    <svg id="eyeIcon" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        @error('password')
+                            <p class="text-red-500 text-xs sm:text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Checkbox Recordarme -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                        <div class="flex items-center">
+                            <input id="remember" name="remember" type="checkbox" 
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="remember" class="ml-2 block text-sm text-gray-700">
+                                Recordarme
+                            </label>
+                        </div>
+                        <div>
+                            <a href="#" class="text-sm text-blue-600 hover:text-blue-500 transition-colors">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Botón de login -->
+                    <button type="submit"
+                            class="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                        </svg>
+                        Ingresar al Sistema
+                    </button>
+
+                    <!-- Enlace a registro -->
+                    <div class="text-center pt-3 sm:pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-600">
+                            ¿No tienes cuenta? 
+                            <a href="{{ route('register') }}" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                                Regístrate aquí
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center compact-spacing mt-6 sm:mt-8 mb-4">
+                <p class="text-white text-opacity-70 text-xs sm:text-sm">
+                    © 2024 AutoGest Carwash Berrios. Todos los derechos reservados.
+                </p>
+            </div>
         </div>
     </div>
 
@@ -239,6 +276,24 @@
                 `;
             }
         }
+
+        // Prevenir zoom en iOS en inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    if (window.innerWidth < 768) {
+                        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+                    }
+                });
+                
+                input.addEventListener('blur', function() {
+                    if (window.innerWidth < 768) {
+                        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0');
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
