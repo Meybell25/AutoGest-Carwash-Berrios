@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Artisan;
 |--------------------------------------------------------------------------
 */
 
-// Ruta principal
+//*************************************Ruta principal***************************************
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -24,7 +24,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Rutas de autenticación
+//***********************************Rutas de autenticación***********************************
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -51,37 +51,36 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 });
 
-// Rutas de Admin (solo administradores)
+//**************************Rutas de Admin (solo administradores)******************************
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
 });
 
-// Rutas de Empleado (solo empleados)
+//*************************Rutas de Empleado (solo empleados)********************************************
 Route::middleware(['auth', 'role:empleado'])->prefix('empleado')->name('empleado.')->group(function () {
     Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
     Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
 });
 
-// Rutas de Cliente (solo clientes)
+//**************************************Rutas de Cliente (solo clientes)********************************8
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente'])->prefix('cliente')->name('cliente.')->group(function () {
     Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
     Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
     Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
 });
 
-// Grupo de rutas para gestión básica del perfil
+//************************Grupo de rutas para gestión básica del perfil******************************
+
+// Grupo con middleware auth
 Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
-    // Muestra el formulario de edición de perfil (vista tradicional)
     Route::get('/', [PerfilController::class, 'edit'])->name('edit');
-    
-    // Procesa el formulario tradicional de actualización (POST)
     Route::post('/actualizar', [PerfilController::class, 'update'])->name('update');
     
-    // Ruta para actualización AJAX (se mantiene separada por el middleware específico)
+    // Ruta AJAX con auth + ajax
     Route::post('/actualizar-ajax', [PerfilController::class, 'updateAjax'])
-           ->name('update-ajax')
-           ->middleware('ajax');
+        ->middleware('ajax') // Solo añade este, auth ya está aplicado
+        ->name('update-ajax');
 });
 
 // Grupo de rutas para configuración avanzada
@@ -96,7 +95,7 @@ Route::middleware('auth')->prefix('configuracion')->name('configuracion.')->grou
     Route::post('/actualizar-password', [PerfilController::class, 'updatePassword'])->name('update-password');
 });
 
-//RUTAS DE PRUEBA
+//*****************************************RUTAS DE PRUEBA*******************************************
 Route::get('/debug', function () {
     $user = App\Models\Usuario::first();
 
