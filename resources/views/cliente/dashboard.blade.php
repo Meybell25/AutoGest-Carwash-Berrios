@@ -29,6 +29,33 @@
             --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
 
+        html,
+        body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Contenedores principales */
+        .dashboard-container,
+        .header,
+        .card {
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+
+        /* Textos largos */
+        .service-details h4,
+        .service-details p {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--primary-gradient);
@@ -704,7 +731,18 @@
 
         @media (max-width: 768px) {
             .dashboard-container {
-                padding: 15px;
+                width: 100%;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
 
             .header-content {
@@ -755,28 +793,125 @@
                 text-align: left;
                 margin-top: 10px;
             }
+
+            .card {
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 15px;
+            }
+
+            .service-card[style*="text-align: left"] {
+                padding: 15px;
+            }
+
+            .service-card[style*="text-align: left"]>div {
+                flex-direction: column;
+            }
+
+            .service-card[style*="text-align: left"] .btn-sm {
+                width: 100%;
+                margin-bottom: 5px;
+            }
         }
 
         @media (max-width: 480px) {
 
-            .card-header,
-            .card-body {
-                padding-left: 20px;
-                padding-right: 20px;
+            input,
+            textarea,
+            select {
+                font-size: 16px;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .service-history-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .service-icon {
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+
+            .service-price {
+                text-align: left;
+                margin-top: 10px;
+                width: 100%;
+            }
+
+            .appointment-date-time {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .welcome-stats {
+                flex-direction: column;
+            }
+
+            .welcome-stat {
+                width: 100%;
+                max-width: none;
+            }
+
+            .form-group input {
+                width: 100%;
+                box-sizing: border-box;
             }
 
             .profile-stats {
                 grid-template-columns: 1fr;
             }
 
-            .welcome-stats {
-                flex-direction: column;
-                align-items: center;
+        }
+
+        @media (max-width: 360px) {
+            .btn {
+                padding: 10px 12px;
+                font-size: 0.8rem;
             }
 
-            .welcome-stat {
-                width: 100%;
-                max-width: 200px;
+            .dashboard-container {
+                padding: 8px;
+            }
+
+            .service-card {
+                padding: 15px 10px;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 10px;
+            }
+
+            .welcome-section h1 {
+                font-size: 1.8rem;
+            }
+
+            .card-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .welcome-icon,
+            .card-header .icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
             }
         }
 
@@ -1840,11 +1975,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                    <tr>
-                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                    </tr>
-                                                                `).join('')}
+                                                                                                        <tr>
+                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                        </tr>
+                                                                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
