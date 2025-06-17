@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard Cliente - Carwash Berríos</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -1129,7 +1130,7 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="welcome-icon">
+                        <div class="icon">
                             <i class="fas fa-car"></i>
                         </div>
                         ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
@@ -1418,125 +1419,125 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Notificaciones actualizadas -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>
-                        <div class="icon">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        Notificaciones
-                        {{-- Comentado temporalmente hasta que tengamos los controladores --}}
-                        <!-- @if ($notificacionesNoLeidas > 0)
+                <!-- Notificaciones -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            Notificaciones
+                            {{-- Comentado temporalmente hasta que tengamos los controladores --}}
+                            <!-- @if ($notificacionesNoLeidas > 0)
 <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
 @endif -->
-                        <span
-                            style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">0</span>
-                    </h2>
-                </div>
-                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                    {{-- Comentado el forelse original --}}
-                    <!-- @forelse($notificaciones as $notificacion)
+                            <span
+                                style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">0</span>
+                        </h2>
+                    </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        {{-- Comentado el forelse original --}}
+                        <!-- @forelse($notificaciones as $notificacion)
 -->
 
-                    {{-- Ejemplo estático de notificación (puedes dejarlo o quitarlo) --}}
-                    <div class="notification-item unread">
-                        <div class="notification-icon info">
-                            <i class="fas fa-bell"></i>
+                        {{-- Ejemplo estático de notificación (puedes dejarlo o quitarlo) --}}
+                        <div class="notification-item unread">
+                            <div class="notification-icon info">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h4>Notificación del Sistema</h4>
+                                <p>Ejemplo de notificación (modo desarrollo)</p>
+                            </div>
+                            <div class="notification-time">
+                                Hace unos momentos <span style="color: #4facfe;">(Hoy)</span>
+                            </div>
                         </div>
-                        <div class="notification-content">
-                            <h4>Notificación del Sistema</h4>
-                            <p>Ejemplo de notificación (modo desarrollo)</p>
-                        </div>
-                        <div class="notification-time">
-                            Hace unos momentos <span style="color: #4facfe;">(Hoy)</span>
-                        </div>
-                    </div>
 
-                    {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
-                <!-- @empty -->
-                    <div class="empty-state" style="padding: 20px;">
-                        <i class="fas fa-bell-slash"></i>
-                        <h3>No hay notificaciones</h3>
-                        <p>No tienes ninguna notificación pendiente</p>
-                    </div>
-                    <!--
+                        {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
+                        <!-- @empty -->
+                        <div class="empty-state" style="padding: 20px;">
+                            <i class="fas fa-bell-slash"></i>
+                            <h3>No hay notificaciones</h3>
+                            <p>No tienes ninguna notificación pendiente</p>
+                        </div>
+                        <!--
 @endforelse -->
 
-                    {{-- Comentado el enlace a todas las notificaciones --}}
-                    <!-- @if ($notificaciones->count() > 0)
+                        {{-- Comentado el enlace a todas las notificaciones --}}
+                        <!-- @if ($notificaciones->count() > 0)
 -->
-                    <div style="text-align: center; margin-top: 15px;">
-                        <a href="#" class="btn btn-outline">
-                            <i class="fas fa-list"></i> Ver todas las notificaciones
+                        <div style="text-align: center; margin-top: 15px;">
+                            <a href="#" class="btn btn-outline">
+                                <i class="fas fa-list"></i> Ver todas las notificaciones
+                            </a>
+                        </div>
+                        <!--
+@endif -->
+                    </div>
+                </div>
+
+                <!-- Mis Vehículos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            Mis Vehículos
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        @if (isset($mis_vehiculos) && count($mis_vehiculos) > 0)
+                            @foreach ($mis_vehiculos as $vehiculo)
+                                <div class="service-history-item" style="margin-bottom: 15px;">
+                                    <div class="service-icon" style="background: var(--secondary-gradient);">
+                                        @switch($vehiculo->tipo)
+                                            @case('sedan')
+                                                <i class="fas fa-car"></i>
+                                            @break
+
+                                            @case('pickup')
+                                                <i class="fas fa-truck-pickup"></i>
+                                            @break
+
+                                            @case('camion')
+                                                <i class="fas fa-truck"></i>
+                                            @break
+
+                                            @case('moto')
+                                                <i class="fas fa-motorcycle"></i>
+                                            @break
+
+                                            @default
+                                                <i class="fas fa-car"></i>
+                                        @endswitch
+                                    </div>
+                                    <div class="service-details">
+                                        <h4>{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
+                                        <p><i class="fas fa-palette"></i> {{ $vehiculo->color }}</p>
+                                        <p><i class="fas fa-id-card"></i> {{ $vehiculo->placa }}</p>
+                                    </div>
+                                    <a href="{{ route('cliente.citas') }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-calendar-plus"></i>
+                                    </a>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-car"></i>
+                                <h3>No tienes vehículos registrados</h3>
+                                <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
+                            </div>
+                        @endif
+
+                        <a href="{{ route('cliente.vehiculos') }}" class="btn btn-outline"
+                            style="width: 100%; margin-top: 10px;">
+                            <i class="fas fa-plus"></i>
+                            Agregar Vehículo
                         </a>
                     </div>
-                    <!--
-@endif -->
-                </div>
-            </div>
-
-            <!-- Mis Vehículos -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>
-                        <div class="icon">
-                            <i class="fas fa-car"></i>
-                        </div>
-                        Mis Vehículos
-                    </h2>
-                </div>
-                <div class="card-body">
-                    @if (isset($mis_vehiculos) && count($mis_vehiculos) > 0)
-                        @foreach ($mis_vehiculos as $vehiculo)
-                            <div class="service-history-item" style="margin-bottom: 15px;">
-                                <div class="service-icon" style="background: var(--secondary-gradient);">
-                                    @switch($vehiculo->tipo)
-                                        @case('sedan')
-                                            <i class="fas fa-car"></i>
-                                        @break
-
-                                        @case('pickup')
-                                            <i class="fas fa-truck-pickup"></i>
-                                        @break
-
-                                        @case('camion')
-                                            <i class="fas fa-truck"></i>
-                                        @break
-
-                                        @case('moto')
-                                            <i class="fas fa-motorcycle"></i>
-                                        @break
-
-                                        @default
-                                            <i class="fas fa-car"></i>
-                                    @endswitch
-                                </div>
-                                <div class="service-details">
-                                    <h4>{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
-                                    <p><i class="fas fa-palette"></i> {{ $vehiculo->color }}</p>
-                                    <p><i class="fas fa-id-card"></i> {{ $vehiculo->placa }}</p>
-                                </div>
-                                <a href="{{ route('cliente.citas') }}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </a>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="empty-state">
-                            <i class="fas fa-car"></i>
-                            <h3>No tienes vehículos registrados</h3>
-                            <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
-                        </div>
-                    @endif
-
-                    <a href="{{ route('cliente.vehiculos') }}" class="btn btn-outline"
-                        style="width: 100%; margin-top: 10px;">
-                        <i class="fas fa-plus"></i>
-                        Agregar Vehículo
-                    </a>
                 </div>
             </div>
         </div>
@@ -1616,195 +1617,199 @@
 
 
     <!-- Modal para editar perfil -->
-    <<div id="editProfileModal" class="modal">
+    <div id="editProfileModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeEditModal()">&times;</span>
-            <h2><i class="fas fa-user-edit"></i> Editar Perfil</h2>
-
+            <h2 style="color: #4facfe; margin-bottom: 20px;">
+                <i class="fas fa-user-edit"></i> Editar Perfil
+            </h2>
             <form id="profileForm">
                 @csrf
                 <div class="form-group">
-                    <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" required>
+                    <label for="modalNombre">Nombre:</label>
+                    <input type="text" id="modalNombre" name="nombre" value="{{ $user->nombre ?? '' }}"
+                        required>
                 </div>
                 <div class="form-group">
-                    <label for="telefono">Teléfono:</label>
-                    <input type="text" id="telefono" name="telefono">
+                    <label for="modalTelefono">Teléfono:</label>
+                    <input type="text" id="modalTelefono" name="telefono" value="{{ $user->telefono ?? '' }}">
                 </div>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Guardar Cambios
                 </button>
             </form>
         </div>
-        </div>
+    </div>
 
-        <!-- Modal para imprimir recibo -->
-        <div id="receiptModal" class="modal">
-            <div class="modal-content" style="max-width: 600px;">
-                <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
-                <div id="receiptContent" style="background: white; padding: 20px; border-radius: 10px;">
-                    <!-- Contenido del recibo se generará dinámicamente -->
-                </div>
-                <div style="text-align: center; margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="printReceipt()">
-                        <i class="fas fa-print"></i> Imprimir Recibo
-                    </button>
-                    <button class="btn btn-outline" onclick="downloadReceipt()">
-                        <i class="fas fa-download"></i> Descargar PDF
-                    </button>
-                </div>
+    <!-- Modal para imprimir recibo -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
+            <div id="receiptContent" style="background: white; padding: 20px; border-radius: 10px;">
+                <!-- Contenido del recibo se generará dinámicamente -->
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="printReceipt()">
+                    <i class="fas fa-print"></i> Imprimir Recibo
+                </button>
+                <button class="btn btn-outline" onclick="downloadReceipt()">
+                    <i class="fas fa-download"></i> Descargar PDF
+                </button>
             </div>
         </div>
-        </div>
+    </div>
+    </div>
 
-        <footer class="footer">
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
+    <footer class="footer">
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
 
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                    <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
-                </div>
-
-                <div class="footer-info">
-                    <div class="info-item">
-                        <i class="fas fa-phone"></i>
-                        <span>75855197</span>
-                    </div>
-                    <div class="info-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
-                            Ver ubicación en mapa
-                        </a>
-                    </div>
-                    <div class="info-item">
-                        <i class="fas fa-clock"></i>
-                        <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
-                    </div>
-                </div>
-
-                <div class="social-icons">
-                    <a href="#" class="social-icon facebook" title="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                    <a href="#" class="social-icon instagram" title="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                </div>
-
-                <div class="footer-divider"></div>
-
-                <p class="footer-copyright">
-                    &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
-                </p>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
             </div>
-        </footer>
 
-        <script>
-            // Configuración global de SweetAlert
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-primary',
-                    cancelButton: 'btn btn-outline mr-2'
-                },
-                buttonsStyling: false
-            });
+            <div class="footer-info">
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>75855197</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
+                        Ver ubicación en mapa
+                    </a>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
+                </div>
+            </div>
 
-            // Funciones del modal
-            function openEditModal() {
-                const modal = document.getElementById('editProfileModal');
-                modal.style.display = 'block';
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="#" class="social-icon instagram" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
 
-                // Rellenar con datos actuales
-                document.getElementById('nombre').value = '{{ $user->nombre ?? '' }}';
-                document.getElementById('telefono').value = '{{ $user->telefono ?? '' }}';
-            }
+            <div class="footer-divider"></div>
 
-            function closeEditModal() {
-                document.getElementById('editProfileModal').style.display = 'none';
-            }
+            <p class="footer-copyright">
+                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+            </p>
+        </div>
+    </footer>
 
-            // Manejo del formulario AJAX
-            document.getElementById('profileForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
+    <script>
+        // Configuración global de SweetAlert
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-primary',
+                cancelButton: 'btn btn-outline mr-2'
+            },
+            buttonsStyling: false
+        });
 
-                const formData = {
-                    nombre: document.getElementById('nombre').value,
-                    telefono: document.getElementById('telefono').value,
-                    _token: document.querySelector('meta[name="csrf-token"]').content
-                };
+        // Funciones del modal
+        function openEditModal() {
+            const modal = document.getElementById('editProfileModal');
+            modal.style.display = 'block';
+        }
 
-                try {
-                    const response = await fetch('{{ route('perfil.update-ajax') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify(formData)
-                    });
+        function closeEditModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
 
-                    const data = await response.json();
+        // Manejo del formulario AJAX
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-                    if (!response.ok) throw new Error(data.message || 'Error en la respuesta');
+            const formData = {
+                nombre: document.getElementById('modalNombre').value,
+                telefono: document.getElementById('modalTelefono').value,
+                _token: document.querySelector('meta[name="csrf-token"]').content
+            };
 
-                    // Éxito
-                    closeEditModal();
-                    swalWithBootstrapButtons.fire({
-                        title: '¡Éxito!',
-                        text: data.message,
-                        icon: 'success'
-                    });
+            try {
+                const response = await fetch('{{ route('perfil.update-ajax') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(formData)
+                });
 
-                    // Actualizar la UI
-                    document.querySelector('.profile-info h3').textContent = data.user.nombre;
-                    document.querySelector('.profile-info p:nth-of-type(2)').innerHTML =
-                        `<i class="fas fa-phone"></i> ${data.user.telefono || 'No especificado'}`;
+                const data = await response.json();
 
-                } catch (error) {
-                    console.error('Error:', error);
-                    swalWithBootstrapButtons.fire({
-                        title: 'Error',
-                        text: error.message,
-                        icon: 'error'
-                    });
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error en la respuesta del servidor');
                 }
-            });
 
-            // Cerrar modal al hacer clic fuera
-            window.addEventListener('click', (event) => {
-                if (event.target.classList.contains('modal')) {
-                    closeEditModal();
-                }
-            });
+                // Éxito
+                closeEditModal();
+                swalWithBootstrapButtons.fire({
+                    title: '¡Éxito!',
+                    text: data.message,
+                    icon: 'success'
+                });
 
-            // Función para marcar notificaciones como leídas
-            //function markAsRead(notificacionId) {
-            //fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
-            // method: 'POST',
-            //  headers: {
-            //    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            //   'Content-Type': 'application/json'
-            //}
-            //}).then(response => {
-            //  if(response.ok) {
-            //    location.reload();
-            //}
-            //});
-            //}
+                // Actualizar la UI
+                document.querySelector('.profile-info h3').textContent = data.user.nombre;
+                document.querySelector('.profile-info p:nth-of-type(2)').innerHTML =
+                    `<i class="fas fa-phone"></i> ${data.user.telefono || 'No especificado'}`;
 
-            // Función para generar recibo
-            function generateReceipt(citaId) {
-                fetch(`/citas/${citaId}/recibo`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const receiptContent = document.getElementById('receiptContent');
-                        receiptContent.innerHTML = `
+                // Actualizar el nombre en el header de bienvenida
+                document.querySelector('.welcome-section h1').textContent = `¡Hola, ${data.user.nombre}!`;
+
+            } catch (error) {
+                console.error('Error:', error);
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: error.message,
+                    icon: 'error'
+                });
+            }
+        });
+
+        // Cerrar modal al hacer clic fuera
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeEditModal();
+            }
+        });
+
+        // Función para marcar notificaciones como leídas
+        //function markAsRead(notificacionId) {
+        //fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
+        // method: 'POST',
+        //  headers: {
+        //    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        //   'Content-Type': 'application/json'
+        //}
+        //}).then(response => {
+        //  if(response.ok) {
+        //    location.reload();
+        //}
+        //});
+        //}
+
+        // Función para generar recibo
+        function generateReceipt(citaId) {
+            fetch(`/citas/${citaId}/recibo`)
+                .then(response => response.json())
+                .then(data => {
+                    const receiptContent = document.getElementById('receiptContent');
+                    receiptContent.innerHTML = `
                         <div style="text-align: center; margin-bottom: 20px;">
                             <h2 style="color: #4facfe;">Carwash Berríos</h2>
                             <p>Recibo de Servicio</p>
@@ -1823,11 +1828,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                            </tr>
-                                        `).join('')}
+                                                    <tr>
+                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                    </tr>
+                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -1850,148 +1855,148 @@
                         </div>
                     `;
 
-                        document.getElementById('receiptModal').style.display = 'block';
-                    });
-            }
-
-            function closeReceiptModal() {
-                document.getElementById('receiptModal').style.display = 'none';
-            }
-
-            function printReceipt() {
-                const printContent = document.getElementById('receiptContent').innerHTML;
-                const originalContent = document.body.innerHTML;
-
-                document.body.innerHTML = printContent;
-                window.print();
-                document.body.innerHTML = originalContent;
-                location.reload();
-            }
-
-            function downloadReceipt() {
-                // Aquí iría la lógica para generar y descargar el PDF
-                alert('Descargando recibo como PDF...');
-            }
-
-
-
-            // Simulación de interactividad
-            document.addEventListener('DOMContentLoaded', function() {
-                // Animación de entrada para las cards
-                const cards = document.querySelectorAll('.card');
-                cards.forEach((card, index) => {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
-                    setTimeout(() => {
-                        card.style.transition = 'all 0.6s ease';
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, index * 100);
+                    document.getElementById('receiptModal').style.display = 'block';
                 });
+        }
 
-                // Efecto hover mejorado para service cards
-                const serviceCards = document.querySelectorAll('.service-card');
-                serviceCards.forEach(card => {
-                    card.addEventListener('mouseenter', function() {
-                        this.style.transform = 'translateY(-8px) scale(1.02)';
-                    });
-                    card.addEventListener('mouseleave', function() {
-                        this.style.transform = 'translateY(0) scale(1)';
-                    });
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+
+        function printReceipt() {
+            const printContent = document.getElementById('receiptContent').innerHTML;
+            const originalContent = document.body.innerHTML;
+
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            location.reload();
+        }
+
+        function downloadReceipt() {
+            // Aquí iría la lógica para generar y descargar el PDF
+            alert('Descargando recibo como PDF...');
+        }
+
+
+
+        // Simulación de interactividad
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animación de entrada para las cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Efecto hover mejorado para service cards
+            const serviceCards = document.querySelectorAll('.service-card');
+            serviceCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
                 });
-
-                // Marcas notificaciones como leídas al hacer clic
-                const notifications = document.querySelectorAll('.notification-item.unread');
-                notifications.forEach(notification => {
-                    notification.addEventListener('click', function() {
-                        this.classList.remove('unread');
-                        this.classList.add('read');
-                    });
-                });
-
-                // Efecto de pulsación para botones
-                const buttons = document.querySelectorAll('.btn');
-                buttons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        // Crear efecto ripple
-                        const ripple = document.createElement('span');
-                        const rect = this.getBoundingClientRect();
-                        const size = Math.max(rect.width, rect.height);
-                        const x = e.clientX - rect.left - size / 2;
-                        const y = e.clientY - rect.top - size / 2;
-
-                        ripple.style.width = ripple.style.height = size + 'px';
-                        ripple.style.left = x + 'px';
-                        ripple.style.top = y + 'px';
-                        ripple.classList.add('ripple');
-
-                        this.appendChild(ripple);
-
-                        setTimeout(() => {
-                            ripple.remove();
-                        }, 600);
-                    });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
                 });
             });
-        </script>
 
-        <style>
-            /* Efecto ripple para botones */
-            .btn {
-                overflow: hidden;
-                position: relative;
-            }
+            // Marcas notificaciones como leídas al hacer clic
+            const notifications = document.querySelectorAll('.notification-item.unread');
+            notifications.forEach(notification => {
+                notification.addEventListener('click', function() {
+                    this.classList.remove('unread');
+                    this.classList.add('read');
+                });
+            });
 
-            .ripple {
-                position: absolute;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.3);
-                transform: scale(0);
-                animation: ripple-animation 0.6s linear;
-                pointer-events: none;
-            }
+            // Efecto de pulsación para botones
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Crear efecto ripple
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
 
-            @keyframes ripple-animation {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
 
-            /* Mejoras adicionales de hover */
-            .service-history-item:hover {
-                box-shadow: 0 4px 15px rgba(79, 172, 254, 0.15);
-            }
+                    this.appendChild(ripple);
 
-            .notification-item:hover {
-                background: linear-gradient(45deg, #4facfe05, #00f2fe05) !important;
-                cursor: pointer;
-            }
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+    </script>
 
-            .profile-avatar:hover {
-                transform: scale(1.05);
-                transition: all 0.3s ease;
-            }
+    <style>
+        /* Efecto ripple para botones */
+        .btn {
+            overflow: hidden;
+            position: relative;
+        }
 
-            /* Scrollbar personalizado */
-            ::-webkit-scrollbar {
-                width: 8px;
-            }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
 
-            ::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
             }
+        }
 
-            ::-webkit-scrollbar-thumb {
-                background: linear-gradient(45deg, #4facfe, #00f2fe);
-                border-radius: 10px;
-            }
+        /* Mejoras adicionales de hover */
+        .service-history-item:hover {
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.15);
+        }
 
-            ::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(45deg, #667eea, #764ba2);
-            }
-        </style>
+        .notification-item:hover {
+            background: linear-gradient(45deg, #4facfe05, #00f2fe05) !important;
+            cursor: pointer;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+    </style>
 </body>
 
 </html>
