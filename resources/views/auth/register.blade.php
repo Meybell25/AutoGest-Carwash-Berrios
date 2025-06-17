@@ -408,7 +408,6 @@
                             </div>
                         </div>
 
-                        <!-- Añade esto para mostrar los requisitos -->
                         <div class="password-requirements text-xs text-gray-500 mt-1">
                             <ul class="list-disc pl-5">
                                 <li id="req-length" class="text-gray-400">Mínimo 8 caracteres</li>
@@ -418,7 +417,6 @@
                             </ul>
                         </div>
 
-                        <!-- Añade el progress bar aquí -->
                         <div class="password-strength mt-2">
                             <div class="progress" style="height: 5px;">
                                 <div class="progress-bar" id="password-strength-bar" role="progressbar"
@@ -461,7 +459,7 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- Contenedor para mensajes de error -->
+                        <!-- Mensaje de error - Siempre presente pero oculto inicialmente -->
                         <div id="password-confirm-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
 
@@ -564,15 +562,29 @@
             const confirmField = document.getElementById('password_confirmation');
             const errorElement = document.getElementById('password-confirm-error');
 
-            if (confirmPassword && password !== confirmPassword) {
+            if (confirmPassword === '') {
+                // Campo vacío - ocultar error
+                errorElement.classList.add('hidden');
+                confirmField.classList.remove('border-red-500');
+            } else if (password !== confirmPassword) {
+                // Contraseñas no coinciden - mostrar error
                 errorElement.textContent = 'Las contraseñas no coinciden';
                 errorElement.classList.remove('hidden');
                 confirmField.classList.add('border-red-500');
             } else {
+                // Contraseñas coinciden - ocultar error
                 errorElement.classList.add('hidden');
                 confirmField.classList.remove('border-red-500');
             }
         }
+
+        // También validar cuando se modifica el campo de contraseña principal
+        document.getElementById('password').addEventListener('input', function() {
+            const confirmField = document.getElementById('password_confirmation');
+            if (confirmField.value) {
+                confirmField.dispatchEvent(new Event('input'));
+            }
+        });
 
         // Función para calcular fortaleza de contraseña
         function calculatePasswordStrength(password) {
