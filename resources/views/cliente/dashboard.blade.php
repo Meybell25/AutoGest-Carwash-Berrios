@@ -103,13 +103,14 @@
             color: white;
             font-size: 1.5rem;
             position: relative;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .welcome-icon i {
             z-index: 2;
             text-shadow: none;
-            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+            text-stroke: 0.5px white;
+            -webkit-text-stroke: 0.5px white;
         }
 
 
