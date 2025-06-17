@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard Cliente - Carwash Berríos</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
@@ -282,12 +282,17 @@
             width: 40px;
             height: 40px;
             border-radius: 10px;
-            display: flex;
+            display: flex !important ;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 1.2rem;
         }
+        .card-header .icon i {
+            font-size: 1.5rem !important;
+            color: white !important;
+            border: 1px solid red; /* Solo para depuración */
+        }  
 
         .card-body {
             padding: 0 25px 25px;
@@ -1130,7 +1135,7 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="icon">
+                        <div class="welcome-icon">
                             <i class="fas fa-car"></i>
                         </div>
                         ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
@@ -1829,11 +1834,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                        <tr>
-                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                        </tr>
-                                                    `).join('')}
+                                                            <tr>
+                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                            </tr>
+                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
