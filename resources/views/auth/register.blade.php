@@ -165,6 +165,28 @@
             color: #10b981;
         }
 
+        .min-h-\[20px\] {
+            min-height: 20px;
+        }
+
+        .relative {
+            position: relative;
+        }
+
+        /* Estilos para el mensaje de error */
+        .text-red-500 {
+            color: #ef4444;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+
         /* Ajustes responsivos  */
         @media (max-width: 640px) {
             .main-container {
@@ -439,9 +461,12 @@
                                 </button>
                             </div>
                         </div>
-                        @error('password_confirmation')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
+                        <!-- Contenedor fijo para mensajes de error -->
+                        <div class="min-h-[20px]"> <!-- Altura mínima para evitar saltos -->
+                            @error('password_confirmation')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
                     <!-- Botón de registro -->
@@ -541,19 +566,17 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('password_confirmation').value;
             const confirmField = document.getElementById('password_confirmation');
-            const feedbackDiv = confirmField.parentNode.querySelector('.invalid-feedback');
+            const errorContainer = confirmField.parentNode.nextElementSibling; // El nuevo contenedor
 
-            // Eliminar cualquier mensaje existente primero
-            if (feedbackDiv) {
-                feedbackDiv.remove();
-            }
+            // Limpiar cualquier mensaje existente
+            errorContainer.innerHTML = '';
 
             if (confirmPassword && password !== confirmPassword) {
                 confirmField.classList.add('is-invalid');
-                const feedback = document.createElement('div');
-                feedback.className = 'invalid-feedback';
-                feedback.textContent = 'Las contraseñas no coinciden';
-                confirmField.parentNode.appendChild(feedback);
+                const errorMsg = document.createElement('p');
+                errorMsg.className = 'text-red-500 text-sm mt-1';
+                errorMsg.textContent = 'Las contraseñas no coinciden';
+                errorContainer.appendChild(errorMsg);
             } else {
                 confirmField.classList.remove('is-invalid');
             }
