@@ -19,7 +19,7 @@ class PerfilController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-    
+
         $request->validate([
             'nombre' => 'required|string|max:255',
             'telefono' => 'nullable|string|max:20',
@@ -41,7 +41,7 @@ class PerfilController extends Controller
     public function updateEmail(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email|max:255|unique:usuarios,email,'.Auth::id(),
+            'email' => 'required|string|email|max:255|unique:usuarios,email,' . Auth::id(),
         ]);
 
         Auth::user()->update(['email' => $request->email]);
@@ -63,5 +63,28 @@ class PerfilController extends Controller
         Auth::user()->update(['password' => Hash::make($request->password)]);
 
         return back()->with('success', 'Contraseña actualizada correctamente');
+    }
+    public function updateAjax(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+        ]);
+
+        try {
+            $user = Auth::user();
+            $user->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perfil actualizado correctamente',
+                'user' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

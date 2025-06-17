@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -165,7 +166,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: all 0.5s;
         }
 
@@ -205,11 +206,13 @@
             background: var(--warning-gradient);
             color: white;
         }
-         .btn-profile {
+
+        .btn-profile {
             background: var(--secondary-gradient);
             color: white;
             box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
         }
+
         .btn-profile {
             transition: all 0.3s ease;
             transform: translateY(0);
@@ -679,7 +682,7 @@
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .sidebar-section {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -743,7 +746,9 @@
         }
 
         @media (max-width: 480px) {
-            .card-header, .card-body {
+
+            .card-header,
+            .card-body {
                 padding-left: 20px;
                 padding-right: 20px;
             }
@@ -769,6 +774,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -779,9 +785,17 @@
             animation: fadeInUp 0.6s ease-out;
         }
 
-        .card:nth-child(2) { animation-delay: 0.1s; }
-        .card:nth-child(3) { animation-delay: 0.2s; }
-        .card:nth-child(4) { animation-delay: 0.3s; }
+        .card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.3s;
+        }
 
         /* Scrollbar customization */
         .card-body::-webkit-scrollbar {
@@ -806,9 +820,9 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
         }
-        
+
         .modal-content {
             background: var(--glass-bg);
             margin: 5% auto;
@@ -816,15 +830,22 @@
             border-radius: 15px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             animation: modalFadeIn 0.3s;
         }
-        
+
         @keyframes modalFadeIn {
-            from {opacity: 0; transform: translateY(-20px);}
-            to {opacity: 1; transform: translateY(0);}
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         .close-modal {
             color: #aaa;
             float: right;
@@ -832,22 +853,22 @@
             font-weight: bold;
             cursor: pointer;
         }
-        
+
         .close-modal:hover {
             color: #333;
         }
-        
+
         .form-group {
             margin-bottom: 15px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
             color: #4facfe;
         }
-        
+
         .form-group input {
             width: 100%;
             padding: 10px;
@@ -855,6 +876,7 @@
             border-radius: 8px;
             font-size: 16px;
         }
+
         .footer {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -1043,18 +1065,19 @@
             color: var(--text-secondary);
             opacity: 0.8;
         }
-            .footer-info {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .footer-content {
-                padding: 30px 20px;
-            }
-            
-            .footer-brand h3 {
-                font-size: 24px;
-            }
+
+        .footer-info {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .footer-content {
+            padding: 30px 20px;
+        }
+
+        .footer-brand h3 {
+            font-size: 24px;
+        }
 
         .sparkle {
             position: absolute;
@@ -1065,17 +1088,40 @@
             animation: sparkle 2s infinite;
         }
 
-        .sparkle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
-        .sparkle:nth-child(2) { top: 60%; right: 15%; animation-delay: 0.5s; }
-        .sparkle:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 1s; }
+        .sparkle:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .sparkle:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 0.5s;
+        }
+
+        .sparkle:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 1s;
+        }
 
         @keyframes sparkle {
-            0%, 100% { opacity: 0; transform: scale(0); }
-            50% { opacity: 1; transform: scale(1); }
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
-        
     </style>
 </head>
+
 <body>
     <div class="dashboard-container">
         <!-- Header con bienvenida personalizada -->
@@ -1088,7 +1134,7 @@
                         </div>
                         ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
                     </h1>
-                   <p>Gestiona tus citas de lavado de forma sencilla</p>
+                    <p>Gestiona tus citas de lavado de forma sencilla</p>
                     <div class="welcome-stats">
                         <div class="welcome-stat">
                             <span class="number">{{ $stats['total_citas'] ?? 0 }}</span>
@@ -1097,9 +1143,9 @@
                         <div class="welcome-stat">
                             @php
                                 $totalGastado = 0;
-                                if(isset($mis_citas)) {
-                                    foreach($mis_citas as $cita) {
-                                        if($cita->estado == 'finalizada' || $cita->estado == 'pagada') {
+                                if (isset($mis_citas)) {
+                                    foreach ($mis_citas as $cita) {
+                                        if ($cita->estado == 'finalizada' || $cita->estado == 'pagada') {
                                             $totalGastado += $cita->servicios->sum('precio');
                                         }
                                     }
@@ -1148,19 +1194,23 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        @if(isset($mis_citas) && count($mis_citas) > 0)
+                        @if (isset($mis_citas) && count($mis_citas) > 0)
                             <!-- Próxima cita destacada -->
                             @php $nextAppointment = $mis_citas->first(); @endphp
                             <div class="next-appointment">
                                 <div class="appointment-date-time">
                                     <div class="date-badge">
-                                        <span class="day">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('d') }}</span>
-                                        <span class="month">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('M') }}</span>
+                                        <span
+                                            class="day">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('d') }}</span>
+                                        <span
+                                            class="month">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('M') }}</span>
                                     </div>
                                     <div class="time-info">
-                                        <div class="time">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('h:i A') }}</div>
+                                        <div class="time">
+                                            {{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('h:i A') }}
+                                        </div>
                                         <div class="service">
-                                            @if($nextAppointment->servicios && count($nextAppointment->servicios) > 0)
+                                            @if ($nextAppointment->servicios && count($nextAppointment->servicios) > 0)
                                                 {{ $nextAppointment->servicios->pluck('nombre')->join(', ') }}
                                             @else
                                                 Sin servicios especificados
@@ -1185,26 +1235,30 @@
 
                             <!-- Otras citas próximas -->
                             <div style="max-height: 200px; overflow-y: auto;">
-                                @foreach($mis_citas->slice(1) as $cita)
-                                <div class="appointment-date-time" style="padding: 15px; border-bottom: 1px solid #eee;">
-                                    <div class="date-badge" style="width: 60px; height: 60px; font-size: 0.8rem;">
-                                        <span class="day">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d') }}</span>
-                                        <span class="month">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('M') }}</span>
-                                    </div>
-                                    <div class="time-info">
-                                        <div class="time" style="font-size: 1.1rem;">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('h:i A') }}</div>
-                                        <div class="service">
-                                            @if($cita->servicios && count($cita->servicios) > 0)
-                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                            @else
-                                                Sin servicios especificados
-                                            @endif
+                                @foreach ($mis_citas->slice(1) as $cita)
+                                    <div class="appointment-date-time"
+                                        style="padding: 15px; border-bottom: 1px solid #eee;">
+                                        <div class="date-badge" style="width: 60px; height: 60px; font-size: 0.8rem;">
+                                            <span
+                                                class="day">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d') }}</span>
+                                            <span
+                                                class="month">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('M') }}</span>
                                         </div>
+                                        <div class="time-info">
+                                            <div class="time" style="font-size: 1.1rem;">
+                                                {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('h:i A') }}</div>
+                                            <div class="service">
+                                                @if ($cita->servicios && count($cita->servicios) > 0)
+                                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                                @else
+                                                    Sin servicios especificados
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <span class="appointment-status status-{{ $cita->estado }}">
+                                            {{ ucfirst($cita->estado) }}
+                                        </span>
                                     </div>
-                                    <span class="appointment-status status-{{ $cita->estado }}">
-                                        {{ ucfirst($cita->estado) }}
-                                    </span>
-                                </div>
                                 @endforeach
                             </div>
                         @else
@@ -1212,7 +1266,8 @@
                                 <i class="fas fa-calendar-alt"></i>
                                 <h3>No tienes citas programadas</h3>
                                 <p>Agenda tu primera cita de lavado</p>
-                                <a href="{{ route('cliente.citas') }}" class="btn btn-primary" style="margin-top: 15px;">
+                                <a href="{{ route('cliente.citas') }}" class="btn btn-primary"
+                                    style="margin-top: 15px;">
                                     <i class="fas fa-calendar-plus"></i>
                                     Agendar Cita
                                 </a>
@@ -1232,33 +1287,35 @@
                         </h2>
                     </div>
                     <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        @if(isset($mis_citas) && count($mis_citas) > 0)
-                            @foreach($mis_citas as $cita)
-                            <div class="service-history-item">
-                                <div class="service-icon">
-                                    <i class="fas fa-car-wash"></i>
+                        @if (isset($mis_citas) && count($mis_citas) > 0)
+                            @foreach ($mis_citas as $cita)
+                                <div class="service-history-item">
+                                    <div class="service-icon">
+                                        <i class="fas fa-car-wash"></i>
+                                    </div>
+                                    <div class="service-details">
+                                        <h4>
+                                            @if ($cita->servicios && count($cita->servicios) > 0)
+                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                            @else
+                                                Servicio no especificado
+                                            @endif
+                                        </h4>
+                                        <p><i class="fas fa-calendar"></i>
+                                            {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y - h:i A') }}</p>
+                                        <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                            {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
+                                        <a href="#" class="repeat-service">
+                                            <i class="fas fa-redo"></i> Volver a agendar
+                                        </a>
+                                    </div>
+                                    <div class="service-price">
+                                        @php
+                                            $total = $cita->servicios->sum('precio');
+                                        @endphp
+                                        ${{ number_format($total, 2) }}
+                                    </div>
                                 </div>
-                                <div class="service-details">
-                                    <h4>
-                                        @if($cita->servicios && count($cita->servicios) > 0)
-                                            {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                        @else
-                                            Servicio no especificado
-                                        @endif
-                                    </h4>
-                                    <p><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y - h:i A') }}</p>
-                                    <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }} {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
-                                    <a href="#" class="repeat-service">
-                                        <i class="fas fa-redo"></i> Volver a agendar
-                                    </a>
-                                </div>
-                                <div class="service-price">
-                                    @php
-                                        $total = $cita->servicios->sum('precio');
-                                    @endphp
-                                    ${{ number_format($total, 2) }}
-                                </div>
-                            </div>
                             @endforeach
                         @else
                             <div class="empty-state">
@@ -1287,7 +1344,8 @@
                                     <i class="fas fa-spray-can"></i>
                                 </div>
                                 <h3>Lavado Completo</h3>
-                                <p class="description">Exterior e interior completo, aspirado y limpieza de tapicería</p>
+                                <p class="description">Exterior e interior completo, aspirado y limpieza de tapicería
+                                </p>
                                 <div class="price">$25.00</div>
                                 <div class="duration">⏱️ 30-40 min</div>
                                 <button class="btn btn-primary">
@@ -1328,119 +1386,130 @@
                 </div>
             </div>
 
-          <!-- Sección Sidebar -->
-<div class="sidebar-section">
-    <!-- Perfil del Cliente -->
-   <div class="card">
-    <div class="card-header">
-        <h2>
-            <div class="icon">
-                <i class="fas fa-user-circle"></i>
-            </div>
-            Mi Perfil
-        </h2>
-    </div>
-    <div class="card-body">
-        <div class="profile-summary">
-            <div class="profile-avatar">
-                <i class="fas fa-user"></i>
-            </div>
-            <div class="profile-info">
-                <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
-                <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
-                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
-                <p><i class="fas fa-calendar"></i> Cliente desde {{ $user->created_at->format('M Y') }}</p>
-            </div>
-            
-            <button onclick="openEditModal()" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
-                <i class="fas fa-edit"></i> Editar Perfil
-            </button>
-        </div>
-    </div>
-</div>
-</div>
-
-             <!-- Notificaciones actualizadas -->
-<div class="card">
-    <div class="card-header">
-        <h2>
-            <div class="icon">
-                <i class="fas fa-bell"></i>
-            </div>
-            Notificaciones
-            {{-- Comentado temporalmente hasta que tengamos los controladores --}}
-            <!-- @if($notificacionesNoLeidas > 0)
-            <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
-            @endif -->
-            <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">0</span>
-        </h2>
-    </div>
-    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-        {{-- Comentado el forelse original --}}
-        <!-- @forelse($notificaciones as $notificacion) -->
-        
-        {{-- Ejemplo estático de notificación (puedes dejarlo o quitarlo) --}}
-        <div class="notification-item unread">
-            <div class="notification-icon info">
-                <i class="fas fa-bell"></i>
-            </div>
-            <div class="notification-content">
-                <h4>Notificación del Sistema</h4>
-                <p>Ejemplo de notificación (modo desarrollo)</p>
-            </div>
-            <div class="notification-time">
-                Hace unos momentos <span style="color: #4facfe;">(Hoy)</span>
-            </div>
-        </div>
-        
-        {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
-        <!-- @empty -->
-        <div class="empty-state" style="padding: 20px;">
-            <i class="fas fa-bell-slash"></i>
-            <h3>No hay notificaciones</h3>
-            <p>No tienes ninguna notificación pendiente</p>
-        </div>
-        <!-- @endforelse -->
-        
-        {{-- Comentado el enlace a todas las notificaciones --}}
-        <!-- @if($notificaciones->count() > 0) -->
-        <div style="text-align: center; margin-top: 15px;">
-            <a href="#" class="btn btn-outline">
-                <i class="fas fa-list"></i> Ver todas las notificaciones
-            </a>
-        </div>
-        <!-- @endif -->
-    </div>
-</div>
-
-                <!-- Mis Vehículos -->
+            <!-- Sección Sidebar -->
+            <div class="sidebar-section">
+                <!-- Perfil del Cliente -->
                 <div class="card">
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-car"></i>
+                                <i class="fas fa-user-circle"></i>
                             </div>
-                            Mis Vehículos
+                            Mi Perfil
                         </h2>
                     </div>
                     <div class="card-body">
-                        @if(isset($mis_vehiculos) && count($mis_vehiculos) > 0)
-                            @foreach($mis_vehiculos as $vehiculo)
+                        <div class="profile-summary">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-info">
+                                <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
+                                <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-calendar"></i> Cliente desde
+                                    {{ $user->created_at->format('M Y') }}</p>
+                            </div>
+
+                            <button onclick="openEditModal()" class="btn btn-outline"
+                                style="margin-top: 15px; width: 100%;">
+                                <i class="fas fa-edit"></i> Editar Perfil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notificaciones actualizadas -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>
+                        <div class="icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        Notificaciones
+                        {{-- Comentado temporalmente hasta que tengamos los controladores --}}
+                        <!-- @if ($notificacionesNoLeidas > 0)
+<span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
+@endif -->
+                        <span
+                            style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">0</span>
+                    </h2>
+                </div>
+                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                    {{-- Comentado el forelse original --}}
+                    <!-- @forelse($notificaciones as $notificacion)
+-->
+
+                    {{-- Ejemplo estático de notificación (puedes dejarlo o quitarlo) --}}
+                    <div class="notification-item unread">
+                        <div class="notification-icon info">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h4>Notificación del Sistema</h4>
+                            <p>Ejemplo de notificación (modo desarrollo)</p>
+                        </div>
+                        <div class="notification-time">
+                            Hace unos momentos <span style="color: #4facfe;">(Hoy)</span>
+                        </div>
+                    </div>
+
+                    {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
+                <!-- @empty -->
+                    <div class="empty-state" style="padding: 20px;">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>No hay notificaciones</h3>
+                        <p>No tienes ninguna notificación pendiente</p>
+                    </div>
+                    <!--
+@endforelse -->
+
+                    {{-- Comentado el enlace a todas las notificaciones --}}
+                    <!-- @if ($notificaciones->count() > 0)
+-->
+                    <div style="text-align: center; margin-top: 15px;">
+                        <a href="#" class="btn btn-outline">
+                            <i class="fas fa-list"></i> Ver todas las notificaciones
+                        </a>
+                    </div>
+                    <!--
+@endif -->
+                </div>
+            </div>
+
+            <!-- Mis Vehículos -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>
+                        <div class="icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        Mis Vehículos
+                    </h2>
+                </div>
+                <div class="card-body">
+                    @if (isset($mis_vehiculos) && count($mis_vehiculos) > 0)
+                        @foreach ($mis_vehiculos as $vehiculo)
                             <div class="service-history-item" style="margin-bottom: 15px;">
                                 <div class="service-icon" style="background: var(--secondary-gradient);">
                                     @switch($vehiculo->tipo)
                                         @case('sedan')
                                             <i class="fas fa-car"></i>
-                                            @break
+                                        @break
+
                                         @case('pickup')
                                             <i class="fas fa-truck-pickup"></i>
-                                            @break
+                                        @break
+
                                         @case('camion')
                                             <i class="fas fa-truck"></i>
-                                            @break
+                                        @break
+
                                         @case('moto')
                                             <i class="fas fa-motorcycle"></i>
-                                            @break
+                                        @break
+
                                         @default
                                             <i class="fas fa-car"></i>
                                     @endswitch
@@ -1454,119 +1523,120 @@
                                     <i class="fas fa-calendar-plus"></i>
                                 </a>
                             </div>
-                            @endforeach
-                        @else
-                            <div class="empty-state">
-                                <i class="fas fa-car"></i>
-                                <h3>No tienes vehículos registrados</h3>
-                                <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
+                        @endforeach
+                    @else
+                        <div class="empty-state">
+                            <i class="fas fa-car"></i>
+                            <h3>No tienes vehículos registrados</h3>
+                            <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
+                        </div>
+                    @endif
+
+                    <a href="{{ route('cliente.vehiculos') }}" class="btn btn-outline"
+                        style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-plus"></i>
+                        Agregar Vehículo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Facturas/Recibos -->
+    <div class="card" style="margin-top: 30px;">
+        <div class="card-header">
+            <h2>
+                <div class="icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                Facturas y Recibos
+            </h2>
+        </div>
+        <div class="card-body">
+            @if (isset($mis_citas) && count($mis_citas) > 0)
+                <div class="services-grid">
+                    @foreach ($mis_citas->take(3) as $cita)
+                        <div class="service-card" style="text-align: left;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                <div>
+                                    <h3>Factura
+                                        #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}-{{ date('Y') }}
+                                    </h3>
+                                    <p style="color: #666; font-size: 0.9rem;">
+                                        {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y') }}
+                                    </p>
+                                </div>
+                                <div>
+                                    @php
+                                        $total = $cita->servicios->sum('precio');
+                                    @endphp
+                                    <div
+                                        style="font-weight: 700; color: #4facfe; font-size: 1.3rem; text-align: right;">
+                                        ${{ number_format($total, 2) }}</div>
+                                    <span
+                                        style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; margin-top: 5px;">PAGADO</span>
+                                </div>
                             </div>
-                        @endif
 
-                        <a href="{{ route('cliente.vehiculos') }}" class="btn btn-outline" style="width: 100%; margin-top: 10px;">
-                            <i class="fas fa-plus"></i>
-                            Agregar Vehículo
-                        </a>
-                    </div>
+                            <div style="margin-bottom: 15px;">
+                                <p><strong>Servicios:</strong></p>
+                                <ul style="padding-left: 20px; margin-top: 5px;">
+                                    @foreach ($cita->servicios as $servicio)
+                                        <li>{{ $servicio->nombre }} - ${{ number_format($servicio->precio, 2) }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button class="btn btn-sm btn-outline" style="flex: 1;">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
+                                <button class="btn btn-sm btn-primary" style="flex: 1;">
+                                    <i class="fas fa-download"></i> PDF
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
+            @else
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i class="fas fa-file-invoice"></i>
+                    <h3>No hay facturas disponibles</h3>
+                    <p>Agenda tu primera cita para generar facturas</p>
+                </div>
+            @endif
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-outline">
+                    <i class="fas fa-history"></i> Ver Todas las Facturas
+                </button>
             </div>
         </div>
-
-        <!-- Sección de Facturas/Recibos -->
-<div class="card" style="margin-top: 30px;">
-    <div class="card-header">
-        <h2>
-            <div class="icon">
-                <i class="fas fa-file-invoice-dollar"></i>
-            </div>
-            Facturas y Recibos
-        </h2>
     </div>
-    <div class="card-body">
-        @if(isset($mis_citas) && count($mis_citas) > 0)
-            <div class="services-grid">
-                @foreach($mis_citas->take(3) as $cita)
-                <div class="service-card" style="text-align: left;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                        <div>
-                            <h3>Factura #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}-{{ date('Y') }}</h3>
-                            <p style="color: #666; font-size: 0.9rem;">
-                                {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y') }}
-                            </p>
-                        </div>
-                        <div>
-                            @php
-                                $total = $cita->servicios->sum('precio');
-                            @endphp
-                            <div style="font-weight: 700; color: #4facfe; font-size: 1.3rem; text-align: right;">${{ number_format($total, 2) }}</div>
-                            <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; margin-top: 5px;">PAGADO</span>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <p><strong>Servicios:</strong></p>
-                        <ul style="padding-left: 20px; margin-top: 5px;">
-                            @foreach($cita->servicios as $servicio)
-                            <li>{{ $servicio->nombre }} - ${{ number_format($servicio->precio, 2) }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button class="btn btn-sm btn-outline" style="flex: 1;">
-                            <i class="fas fa-eye"></i> Ver
-                        </button>
-                        <button class="btn btn-sm btn-primary" style="flex: 1;">
-                            <i class="fas fa-download"></i> PDF
-                        </button>
-                    </div>
+
+
+    <!-- Modal para editar perfil -->
+    <<div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            <h2><i class="fas fa-user-edit"></i> Editar Perfil</h2>
+
+            <form id="profileForm">
+                @csrf
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required>
                 </div>
-                @endforeach
-            </div>
-        @else
-            <div class="empty-state" style="grid-column: 1 / -1;">
-                <i class="fas fa-file-invoice"></i>
-                <h3>No hay facturas disponibles</h3>
-                <p>Agenda tu primera cita para generar facturas</p>
-            </div>
-        @endif
-        
-        <div style="text-align: center; margin-top: 20px;">
-            <button class="btn btn-outline">
-                <i class="fas fa-history"></i> Ver Todas las Facturas
-            </button>
+                <div class="form-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="text" id="telefono" name="telefono">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </form>
         </div>
-    </div>
-</div>
-
-
-     <!-- Modal para editar perfil -->
-<div id="editProfileModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeEditModal()">&times;</span>
-        <h2 style="color: #4facfe; margin-bottom: 20px;">
-            <i class="fas fa-user-edit"></i> Editar Perfil
-        </h2>
-        <form id="profileForm" action="{{ route('perfil.update') }}" method="POST">
-            @csrf
-            <div class="form-group">
-                <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" value="{{ $user->nombre ?? '' }}" required>
-            </div>
-            <div class="form-group">
-                <label for="telefono">Teléfono:</label>
-                <input type="text" id="telefono" name="telefono" value="{{ $user->telefono ?? '' }}">
-            </div>
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="text" value="{{ $user->email ?? '' }}" disabled style="background: #f1f1f1; cursor: not-allowed;">
-            </div>
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Guardar Cambios
-            </button>
-        </form>
-    </div>
-</div>
+        </div>
 
         <!-- Modal para imprimir recibo -->
         <div id="receiptModal" class="modal">
@@ -1585,155 +1655,156 @@
                 </div>
             </div>
         </div>
-    </div>
+        </div>
 
-   <footer class="footer">
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
-        
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
-            </div>
-            
-            <div class="footer-info">
-                <div class="info-item">
-                    <i class="fas fa-phone"></i>
-                    <span>75855197</span>
+        <footer class="footer">
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                    <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
                 </div>
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
-                        Ver ubicación en mapa
+
+                <div class="footer-info">
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <span>75855197</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
+                            Ver ubicación en mapa
+                        </a>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
+                    </div>
+                </div>
+
+                <div class="social-icons">
+                    <a href="#" class="social-icon facebook" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="#" class="social-icon instagram" title="Instagram">
+                        <i class="fab fa-instagram"></i>
                     </a>
                 </div>
-                <div class="info-item">
-                    <i class="fas fa-clock"></i>
-                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
-                </div>
+
+                <div class="footer-divider"></div>
+
+                <p class="footer-copyright">
+                    &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+                </p>
             </div>
+        </footer>
 
-            <div class="social-icons">
-                <a href="#" class="social-icon facebook" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-                <a href="#" class="social-icon instagram" title="Instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
-            </div>
-
-            <div class="footer-divider"></div>
-            
-            <p class="footer-copyright">
-                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
-            </p>
-        </div>
-    </footer>
-
-    <script>
-       // Configuración de SweetAlert con estilos personalizados
-        const swalWithBootstrapButtons = Swal.mixin({
-            customClass: {
-            confirmButton: 'btn btn-primary',
-            cancelButton: 'btn btn-outline mr-2'
-        },
-        buttonsStyling: false
-        });
-
-    // Funciones para el modal de edición de perfil
-    function openEditModal() {
-        const modal = document.getElementById('editProfileModal');
-        modal.style.display = 'block';
-    
-        // Rellenar el formulario con los datos actuales
-        document.getElementById('nombre').value = '{{ $user->nombre ?? "" }}';
-        document.getElementById('telefono').value = '{{ $user->telefono ?? "" }}';
-    }
-
-    function closeEditModal() {
-        document.getElementById('editProfileModal').style.display = 'none';
-    }
-
-    // Manejar el envío del formulario
-    document.getElementById('profileForm').addEventListener('submit', function(e) {
-           e.preventDefault();
-    
-        const formData = new FormData(this);
-    
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                closeEditModal();
-            
-                // Mostrar alerta de éxito con SweetAlert
-                swalWithBootstrapButtons.fire({
-                    title: '¡Perfil actualizado!',
-                    text: 'Tus datos se han actualizado correctamente',
-                    icon: 'success',
-                    confirmButtonText: 'Aceptar'
-                });
-            
-                // Actualizar la información en la página
-                document.querySelector('.profile-info h3').textContent = data.user.nombre;
-                document.querySelector('.profile-info p:nth-of-type(2)').innerHTML = 
-                    `<i class="fas fa-phone"></i> ${data.user.telefono || 'No especificado'}`;
-            } else {
-                throw new Error(data.message || 'Error al actualizar el perfil');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            swalWithBootstrapButtons.fire({
-                title: 'Error',
-                text: 'Ocurrió un error al actualizar el perfil: ' + error.message,
-                icon: 'error',
-                confirmButtonText: 'Entendido'
+        <script>
+            // Configuración global de SweetAlert
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-primary',
+                    cancelButton: 'btn btn-outline mr-2'
+                },
+                buttonsStyling: false
             });
-        });
-    });
 
-    // Cerrar modal al hacer clic fuera del contenido
-    window.addEventListener('click', function(event) {
-        if (event.target.className === 'modal') {
-            event.target.style.display = 'none';
-        }
-    });
-        
-        // Función para marcar notificaciones como leídas
-        //function markAsRead(notificacionId) {
-     //fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
-       // method: 'POST',
-      //  headers: {
-        //    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-         //   'Content-Type': 'application/json'
-        //}
-    //}).then(response => {
-      //  if(response.ok) {
-        //    location.reload();
-        //}
-    //});
-//}
-        
-        // Función para generar recibo
-        function generateReceipt(citaId) {
-            fetch(`/citas/${citaId}/recibo`)
-                .then(response => response.json())
-                .then(data => {
-                    const receiptContent = document.getElementById('receiptContent');
-                    receiptContent.innerHTML = `
+            // Funciones del modal
+            function openEditModal() {
+                const modal = document.getElementById('editProfileModal');
+                modal.style.display = 'block';
+
+                // Rellenar con datos actuales
+                document.getElementById('nombre').value = '{{ $user->nombre ?? '' }}';
+                document.getElementById('telefono').value = '{{ $user->telefono ?? '' }}';
+            }
+
+            function closeEditModal() {
+                document.getElementById('editProfileModal').style.display = 'none';
+            }
+
+            // Manejo del formulario AJAX
+            document.getElementById('profileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    nombre: document.getElementById('nombre').value,
+                    telefono: document.getElementById('telefono').value,
+                    _token: document.querySelector('meta[name="csrf-token"]').content
+                };
+
+                try {
+                    const response = await fetch('{{ route('perfil.update-ajax') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) throw new Error(data.message || 'Error en la respuesta');
+
+                    // Éxito
+                    closeEditModal();
+                    swalWithBootstrapButtons.fire({
+                        title: '¡Éxito!',
+                        text: data.message,
+                        icon: 'success'
+                    });
+
+                    // Actualizar la UI
+                    document.querySelector('.profile-info h3').textContent = data.user.nombre;
+                    document.querySelector('.profile-info p:nth-of-type(2)').innerHTML =
+                        `<i class="fas fa-phone"></i> ${data.user.telefono || 'No especificado'}`;
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    swalWithBootstrapButtons.fire({
+                        title: 'Error',
+                        text: error.message,
+                        icon: 'error'
+                    });
+                }
+            });
+
+            // Cerrar modal al hacer clic fuera
+            window.addEventListener('click', (event) => {
+                if (event.target.classList.contains('modal')) {
+                    closeEditModal();
+                }
+            });
+
+            // Función para marcar notificaciones como leídas
+            //function markAsRead(notificacionId) {
+            //fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
+            // method: 'POST',
+            //  headers: {
+            //    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            //   'Content-Type': 'application/json'
+            //}
+            //}).then(response => {
+            //  if(response.ok) {
+            //    location.reload();
+            //}
+            //});
+            //}
+
+            // Función para generar recibo
+            function generateReceipt(citaId) {
+                fetch(`/citas/${citaId}/recibo`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const receiptContent = document.getElementById('receiptContent');
+                        receiptContent.innerHTML = `
                         <div style="text-align: center; margin-bottom: 20px;">
                             <h2 style="color: #4facfe;">Carwash Berríos</h2>
                             <p>Recibo de Servicio</p>
@@ -1752,11 +1823,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                    <tr>
-                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                    </tr>
-                                `).join('')}
+                                            <tr>
+                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                            </tr>
+                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -1778,148 +1849,149 @@
                             <p>Recibo #${data.id}</p>
                         </div>
                     `;
-                    
-                    document.getElementById('receiptModal').style.display = 'block';
-                });
-        }
-        
-        function closeReceiptModal() {
-            document.getElementById('receiptModal').style.display = 'none';
-        }
-        
-        function printReceipt() {
-            const printContent = document.getElementById('receiptContent').innerHTML;
-            const originalContent = document.body.innerHTML;
-            
-            document.body.innerHTML = printContent;
-            window.print();
-            document.body.innerHTML = originalContent;
-            location.reload();
-        }
-        
-        function downloadReceipt() {
-            // Aquí iría la lógica para generar y descargar el PDF
-            alert('Descargando recibo como PDF...');
-        }
-        
-      
-    
-        // Simulación de interactividad
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animación de entrada para las cards
-            const cards = document.querySelectorAll('.card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
 
-            // Efecto hover mejorado para service cards
-            const serviceCards = document.querySelectorAll('.service-card');
-            serviceCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.02)';
-                });
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
-                });
-            });
-
-            // Marcas notificaciones como leídas al hacer clic
-            const notifications = document.querySelectorAll('.notification-item.unread');
-            notifications.forEach(notification => {
-                notification.addEventListener('click', function() {
-                    this.classList.remove('unread');
-                    this.classList.add('read');
-                });
-            });
-
-            // Efecto de pulsación para botones
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Crear efecto ripple
-                    const ripple = document.createElement('span');
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size / 2;
-                    const y = e.clientY - rect.top - size / 2;
-                    
-                    ripple.style.width = ripple.style.height = size + 'px';
-                    ripple.style.left = x + 'px';
-                    ripple.style.top = y + 'px';
-                    ripple.classList.add('ripple');
-                    
-                    this.appendChild(ripple);
-                    
-                    setTimeout(() => {
-                        ripple.remove();
-                    }, 600);
-                });
-            });
-        });
-    </script>
-
-    <style>
-        /* Efecto ripple para botones */
-        .btn {
-            overflow: hidden;
-            position: relative;
-        }
-
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(0);
-            animation: ripple-animation 0.6s linear;
-            pointer-events: none;
-        }
-
-        @keyframes ripple-animation {
-            to {
-                transform: scale(4);
-                opacity: 0;
+                        document.getElementById('receiptModal').style.display = 'block';
+                    });
             }
-        }
 
-        /* Mejoras adicionales de hover */
-        .service-history-item:hover {
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.15);
-        }
+            function closeReceiptModal() {
+                document.getElementById('receiptModal').style.display = 'none';
+            }
 
-        .notification-item:hover {
-            background: linear-gradient(45deg, #4facfe05, #00f2fe05) !important;
-            cursor: pointer;
-        }
+            function printReceipt() {
+                const printContent = document.getElementById('receiptContent').innerHTML;
+                const originalContent = document.body.innerHTML;
 
-        .profile-avatar:hover {
-            transform: scale(1.05);
-            transition: all 0.3s ease;
-        }
+                document.body.innerHTML = printContent;
+                window.print();
+                document.body.innerHTML = originalContent;
+                location.reload();
+            }
 
-        /* Scrollbar personalizado */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
+            function downloadReceipt() {
+                // Aquí iría la lógica para generar y descargar el PDF
+                alert('Descargando recibo como PDF...');
+            }
 
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
 
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(45deg, #4facfe, #00f2fe);
-            border-radius: 10px;
-        }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-        }
-    </style>
+            // Simulación de interactividad
+            document.addEventListener('DOMContentLoaded', function() {
+                // Animación de entrada para las cards
+                const cards = document.querySelectorAll('.card');
+                cards.forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.6s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+
+                // Efecto hover mejorado para service cards
+                const serviceCards = document.querySelectorAll('.service-card');
+                serviceCards.forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-8px) scale(1.02)';
+                    });
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0) scale(1)';
+                    });
+                });
+
+                // Marcas notificaciones como leídas al hacer clic
+                const notifications = document.querySelectorAll('.notification-item.unread');
+                notifications.forEach(notification => {
+                    notification.addEventListener('click', function() {
+                        this.classList.remove('unread');
+                        this.classList.add('read');
+                    });
+                });
+
+                // Efecto de pulsación para botones
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        // Crear efecto ripple
+                        const ripple = document.createElement('span');
+                        const rect = this.getBoundingClientRect();
+                        const size = Math.max(rect.width, rect.height);
+                        const x = e.clientX - rect.left - size / 2;
+                        const y = e.clientY - rect.top - size / 2;
+
+                        ripple.style.width = ripple.style.height = size + 'px';
+                        ripple.style.left = x + 'px';
+                        ripple.style.top = y + 'px';
+                        ripple.classList.add('ripple');
+
+                        this.appendChild(ripple);
+
+                        setTimeout(() => {
+                            ripple.remove();
+                        }, 600);
+                    });
+                });
+            });
+        </script>
+
+        <style>
+            /* Efecto ripple para botones */
+            .btn {
+                overflow: hidden;
+                position: relative;
+            }
+
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(0);
+                animation: ripple-animation 0.6s linear;
+                pointer-events: none;
+            }
+
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+
+            /* Mejoras adicionales de hover */
+            .service-history-item:hover {
+                box-shadow: 0 4px 15px rgba(79, 172, 254, 0.15);
+            }
+
+            .notification-item:hover {
+                background: linear-gradient(45deg, #4facfe05, #00f2fe05) !important;
+                cursor: pointer;
+            }
+
+            .profile-avatar:hover {
+                transform: scale(1.05);
+                transition: all 0.3s ease;
+            }
+
+            /* Scrollbar personalizado */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: linear-gradient(45deg, #4facfe, #00f2fe);
+                border-radius: 10px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(45deg, #667eea, #764ba2);
+            }
+        </style>
 </body>
+
 </html>
