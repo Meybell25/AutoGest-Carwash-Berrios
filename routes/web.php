@@ -76,11 +76,10 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
 Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
     Route::get('/', [PerfilController::class, 'edit'])->name('edit');
     Route::post('/actualizar', [PerfilController::class, 'update'])->name('update');
-    
-    // Ruta AJAX con auth + ajax
+
+     // Ruta AJAX corregida:
     Route::post('/actualizar-ajax', [PerfilController::class, 'updateAjax'])
-        ->middleware('ajax') // Solo añade este, auth ya está aplicado
-        ->name('update-ajax');
+        ->name('update-ajax'); 
 });
 
 // Grupo de rutas para configuración avanzada

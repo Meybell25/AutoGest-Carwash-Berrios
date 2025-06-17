@@ -1385,6 +1385,80 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Facturas y Recibos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            Facturas y Recibos
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        @if (isset($mis_citas) && count($mis_citas) > 0)
+                            <div class="services-grid">
+                                @foreach ($mis_citas->take(3) as $cita)
+                                    <div class="service-card" style="text-align: left;">
+                                        <div
+                                            style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                            <div>
+                                                <h3>Factura
+                                                    #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}-{{ date('Y') }}
+                                                </h3>
+                                                <p style="color: #666; font-size: 0.9rem;">
+                                                    {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y') }}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                @php
+                                                    $total = $cita->servicios->sum('precio');
+                                                @endphp
+                                                <div
+                                                    style="font-weight: 700; color: #4facfe; font-size: 1.3rem; text-align: right;">
+                                                    ${{ number_format($total, 2) }}</div>
+                                                <span
+                                                    style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; margin-top: 5px;">PAGADO</span>
+                                            </div>
+                                        </div>
+
+                                        <div style="margin-bottom: 15px;">
+                                            <p><strong>Servicios:</strong></p>
+                                            <ul style="padding-left: 20px; margin-top: 5px;">
+                                                @foreach ($cita->servicios as $servicio)
+                                                    <li>{{ $servicio->nombre }} -
+                                                        ${{ number_format($servicio->precio, 2) }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+
+                                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                            <button class="btn btn-sm btn-outline" style="flex: 1;">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </button>
+                                            <button class="btn btn-sm btn-primary" style="flex: 1;">
+                                                <i class="fas fa-download"></i> PDF
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-file-invoice"></i>
+                                <h3>No hay facturas disponibles</h3>
+                                <p>Agenda tu primera cita para generar facturas</p>
+                            </div>
+                        @endif
+
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-history"></i> Ver Todas las Facturas
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Sección Sidebar -->
@@ -1456,7 +1530,7 @@
                         </div>
 
                         {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
-                        <!-- @empty -->
+                    <!-- @empty -->
                         <div class="empty-state" style="padding: 20px;">
                             <i class="fas fa-bell-slash"></i>
                             <h3>No hay notificaciones</h3>
@@ -1542,79 +1616,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Sección de Facturas/Recibos -->
-    <div class="card" style="margin-top: 30px;">
-        <div class="card-header">
-            <h2>
-                <div class="icon">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                </div>
-                Facturas y Recibos
-            </h2>
-        </div>
-        <div class="card-body">
-            @if (isset($mis_citas) && count($mis_citas) > 0)
-                <div class="services-grid">
-                    @foreach ($mis_citas->take(3) as $cita)
-                        <div class="service-card" style="text-align: left;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                                <div>
-                                    <h3>Factura
-                                        #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}-{{ date('Y') }}
-                                    </h3>
-                                    <p style="color: #666; font-size: 0.9rem;">
-                                        {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y') }}
-                                    </p>
-                                </div>
-                                <div>
-                                    @php
-                                        $total = $cita->servicios->sum('precio');
-                                    @endphp
-                                    <div
-                                        style="font-weight: 700; color: #4facfe; font-size: 1.3rem; text-align: right;">
-                                        ${{ number_format($total, 2) }}</div>
-                                    <span
-                                        style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; margin-top: 5px;">PAGADO</span>
-                                </div>
-                            </div>
-
-                            <div style="margin-bottom: 15px;">
-                                <p><strong>Servicios:</strong></p>
-                                <ul style="padding-left: 20px; margin-top: 5px;">
-                                    @foreach ($cita->servicios as $servicio)
-                                        <li>{{ $servicio->nombre }} - ${{ number_format($servicio->precio, 2) }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-
-                            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                                <button class="btn btn-sm btn-outline" style="flex: 1;">
-                                    <i class="fas fa-eye"></i> Ver
-                                </button>
-                                <button class="btn btn-sm btn-primary" style="flex: 1;">
-                                    <i class="fas fa-download"></i> PDF
-                                </button>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="empty-state" style="grid-column: 1 / -1;">
-                    <i class="fas fa-file-invoice"></i>
-                    <h3>No hay facturas disponibles</h3>
-                    <p>Agenda tu primera cita para generar facturas</p>
-                </div>
-            @endif
-
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="btn btn-outline">
-                    <i class="fas fa-history"></i> Ver Todas las Facturas
-                </button>
-            </div>
-        </div>
-    </div>
-
 
     <!-- Modal para editar perfil -->
     <div id="editProfileModal" class="modal">
@@ -1828,11 +1829,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                    <tr>
-                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                    </tr>
-                                                `).join('')}
+                                                        <tr>
+                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                        </tr>
+                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
