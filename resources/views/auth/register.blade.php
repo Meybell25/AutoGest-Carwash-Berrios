@@ -446,7 +446,7 @@
                                 </svg>
                             </div>
                             <input id="password_confirmation" name="password_confirmation" type="password" required
-                                class="input-field block w-full pl-10 pr-12 py-2.5 sm:py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base @error('password_confirmation') border-red-500 @enderror"
+                                class="input-field block w-full pl-10 pr-12 py-2.5 sm:py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
                                 placeholder="Repite tu contraseña">
                             <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                 <button type="button" class="password-toggle text-gray-400 hover:text-blue-500"
@@ -461,12 +461,8 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- Contenedor fijo para mensajes de error -->
-                        <div class="min-h-[20px]"> <!-- Altura mínima para evitar saltos -->
-                            @error('password_confirmation')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <!-- Contenedor para mensajes de error -->
+                        <div id="password-confirm-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
 
                     <!-- Botón de registro -->
@@ -566,19 +562,15 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('password_confirmation').value;
             const confirmField = document.getElementById('password_confirmation');
-            const errorContainer = confirmField.parentNode.nextElementSibling; // El nuevo contenedor
-
-            // Limpiar cualquier mensaje existente
-            errorContainer.innerHTML = '';
+            const errorElement = document.getElementById('password-confirm-error');
 
             if (confirmPassword && password !== confirmPassword) {
-                confirmField.classList.add('is-invalid');
-                const errorMsg = document.createElement('p');
-                errorMsg.className = 'text-red-500 text-sm mt-1';
-                errorMsg.textContent = 'Las contraseñas no coinciden';
-                errorContainer.appendChild(errorMsg);
+                errorElement.textContent = 'Las contraseñas no coinciden';
+                errorElement.classList.remove('hidden');
+                confirmField.classList.add('border-red-500');
             } else {
-                confirmField.classList.remove('is-invalid');
+                errorElement.classList.add('hidden');
+                confirmField.classList.remove('border-red-500');
             }
         }
 
