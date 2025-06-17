@@ -93,7 +93,7 @@
         }
 
         .welcome-icon {
-            background: var(--secondary-gradient);
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
             width: 50px;
             height: 50px;
             border-radius: 12px;
@@ -102,7 +102,14 @@
             justify-content: center;
             color: white;
             font-size: 1.5rem;
+            position: relative;
         }
+
+        .welcome-icon i {
+            z-index: 2;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
 
         .welcome-section p {
             color: var(--text-secondary);
@@ -282,13 +289,13 @@
             width: 40px;
             height: 40px;
             border-radius: 10px;
-            display: flex !important ;
+            display: flex !important;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 1.2rem;
         }
-        
+
 
         .card-body {
             padding: 0 25px 25px;
@@ -1293,7 +1300,7 @@
                             @foreach ($mis_citas as $cita)
                                 <div class="service-history-item">
                                     <div class="service-icon">
-                                          <i class="fas fa-soap"></i>
+                                        <i class="fas fa-soap"></i>
                                     </div>
                                     <div class="service-details">
                                         <h4>
@@ -1830,11 +1837,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                            <tr>
-                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                            </tr>
-                                                        `).join('')}
+                                                                <tr>
+                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                </tr>
+                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
