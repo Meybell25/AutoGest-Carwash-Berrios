@@ -103,11 +103,13 @@
             color: white;
             font-size: 1.5rem;
             position: relative;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .welcome-icon i {
             z-index: 2;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            text-shadow: none;
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
         }
 
 
@@ -1837,11 +1839,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                <tr>
-                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                </tr>
-                                                            `).join('')}
+                                                                    <tr>
+                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                    </tr>
+                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
