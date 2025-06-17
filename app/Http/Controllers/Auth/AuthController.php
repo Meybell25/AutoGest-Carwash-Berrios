@@ -44,7 +44,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
-            
+
             if (!$user->estado) {
                 Auth::logout();
                 return back()->withErrors([
@@ -59,7 +59,7 @@ class AuthController extends Controller
             'email' => 'Las credenciales no coinciden con nuestros registros.',
         ])->onlyInput('email');
     }
-    
+
     /**
      * Procesar registro
      */
@@ -69,7 +69,11 @@ class AuthController extends Controller
             'nombre' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:usuarios'],
             'telefono' => ['nullable', 'string', 'max:20'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()->mixedCase()->numbers()],
+        ], [
+            'password.mixed' => 'La contraseña debe contener al menos una letra mayúscula y una minúscula.',
+            'password.numbers' => 'La contraseña debe contener al menos un número.',
+            'password.confirmed' => 'Las contraseñas no coinciden.'
         ]);
 
         $user = Usuario::create([
@@ -88,7 +92,7 @@ class AuthController extends Controller
         return redirect()->route('cliente.dashboard')
             ->with('success', '¡Registro exitoso! Bienvenido a nuestro sistema.');
     }
-   
+
     /**
      * Logout
      */
