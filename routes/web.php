@@ -70,25 +70,31 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
     Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
 });
 
-
-// Rutas para perfil de usuario
+// Grupo de rutas para gestión básica del perfil
 Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
+    // Muestra el formulario de edición de perfil (vista tradicional)
     Route::get('/', [PerfilController::class, 'edit'])->name('edit');
+    
+    // Procesa el formulario tradicional de actualización (POST)
     Route::post('/actualizar', [PerfilController::class, 'update'])->name('update');
+    
+    // Ruta para actualización AJAX (se mantiene separada por el middleware específico)
+    Route::post('/actualizar-ajax', [PerfilController::class, 'updateAjax'])
+           ->name('update-ajax')
+           ->middleware('ajax');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::post('/perfil/actualizar-ajax', [PerfilController::class, 'updateAjax'])
-        ->name('perfil.update-ajax')
-        ->middleware('ajax');
-});
-
+// Grupo de rutas para configuración avanzada
 Route::middleware('auth')->prefix('configuracion')->name('configuracion.')->group(function () {
+    // Página principal de configuración
     Route::get('/', [PerfilController::class, 'configuracion'])->name('index');
+    
+    // Actualización de email
     Route::post('/actualizar-email', [PerfilController::class, 'updateEmail'])->name('update-email');
+    
+    // Actualización de contraseña
     Route::post('/actualizar-password', [PerfilController::class, 'updatePassword'])->name('update-password');
 });
-
 
 //RUTAS DE PRUEBA
 Route::get('/debug', function () {
