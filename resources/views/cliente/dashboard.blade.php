@@ -288,11 +288,7 @@
             color: white;
             font-size: 1.2rem;
         }
-        .card-header .icon i {
-            font-size: 1.5rem !important;
-            color: white !important;
-            border: 1px solid red; /* Solo para depuración */
-        }  
+        
 
         .card-body {
             padding: 0 25px 25px;
@@ -1297,7 +1293,7 @@
                             @foreach ($mis_citas as $cita)
                                 <div class="service-history-item">
                                     <div class="service-icon">
-                                        <i class="fas fa-car-wash"></i>
+                                          <i class="fas fa-soap"></i>
                                     </div>
                                     <div class="service-details">
                                         <h4>
