@@ -102,6 +102,18 @@
         }
 
         /* Estilos para la validación de contraseña */
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+
         .password-requirements {
             margin-top: 0.5rem;
         }
@@ -427,10 +439,6 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- Mensaje de error para confirmación -->
-                        <div id="password-match-error" class="text-red-500 text-sm mt-1 hidden">
-                            Las contraseñas no coinciden
-                        </div>
                         @error('password_confirmation')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -524,20 +532,30 @@
             }
         });
 
-        // Validación de coincidencia de contraseñas
-        document.getElementById('password_confirmation').addEventListener('input', validatePasswordMatch);
+        // Validación en tiempo real de confirmación de contraseña
+        document.getElementById('password_confirmation').addEventListener('input', function() {
+            validatePasswordMatch();
+        });
 
         function validatePasswordMatch() {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('password_confirmation').value;
-            const errorElement = document.getElementById('password-match-error');
+            const confirmField = document.getElementById('password_confirmation');
+            const feedbackDiv = confirmField.parentNode.querySelector('.invalid-feedback');
+
+            // Eliminar cualquier mensaje existente primero
+            if (feedbackDiv) {
+                feedbackDiv.remove();
+            }
 
             if (confirmPassword && password !== confirmPassword) {
-                errorElement.classList.remove('hidden');
-                document.getElementById('password_confirmation').classList.add('border-red-500');
+                confirmField.classList.add('is-invalid');
+                const feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.textContent = 'Las contraseñas no coinciden';
+                confirmField.parentNode.appendChild(feedback);
             } else {
-                errorElement.classList.add('hidden');
-                document.getElementById('password_confirmation').classList.remove('border-red-500');
+                confirmField.classList.remove('is-invalid');
             }
         }
 
