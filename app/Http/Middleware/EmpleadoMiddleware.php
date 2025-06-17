@@ -12,7 +12,7 @@ class EmpleadoMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !Auth::user()->isEmpleado()) { // ← Cambiar auth() por Auth
+        if (!Auth::check() || !Auth::user()->isEmpleado()) { 
             abort(403, 'Acceso denegado. Solo empleados pueden acceder.');
         }
 
