@@ -50,20 +50,19 @@ class PerfilController extends Controller
     }
 
     public function updatePassword(Request $request)
-    {
-        $request->validate([
-            'current_password' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+{
+    $request->validate([
+        'current_password' => 'required|string|current_password',
+        'password' => 'required|string|min:8|confirmed|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
+    ], [
+        'password.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula y un número.',
+        'password.confirmed' => 'Las contraseñas no coinciden.'
+    ]);
 
-        if (!Hash::check($request->current_password, Auth::user()->password)) {
-            return back()->withErrors(['current_password' => 'La contraseña actual no es correcta']);
-        }
+    Auth::user()->update(['password' => Hash::make($request->password)]);
 
-        Auth::user()->update(['password' => Hash::make($request->password)]);
-
-        return back()->with('success', 'Contraseña actualizada correctamente');
-    }
+    return back()->with('success', 'Contraseña actualizada correctamente');
+}
     public function updateAjax(Request $request)
     {
         $validated = $request->validate([
