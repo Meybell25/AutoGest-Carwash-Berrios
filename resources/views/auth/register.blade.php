@@ -187,12 +187,12 @@
             margin-top: 0.25rem;
         }
 
-        .border-red-500 {
-            border-color: #ef4444 !important;
-        }
-
         .hidden {
             display: none !important;
+        }
+
+        .border-red-500 {
+            border-color: #ef4444 !important;
         }
 
         input.border-red-500 {
@@ -474,8 +474,9 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- Mensaje de error - Siempre presente pero oculto inicialmente -->
-                        <div id="password-confirm-error" class="text-red-500 text-sm mt-1" style="display: none;">
+                        <!-- Mensaje de error - Cambiado a usar hidden class en lugar de style -->
+                        <div id="password-confirm-error" class="text-red-500 text-sm mt-1 hidden">
+                            Las contraseñas no coinciden
                         </div>
                     </div>
 
@@ -534,7 +535,7 @@
             }
         }
 
-        // Validación en tiempo real de la contraseña
+        // Validación en tiempo real de la contraseña principal
         document.getElementById('password').addEventListener('input', function() {
             const password = this.value;
             const confirmPassword = document.getElementById('password_confirmation').value;
@@ -550,7 +551,6 @@
             document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' : 'text-gray-400';
             document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' : 'text-gray-400';
             document.getElementById('req-number').className = hasNumber ? 'text-green-500' : 'text-gray-400';
-
             // Calcular fortaleza
             const strength = calculatePasswordStrength(password);
             const strengthBar = document.getElementById('password-strength-bar');
@@ -567,17 +567,8 @@
             }
         });
 
-        // Validación en tiempo real de confirmación de contraseña
-        // Validación en tiempo real de confirmación de contraseña
+        / Validación en tiempo real de confirmación de contraseña
         document.getElementById('password_confirmation').addEventListener('input', validatePasswordMatch);
-
-        // También validar cuando se modifica el campo de contraseña principal
-        document.getElementById('password').addEventListener('input', function() {
-            const confirmField = document.getElementById('password_confirmation');
-            if (confirmField.value) {
-                validatePasswordMatch();
-            }
-        });
 
         function validatePasswordMatch() {
             const password = document.getElementById('password').value;
@@ -585,11 +576,9 @@
             const confirmField = document.getElementById('password_confirmation');
             const errorElement = document.getElementById('password-confirm-error');
 
-            // Solo validar si hay algo escrito en confirmación
             if (confirmPassword.length > 0) {
                 if (password !== confirmPassword) {
                     // Contraseñas no coinciden
-                    errorElement.textContent = 'Las contraseñas no coinciden';
                     errorElement.classList.remove('hidden');
                     confirmField.classList.add('border-red-500');
                     confirmField.classList.remove('border-gray-300');
@@ -607,15 +596,7 @@
             }
         }
 
-        // También validar cuando se modifica el campo de contraseña principal
-        document.getElementById('password').addEventListener('input', function() {
-            const confirmField = document.getElementById('password_confirmation');
-            if (confirmField.value) {
-                confirmField.dispatchEvent(new Event('input'));
-            }
-        });
-
-        // Función para calcular fortaleza de contraseña
+        // Función para calcular fortaleza de contraseña (se mantiene igual)
         function calculatePasswordStrength(password) {
             let strength = 0;
             if (password.length >= 8) strength++;
