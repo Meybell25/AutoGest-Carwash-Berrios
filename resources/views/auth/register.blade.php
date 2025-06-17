@@ -474,9 +474,14 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- Mensaje de error - Cambiado a usar hidden class en lugar de style -->
-                        <div id="password-confirm-error" class="text-red-500 text-sm mt-1 hidden">
-                            Las contraseñas no coinciden
+                        <!-- Mensaje de error  -->
+                        <div class="min-h-[20px]">
+                            <div id="password-match-error" class="text-red-500 text-sm mt-1 hidden">
+                                Las contraseñas no coinciden
+                            </div>
+                            @error('password_confirmation')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -517,21 +522,24 @@
     <script>
         // Función para mostrar/ocultar contraseñas
         function togglePassword(fieldId, iconId) {
-            const passwordInput = document.getElementById(fieldId);
-            const eyeIcon = document.getElementById(iconId);
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
 
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.innerHTML = `
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464m1.414 1.414L8.464 8.464m5.656 5.656l1.414 1.414m-1.414-1.414l1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/>
-            `;
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464m1.414 1.414L8.464 8.464m5.656 5.656l1.414 1.414m-1.414-1.414l1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/>
+        `;
             } else {
-                passwordInput.type = 'password';
-                eyeIcon.innerHTML = `
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            `;
+                field.type = 'password';
+                icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+        `;
             }
         }
 
@@ -562,39 +570,32 @@
             strengthText.className = strength.textClass;
 
             // Validar coincidencia si hay confirmación
-            if (confirmPassword) {
+            if (document.getElementById('password_confirmation').value) {
                 validatePasswordMatch();
             }
+
         });
 
-        / Validación en tiempo real de confirmación de contraseña
+        //validación en tiempo real de confirmación de contraseña
         document.getElementById('password_confirmation').addEventListener('input', validatePasswordMatch);
 
         function validatePasswordMatch() {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('password_confirmation').value;
             const confirmField = document.getElementById('password_confirmation');
-            const errorElement = document.getElementById('password-confirm-error');
+            const errorElement = document.getElementById('password-match-error');
 
-            if (confirmPassword.length > 0) {
-                if (password !== confirmPassword) {
-                    // Contraseñas no coinciden
-                    errorElement.classList.remove('hidden');
-                    confirmField.classList.add('border-red-500');
-                    confirmField.classList.remove('border-gray-300');
-                } else {
-                    // Contraseñas coinciden
-                    errorElement.classList.add('hidden');
-                    confirmField.classList.remove('border-red-500');
-                    confirmField.classList.add('border-gray-300');
-                }
+            if (confirmPassword.length > 0 && password !== confirmPassword) {
+                // Contraseñas no coinciden
+                errorElement.classList.remove('hidden');
+                confirmField.classList.add('border-red-500');
             } else {
-                // Campo de confirmación vacío
+                // Contraseñas coinciden o campo vacío
                 errorElement.classList.add('hidden');
                 confirmField.classList.remove('border-red-500');
-                confirmField.classList.add('border-gray-300');
             }
         }
+
 
         // Función para calcular fortaleza de contraseña (se mantiene igual)
         function calculatePasswordStrength(password) {
