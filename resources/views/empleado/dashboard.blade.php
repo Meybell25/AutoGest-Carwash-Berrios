@@ -443,7 +443,7 @@
                         <div class="welcome-icon">
                             <i class="fa-solid fa-user-tie"></i>
                         </div>
-                        ¡Bienvenido, {{ $user->nombre ?? 'Empleado' }}!
+                        ¡Bienvenido, {{ Auth::user()->nombre ?? 'Empleado' }}!
                     </h1>
                     <p>Panel de control para gestión de citas y servicios</p>
                     <div class="welcome-stats">
@@ -496,17 +496,24 @@
                             @foreach ($citas_hoy as $cita)
                                 <div class="appointment-card">
                                     <h3>
-                                        <i class="fas fa-user"></i> {{ $cita->cliente->nombre }}
+                                        <i class="fas fa-user"></i> {{ $cita->usuario?->nombre ?? 'Cliente no especificado' }}
                                         <span class="status-badge status-{{ $cita->estado }}">
                                             {{ ucfirst($cita->estado) }}
                                         </span>
                                     </h3>
-                                    <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }} {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
+                                    <p>
+                                        <i class="fas fa-car"></i> 
+                                        {{ $cita->vehiculo?->marca ?? 'Marca no especificada' }} 
+                                        {{ $cita->vehiculo?->modelo ?? 'Modelo no especificado' }} 
+                                        @if($cita->vehiculo)
+                                            - {{ $cita->vehiculo->placa ?? 'Sin placa' }}
+                                        @endif
+                                    </p>
                                     <p><i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('h:i A') }}</p>
                                     
                                     <div style="margin: 10px 0;">
                                         @foreach ($cita->servicios as $servicio)
-                                            <span class="service-tag">{{ $servicio->nombre }} (${{ number_format($servicio->precio, 2) }})</span>
+                                            <span class="service-tag">{{ $servicio->nombre }} (${{ number_format($servicio->pivot->precio ?? $servicio->precio, 2) }})</span>
                                         @endforeach
                                     </div>
                                     
@@ -562,15 +569,19 @@
                                         <i class="fas fa-car"></i>
                                     </div>
                                     <div class="service-details">
-                                        <h4>{{ $cita->cliente->nombre }}</h4>
+                                        <h4>{{ $cita->usuario?->nombre ?? 'Cliente no especificado' }}</h4>
                                         <p><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y - h:i A') }}</p>
-                                        <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }} {{ $cita->vehiculo->modelo }}</p>
+                                        <p>
+                                            <i class="fas fa-car"></i> 
+                                            {{ $cita->vehiculo?->marca ?? 'Marca no especificada' }} 
+                                            {{ $cita->vehiculo?->modelo ?? '' }}
+                                        </p>
                                         @if ($cita->observaciones_empleado)
                                             <p><i class="fas fa-comment"></i> {{ Str::limit($cita->observaciones_empleado, 50) }}</p>
                                         @endif
                                     </div>
                                     <div class="service-price">
-                                        ${{ number_format($cita->servicios->sum('precio'), 2) }}
+                                        ${{ number_format($cita->servicios->sum('pivot.precio') ?? 0, 2) }}
                                     </div>
                                 </div>
                             @endforeach
@@ -605,7 +616,7 @@
                                     <div class="task-details">
                                         <h4>{{ $tarea->titulo }}</h4>
                                         <p>{{ $tarea->descripcion }}</p>
-                                        <small>Asignada por: {{ $tarea->asignador->nombre }}</small>
+                                        <small>Asignada por: {{ $tarea->asignador?->nombre ?? 'Administración' }}</small>
                                     </div>
                                 </div>
                             @endforeach
@@ -667,10 +678,10 @@
                                 <i class="fas fa-user"></i>
                             </div>
                             <div>
-                                <h3>{{ $user->nombre ?? 'Empleado' }}</h3>
-                                <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
+                                <h3>{{ Auth::user()->nombre ?? 'Empleado' }}</h3>
+                                <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
-                                <p><i class="fas fa-calendar"></i> Miembro desde {{ $user->created_at->format('M Y') }}</p>
+                                <p><i class="fas fa-calendar"></i> Miembro desde {{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
                             
                             <button onclick="openEditModal()" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
