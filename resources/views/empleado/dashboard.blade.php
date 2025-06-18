@@ -337,10 +337,9 @@
 
         .btn i {
             transition: all 0.3s ease;
-            color: inherit !important;
         }
 
-        .card .btn-outline {
+        card .btn-outline {
             background: transparent;
             border: 2px solid var(--primary);
             color: var(--primary) !important;
@@ -436,7 +435,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             box-shadow: var(--shadow-md);
         }
 
