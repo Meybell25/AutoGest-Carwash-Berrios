@@ -298,7 +298,6 @@
         .btn-outline:hover {
             background: var(--primary);
             color: white !important;
-            transform: translateY(-2px);
         }
 
         .btn-success {
@@ -363,6 +362,8 @@
         .btn-outline:hover i {
             color: white !important;
         }
+
+
 
         .btn-profile i {
             color: white !important;
