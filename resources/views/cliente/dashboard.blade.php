@@ -59,7 +59,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             /*background: var(--primary-gradient);*/
-             background: linear-gradient(180deg, #bbadfd, #5b21b6,  #452383);
+            background: linear-gradient(180deg, #bbadfd, #5b21b6, #452383);
             min-height: 100vh;
             color: var(--text-primary);
             line-height: 1.6;
@@ -154,12 +154,38 @@
             margin-top: 15px;
         }
 
+        /* Reemplaza .welcome-stat con este */
         .welcome-stat {
             background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            padding: 10px 15px;
+            padding: 15px;
             border-radius: 10px;
             text-align: center;
-            min-width: 80px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-100);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--secondary-gradient);
+            transform: scaleX(0);
+            transition: all 0.3s ease;
+        }
+
+        .welcome-stat:hover::before {
+            transform: scaleX(1);
+        }
+
+        .welcome-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
 
         .welcome-stat .number {
@@ -262,6 +288,18 @@
             box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
         }
 
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
         /* Dashboard Grid Layout */
         .dashboard-grid {
             display: grid;
@@ -290,12 +328,29 @@
             box-shadow: var(--shadow-soft);
             border: 1px solid var(--glass-border);
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.1));
+            opacity: 0.1;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover::before {
+            width: 100%;
         }
 
         .card-header {
@@ -333,12 +388,37 @@
         }
 
         /* Próximas Citas */
+        /* Reemplaza .next-appointment con este */
         .next-appointment {
             background: linear-gradient(135deg, #667eea20, #764ba220);
             padding: 20px;
             border-radius: 15px;
             border-left: 5px solid #4facfe;
             margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .next-appointment::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.1));
+            transition: all 0.3s ease;
+        }
+
+        .next-appointment:hover::before {
+            width: 100%;
+        }
+
+        .next-appointment:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .appointment-date-time {
@@ -581,7 +661,24 @@
             color: white;
             font-size: 2rem;
             margin: 0 auto 15px;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .profile-avatar::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: var(--secondary-gradient);
+            z-index: -1;
+            opacity: 0.3;
+            animation: pulse 2s infinite;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
         }
 
         .profile-info h3 {
@@ -1504,7 +1601,7 @@
 
                             <div class="service-card">
                                 <div class="service-icon">
-                                   <i class="fa-solid fa-ring"></i>
+                                    <i class="fa-solid fa-ring"></i>
                                 </div>
                                 <h3>Lavado Premium</h3>
                                 <p class="description">Servicio completo + encerado, protección UV y brillado</p>
@@ -1976,11 +2073,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                        <tr>
-                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                        </tr>
-                                                                                                    `).join('')}
+                                                                                                                            <tr>
+                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                            </tr>
+                                                                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>

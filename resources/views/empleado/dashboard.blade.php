@@ -145,9 +145,12 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.05);
             }
@@ -295,6 +298,18 @@
         .btn-sm {
             padding: 0.5rem 1rem;
             font-size: 0.8rem;
+        }
+
+        .btn-profile {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .btn-profile:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
         }
 
         /* Layout */
@@ -1089,10 +1104,13 @@
         }
 
         @keyframes sparkle {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 0;
                 transform: scale(0);
             }
+
             50% {
                 opacity: 1;
                 transform: scale(1);
@@ -1167,8 +1185,8 @@
                     <a href="{{ route('empleado.citas') }}" class="btn btn-primary">
                         <i class="fas fa-calendar-day"></i> Ver Agenda
                     </a>
-                    <a href="{{ route('configuracion.index') }}" class="btn btn-outline">
-                        <i class="fas fa-cog"></i> Configuración
+                    <a href="{{ route('configuracion.index') }}" class="btn btn-profile">
+                        <i class="fas fa-cog"></i> Configurar Cuenta
                     </a>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
@@ -1198,46 +1216,55 @@
                             @foreach ($citas_hoy as $cita)
                                 <div class="appointment-card">
                                     <h3>
-                                        <i class="fas fa-user"></i> {{ $cita->usuario?->nombre ?? 'Cliente no especificado' }}
+                                        <i class="fas fa-user"></i>
+                                        {{ $cita->usuario?->nombre ?? 'Cliente no especificado' }}
                                         <span class="status-badge status-{{ $cita->estado }}">
                                             {{ ucfirst($cita->estado) }}
                                         </span>
                                     </h3>
                                     <p>
-                                        <i class="fas fa-car"></i> 
-                                        {{ $cita->vehiculo?->marca ?? 'Marca no especificada' }} 
-                                        {{ $cita->vehiculo?->modelo ?? 'Modelo no especificado' }} 
-                                        @if($cita->vehiculo)
+                                        <i class="fas fa-car"></i>
+                                        {{ $cita->vehiculo?->marca ?? 'Marca no especificada' }}
+                                        {{ $cita->vehiculo?->modelo ?? 'Modelo no especificado' }}
+                                        @if ($cita->vehiculo)
                                             - {{ $cita->vehiculo->placa ?? 'Sin placa' }}
                                         @endif
                                     </p>
-                                    <p><i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('h:i A') }}</p>
-                                    
+                                    <p><i class="fas fa-clock"></i>
+                                        {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('h:i A') }}</p>
+
                                     <div style="margin: 10px 0;">
                                         @foreach ($cita->servicios as $servicio)
-                                            <span class="service-tag">{{ $servicio->nombre }} (${{ number_format($servicio->pivot->precio ?? $servicio->precio, 2) }})</span>
+                                            <span class="service-tag">{{ $servicio->nombre }}
+                                                (${{ number_format($servicio->pivot->precio ?? $servicio->precio, 2) }})
+                                            </span>
                                         @endforeach
                                     </div>
-                                    
+
                                     @if ($cita->observaciones_cliente)
-                                        <p><i class="fas fa-comment"></i> <strong>Observaciones:</strong> {{ $cita->observaciones_cliente }}</p>
+                                        <p><i class="fas fa-comment"></i> <strong>Observaciones:</strong>
+                                            {{ $cita->observaciones_cliente }}</p>
                                     @endif
-                                    
+
                                     <div class="appointment-actions">
                                         @if ($cita->estado == 'pendiente')
-                                            <button onclick="cambiarEstadoCita({{ $cita->id }}, 'en_proceso')" class="btn btn-sm btn-primary">
+                                            <button onclick="cambiarEstadoCita({{ $cita->id }}, 'en_proceso')"
+                                                class="btn btn-sm btn-primary">
                                                 <i class="fas fa-play"></i> Iniciar
                                             </button>
                                         @elseif ($cita->estado == 'en_proceso')
-                                            <button onclick="mostrarModalFinalizar({{ $cita->id }})" class="btn btn-sm btn-success">
+                                            <button onclick="mostrarModalFinalizar({{ $cita->id }})"
+                                                class="btn btn-sm btn-success">
                                                 <i class="fas fa-check"></i> Finalizar
                                             </button>
-                                            <button onclick="mostrarModalObservaciones({{ $cita->id }})" class="btn btn-sm btn-outline">
+                                            <button onclick="mostrarModalObservaciones({{ $cita->id }})"
+                                                class="btn btn-sm btn-outline">
                                                 <i class="fas fa-edit"></i> Observaciones
                                             </button>
                                         @endif
-                                        
-                                        <button onclick="verDetalleCita({{ $cita->id }})" class="btn btn-sm btn-outline">
+
+                                        <button onclick="verDetalleCita({{ $cita->id }})"
+                                            class="btn btn-sm btn-outline">
                                             <i class="fas fa-eye"></i> Detalles
                                         </button>
                                     </div>
@@ -1245,7 +1272,8 @@
                             @endforeach
                         @else
                             <div style="text-align: center; padding: 20px;">
-                                <i class="fas fa-calendar-times" style="font-size: 2rem; color: #166088; margin-bottom: 10px;"></i>
+                                <i class="fas fa-calendar-times"
+                                    style="font-size: 2rem; color: #166088; margin-bottom: 10px;"></i>
                                 <h3>No hay citas programadas para hoy</h3>
                                 <p>Revisa el calendario para ver futuras citas</p>
                             </div>
@@ -1272,14 +1300,16 @@
                                     </div>
                                     <div class="service-details">
                                         <h4>{{ $cita->usuario?->nombre ?? 'Cliente no especificado' }}</h4>
-                                        <p><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y - h:i A') }}</p>
+                                        <p><i class="fas fa-calendar"></i>
+                                            {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y - h:i A') }}</p>
                                         <p>
-                                            <i class="fas fa-car"></i> 
-                                            {{ $cita->vehiculo?->marca ?? 'Marca no especificada' }} 
+                                            <i class="fas fa-car"></i>
+                                            {{ $cita->vehiculo?->marca ?? 'Marca no especificada' }}
                                             {{ $cita->vehiculo?->modelo ?? '' }}
                                         </p>
                                         @if ($cita->observaciones_empleado)
-                                            <p><i class="fas fa-comment"></i> {{ Str::limit($cita->observaciones_empleado, 50) }}</p>
+                                            <p><i class="fas fa-comment"></i>
+                                                {{ Str::limit($cita->observaciones_empleado, 50) }}</p>
                                         @endif
                                     </div>
                                     <div class="service-price">
@@ -1289,7 +1319,8 @@
                             @endforeach
                         @else
                             <div style="text-align: center; padding: 20px;">
-                                <i class="fas fa-history" style="font-size: 2rem; color: #166088; margin-bottom: 10px;"></i>
+                                <i class="fas fa-history"
+                                    style="font-size: 2rem; color: #166088; margin-bottom: 10px;"></i>
                                 <h3>No hay historial reciente</h3>
                                 <p>Los servicios que completes aparecerán aquí</p>
                             </div>
@@ -1314,17 +1345,21 @@
                         @if (isset($tareas) && count($tareas) > 0)
                             @foreach ($tareas as $tarea)
                                 <div class="task-item">
-                                    <input type="checkbox" id="task-{{ $tarea->id }}" onchange="marcarTareaCompleta({{ $tarea->id }}, this)" style="margin-right: 10px;">
+                                    <input type="checkbox" id="task-{{ $tarea->id }}"
+                                        onchange="marcarTareaCompleta({{ $tarea->id }}, this)"
+                                        style="margin-right: 10px;">
                                     <div class="task-details">
                                         <h4>{{ $tarea->titulo }}</h4>
                                         <p>{{ $tarea->descripcion }}</p>
-                                        <small>Asignada por: {{ $tarea->asignador?->nombre ?? 'Administración' }}</small>
+                                        <small>Asignada por:
+                                            {{ $tarea->asignador?->nombre ?? 'Administración' }}</small>
                                     </div>
                                 </div>
                             @endforeach
                         @else
                             <div style="text-align: center; padding: 20px;">
-                                <i class="fas fa-check-circle" style="font-size: 2rem; color: #166088; margin-bottom: 10px;"></i>
+                                <i class="fas fa-check-circle"
+                                    style="font-size: 2rem; color: #166088; margin-bottom: 10px;"></i>
                                 <h3>No hay tareas pendientes</h3>
                                 <p>¡Buen trabajo! No tienes tareas asignadas.</p>
                             </div>
@@ -1383,10 +1418,12 @@
                                 <h3>{{ Auth::user()->nombre ?? 'Empleado' }}</h3>
                                 <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
-                                <p><i class="fas fa-calendar"></i> Miembro desde {{ Auth::user()->created_at->format('M Y') }}</p>
+                                <p><i class="fas fa-calendar"></i> Miembro desde
+                                    {{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
-                            
-                            <button onclick="openEditModal()" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
+
+                            <button onclick="openEditModal()" class="btn btn-outline"
+                                style="margin-top: 15px; width: 100%;">
                                 <i class="fas fa-edit"></i> Editar Perfil
                             </button>
                         </div>
@@ -1455,12 +1492,12 @@
             <form id="finalizarCitaForm">
                 @csrf
                 <input type="hidden" id="cita_id_finalizar" name="cita_id">
-                
+
                 <div class="form-group">
                     <label for="observaciones_finalizar">Observaciones:</label>
                     <textarea id="observaciones_finalizar" name="observaciones" rows="4" class="form-control"></textarea>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="metodo_pago">Método de Pago:</label>
                     <select id="metodo_pago" name="metodo_pago" class="form-control">
@@ -1469,14 +1506,15 @@
                         <option value="transferencia">Transferencia</option>
                     </select>
                 </div>
-                
+
                 <div id="efectivoFields">
                     <div class="form-group">
                         <label for="monto_recibido">Monto Recibido ($):</label>
-                        <input type="number" step="0.01" id="monto_recibido" name="monto_recibido" class="form-control">
+                        <input type="number" step="0.01" id="monto_recibido" name="monto_recibido"
+                            class="form-control">
                     </div>
                 </div>
-                
+
                 <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">
                     <i class="fas fa-check"></i> Confirmar Finalización
                 </button>
@@ -1493,12 +1531,12 @@
             <form id="observacionesForm">
                 @csrf
                 <input type="hidden" id="cita_id_observaciones" name="cita_id">
-                
+
                 <div class="form-group">
                     <label for="observaciones_texto">Observaciones:</label>
                     <textarea id="observaciones_texto" name="observaciones" rows="6" class="form-control"></textarea>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
                     <i class="fas fa-save"></i> Guardar Observaciones
                 </button>
