@@ -1669,6 +1669,7 @@
     </div>
 
     <script>
+        // Configuración global de SweetAlert
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -1677,15 +1678,12 @@
             timerProgressBar: true
         });
 
-        // Funciones del modal
+        // Funciones del modal de edición de perfil
         function openEditModal() {
             const modal = document.getElementById('editProfileModal');
             if (modal) {
                 modal.style.display = 'flex';
-                document.getElementById('modalNombre')?.focus();
-            } else {
-                console.error('Modal no encontrado');
-                Swal.fire('Error', 'No se pudo cargar el formulario de edición', 'error');
+                document.getElementById('modalNombre').focus();
             }
         }
 
@@ -1694,34 +1692,12 @@
             if (modal) modal.style.display = 'none';
         }
 
-        // Manejo del formulario AJAX con validaciones
+        // Manejo del formulario AJAX con actualización de UI
         document.getElementById('profileFormEmpleado')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // Obtener valores
             const nombre = document.getElementById('modalNombre').value.trim();
             const telefono = document.getElementById('modalTelefono').value.trim();
-
-            // Validaciones
-            if (!nombre) {
-                Swal.fire('Error', 'El nombre es requerido', 'error');
-                document.getElementById('modalNombre').focus();
-                return;
-            }
-
-            if (!telefono) {
-                Swal.fire('Error', 'El teléfono es requerido', 'error');
-                document.getElementById('modalTelefono').focus();
-                return;
-            }
-
-            // Validación estricta: exactamente 8 dígitos
-            const telefonoRegex = /^\d{8}$/;
-            if (!telefonoRegex.test(telefono)) {
-                Swal.fire('Error', 'El teléfono debe tener exactamente 8 dígitos numéricos', 'error');
-                document.getElementById('modalTelefono').focus();
-                return;
-            }
 
             try {
                 const response = await fetch('{{ route('perfil.update-ajax') }}', {
@@ -1729,42 +1705,41 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
                         nombre: nombre,
-                        telefono: telefono,
-                        _token: '{{ csrf_token() }}'
+                        telefono: telefono
                     })
                 });
 
                 const data = await response.json();
 
-                if (!response.ok) {
-                    throw new Error(data.message || 'Error en la respuesta del servidor');
-                }
+                if (!response.ok) throw new Error(data.message || 'Error en la respuesta');
 
-                // Éxito - Cerrar modal y actualizar UI
-                Swal.fire({
-                    title: 'Éxito',
-                    text: 'Perfil actualizado correctamente',
+                // Actualizar UI
+                document.querySelector('.welcome-section h1').innerHTML = `
+            <div class="welcome-icon">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+            ¡Bienvenido, ${nombre}!
+        `;
+
+                document.querySelector('.profile-summary h3').textContent = nombre;
+                document.querySelector('.profile-summary p:nth-of-type(2)').innerHTML =
+                    `<i class="fas fa-phone"></i> ${telefono}`;
+
+                Toast.fire({
                     icon: 'success',
-                    willClose: () => {
-                        closeEditModal();
-                        // Actualizar la UI
-                        if (document.querySelector('.profile-summary h3')) {
-                            document.querySelector('.profile-summary h3').textContent = nombre;
-                        }
-                        if (document.querySelector('.profile-summary p:nth-of-type(2)')) {
-                            document.querySelector('.profile-summary p:nth-of-type(2)').innerHTML =
-                                `<i class="fas fa-phone"></i> ${telefono}`;
-                        }
-                    }
+                    title: 'Perfil actualizado'
                 });
+                closeEditModal();
 
             } catch (error) {
-                console.error('Error:', error);
-                Swal.fire('Error', error.message || 'Error al actualizar el perfil', 'error');
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message
+                });
             }
         });
 
@@ -1774,6 +1749,7 @@
                 closeEditModal();
             }
         });
+
         // Funciones para modales
         function mostrarModalFinalizar(citaId) {
             document.getElementById('cita_id_finalizar').value = citaId;
