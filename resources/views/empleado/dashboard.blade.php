@@ -253,6 +253,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
+            /* Usa la variable siempre */
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -260,6 +261,13 @@
             font-size: 0.875rem;
             position: relative;
             overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Efecto hover para TODOS los botones */
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .btn::before {
@@ -323,11 +331,9 @@
         }
 
         .btn-profile {
-            background: var(--gradient-primary) !important;
-            color: white !important;
+            background: var(--gradient-primary);
+            color: white;
             box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
-            border: none !important;
         }
 
         .btn-profile:hover {
@@ -335,9 +341,48 @@
             box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
         }
 
-        .btn i {
+        /* ======================
+        ESTILOS PARA ÍCONOS
+        ====================== */
+        /* Íconos en botones principales */
+        .btn i,
+        .btn-outline i,
+        .btn-primary i,
+        .btn-success i,
+        .btn-warning i,
+        .btn-profile i {
+            color: inherit !important;
+            /* Hereda el color del texto del botón */
             transition: all 0.3s ease;
         }
+
+        /* Casos específicos */
+        .btn-profile i {
+            color: white !important;
+            /* Fuerza blanco en botón de perfil */
+        }
+
+        .btn-outline i {
+            color: var(--primary) !important;
+            /* Azul para botones outline */
+        }
+
+        .btn-outline:hover i {
+            color: white !important;
+            /* Blanco al hacer hover */
+        }
+
+        /* Íconos en cards (títulos) */
+        .card-header .icon i {
+            color: white !important;
+            /* Fuerza blanco en íconos de títulos */
+        }
+
+        /* Íconos en texto normal (como los de perfil) */
+        .profile-summary i:not(.btn i) {
+            color: var(--gray-600) !important;
+        }
+
 
         .card .btn-outline {
             background: transparent;
@@ -353,20 +398,6 @@
             color: white !important;
         }
 
-        /* Asegurar que los iconos sean visibles siempre */
-        .btn-outline i {
-            color: var(--primary) !important;
-        }
-
-        .btn-outline:hover i {
-            color: white !important;
-        }
-
-
-
-        .btn-profile i {
-            color: white !important;
-        }
 
         /* Layout */
         .dashboard-grid {
@@ -434,6 +465,7 @@
             border-radius: var(--border-radius);
             display: flex;
             align-items: center;
+            color: white;
             justify-content: center;
             box-shadow: var(--shadow-md);
         }
@@ -1480,8 +1512,7 @@
                                     {{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
 
-                            <button onclick="openEditModal()" class="btn btn-outline"
-                                style="margin-top: 15px; width: 100%;">
+                            <button onclick="openEditModal()" class="btn btn-outline">
                                 <i class="fas fa-edit"></i> Editar Perfil
                             </button>
                         </div>
