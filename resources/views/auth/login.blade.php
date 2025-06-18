@@ -251,7 +251,7 @@
             <!-- Footer -->
             <div class="text-center compact-spacing mt-6 sm:mt-8 mb-4">
                 <p class="text-white text-opacity-70 text-xs sm:text-sm">
-                    © 2024 AutoGest Carwash Berrios. Todos los derechos reservados.
+                    © 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
                 </p>
             </div>
         </div>
