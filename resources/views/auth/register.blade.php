@@ -445,95 +445,77 @@
                         @enderror
                     </div>
 
-                    "password_confirmation" name="password_confirmation" type="password" required
-                    class="input-field block w-full pl-10 pr-12 py-2.5 sm:py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
-                    placeholder="Repite tu contraseña">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button type="button" class="password-toggle text-gray-400 hover:text-blue-500"
-                            onclick="togglePassword('password_confirmation', 'eyeIcon2')">
-                            <svg id="eyeIcon2" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
+                    <!-- Campo Confirmar Contraseña -->
+                    <div class="form-field space-y-2">
+                        <label for="password_confirmation" class="block text-sm font-semibold text-gray-700">
+                            Confirmar Contraseña
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </div>
+                            <input id="password_confirmation" name="password_confirmation" type="password" required
+                                class="input-field block w-full pl-10 pr-12 py-2.5 sm:py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base @error('password_confirmation') border-red-500 @enderror"
+                                placeholder="Confirma tu contraseña">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <button type="button"
+                                    class="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600"
+                                    onclick="togglePassword('password_confirmation', 'toggleConfirmIcon')">
+                                    <svg id="toggleConfirmIcon" class="h-4 w-4 sm:h-5 sm:w-5" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Contenedor fijo para mensajes de error -->
+                        <div class="min-h-[20px]">
+                            @error('password_confirmation')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
-            </div>
-            <!-- Mensaje de error  -->
-            <div class="min-h-[20px]">
-                <div id="password-match-error" class="text-red-500 text-sm mt-1 hidden">
-                    Las contraseñas no coinciden
-                </div>
-                @error('password_confirmation')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-        </div>
 
-        <!-- Campo Confirmar Contraseña -->
-        <div class="form-field space-y-2">
-            <label for="password_confirmation" class="block text-sm font-semibold text-gray-700">
-                Confirmar Contraseña
-            </label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                </div>
-                <input id="password_confirmation" name="password_confirmation" type="password" required
-                    class="input-field block w-full pl-10 pr-12 py-2.5 sm:py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base @error('password_confirmation') border-red-500 @enderror"
-                    placeholder="Confirma tu contraseña">
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <button type="button"
-                        class="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600"
-                        onclick="togglePassword('password_confirmation', 'toggleConfirmIcon')">
-                        <svg id="toggleConfirmIcon" class="h-4 w-4 sm:h-5 sm:w-5" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
+                    <!-- Botón de registro -->
+                    <button type="submit" id="submitBtn"
+                        class="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                         </svg>
+                        <span id="buttonText">Crear Mi Cuenta</span>
+                        <span class="loading" id="loadingSpinner"></span>
                     </button>
-                </div>
+
+                    <!-- Enlace a login -->
+                    <div class="text-center pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-600">
+                            ¿Ya tienes cuenta?
+                            <a href="{{ route('login') }}"
+                                class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                                Inicia Sesión
+                            </a>
+                        </p>
+                    </div>
+                </form>
             </div>
-            <!-- Contenedor fijo para mensajes de error -->
-            <div class="min-h-[20px]">
-                @error('password_confirmation')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
+
+            <!-- Footer -->
+            <div class="footer-content text-center mt-6 sm:mt-8">
+                <p class="text-white text-opacity-70 text-xs sm:text-sm">
+                    © 2024 AutoGest Carwash Berrios. Todos los derechos reservados.
+                </p>
             </div>
         </div>
-
-        <!-- Botón de registro -->
-        <button type="submit" id="submitBtn"
-            class="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-            <span id="buttonText">Crear Mi Cuenta</span>
-            <span class="loading" id="loadingSpinner"></span>
-        </button>
-
-        <!-- Enlace a login -->
-        <div class="text-center pt-4 border-t border-gray-200">
-            <p class="text-sm text-gray-600">
-                ¿Ya tienes cuenta?
-                <a href="{{ route('login') }}"
-                    class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                    Inicia Sesión
-                </a>
-            </p>
-        </div>
-        </form>
     </div>
-
 
     <script>
         // Función para mostrar/ocultar contraseñas
