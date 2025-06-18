@@ -121,7 +121,7 @@
         }
 
         .welcome-icon {
-            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            background: var(--gradient-secondary);
             width: 50px;
             height: 50px;
             border-radius: 12px;
