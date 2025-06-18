@@ -57,20 +57,42 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            /*background: linear-gradient(90deg, #2a9d8f 0%, #52b788 35%, #3ddc97 65%, #1abc9c 100%);
-            background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 30%, #4338ca 60%, #1e3a8a 100%);
-            background: linear-gradient(135deg, #4338ca 10%, #5c4dff 40%, #1e3a8a 100%);
-            background: linear-gradient(45deg, #ddd6fe, #a7f3d0, #bfdbfe);*/
             background: linear-gradient(315deg, #512da8, #00695c, #0d47a1);
             min-height: 100vh;
             color: var(--gray-900);
             line-height: 1.6;
+            background-attachment: fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
         }
 
+        /* Contenedor principal ajustado */
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 1.5rem;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
         }
 
         /* Header */
@@ -275,7 +297,7 @@
 
         .btn-outline:hover {
             background: var(--primary);
-            color: white;
+            color: white !important;
             transform: translateY(-2px);
         }
 
@@ -302,22 +324,48 @@
         }
 
         .btn-profile {
-            background: transparent !important;
+            background: var(--gradient-primary) !important;
+            color: white !important;
             box-shadow: var(--shadow-md);
-            color: var(--primary) !important;
             transition: all 0.3s ease;
+            border: none !important;
         }
 
         .btn-profile:hover {
-            background: var(--gradient-primary)!important;
             transform: translateY(-3px);
-            color: white;
             box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
         }
 
         .btn i {
+            transition: all 0.3s ease;
             color: inherit !important;
-            /* Hereda el color del texto del botón */
+        }
+
+        .card .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary) !important;
+            width: 100%;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .card .btn-outline:hover {
+            background: var(--primary);
+            color: white !important;
+        }
+
+        /* Asegurar que los iconos sean visibles siempre */
+        .btn-outline i {
+            color: var(--primary) !important;
+        }
+
+        .btn-outline:hover i {
+            color: white !important;
+        }
+
+        .btn-profile i {
+            color: white !important;
         }
 
         /* Layout */
@@ -901,11 +949,12 @@
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-top: 30px;
-            box-shadow: var(--shadow-xl);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
+            margin-top: auto;
         }
 
         .footer::before {
@@ -1441,56 +1490,55 @@
                 </div>
             </div>
         </div>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
-
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                    <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
-                </div>
-
-                <div class="footer-info">
-                    <div class="info-item">
-                        <i class="fas fa-phone"></i>
-                        <span>75855197</span>
-                    </div>
-                    <div class="info-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
-                            Ver ubicación en mapa
-                        </a>
-                    </div>
-                    <div class="info-item">
-                        <i class="fas fa-clock"></i>
-                        <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
-                    </div>
-                </div>
-
-                <div class="social-icons">
-                    <a href="#" class="social-icon facebook" title="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                    <a href="#" class="social-icon instagram" title="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                </div>
-
-                <div class="footer-divider"></div>
-
-                <p class="footer-copyright">
-                    &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
-                </p>
-            </div>
-        </footer>
     </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
+            </div>
+
+            <div class="footer-info">
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>75855197</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
+                        Ver ubicación en mapa
+                    </a>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
+                </div>
+            </div>
+
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="#" class="social-icon instagram" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+
+            <div class="footer-divider"></div>
+
+            <p class="footer-copyright">
+                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+            </p>
+        </div>
+    </footer>
 
     <!-- Modales -->
     <div id="finalizarCitaModal" class="modal">
