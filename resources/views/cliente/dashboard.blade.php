@@ -1277,7 +1277,7 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon">
-                            <i class="fas fa-car"></i>
+                            <i class="fa-solid fa-car-side"></i>
                         </div>
                         ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
                     </h1>
@@ -1503,7 +1503,7 @@
 
                             <div class="service-card">
                                 <div class="service-icon">
-                                    <i class="fas fa-car-wash"></i>
+                                   <i class="fa-solid fa-ring"></i>
                                 </div>
                                 <h3>Lavado Premium</h3>
                                 <p class="description">Servicio completo + encerado, protección UV y brillado</p>
