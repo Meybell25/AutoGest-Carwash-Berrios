@@ -8,6 +8,7 @@
     <title>Dashboard Cliente - Carwash Berríos</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    //
     <style>
         * {
             margin: 0;
