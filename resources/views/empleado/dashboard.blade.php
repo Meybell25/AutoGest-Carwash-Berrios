@@ -16,442 +16,6 @@
         }
 
         :root {
-            --primary-gradient: linear-gradient(135deg, #4a6fa5 0%, #166088 100%);
-            --secondary-gradient: linear-gradient(45deg, #166088 0%, #4a6fa5 100%);
-            --success-gradient: linear-gradient(45deg, #43e97b 0%, #38f9d7 100%);
-            --warning-gradient: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --text-primary: #333;
-            --text-secondary: #666;
-            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--primary-gradient);
-            min-height: 100vh;
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Header */
-        .header {
-            background: var(--glass-bg);
-            padding: 25px 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid var(--glass-border);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .welcome-section {
-            flex: 1;
-        }
-
-        .welcome-section h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .welcome-icon {
-            background: var(--secondary-gradient);
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        .welcome-section p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            margin-bottom: 10px;
-        }
-
-        .welcome-stats {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .welcome-stat {
-            background: #f8f9fa;
-            padding: 8px 12px;
-            border-radius: 10px;
-            text-align: center;
-            min-width: 80px;
-        }
-
-        .welcome-stat .number {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #166088;
-        }
-
-        .welcome-stat .label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        /* Botones */
-        .btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-
-        .btn-primary {
-            background: var(--secondary-gradient);
-            color: white;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #166088;
-            color: #166088;
-        }
-
-        .btn-outline:hover {
-            background: #166088;
-            color: white;
-        }
-
-        .btn-success {
-            background: var(--success-gradient);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--warning-gradient);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-
-        /* Layout */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-
-        .main-section,
-        .sidebar-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Cards */
-        .card {
-            background: var(--glass-bg);
-            border-radius: 15px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid var(--glass-border);
-        }
-
-        .card-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .card-header h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-header .icon {
-            background: var(--secondary-gradient);
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .card-body {
-            padding: 15px 20px;
-        }
-
-        /* Citas */
-        .appointment-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 4px solid #166088;
-        }
-
-        .appointment-card h3 {
-            font-size: 1rem;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        .status-pendiente {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-en-proceso {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .status-finalizado {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .service-tag {
-            display: inline-block;
-            background: #e9ecef;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-
-        .appointment-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        /* Historial */
-        .service-history-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-
-        .service-icon {
-            background: var(--secondary-gradient);
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            margin-right: 12px;
-        }
-
-        .service-details {
-            flex: 1;
-        }
-
-        .service-details h4 {
-            font-size: 0.95rem;
-            margin-bottom: 3px;
-        }
-
-        .service-details p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .service-price {
-            font-weight: 600;
-            color: #166088;
-        }
-
-        /* Tareas */
-        .task-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-
-        .task-details h4 {
-            font-size: 0.9rem;
-            margin-bottom: 2px;
-        }
-
-        .task-details p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        /* Acciones rápidas */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .quick-action-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-            border-radius: 8px;
-            background: #f8f9fa;
-            border: none;
-            cursor: pointer;
-        }
-
-        /* Perfil */
-        .profile-summary {
-            text-align: center;
-        }
-
-        .profile-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: var(--secondary-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            margin: 0 auto 10px;
-        }
-
-        /* Modales */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        .close-modal {
-            float: right;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .welcome-stats {
-                justify-content: center;
-            }
-
-            .header-actions {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
-</head>
-
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Dashboard Empleado - Carwash Berríos</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
             --secondary: #64748b;
@@ -1346,6 +910,7 @@
             </div>
         </div>
 
+
         <!-- Contenido principal -->
         <div class="dashboard-grid">
             <div class="main-section">
@@ -1529,7 +1094,7 @@
                                 <i class="fas fa-plus"></i>
                                 <span>Nueva Cita</span>
                             </button>
-                            <button class="quick-action-btn" onclick="mostrarModalRegistrarVehiculo()">
+                            <button class="quick-action-btn" onclick="mostrarModalVehiculo()">
                                 <i class="fas fa-car"></i>
                                 <span>Registrar Vehículo</span>
                             </button>
@@ -1564,11 +1129,10 @@
                             <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
                             <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
                             <p><i class="fas fa-calendar"></i> Miembro desde
-                                {{ Auth::user()->created_at ? Auth::user()->created_at->format('M Y') : 'No especificado' }}
-                            </p>
+                                {{ Auth::user()->created_at->format('M Y') }}</p>
 
                             <button onclick="mostrarModalEditarPerfil()" class="btn btn-outline"
-                                style="margin-top: 15px; width: 100%;">
+                                style="margin-top: 1rem; width: 100%;">
                                 <i class="fas fa-edit"></i> Editar Perfil
                             </button>
                         </div>
@@ -1581,8 +1145,8 @@
     <!-- Modales -->
     <div id="finalizarCitaModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeFinalizarModal()">&times;</span>
-            <h2 style="margin-bottom: 15px;">
+            <span class="close-modal" onclick="cerrarModalFinalizar()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">
                 <i class="fas fa-check-circle"></i> Finalizar Servicio
             </h2>
             <form id="finalizarCitaForm">
@@ -1590,41 +1154,33 @@
                 <input type="hidden" id="cita_id_finalizar" name="cita_id">
 
                 <div class="form-group">
-                    <label for="observaciones_finalizar">Observaciones:</label>
+                    <label for="observaciones_finalizar">Observaciones del Servicio:</label>
                     <textarea id="observaciones_finalizar" name="observaciones" rows="4"
-                        placeholder="Agregar observaciones del servicio..."></textarea>
+                        placeholder="Describe el trabajo realizado, estado del vehículo, etc."></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="metodo_pago">Método de Pago:</label>
-                    <select id="metodo_pago" name="metodo_pago" required>
-                        <option value="">Seleccionar método</option>
+                    <select id="metodo_pago" name="metodo_pago" onchange="togglePagoFields()">
                         <option value="efectivo">Efectivo</option>
                         <option value="tarjeta">Tarjeta</option>
                         <option value="transferencia">Transferencia</option>
                     </select>
                 </div>
 
-                <div id="efectivoFields" style="display: none;">
+                <div id="efectivoFields">
                     <div class="form-group">
                         <label for="monto_recibido">Monto Recibido ($):</label>
                         <input type="number" step="0.01" id="monto_recibido" name="monto_recibido"
-                            placeholder="0.00">
+                            placeholder="0.00" onchange="calcularVuelto()">
                     </div>
                     <div class="form-group">
-                        <label for="cambio_devuelto">Cambio a Devolver ($):</label>
-                        <input type="number" step="0.01" id="cambio_devuelto" name="cambio_devuelto" readonly
-                            placeholder="0.00">
+                        <label for="vuelto">Vuelto ($):</label>
+                        <input type="number" step="0.01" id="vuelto" name="vuelto" readonly>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="total_pagar">Total a Pagar ($):</label>
-                    <input type="number" step="0.01" id="total_pagar" name="total_pagar" readonly
-                        placeholder="0.00">
-                </div>
-
-                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1rem;">
                     <i class="fas fa-check"></i> Confirmar Finalización
                 </button>
             </form>
@@ -1633,8 +1189,8 @@
 
     <div id="observacionesModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeObservacionesModal()">&times;</span>
-            <h2 style="margin-bottom: 15px;">
+            <span class="close-modal" onclick="cerrarModalObservaciones()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">
                 <i class="fas fa-edit"></i> Agregar Observaciones
             </h2>
             <form id="observacionesForm">
@@ -1642,12 +1198,12 @@
                 <input type="hidden" id="cita_id_observaciones" name="cita_id">
 
                 <div class="form-group">
-                    <label for="observaciones_texto">Observaciones del Servicio:</label>
+                    <label for="observaciones_texto">Observaciones del Empleado:</label>
                     <textarea id="observaciones_texto" name="observaciones" rows="6"
-                        placeholder="Describe el trabajo realizado, condiciones del vehículo, etc..."></textarea>
+                        placeholder="Detalles del servicio, problemas encontrados, recomendaciones..."></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
                     <i class="fas fa-save"></i> Guardar Observaciones
                 </button>
             </form>
@@ -1655,8 +1211,8 @@
     </div>
 
     <div id="detalleCitaModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <span class="close-modal" onclick="closeDetalleModal()">&times;</span>
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-modal" onclick="cerrarModalDetalle()">&times;</span>
             <div id="detalleCitaContent">
                 <!-- Contenido dinámico -->
             </div>
@@ -1665,20 +1221,22 @@
 
     <div id="editarPerfilModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeEditarPerfilModal()">&times;</span>
-            <h2 style="margin-bottom: 15px;">
+            <span class="close-modal" onclick="cerrarModalEditarPerfil()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">
                 <i class="fas fa-user-edit"></i> Editar Perfil
             </h2>
             <form id="editarPerfilForm">
                 @csrf
+                @method('PUT')
+
                 <div class="form-group">
-                    <label for="nombre_perfil">Nombre:</label>
+                    <label for="nombre_perfil">Nombre Completo:</label>
                     <input type="text" id="nombre_perfil" name="nombre"
                         value="{{ Auth::user()->nombre ?? '' }}" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="email_perfil">Email:</label>
+                    <label for="email_perfil">Correo Electrónico:</label>
                     <input type="email" id="email_perfil" name="email" value="{{ Auth::user()->email ?? '' }}"
                         required>
                 </div>
@@ -1690,26 +1248,27 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="password_actual">Contraseña Actual (opcional):</label>
+                    <label for="password_actual">Contraseña Actual (para confirmar cambios):</label>
                     <input type="password" id="password_actual" name="password_actual">
                 </div>
 
                 <div class="form-group">
-                    <label for="password_nueva">Nueva Contraseña (opcional):</label>
-                    <input type="password" id="password_nueva" name="password_nueva">
+                    <label for="nueva_password">Nueva Contraseña (opcional):</label>
+                    <input type="password" id="nueva_password" name="nueva_password">
                 </div>
 
                 <div class="form-group">
-                    <label for="password_confirmacion">Confirmar Nueva Contraseña:</label>
-                    <input type="password" id="password_confirmacion" name="password_confirmacion">
+                    <label for="confirmar_password">Confirmar Nueva Contraseña:</label>
+                    <input type="password" id="confirmar_password" name="confirmar_password">
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
                     <i class="fas fa-save"></i> Actualizar Perfil
                 </button>
             </form>
         </div>
     </div>
+
 
     <script>
         // Configuración global de SweetAlert
