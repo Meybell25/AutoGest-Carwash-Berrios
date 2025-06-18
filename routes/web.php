@@ -57,6 +57,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
         Route::get('/citas/create', [AdminController::class, 'createCita'])->name('citas.create');
         Route::post('/citas', [AdminController::class, 'storeCita'])->name('citas.store');
+        Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
     });
 
 //*************************Rutas de Empleado (solo empleados)********************************************
@@ -77,8 +78,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
 Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
     Route::get('/', [PerfilController::class, 'edit'])->name('edit');
     Route::post('/actualizar', [PerfilController::class, 'update'])->name('update');
-
-    // Ruta AJAX corregida:
     Route::post('/actualizar-ajax', [PerfilController::class, 'updateAjax'])
         ->name('update-ajax');
 });
