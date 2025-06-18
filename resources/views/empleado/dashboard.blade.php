@@ -269,7 +269,8 @@
         .btn-outline {
             background: transparent;
             border: 2px solid var(--primary);
-            color: var(--primary)!important;
+            color: var(--primary) !important;
+            transition: all 0.3s ease;
         }
 
         .btn-outline:hover {
@@ -301,16 +302,22 @@
         }
 
         .btn-profile {
-            background: var(--gradient-primary);
-            color:var(--gradient-primary);
+            background: transparent !important;
             box-shadow: var(--shadow-md);
+            color: var(--primary) !important;
             transition: all 0.3s ease;
         }
 
         .btn-profile:hover {
+            background: var(--gradient-primary)!important;
             transform: translateY(-3px);
             color: white;
             box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn i {
+            color: inherit !important;
+            /* Hereda el color del texto del botón */
         }
 
         /* Layout */
