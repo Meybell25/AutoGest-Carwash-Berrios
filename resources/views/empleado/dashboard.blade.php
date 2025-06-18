@@ -57,7 +57,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #10b981; /* Fondo verde restaurado */
             min-height: 100vh;
             color: var(--gray-900);
             line-height: 1.6;
@@ -120,26 +120,30 @@
         }
 
         .welcome-icon {
-            background: var(--gradient-primary);
-            width: 60px;
-            height: 60px;
-            border-radius: var(--border-radius);
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 1.5rem;
-            box-shadow: var(--shadow-lg);
-            animation: pulse 2s infinite;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-icon i {
+            z-index: 2;
+            text-shadow: none;
+            text-stroke: 0.5px white;
+            -webkit-text-stroke: 0.5px white;
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
+            0%, 100% {
                 transform: scale(1);
             }
-
             50% {
                 transform: scale(1.05);
             }
@@ -1081,13 +1085,10 @@
         }
 
         @keyframes sparkle {
-
-            0%,
-            100% {
+            0%, 100% {
                 opacity: 0;
                 transform: scale(0);
             }
-
             50% {
                 opacity: 1;
                 transform: scale(1);
