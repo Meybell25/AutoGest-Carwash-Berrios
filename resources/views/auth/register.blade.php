@@ -582,28 +582,30 @@
             const confirmPassword = document.getElementById('password_confirmation').value;
             const confirmField = document.getElementById('password_confirmation');
 
-            // Buscar el contenedor de error (el div con min-h-[20px] que está después del campo)
-            const errorContainer = confirmField.closest('.form-field').querySelector('.min-h-\\[20px\\]');
+            // Buscar el contenedor de error - el div después del div relative
+            const relativeDiv = confirmField.closest('.relative');
+            const errorContainer = relativeDiv ? relativeDiv.nextElementSibling : null;
 
-            // Si no encuentra el contenedor por clase, buscar por estructura
-            let actualErrorContainer = errorContainer;
-            if (!actualErrorContainer) {
-                // Buscar el siguiente elemento después del div relativo que contiene el input
-                const relativeDiv = confirmField.closest('.relative');
-                actualErrorContainer = relativeDiv ? relativeDiv.nextElementSibling : null;
-            }
+            if (errorContainer) {
+                // Buscar si ya existe un mensaje de error personalizado
+                const existingError = errorContainer.querySelector('.password-match-error');
 
-            if (actualErrorContainer) {
-                // Limpiar cualquier mensaje existente
-                actualErrorContainer.innerHTML = '';
+                // Eliminar mensaje existente si lo hay
+                if (existingError) {
+                    existingError.remove();
+                }
 
                 if (confirmPassword.length > 0 && password !== confirmPassword) {
                     // Contraseñas no coinciden
                     confirmField.classList.add('border-red-500');
+
+                    // Crear mensaje de error
                     const errorMsg = document.createElement('p');
-                    errorMsg.className = 'text-red-500 text-sm mt-1';
+                    errorMsg.className = 'text-red-500 text-sm mt-1 password-match-error';
                     errorMsg.textContent = 'Las contraseñas no coinciden';
-                    actualErrorContainer.appendChild(errorMsg);
+
+                    // Insertar al inicio del contenedor para que aparezca primero
+                    errorContainer.insertBefore(errorMsg, errorContainer.firstChild);
                 } else {
                     // Contraseñas coinciden o campo vacío
                     confirmField.classList.remove('border-red-500');
@@ -653,13 +655,18 @@
             loadingSpinner.style.display = 'inline-block';
         });
 
-        // Limpiar errores al escribir
+        // Limpiar errores al escribir (excluyendo los mensajes de validación personalizada)
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', function() {
                 this.classList.remove('border-red-500');
-                const errorMsg = this.parentElement.parentElement.querySelector('.text-red-500');
-                if (errorMsg) {
-                    errorMsg.style.display = 'none';
+
+                // Solo limpiar errores de Laravel, no los mensajes de validación personalizada
+                if (this.id !== 'password_confirmation') {
+                    const errorMsg = this.parentElement.parentElement.querySelector(
+                        '.text-red-500:not(.password-match-error)');
+                    if (errorMsg) {
+                        errorMsg.style.display = 'none';
+                    }
                 }
             });
         });
