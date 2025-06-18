@@ -52,19 +52,15 @@ Route::middleware('auth')->group(function () {
 });
 
 //**************************Rutas de Admin (solo administradores)******************************
-Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
+        Route::get('/citas/create', [AdminController::class, 'createCita'])->name('citas.create');
+        Route::post('/citas', [AdminController::class, 'storeCita'])->name('citas.store');
     });
 
 //*************************Rutas de Empleado (solo empleados)********************************************
-Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])
-    ->prefix('empleado')
-    ->name('empleado.')
-    ->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])->prefix('empleado')->name('empleado.')->group(function () {
         Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
         Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
     });
@@ -82,19 +78,19 @@ Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () 
     Route::get('/', [PerfilController::class, 'edit'])->name('edit');
     Route::post('/actualizar', [PerfilController::class, 'update'])->name('update');
 
-     // Ruta AJAX corregida:
+    // Ruta AJAX corregida:
     Route::post('/actualizar-ajax', [PerfilController::class, 'updateAjax'])
-        ->name('update-ajax'); 
+        ->name('update-ajax');
 });
 
 // Grupo de rutas para configuración avanzada
 Route::middleware('auth')->prefix('configuracion')->name('configuracion.')->group(function () {
     // Página principal de configuración
     Route::get('/', [PerfilController::class, 'configuracion'])->name('index');
-    
+
     // Actualización de email
     Route::post('/actualizar-email', [PerfilController::class, 'updateEmail'])->name('update-email');
-    
+
     // Actualización de contraseña
     Route::post('/actualizar-password', [PerfilController::class, 'updatePassword'])->name('update-password');
 });

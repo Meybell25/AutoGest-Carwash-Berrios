@@ -1470,20 +1470,20 @@
                     <div class="card-body">
                         <div class="quick-actions">
                             <button class="quick-action-btn">
-                                <i class="fas fa-plus" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-                                <span>Nueva Cita</span>
+                                <i class="fa-solid fa-eye" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <span>Ver Facturas</span>
                             </button>
                             <button class="quick-action-btn">
-                                <i class="fas fa-car" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-                                <span>Registrar Vehículo</span>
+                                <i class="fa-solid fa-address-book" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <span>Ver Bitacora</span>
                             </button>
                             <button class="quick-action-btn">
-                                <i class="fas fa-file-invoice" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-                                <span>Generar Recibo</span>
+                                <i class="fa-solid fa-receipt" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <span>Generar Pago</span>
                             </button>
                             <button class="quick-action-btn">
-                                <i class="fas fa-question" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-                                <span>Ayuda</span>
+                               <i class="fa-solid fa-coins"style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <span>Agregar Gasto</span>
                             </button>
                         </div>
                     </div>
