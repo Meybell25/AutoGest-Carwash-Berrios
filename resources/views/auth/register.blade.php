@@ -374,7 +374,7 @@
                     <!-- Campo Teléfono -->
                     <div class="form-field space-y-2">
                         <label for="telefono" class="block text-sm font-semibold text-gray-700">
-                            Teléfono
+                            Teléfono <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -384,9 +384,15 @@
                                         d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                 </svg>
                             </div>
-                            <input id="telefono" name="telefono" type="tel"
+                            <input id="telefono" name="telefono" type="tel" required
                                 class="input-field block w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base @error('telefono') border-red-500 @enderror"
-                                placeholder="+503 0000-0000" value="{{ old('telefono') }}">
+                                placeholder="Ej: 12345678" pattern="[0-9]{8}"
+                                title="Debe ingresar exactamente 8 dígitos numéricos" maxlength="8"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, ''); validatePhone(this);"
+                                value="{{ old('telefono') }}">
+                        </div>
+                        <div id="phoneError" class="text-red-500 text-sm mt-1 hidden">
+                            El teléfono debe tener exactamente 8 dígitos numéricos
                         </div>
                         @error('telefono')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -526,18 +532,38 @@
             if (field.type === 'password') {
                 field.type = 'text';
                 icon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464m1.414 1.414L8.464 8.464m5.656 5.656l1.414 1.414m-1.414-1.414l1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/>
-        `;
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464m1.414 1.414L8.464 8.464m5.656 5.656l1.414 1.414m-1.414-1.414l1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/>
+            `;
             } else {
                 field.type = 'password';
                 icon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-        `;
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            `;
+            }
+        }
+
+        // Función para validar el teléfono en tiempo real
+        function validatePhone(input) {
+            const phoneError = document.getElementById('phoneError');
+            const phoneValue = input.value.trim();
+
+            // Validar que tenga exactamente 8 dígitos
+            if (phoneValue.length !== 8 && phoneValue.length > 0) {
+                input.classList.add('border-red-500');
+                phoneError.textContent = 'El teléfono debe tener exactamente 8 dígitos';
+                phoneError.classList.remove('hidden');
+            } else if (phoneValue.length === 0) {
+                input.classList.add('border-red-500');
+                phoneError.textContent = 'El teléfono es requerido';
+                phoneError.classList.remove('hidden');
+            } else {
+                input.classList.remove('border-red-500');
+                phoneError.classList.add('hidden');
             }
         }
 
@@ -644,15 +670,53 @@
             };
         }
 
-        // Mostrar loading al enviar formulario
-        document.querySelector('form').addEventListener('submit', function() {
-            const submitBtn = document.getElementById('submitBtn');
-            const buttonText = document.getElementById('buttonText');
-            const loadingSpinner = document.getElementById('loadingSpinner');
+        // Validación del formulario antes de enviar
+        document.querySelector('form').addEventListener('submit', function(e) {
+            let isValid = true;
 
-            submitBtn.disabled = true;
-            buttonText.textContent = 'Creando Cuenta...';
-            loadingSpinner.style.display = 'inline-block';
+            // Validar teléfono
+            const phoneInput = document.getElementById('telefono');
+            const phoneValue = phoneInput.value.trim();
+
+            if (!phoneValue) {
+                e.preventDefault();
+                phoneInput.classList.add('border-red-500');
+                document.getElementById('phoneError').textContent = 'El teléfono es requerido';
+                document.getElementById('phoneError').classList.remove('hidden');
+                phoneInput.focus();
+                isValid = false;
+            } else if (phoneValue.length !== 8) {
+                e.preventDefault();
+                phoneInput.classList.add('border-red-500');
+                document.getElementById('phoneError').textContent = 'El teléfono debe tener exactamente 8 dígitos';
+                document.getElementById('phoneError').classList.remove('hidden');
+                phoneInput.focus();
+                isValid = false;
+            }
+
+            // Validar contraseña
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                document.getElementById('password_confirmation').classList.add('border-red-500');
+                if (isValid) {
+                    document.getElementById('password_confirmation').focus();
+                }
+                isValid = false;
+            }
+
+            // Si todo es válido, mostrar loading
+            if (isValid) {
+                const submitBtn = document.getElementById('submitBtn');
+                const buttonText = document.getElementById('buttonText');
+                const loadingSpinner = document.getElementById('loadingSpinner');
+
+                submitBtn.disabled = true;
+                buttonText.textContent = 'Creando Cuenta...';
+                loadingSpinner.style.display = 'inline-block';
+            }
         });
 
         // Limpiar errores al escribir (excluyendo los mensajes de validación personalizada)
@@ -667,6 +731,11 @@
                     if (errorMsg) {
                         errorMsg.style.display = 'none';
                     }
+                }
+
+                // Limpiar error de teléfono si se está editando
+                if (this.id === 'telefono') {
+                    document.getElementById('phoneError').classList.add('hidden');
                 }
             });
         });

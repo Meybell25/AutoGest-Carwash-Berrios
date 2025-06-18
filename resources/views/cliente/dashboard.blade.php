@@ -1966,22 +1966,57 @@
         // Funciones del modal
         function openEditModal() {
             const modal = document.getElementById('editProfileModal');
-            modal.style.display = 'block';
+            if (modal) {
+                modal.style.display = 'block';
+                document.getElementById('modalNombre')?.focus();
+            }
         }
 
         function closeEditModal() {
-            document.getElementById('editProfileModal').style.display = 'none';
+            const modal = document.getElementById('editProfileModal');
+            if (modal) modal.style.display = 'none';
         }
 
-        // Manejo del formulario AJAX
-        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+        // Manejo del formulario AJAX con validaciones
+        document.getElementById('profileForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const formData = {
-                nombre: document.getElementById('modalNombre').value,
-                telefono: document.getElementById('modalTelefono').value,
-                _token: document.querySelector('meta[name="csrf-token"]').content
-            };
+            // Obtener valores
+            const nombre = document.getElementById('modalNombre').value.trim();
+            const telefono = document.getElementById('modalTelefono').value.trim();
+
+            // Validaciones
+            if (!nombre) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'El nombre es requerido',
+                    icon: 'error'
+                });
+                document.getElementById('modalNombre').focus();
+                return;
+            }
+
+            if (!telefono) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'El teléfono es requerido',
+                    icon: 'error'
+                });
+                document.getElementById('modalTelefono').focus();
+                return;
+            }
+
+            // Validación estricta: exactamente 8 dígitos
+            const telefonoRegex = /^\d{8}$/;
+            if (!telefonoRegex.test(telefono)) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'El teléfono debe tener exactamente 8 dígitos numéricos',
+                    icon: 'error'
+                });
+                document.getElementById('modalTelefono').focus();
+                return;
+            }
 
             try {
                 const response = await fetch('{{ route('perfil.update-ajax') }}', {
@@ -1991,7 +2026,11 @@
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({
+                        nombre: nombre,
+                        telefono: telefono,
+                        _token: document.querySelector('meta[name="csrf-token"]').content
+                    })
                 });
 
                 const data = await response.json();
@@ -2000,27 +2039,31 @@
                     throw new Error(data.message || 'Error en la respuesta del servidor');
                 }
 
-                // Éxito
+                // Éxito - Cerrar modal y actualizar UI
                 closeEditModal();
                 swalWithBootstrapButtons.fire({
                     title: '¡Éxito!',
-                    text: data.message,
+                    text: data.message || 'Perfil actualizado correctamente',
                     icon: 'success'
                 });
 
                 // Actualizar la UI
-                document.querySelector('.profile-info h3').textContent = data.user.nombre;
-                document.querySelector('.profile-info p:nth-of-type(2)').innerHTML =
-                    `<i class="fas fa-phone"></i> ${data.user.telefono || 'No especificado'}`;
-
-                // Actualizar el nombre en el header de bienvenida
-                document.querySelector('.welcome-section h1').textContent = `¡Hola, ${data.user.nombre}!`;
+                if (document.querySelector('.profile-info h3')) {
+                    document.querySelector('.profile-info h3').textContent = nombre;
+                }
+                if (document.querySelector('.profile-info p:nth-of-type(2)')) {
+                    document.querySelector('.profile-info p:nth-of-type(2)').innerHTML =
+                        `<i class="fas fa-phone"></i> ${telefono}`;
+                }
+                if (document.querySelector('.welcome-section h1')) {
+                    document.querySelector('.welcome-section h1').textContent = `¡Hola, ${nombre}!`;
+                }
 
             } catch (error) {
                 console.error('Error:', error);
                 swalWithBootstrapButtons.fire({
                     title: 'Error',
-                    text: error.message,
+                    text: error.message || 'Error al actualizar el perfil',
                     icon: 'error'
                 });
             }
@@ -2032,7 +2075,6 @@
                 closeEditModal();
             }
         });
-
         // Función para marcar notificaciones como leídas
         //function markAsRead(notificacionId) {
         //fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
@@ -2073,11 +2115,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                            <tr>
-                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                            </tr>
-                                                                                                                        `).join('')}
+                                                                                                                                <tr>
+                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                </tr>
+                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>

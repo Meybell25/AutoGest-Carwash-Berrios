@@ -68,9 +68,12 @@ class AuthController extends Controller
         $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:usuarios'],
-            'telefono' => ['nullable', 'string', 'max:20'],
+            'telefono' => ['required', 'string', 'digits:8', 'unique:usuarios'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()->mixedCase()->numbers()],
         ], [
+            'telefono.required' => 'El teléfono es requerido',
+            'telefono.digits' => 'El teléfono debe tener exactamente 8 dígitos',
+            'telefono.unique' => 'Este teléfono ya está registrado',
             'password.mixed' => 'La contraseña debe contener al menos una letra mayúscula y una minúscula.',
             'password.numbers' => 'La contraseña debe contener al menos un número.',
             'password.confirmed' => 'Las contraseñas no coinciden.'

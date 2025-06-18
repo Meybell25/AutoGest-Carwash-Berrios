@@ -380,7 +380,7 @@
 
         /* Íconos en texto normal (como los de perfil) */
         .profile-summary i:not(.btn i) {
-            color: var(--gray-600) !important;
+            color: white !important;
         }
 
 
@@ -1507,6 +1507,7 @@
                             <div>
                                 <h3>{{ Auth::user()->nombre ?? 'Empleado' }}</h3>
                                 <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-phone"></i> {{ Auth::user()->telefono ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
                                 <p><i class="fas fa-calendar"></i> Miembro desde
                                     {{ Auth::user()->created_at->format('M Y') }}</p>
@@ -1518,152 +1519,247 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
 
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
-            </div>
+                <!-- Footer -->
+                <footer class="footer">
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
 
-            <div class="footer-info">
-                <div class="info-item">
-                    <i class="fas fa-phone"></i>
-                    <span>75855197</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
-                        Ver ubicación en mapa
-                    </a>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-clock"></i>
-                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
-                </div>
-            </div>
+                    <div class="footer-content">
+                        <div class="footer-brand">
+                            <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                            <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
+                        </div>
 
-            <div class="social-icons">
-                <a href="#" class="social-icon facebook" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-                <a href="#" class="social-icon instagram" title="Instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
-            </div>
+                        <div class="footer-info">
+                            <div class="info-item">
+                                <i class="fas fa-phone"></i>
+                                <span>75855197</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank"
+                                    class="location-link">
+                                    Ver ubicación en mapa
+                                </a>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
+                            </div>
+                        </div>
 
-            <div class="footer-divider"></div>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon facebook" title="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            <a href="#" class="social-icon instagram" title="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
 
-            <p class="footer-copyright">
-                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
-            </p>
-        </div>
-    </footer>
+                        <div class="footer-divider"></div>
 
-    <!-- Modales -->
-    <div id="finalizarCitaModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeFinalizarModal()">&times;</span>
-            <h2 style="margin-bottom: 15px;">
-                <i class="fas fa-check-circle"></i> Finalizar Servicio
-            </h2>
-            <form id="finalizarCitaForm">
-                @csrf
-                <input type="hidden" id="cita_id_finalizar" name="cita_id">
+                        <p class="footer-copyright">
+                            &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+                        </p>
+                    </div>
+                </footer>
 
-                <div class="form-group">
-                    <label for="observaciones_finalizar">Observaciones:</label>
-                    <textarea id="observaciones_finalizar" name="observaciones" rows="4" class="form-control"></textarea>
-                </div>
+                <!-- Modales -->
+                <div id="finalizarCitaModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal" onclick="closeFinalizarModal()">&times;</span>
+                        <h2 style="margin-bottom: 15px;">
+                            <i class="fas fa-check-circle"></i> Finalizar Servicio
+                        </h2>
+                        <form id="finalizarCitaForm">
+                            @csrf
+                            <input type="hidden" id="cita_id_finalizar" name="cita_id">
 
-                <div class="form-group">
-                    <label for="metodo_pago">Método de Pago:</label>
-                    <select id="metodo_pago" name="metodo_pago" class="form-control">
-                        <option value="efectivo">Efectivo</option>
-                        <option value="tarjeta">Tarjeta</option>
-                        <option value="transferencia">Transferencia</option>
-                    </select>
-                </div>
+                            <div class="form-group">
+                                <label for="observaciones_finalizar">Observaciones:</label>
+                                <textarea id="observaciones_finalizar" name="observaciones" rows="4" class="form-control"></textarea>
+                            </div>
 
-                <div id="efectivoFields">
-                    <div class="form-group">
-                        <label for="monto_recibido">Monto Recibido ($):</label>
-                        <input type="number" step="0.01" id="monto_recibido" name="monto_recibido"
-                            class="form-control">
+                            <div class="form-group">
+                                <label for="metodo_pago">Método de Pago:</label>
+                                <select id="metodo_pago" name="metodo_pago" class="form-control">
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="tarjeta">Tarjeta</option>
+                                    <option value="transferencia">Transferencia</option>
+                                </select>
+                            </div>
+
+                            <div id="efectivoFields">
+                                <div class="form-group">
+                                    <label for="monto_recibido">Monto Recibido ($):</label>
+                                    <input type="number" step="0.01" id="monto_recibido" name="monto_recibido"
+                                        class="form-control">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">
+                                <i class="fas fa-check"></i> Confirmar Finalización
+                            </button>
+                        </form>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">
-                    <i class="fas fa-check"></i> Confirmar Finalización
-                </button>
-            </form>
-        </div>
-    </div>
+                <div id="observacionesModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal" onclick="closeObservacionesModal()">&times;</span>
+                        <h2 style="margin-bottom: 15px;">
+                            <i class="fas fa-edit"></i> Agregar Observaciones
+                        </h2>
+                        <form id="observacionesForm">
+                            @csrf
+                            <input type="hidden" id="cita_id_observaciones" name="cita_id">
 
-    <div id="observacionesModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeObservacionesModal()">&times;</span>
-            <h2 style="margin-bottom: 15px;">
-                <i class="fas fa-edit"></i> Agregar Observaciones
-            </h2>
-            <form id="observacionesForm">
-                @csrf
-                <input type="hidden" id="cita_id_observaciones" name="cita_id">
+                            <div class="form-group">
+                                <label for="observaciones_texto">Observaciones:</label>
+                                <textarea id="observaciones_texto" name="observaciones" rows="6" class="form-control"></textarea>
+                            </div>
 
-                <div class="form-group">
-                    <label for="observaciones_texto">Observaciones:</label>
-                    <textarea id="observaciones_texto" name="observaciones" rows="6" class="form-control"></textarea>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                                <i class="fas fa-save"></i> Guardar Observaciones
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
-                    <i class="fas fa-save"></i> Guardar Observaciones
-                </button>
-            </form>
-        </div>
-    </div>
+                <script>
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
 
-    <script>
-        // Configuración global de SweetAlert
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
+                    // Funciones del modal
+                    function openEditModal() {
+                        const modal = document.getElementById('editProfileModal');
+                        if (modal) {
+                            modal.style.display = 'flex';
+                            document.getElementById('modalNombre')?.focus();
+                        } else {
+                            console.error('Modal no encontrado');
+                            Swal.fire('Error', 'No se pudo cargar el formulario de edición', 'error');
+                        }
+                    }
 
-        // Funciones para modales
-        function mostrarModalFinalizar(citaId) {
-            document.getElementById('cita_id_finalizar').value = citaId;
-            document.getElementById('finalizarCitaModal').style.display = 'flex';
-        }
+                    function closeEditModal() {
+                        const modal = document.getElementById('editProfileModal');
+                        if (modal) modal.style.display = 'none';
+                    }
 
-        function closeFinalizarModal() {
-            document.getElementById('finalizarCitaModal').style.display = 'none';
-        }
+                    // Manejo del formulario AJAX con validaciones
+                    document.getElementById('profileFormEmpleado')?.addEventListener('submit', async function(e) {
+                        e.preventDefault();
 
-        function mostrarModalObservaciones(citaId) {
-            document.getElementById('cita_id_observaciones').value = citaId;
-            document.getElementById('observacionesModal').style.display = 'flex';
-        }
+                        // Obtener valores
+                        const nombre = document.getElementById('modalNombre').value.trim();
+                        const telefono = document.getElementById('modalTelefono').value.trim();
 
-        function closeObservacionesModal() {
-            document.getElementById('observacionesModal').style.display = 'none';
-        }
+                        // Validaciones
+                        if (!nombre) {
+                            Swal.fire('Error', 'El nombre es requerido', 'error');
+                            document.getElementById('modalNombre').focus();
+                            return;
+                        }
 
-        function verDetalleCita(citaId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            const detalleContent = `
+                        if (!telefono) {
+                            Swal.fire('Error', 'El teléfono es requerido', 'error');
+                            document.getElementById('modalTelefono').focus();
+                            return;
+                        }
+
+                        // Validación estricta: exactamente 8 dígitos
+                        const telefonoRegex = /^\d{8}$/;
+                        if (!telefonoRegex.test(telefono)) {
+                            Swal.fire('Error', 'El teléfono debe tener exactamente 8 dígitos numéricos', 'error');
+                            document.getElementById('modalTelefono').focus();
+                            return;
+                        }
+
+                        try {
+                            const response = await fetch('{{ route('perfil.update-ajax') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: JSON.stringify({
+                                    nombre: nombre,
+                                    telefono: telefono,
+                                    _token: '{{ csrf_token() }}'
+                                })
+                            });
+
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(data.message || 'Error en la respuesta del servidor');
+                            }
+
+                            // Éxito - Cerrar modal y actualizar UI
+                            Swal.fire({
+                                title: 'Éxito',
+                                text: 'Perfil actualizado correctamente',
+                                icon: 'success',
+                                willClose: () => {
+                                    closeEditModal();
+                                    // Actualizar la UI
+                                    if (document.querySelector('.profile-summary h3')) {
+                                        document.querySelector('.profile-summary h3').textContent = nombre;
+                                    }
+                                    if (document.querySelector('.profile-summary p:nth-of-type(2)')) {
+                                        document.querySelector('.profile-summary p:nth-of-type(2)').innerHTML =
+                                            `<i class="fas fa-phone"></i> ${telefono}`;
+                                    }
+                                }
+                            });
+
+                        } catch (error) {
+                            console.error('Error:', error);
+                            Swal.fire('Error', error.message || 'Error al actualizar el perfil', 'error');
+                        }
+                    });
+
+                    // Cerrar modal al hacer clic fuera
+                    window.addEventListener('click', function(event) {
+                        if (event.target.classList.contains('modal')) {
+                            closeEditModal();
+                        }
+                    });
+                    // Funciones para modales
+                    function mostrarModalFinalizar(citaId) {
+                        document.getElementById('cita_id_finalizar').value = citaId;
+                        document.getElementById('finalizarCitaModal').style.display = 'flex';
+                    }
+
+                    function closeFinalizarModal() {
+                        document.getElementById('finalizarCitaModal').style.display = 'none';
+                    }
+
+                    function mostrarModalObservaciones(citaId) {
+                        document.getElementById('cita_id_observaciones').value = citaId;
+                        document.getElementById('observacionesModal').style.display = 'flex';
+                    }
+
+                    function closeObservacionesModal() {
+                        document.getElementById('observacionesModal').style.display = 'none';
+                    }
+
+                    function verDetalleCita(citaId) {
+                        // Simulación de datos - en una aplicación real harías una petición AJAX
+                        const detalleContent = `
                 <h2 style="margin-bottom: 15px;">
                     <i class="fas fa-calendar-check"></i> Detalle de Cita
                 </h2>
@@ -1716,171 +1812,171 @@
                 </div>
             `;
 
-            document.getElementById('detalleCitaContent').innerHTML = detalleContent;
-            document.getElementById('detalleCitaModal').style.display = 'flex';
-        }
-
-        function closeDetalleModal() {
-            document.getElementById('detalleCitaModal').style.display = 'none';
-        }
-
-        // Manejar cambio de método de pago
-        document.getElementById('metodo_pago').addEventListener('change', function() {
-            const efectivoFields = document.getElementById('efectivoFields');
-            efectivoFields.style.display = this.value === 'efectivo' ? 'block' : 'none';
-        });
-
-        // Cambiar estado de cita
-        function cambiarEstadoCita(citaId, estado) {
-            fetch(`/empleado/citas/${citaId}/estado`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({
-                        estado: estado
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Toast.fire({
-                            icon: 'success',
-                            title: data.message
-                        });
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        Toast.fire({
-                            icon: 'error',
-                            title: data.message
-                        });
+                        document.getElementById('detalleCitaContent').innerHTML = detalleContent;
+                        document.getElementById('detalleCitaModal').style.display = 'flex';
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Error al cambiar el estado'
-                    });
-                });
-        }
 
-        // Formulario para finalizar cita
-        document.getElementById('finalizarCitaForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-
-            fetch('/empleado/citas/finalizar', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Toast.fire({
-                            icon: 'success',
-                            title: data.message
-                        });
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        Toast.fire({
-                            icon: 'error',
-                            title: data.message
-                        });
+                    function closeDetalleModal() {
+                        document.getElementById('detalleCitaModal').style.display = 'none';
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Error al finalizar la cita'
+
+                    // Manejar cambio de método de pago
+                    document.getElementById('metodo_pago').addEventListener('change', function() {
+                        const efectivoFields = document.getElementById('efectivoFields');
+                        efectivoFields.style.display = this.value === 'efectivo' ? 'block' : 'none';
                     });
-                });
-        });
 
-        // Formulario para guardar observaciones
-        document.getElementById('observacionesForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-
-            fetch('/empleado/citas/observaciones', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Toast.fire({
-                            icon: 'success',
-                            title: data.message
-                        });
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        Toast.fire({
-                            icon: 'error',
-                            title: data.message
-                        });
+                    // Cambiar estado de cita
+                    function cambiarEstadoCita(citaId, estado) {
+                        fetch(`/empleado/citas/${citaId}/estado`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({
+                                    estado: estado
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: data.message
+                                    });
+                                    setTimeout(() => location.reload(), 1000);
+                                } else {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: data.message
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: 'Error al cambiar el estado'
+                                });
+                            });
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Error al guardar observaciones'
-                    });
-                });
-        });
 
-        // Marcar tarea como completa
-        function marcarTareaCompleta(tareaId, checkbox) {
-            fetch(`/empleado/tareas/${tareaId}/completar`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({
-                        completada: checkbox.checked
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        checkbox.checked = !checkbox.checked;
-                        Toast.fire({
-                            icon: 'error',
-                            title: data.message
-                        });
+                    // Formulario para finalizar cita
+                    document.getElementById('finalizarCitaForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        const formData = new FormData(this);
+
+                        fetch('/empleado/citas/finalizar', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: data.message
+                                    });
+                                    setTimeout(() => location.reload(), 1000);
+                                } else {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: data.message
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: 'Error al finalizar la cita'
+                                });
+                            });
+                    });
+
+                    // Formulario para guardar observaciones
+                    document.getElementById('observacionesForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        const formData = new FormData(this);
+
+                        fetch('/empleado/citas/observaciones', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: data.message
+                                    });
+                                    setTimeout(() => location.reload(), 1000);
+                                } else {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: data.message
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: 'Error al guardar observaciones'
+                                });
+                            });
+                    });
+
+                    // Marcar tarea como completa
+                    function marcarTareaCompleta(tareaId, checkbox) {
+                        fetch(`/empleado/tareas/${tareaId}/completar`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({
+                                    completada: checkbox.checked
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (!data.success) {
+                                    checkbox.checked = !checkbox.checked;
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: data.message
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                checkbox.checked = !checkbox.checked;
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: 'Error al actualizar tarea'
+                                });
+                            });
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    checkbox.checked = !checkbox.checked;
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Error al actualizar tarea'
-                    });
-                });
-        }
 
-        // Cerrar modales al hacer clic fuera
-        window.addEventListener('click', function(event) {
-            if (event.target.classList.contains('modal')) {
-                document.getElementById('finalizarCitaModal').style.display = 'none';
-                document.getElementById('observacionesModal').style.display = 'none';
-                document.getElementById('detalleCitaModal').style.display = 'none';
-            }
-        });
-    </script>
+                    // Cerrar modales al hacer clic fuera
+                    window.addEventListener('click', function(event) {
+                        if (event.target.classList.contains('modal')) {
+                            document.getElementById('finalizarCitaModal').style.display = 'none';
+                            document.getElementById('observacionesModal').style.display = 'none';
+                            document.getElementById('detalleCitaModal').style.display = 'none';
+                        }
+                    });
+                </script>
 </body>
 
 </html>
