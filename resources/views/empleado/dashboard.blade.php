@@ -61,12 +61,15 @@
             min-height: 100vh;
             color: var(--gray-900);
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
         }
 
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 1.5rem;
+            flex: 1;
         }
 
         /* Header */
@@ -134,12 +137,9 @@
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
+            0%, 100% {
                 transform: scale(1);
             }
-
             50% {
                 transform: scale(1.05);
             }
@@ -747,6 +747,173 @@
             font-size: 0.9rem;
         }
 
+        /* Footer */
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-brand h3 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+        }
+
+        .footer-brand h3 i {
+            color: var(--primary);
+        }
+
+        .footer-slogan {
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .footer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-item i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+        }
+
+        .location-link {
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .location-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: var(--transition);
+            font-size: 1.2rem;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px) scale(1.1);
+        }
+
+        .facebook {
+            background: #3b5998;
+        }
+
+        .whatsapp {
+            background: #25D366;
+        }
+
+        .instagram {
+            background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+        }
+
+        .footer-divider {
+            grid-column: 1 / -1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 1rem 0;
+        }
+
+        .footer-copyright {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .sparkle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: sparkle 3s infinite;
+        }
+
+        .sparkle:nth-child(1) {
+            width: 3px;
+            height: 3px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .sparkle:nth-child(2) {
+            width: 4px;
+            height: 4px;
+            top: 70%;
+            left: 80%;
+            animation-delay: 0.5s;
+        }
+
+        .sparkle:nth-child(3) {
+            width: 2px;
+            height: 2px;
+            top: 50%;
+            left: 50%;
+            animation-delay: 1s;
+        }
+
+        @keyframes sparkle {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-50px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .dashboard-grid {
@@ -805,6 +972,15 @@
             .quick-actions {
                 grid-template-columns: 1fr;
             }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .info-item {
+                justify-content: center;
+            }
         }
 
         @media (max-width: 480px) {
@@ -829,7 +1005,6 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1125,6 +1300,55 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
+            </div>
+
+            <div class="footer-info">
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>75855197</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
+                        Ver ubicación en mapa
+                    </a>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
+                </div>
+            </div>
+
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="#" class="social-icon instagram" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+
+            <div class="footer-divider"></div>
+
+            <p class="footer-copyright">
+                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+            </p>
+        </div>
+    </footer>
 
     <!-- Modales -->
     <div id="finalizarCitaModal" class="modal">
