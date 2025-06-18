@@ -61,7 +61,7 @@
             background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 30%, #4338ca 60%, #1e3a8a 100%);
             background: linear-gradient(135deg, #4338ca 10%, #5c4dff 40%, #1e3a8a 100%);
             background: linear-gradient(45deg, #ddd6fe, #a7f3d0, #bfdbfe);*/
-            background: linear-gradient(45deg, #c7d2fe, #6366f1, #374151);
+            background: linear-gradient(45deg, #c7d2fe, #6366f1);
             min-height: 100vh;
             color: var(--gray-900);
             line-height: 1.6;
