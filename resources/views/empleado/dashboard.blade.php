@@ -61,15 +61,12 @@
             min-height: 100vh;
             color: var(--gray-900);
             line-height: 1.6;
-            display: flex;
-            flex-direction: column;
         }
 
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 1.5rem;
-            flex: 1;
         }
 
         /* Header */
@@ -137,9 +134,12 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.05);
             }
@@ -747,173 +747,6 @@
             font-size: 0.9rem;
         }
 
-        /* Footer */
-        .footer {
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 2rem 0;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .footer-brand {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .footer-brand h3 {
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: white;
-        }
-
-        .footer-brand h3 i {
-            color: var(--primary);
-        }
-
-        .footer-slogan {
-            font-style: italic;
-            opacity: 0.8;
-        }
-
-        .footer-info {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .info-item i {
-            color: var(--primary);
-            width: 20px;
-            text-align: center;
-        }
-
-        .location-link {
-            color: white;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .location-link:hover {
-            color: var(--primary);
-            text-decoration: underline;
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        .social-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            transition: var(--transition);
-            font-size: 1.2rem;
-        }
-
-        .social-icon:hover {
-            transform: translateY(-3px) scale(1.1);
-        }
-
-        .facebook {
-            background: #3b5998;
-        }
-
-        .whatsapp {
-            background: #25D366;
-        }
-
-        .instagram {
-            background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
-        }
-
-        .footer-divider {
-            grid-column: 1 / -1;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 1rem 0;
-        }
-
-        .footer-copyright {
-            grid-column: 1 / -1;
-            text-align: center;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-
-        .sparkle {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0;
-            animation: sparkle 3s infinite;
-        }
-
-        .sparkle:nth-child(1) {
-            width: 3px;
-            height: 3px;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .sparkle:nth-child(2) {
-            width: 4px;
-            height: 4px;
-            top: 70%;
-            left: 80%;
-            animation-delay: 0.5s;
-        }
-
-        .sparkle:nth-child(3) {
-            width: 2px;
-            height: 2px;
-            top: 50%;
-            left: 50%;
-            animation-delay: 1s;
-        }
-
-        @keyframes sparkle {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 0;
-            }
-            50% {
-                opacity: 0.8;
-            }
-            100% {
-                transform: translateY(-50px) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
         /* Responsive */
         @media (max-width: 1024px) {
             .dashboard-grid {
@@ -972,15 +805,6 @@
             .quick-actions {
                 grid-template-columns: 1fr;
             }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .info-item {
-                justify-content: center;
-            }
         }
 
         @media (max-width: 480px) {
@@ -1005,6 +829,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1036,6 +861,271 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--gray-500);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius-xl);
+            margin-top: 30px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .footer-content {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .footer-brand {
+            margin-bottom: 15px;
+        }
+
+        .footer-brand h3 {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 8px 0;
+            text-shadow: none;
+        }
+
+        .footer-slogan {
+            font-size: 14px;
+            color: var(--gray-600);
+            font-style: italic;
+            margin-bottom: 25px;
+            opacity: 0.8;
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-800);
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .info-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .info-item i {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .location-link {
+            color: var(--gray-800);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .location-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+
+        .location-link:hover::after {
+            width: 100%;
+        }
+
+        .location-link:hover {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            margin: 20px 0;
+        }
+
+        .footer-copyright {
+            color: var(--gray-600);
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-600);
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .social-icon.facebook:hover {
+            background: #1877f2;
+            color: white;
+            border-color: #1877f2;
+        }
+
+        .social-icon.whatsapp:hover {
+            background: #25d366;
+            color: white;
+            border-color: #25d366;
+        }
+
+        .social-icon.instagram:hover {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            border-color: #bc1888;
+        }
+
+        .schedule-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .schedule-main {
+            font-weight: 500;
+            color: var(--gray-800);
+        }
+
+        .schedule-closed {
+            font-size: 13px;
+            color: var(--gray-600);
+            opacity: 0.8;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+
+        .sparkle:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .sparkle:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 0.5s;
+        }
+
+        .sparkle:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 1s;
+        }
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Ajustes para iconos */
+        .fa-user-tie {
+            color: white !important;
+        }
+
+        .btn-outline i,
+        .btn-primary i,
+        .btn-success i {
+            color: white !important;
+        }
+
+        .appointment-actions .btn-outline i {
+            color: var(--primary) !important;
+        }
+
+        .appointment-actions .btn-outline:hover i {
+            color: white !important;
+        }
+
+        @media (max-width: 768px) {
+            .footer-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .footer-content {
+                padding: 30px 20px;
+            }
+
+            .footer-brand h3 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -1299,56 +1389,56 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
 
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
-            </div>
-
-            <div class="footer-info">
-                <div class="info-item">
-                    <i class="fas fa-phone"></i>
-                    <span>75855197</span>
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                    <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
                 </div>
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
-                        Ver ubicación en mapa
+
+                <div class="footer-info">
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <span>75855197</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
+                            Ver ubicación en mapa
+                        </a>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
+                    </div>
+                </div>
+
+                <div class="social-icons">
+                    <a href="#" class="social-icon facebook" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="#" class="social-icon instagram" title="Instagram">
+                        <i class="fab fa-instagram"></i>
                     </a>
                 </div>
-                <div class="info-item">
-                    <i class="fas fa-clock"></i>
-                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
-                </div>
+
+                <div class="footer-divider"></div>
+
+                <p class="footer-copyright">
+                    &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+                </p>
             </div>
-
-            <div class="social-icons">
-                <a href="#" class="social-icon facebook" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-                <a href="#" class="social-icon instagram" title="Instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
-            </div>
-
-            <div class="footer-divider"></div>
-
-            <p class="footer-copyright">
-                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
-            </p>
-        </div>
-    </footer>
+        </footer>
+    </div>
 
     <!-- Modales -->
     <div id="finalizarCitaModal" class="modal">
