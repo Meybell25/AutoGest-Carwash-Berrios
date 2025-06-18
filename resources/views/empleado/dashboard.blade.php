@@ -269,7 +269,7 @@
         .btn-outline {
             background: transparent;
             border: 2px solid var(--primary);
-            color: var(--primary);
+            color: var(--primary)!important;
         }
 
         .btn-outline:hover {
@@ -302,13 +302,14 @@
 
         .btn-profile {
             background: var(--gradient-primary);
-            color: white;
+            color:var(--gradient-primary);
             box-shadow: var(--shadow-md);
             transition: all 0.3s ease;
         }
 
         .btn-profile:hover {
             transform: translateY(-3px);
+            color: white;
             box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
         }
 
@@ -336,9 +337,11 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
             transition: var(--transition);
+            color: var(--primary) !important;
         }
 
         .card:hover {
+            color: var(--color-white) !important;
             transform: translateY(-4px);
             box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
         }
@@ -888,10 +891,10 @@
 
         /* Footer */
         .footer {
+            width: 100%;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--border-radius-xl);
             margin-top: 30px;
             box-shadow: var(--shadow-xl);
             position: relative;
