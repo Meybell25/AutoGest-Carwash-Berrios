@@ -1519,247 +1519,283 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div> <!-- Cierra dashboard-grid -->
+    </div> <!-- Cierra dashboard-container -->
 
-                <!-- Footer -->
-                <footer class="footer">
-                    <div class="sparkle"></div>
-                    <div class="sparkle"></div>
-                    <div class="sparkle"></div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
 
-                    <div class="footer-content">
-                        <div class="footer-brand">
-                            <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                            <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
-                        </div>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
+            </div>
 
-                        <div class="footer-info">
-                            <div class="info-item">
-                                <i class="fas fa-phone"></i>
-                                <span>75855197</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank"
-                                    class="location-link">
-                                    Ver ubicación en mapa
-                                </a>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-clock"></i>
-                                <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
-                            </div>
-                        </div>
+            <div class="footer-info">
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>75855197</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
+                        Ver ubicación en mapa
+                    </a>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
+                </div>
+            </div>
 
-                        <div class="social-icons">
-                            <a href="#" class="social-icon facebook" title="Facebook">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
-                                <i class="fab fa-whatsapp"></i>
-                            </a>
-                            <a href="#" class="social-icon instagram" title="Instagram">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                        </div>
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="#" class="social-icon instagram" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
 
-                        <div class="footer-divider"></div>
+            <div class="footer-divider"></div>
 
-                        <p class="footer-copyright">
-                            &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
-                        </p>
-                    </div>
-                </footer>
+            <p class="footer-copyright">
+                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+            </p>
+        </div>
+    </footer>
 
-                <!-- Modales -->
-                <div id="finalizarCitaModal" class="modal">
-                    <div class="modal-content">
-                        <span class="close-modal" onclick="closeFinalizarModal()">&times;</span>
-                        <h2 style="margin-bottom: 15px;">
-                            <i class="fas fa-check-circle"></i> Finalizar Servicio
-                        </h2>
-                        <form id="finalizarCitaForm">
-                            @csrf
-                            <input type="hidden" id="cita_id_finalizar" name="cita_id">
+    <!-- Modales -->
+    <div id="finalizarCitaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeFinalizarModal()">&times;</span>
+            <h2 style="margin-bottom: 15px;">
+                <i class="fas fa-check-circle"></i> Finalizar Servicio
+            </h2>
+            <form id="finalizarCitaForm">
+                @csrf
+                <input type="hidden" id="cita_id_finalizar" name="cita_id">
 
-                            <div class="form-group">
-                                <label for="observaciones_finalizar">Observaciones:</label>
-                                <textarea id="observaciones_finalizar" name="observaciones" rows="4" class="form-control"></textarea>
-                            </div>
+                <div class="form-group">
+                    <label for="observaciones_finalizar">Observaciones:</label>
+                    <textarea id="observaciones_finalizar" name="observaciones" rows="4" class="form-control"></textarea>
+                </div>
 
-                            <div class="form-group">
-                                <label for="metodo_pago">Método de Pago:</label>
-                                <select id="metodo_pago" name="metodo_pago" class="form-control">
-                                    <option value="efectivo">Efectivo</option>
-                                    <option value="tarjeta">Tarjeta</option>
-                                    <option value="transferencia">Transferencia</option>
-                                </select>
-                            </div>
+                <div class="form-group">
+                    <label for="metodo_pago">Método de Pago:</label>
+                    <select id="metodo_pago" name="metodo_pago" class="form-control">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="transferencia">Transferencia</option>
+                    </select>
+                </div>
 
-                            <div id="efectivoFields">
-                                <div class="form-group">
-                                    <label for="monto_recibido">Monto Recibido ($):</label>
-                                    <input type="number" step="0.01" id="monto_recibido" name="monto_recibido"
-                                        class="form-control">
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">
-                                <i class="fas fa-check"></i> Confirmar Finalización
-                            </button>
-                        </form>
+                <div id="efectivoFields">
+                    <div class="form-group">
+                        <label for="monto_recibido">Monto Recibido ($):</label>
+                        <input type="number" step="0.01" id="monto_recibido" name="monto_recibido"
+                            class="form-control">
                     </div>
                 </div>
 
-                <div id="observacionesModal" class="modal">
-                    <div class="modal-content">
-                        <span class="close-modal" onclick="closeObservacionesModal()">&times;</span>
-                        <h2 style="margin-bottom: 15px;">
-                            <i class="fas fa-edit"></i> Agregar Observaciones
-                        </h2>
-                        <form id="observacionesForm">
-                            @csrf
-                            <input type="hidden" id="cita_id_observaciones" name="cita_id">
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-check"></i> Confirmar Finalización
+                </button>
+            </form>
+        </div>
+    </div>
 
-                            <div class="form-group">
-                                <label for="observaciones_texto">Observaciones:</label>
-                                <textarea id="observaciones_texto" name="observaciones" rows="6" class="form-control"></textarea>
-                            </div>
+    <div id="observacionesModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeObservacionesModal()">&times;</span>
+            <h2 style="margin-bottom: 15px;">
+                <i class="fas fa-edit"></i> Agregar Observaciones
+            </h2>
+            <form id="observacionesForm">
+                @csrf
+                <input type="hidden" id="cita_id_observaciones" name="cita_id">
 
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
-                                <i class="fas fa-save"></i> Guardar Observaciones
-                            </button>
-                        </form>
-                    </div>
+                <div class="form-group">
+                    <label for="observaciones_texto">Observaciones:</label>
+                    <textarea id="observaciones_texto" name="observaciones" rows="6" class="form-control"></textarea>
                 </div>
 
-                <script>
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-save"></i> Guardar Observaciones
+                </button>
+            </form>
+        </div>
+    </div>
 
-                    // Funciones del modal
-                    function openEditModal() {
-                        const modal = document.getElementById('editProfileModal');
-                        if (modal) {
-                            modal.style.display = 'flex';
-                            document.getElementById('modalNombre')?.focus();
-                        } else {
-                            console.error('Modal no encontrado');
-                            Swal.fire('Error', 'No se pudo cargar el formulario de edición', 'error');
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            <h2 style="margin-bottom: 15px;">
+                <i class="fas fa-user-edit"></i> Editar Perfil
+            </h2>
+            <form id="profileFormEmpleado">
+                @csrf
+                <div class="form-group">
+                    <label for="modalNombre">Nombre:</label>
+                    <input type="text" id="modalNombre" name="nombre" class="form-control"
+                        value="{{ Auth::user()->nombre ?? '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="modalTelefono">Teléfono:</label>
+                    <input type="tel" id="modalTelefono" name="telefono" class="form-control"
+                        value="{{ Auth::user()->telefono ?? '' }}" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="detalleCitaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDetalleModal()">&times;</span>
+            <div id="detalleCitaContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        // Funciones del modal
+        function openEditModal() {
+            const modal = document.getElementById('editProfileModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.getElementById('modalNombre')?.focus();
+            } else {
+                console.error('Modal no encontrado');
+                Swal.fire('Error', 'No se pudo cargar el formulario de edición', 'error');
+            }
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('editProfileModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // Manejo del formulario AJAX con validaciones
+        document.getElementById('profileFormEmpleado')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Obtener valores
+            const nombre = document.getElementById('modalNombre').value.trim();
+            const telefono = document.getElementById('modalTelefono').value.trim();
+
+            // Validaciones
+            if (!nombre) {
+                Swal.fire('Error', 'El nombre es requerido', 'error');
+                document.getElementById('modalNombre').focus();
+                return;
+            }
+
+            if (!telefono) {
+                Swal.fire('Error', 'El teléfono es requerido', 'error');
+                document.getElementById('modalTelefono').focus();
+                return;
+            }
+
+            // Validación estricta: exactamente 8 dígitos
+            const telefonoRegex = /^\d{8}$/;
+            if (!telefonoRegex.test(telefono)) {
+                Swal.fire('Error', 'El teléfono debe tener exactamente 8 dígitos numéricos', 'error');
+                document.getElementById('modalTelefono').focus();
+                return;
+            }
+
+            try {
+                const response = await fetch('{{ route('perfil.update-ajax') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        nombre: nombre,
+                        telefono: telefono,
+                        _token: '{{ csrf_token() }}'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error en la respuesta del servidor');
+                }
+
+                // Éxito - Cerrar modal y actualizar UI
+                Swal.fire({
+                    title: 'Éxito',
+                    text: 'Perfil actualizado correctamente',
+                    icon: 'success',
+                    willClose: () => {
+                        closeEditModal();
+                        // Actualizar la UI
+                        if (document.querySelector('.profile-summary h3')) {
+                            document.querySelector('.profile-summary h3').textContent = nombre;
+                        }
+                        if (document.querySelector('.profile-summary p:nth-of-type(2)')) {
+                            document.querySelector('.profile-summary p:nth-of-type(2)').innerHTML =
+                                `<i class="fas fa-phone"></i> ${telefono}`;
                         }
                     }
+                });
 
-                    function closeEditModal() {
-                        const modal = document.getElementById('editProfileModal');
-                        if (modal) modal.style.display = 'none';
-                    }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', error.message || 'Error al actualizar el perfil', 'error');
+            }
+        });
 
-                    // Manejo del formulario AJAX con validaciones
-                    document.getElementById('profileFormEmpleado')?.addEventListener('submit', async function(e) {
-                        e.preventDefault();
+        // Cerrar modal al hacer clic fuera
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeEditModal();
+            }
+        });
+        // Funciones para modales
+        function mostrarModalFinalizar(citaId) {
+            document.getElementById('cita_id_finalizar').value = citaId;
+            document.getElementById('finalizarCitaModal').style.display = 'flex';
+        }
 
-                        // Obtener valores
-                        const nombre = document.getElementById('modalNombre').value.trim();
-                        const telefono = document.getElementById('modalTelefono').value.trim();
+        function closeFinalizarModal() {
+            document.getElementById('finalizarCitaModal').style.display = 'none';
+        }
 
-                        // Validaciones
-                        if (!nombre) {
-                            Swal.fire('Error', 'El nombre es requerido', 'error');
-                            document.getElementById('modalNombre').focus();
-                            return;
-                        }
+        function mostrarModalObservaciones(citaId) {
+            document.getElementById('cita_id_observaciones').value = citaId;
+            document.getElementById('observacionesModal').style.display = 'flex';
+        }
 
-                        if (!telefono) {
-                            Swal.fire('Error', 'El teléfono es requerido', 'error');
-                            document.getElementById('modalTelefono').focus();
-                            return;
-                        }
+        function closeObservacionesModal() {
+            document.getElementById('observacionesModal').style.display = 'none';
+        }
 
-                        // Validación estricta: exactamente 8 dígitos
-                        const telefonoRegex = /^\d{8}$/;
-                        if (!telefonoRegex.test(telefono)) {
-                            Swal.fire('Error', 'El teléfono debe tener exactamente 8 dígitos numéricos', 'error');
-                            document.getElementById('modalTelefono').focus();
-                            return;
-                        }
-
-                        try {
-                            const response = await fetch('{{ route('perfil.update-ajax') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                },
-                                body: JSON.stringify({
-                                    nombre: nombre,
-                                    telefono: telefono,
-                                    _token: '{{ csrf_token() }}'
-                                })
-                            });
-
-                            const data = await response.json();
-
-                            if (!response.ok) {
-                                throw new Error(data.message || 'Error en la respuesta del servidor');
-                            }
-
-                            // Éxito - Cerrar modal y actualizar UI
-                            Swal.fire({
-                                title: 'Éxito',
-                                text: 'Perfil actualizado correctamente',
-                                icon: 'success',
-                                willClose: () => {
-                                    closeEditModal();
-                                    // Actualizar la UI
-                                    if (document.querySelector('.profile-summary h3')) {
-                                        document.querySelector('.profile-summary h3').textContent = nombre;
-                                    }
-                                    if (document.querySelector('.profile-summary p:nth-of-type(2)')) {
-                                        document.querySelector('.profile-summary p:nth-of-type(2)').innerHTML =
-                                            `<i class="fas fa-phone"></i> ${telefono}`;
-                                    }
-                                }
-                            });
-
-                        } catch (error) {
-                            console.error('Error:', error);
-                            Swal.fire('Error', error.message || 'Error al actualizar el perfil', 'error');
-                        }
-                    });
-
-                    // Cerrar modal al hacer clic fuera
-                    window.addEventListener('click', function(event) {
-                        if (event.target.classList.contains('modal')) {
-                            closeEditModal();
-                        }
-                    });
-                    // Funciones para modales
-                    function mostrarModalFinalizar(citaId) {
-                        document.getElementById('cita_id_finalizar').value = citaId;
-                        document.getElementById('finalizarCitaModal').style.display = 'flex';
-                    }
-
-                    function closeFinalizarModal() {
-                        document.getElementById('finalizarCitaModal').style.display = 'none';
-                    }
-
-                    function mostrarModalObservaciones(citaId) {
-                        document.getElementById('cita_id_observaciones').value = citaId;
-                        document.getElementById('observacionesModal').style.display = 'flex';
-                    }
-
-                    function closeObservacionesModal() {
-                        document.getElementById('observacionesModal').style.display = 'none';
-                    }
-
-                    function verDetalleCita(citaId) {
-                        // Simulación de datos - en una aplicación real harías una petición AJAX
-                        const detalleContent = `
+        function verDetalleCita(citaId) {
+            // Simulación de datos - en una aplicación real harías una petición AJAX
+            const detalleContent = `
                 <h2 style="margin-bottom: 15px;">
                     <i class="fas fa-calendar-check"></i> Detalle de Cita
                 </h2>
@@ -1812,171 +1848,171 @@
                 </div>
             `;
 
-                        document.getElementById('detalleCitaContent').innerHTML = detalleContent;
-                        document.getElementById('detalleCitaModal').style.display = 'flex';
+            document.getElementById('detalleCitaContent').innerHTML = detalleContent;
+            document.getElementById('detalleCitaModal').style.display = 'flex';
+        }
+
+        function closeDetalleModal() {
+            document.getElementById('detalleCitaModal').style.display = 'none';
+        }
+
+        // Manejar cambio de método de pago
+        document.getElementById('metodo_pago').addEventListener('change', function() {
+            const efectivoFields = document.getElementById('efectivoFields');
+            efectivoFields.style.display = this.value === 'efectivo' ? 'block' : 'none';
+        });
+
+        // Cambiar estado de cita
+        function cambiarEstadoCita(citaId, estado) {
+            fetch(`/empleado/citas/${citaId}/estado`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        estado: estado
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message
+                        });
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message
+                        });
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error al cambiar el estado'
+                    });
+                });
+        }
 
-                    function closeDetalleModal() {
-                        document.getElementById('detalleCitaModal').style.display = 'none';
+        // Formulario para finalizar cita
+        document.getElementById('finalizarCitaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/empleado/citas/finalizar', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message
+                        });
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message
+                        });
                     }
-
-                    // Manejar cambio de método de pago
-                    document.getElementById('metodo_pago').addEventListener('change', function() {
-                        const efectivoFields = document.getElementById('efectivoFields');
-                        efectivoFields.style.display = this.value === 'efectivo' ? 'block' : 'none';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error al finalizar la cita'
                     });
+                });
+        });
 
-                    // Cambiar estado de cita
-                    function cambiarEstadoCita(citaId, estado) {
-                        fetch(`/empleado/citas/${citaId}/estado`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                },
-                                body: JSON.stringify({
-                                    estado: estado
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    Toast.fire({
-                                        icon: 'success',
-                                        title: data.message
-                                    });
-                                    setTimeout(() => location.reload(), 1000);
-                                } else {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: data.message
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: 'Error al cambiar el estado'
-                                });
-                            });
+        // Formulario para guardar observaciones
+        document.getElementById('observacionesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/empleado/citas/observaciones', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message
+                        });
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message
+                        });
                     }
-
-                    // Formulario para finalizar cita
-                    document.getElementById('finalizarCitaForm').addEventListener('submit', function(e) {
-                        e.preventDefault();
-
-                        const formData = new FormData(this);
-
-                        fetch('/empleado/citas/finalizar', {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                },
-                                body: formData
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    Toast.fire({
-                                        icon: 'success',
-                                        title: data.message
-                                    });
-                                    setTimeout(() => location.reload(), 1000);
-                                } else {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: data.message
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: 'Error al finalizar la cita'
-                                });
-                            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error al guardar observaciones'
                     });
+                });
+        });
 
-                    // Formulario para guardar observaciones
-                    document.getElementById('observacionesForm').addEventListener('submit', function(e) {
-                        e.preventDefault();
-
-                        const formData = new FormData(this);
-
-                        fetch('/empleado/citas/observaciones', {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                },
-                                body: formData
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    Toast.fire({
-                                        icon: 'success',
-                                        title: data.message
-                                    });
-                                    setTimeout(() => location.reload(), 1000);
-                                } else {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: data.message
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: 'Error al guardar observaciones'
-                                });
-                            });
-                    });
-
-                    // Marcar tarea como completa
-                    function marcarTareaCompleta(tareaId, checkbox) {
-                        fetch(`/empleado/tareas/${tareaId}/completar`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                },
-                                body: JSON.stringify({
-                                    completada: checkbox.checked
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (!data.success) {
-                                    checkbox.checked = !checkbox.checked;
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: data.message
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                checkbox.checked = !checkbox.checked;
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: 'Error al actualizar tarea'
-                                });
-                            });
+        // Marcar tarea como completa
+        function marcarTareaCompleta(tareaId, checkbox) {
+            fetch(`/empleado/tareas/${tareaId}/completar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        completada: checkbox.checked
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        checkbox.checked = !checkbox.checked;
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message
+                        });
                     }
-
-                    // Cerrar modales al hacer clic fuera
-                    window.addEventListener('click', function(event) {
-                        if (event.target.classList.contains('modal')) {
-                            document.getElementById('finalizarCitaModal').style.display = 'none';
-                            document.getElementById('observacionesModal').style.display = 'none';
-                            document.getElementById('detalleCitaModal').style.display = 'none';
-                        }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    checkbox.checked = !checkbox.checked;
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error al actualizar tarea'
                     });
-                </script>
+                });
+        }
+
+        // Cerrar modales al hacer clic fuera
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                document.getElementById('finalizarCitaModal').style.display = 'none';
+                document.getElementById('observacionesModal').style.display = 'none';
+                document.getElementById('detalleCitaModal').style.display = 'none';
+            }
+        });
+    </script>
 </body>
 
 </html>
