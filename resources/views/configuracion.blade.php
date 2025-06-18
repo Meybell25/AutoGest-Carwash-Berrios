@@ -2,13 +2,13 @@
 
 @section('content')
     <div class="container py-4">
-        <!-- Botón de regreso -->
-        <div class="row mb-3">
+        <!-- Botón de regreso mejorado -->
+        <div class="row mb-4">
             <div class="col-12">
-                <a href="{{ route('dashboard') }}" class="btn btn-primary btn-sm">
+                <a href="{{ route('dashboard') }}" class="btn btn-primary btn-lg">
                     <i class="fas fa-arrow-left me-2"></i>
-                    <span class="d-none d-sm-inline">Volver al Dashboard</span>
-                    <span class="d-sm-none">Volver</span>
+                    <span class="d-none d-sm-inline fs-6">Volver al Dashboard</span>
+                    <span class="d-sm-none fs-6">Volver</span>
                 </a>
             </div>
         </div>
@@ -226,13 +226,19 @@
                                             <strong>{{ $message }}</strong>
                                         </div>
                                     @enderror
-                                    <div class="d-grid d-md-flex justify-content-md-end">
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fas fa-key me-2"></i>
-                                            <span class="d-none d-sm-inline">Cambiar Contraseña</span>
-                                            <span class="d-sm-none">Cambiar</span>
-                                        </button>
-                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botón de cambiar contraseña con espaciado mejorado -->
+                            <div class="mt-4">
+                                <div class="d-grid d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-key me-2"></i>
+                                        <span class="d-none d-sm-inline">Cambiar Contraseña</span>
+                                        <span class="d-sm-none">Cambiar</span>
+                                    </button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>

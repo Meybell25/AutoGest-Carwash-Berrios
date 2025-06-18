@@ -339,7 +339,7 @@
             transition: all 0.3s ease;
         }
 
-        card .btn-outline {
+        .card .btn-outline {
             background: transparent;
             border: 2px solid var(--primary);
             color: var(--primary) !important;
