@@ -479,91 +479,337 @@
             </div>
         </div>
 
-        <div class="dashboard-container">
-            <!-- Enhanced Header -->
-            <div class="header">
-                <div class="header-content">
-                    <div class="welcome-section">
-                        <h1>
-                            <div class="welcome-icon">
-                                <i class="fa-solid fa-user-tie"></i>
+        <!-- Contenido principal -->
+        <div class="dashboard-grid">
+            <div class="main-section">
+                <!-- Citas de Hoy -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-calendar-day"></i>
                             </div>
-                            ¡Bienvenido, {{ Auth::user()->nombre ?? 'Empleado' }}!
-                        </h1>
-                        <p>Panel de control para gestión de citas y servicios</p>
-                        <div class="welcome-stats">
-                            <div class="welcome-stat">
-                                <span class="number">{{ $stats['citas_hoy'] ?? 0 }}</span>
-                                <span class="label">Citas Hoy</span>
+                            Citas para Hoy
+                        </h2>
+                    </div>
+                    <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                        @if (isset($citas_hoy) && count($citas_hoy) > 0)
+                            @foreach ($citas_hoy as $cita)
+                                <div class="appointment-card">
+                                    <h3>
+                                        <i class="fas fa-user"></i>
+                                        {{ $cita->usuario?->nombre ?? 'Cliente no especificado' }}
+                                        <span class="status-badge status-{{ $cita->estado }}">
+                                            {{ ucfirst($cita->estado) }}
+                                        </span>
+                                    </h3>
+                                    <p>
+                                        <i class="fas fa-car"></i>
+                                        {{ $cita->vehiculo?->marca ?? 'Marca no especificada' }}
+                                        {{ $cita->vehiculo?->modelo ?? 'Modelo no especificado' }}
+                                        @if ($cita->vehiculo)
+                                            - {{ $cita->vehiculo->placa ?? 'Sin placa' }}
+                                        @endif
+                                    </p>
+                                    <p><i class="fas fa-clock"></i>
+                                        {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('h:i A') }}</p>
+
+                                    <div style="margin: 10px 0;">
+                                        @foreach ($cita->servicios as $servicio)
+                                            <span class="service-tag">{{ $servicio->nombre }}
+                                                (${{ number_format($servicio->pivot->precio ?? $servicio->precio, 2) }})</span>
+                                        @endforeach
+                                    </div>
+
+                                    @if ($cita->observaciones_cliente)
+                                        <p><i class="fas fa-comment"></i> <strong>Observaciones:</strong>
+                                            {{ $cita->observaciones_cliente }}</p>
+                                    @endif
+
+                                    <div class="appointment-actions">
+                                        @if ($cita->estado == 'pendiente')
+                                            <button onclick="cambiarEstadoCita({{ $cita->id }}, 'en_proceso')"
+                                                class="btn btn-sm btn-primary">
+                                                <i class="fas fa-play"></i> Iniciar
+                                            </button>
+                                        @elseif ($cita->estado == 'en_proceso')
+                                            <button onclick="mostrarModalFinalizar({{ $cita->id }})"
+                                                class="btn btn-sm btn-success">
+                                                <i class="fas fa-check"></i> Finalizar
+                                            </button>
+                                            <button onclick="mostrarModalObservaciones({{ $cita->id }})"
+                                                class="btn btn-sm btn-outline">
+                                                <i class="fas fa-edit"></i> Observaciones
+                                            </button>
+                                        @endif
+
+                                        <button onclick="verDetalleCita({{ $cita->id }})"
+                                            class="btn btn-sm btn-outline">
+                                            <i class="fas fa-eye"></i> Detalles
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-times"></i>
+                                <h3>No hay citas programadas para hoy</h3>
+                                <p>Revisa el calendario para ver futuras citas</p>
                             </div>
-                            <div class="welcome-stat">
-                                <span class="number">{{ $stats['citas_proceso'] ?? 0 }}</span>
-                                <span class="label">En Proceso</span>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Historial Reciente -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-history"></i>
                             </div>
-                            <div class="welcome-stat">
-                                <span class="number">{{ $stats['citas_finalizadas'] ?? 0 }}</span>
-                                <span class="label">Finalizadas</span>
+                            Historial Reciente
+                        </h2>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        @if (isset($historial) && count($historial) > 0)
+                            @foreach ($historial as $cita)
+                                <div class="service-history-item">
+                                    <div class="service-icon">
+                                        <i class="fas fa-car"></i>
+                                    </div>
+                                    <div class="service-details">
+                                        <h4>{{ $cita->usuario?->nombre ?? 'Cliente no especificado' }}</h4>
+                                        <p><i class="fas fa-calendar"></i>
+                                            {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y - h:i A') }}</p>
+                                        <p>
+                                            <i class="fas fa-car"></i>
+                                            {{ $cita->vehiculo?->marca ?? 'Marca no especificada' }}
+                                            {{ $cita->vehiculo?->modelo ?? '' }}
+                                        </p>
+                                        @if ($cita->observaciones_empleado)
+                                            <p><i class="fas fa-comment"></i>
+                                                {{ Str::limit($cita->observaciones_empleado, 50) }}</p>
+                                        @endif
+                                    </div>
+                                    <div class="service-price">
+                                        ${{ number_format($cita->servicios->sum('pivot.precio') ?? 0, 2) }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <h3>No hay historial reciente</h3>
+                                <p>Los servicios que completes aparecerán aquí</p>
                             </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar-section">
+                <!-- Tareas y Recordatorios -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            Tareas Pendientes
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        @if (isset($tareas) && count($tareas) > 0)
+                            @foreach ($tareas as $tarea)
+                                <div class="task-item">
+                                    <input type="checkbox" id="task-{{ $tarea->id }}"
+                                        onchange="marcarTareaCompleta({{ $tarea->id }}, this)">
+                                    <div class="task-details">
+                                        <h4>{{ $tarea->titulo }}</h4>
+                                        <p>{{ $tarea->descripcion }}</p>
+                                        <small>Asignada por:
+                                            {{ $tarea->asignador?->nombre ?? 'Administración' }}</small>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-check-circle"></i>
+                                <h3>No hay tareas pendientes</h3>
+                                <p>¡Buen trabajo! No tienes tareas asignadas.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Acciones Rápidas -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            Acciones Rápidas
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="quick-actions">
+                            <button class="quick-action-btn">
+                                <i class="fas fa-plus"></i>
+                                <span>Nueva Cita</span>
+                            </button>
+                            <button class="quick-action-btn">
+                                <i class="fas fa-car"></i>
+                                <span>Registrar Vehículo</span>
+                            </button>
+                            <button class="quick-action-btn">
+                                <i class="fas fa-file-invoice"></i>
+                                <span>Generar Recibo</span>
+                            </button>
+                            <button class="quick-action-btn">
+                                <i class="fas fa-question"></i>
+                                <span>Ayuda</span>
+                            </button>
                         </div>
                     </div>
-                    <div class="header-actions">
-                        <a href="{{ route('empleado.citas') }}" class="btn btn-primary">
-                            <i class="fas fa-calendar-day"></i> Ver Agenda
-                        </a>
-                        <a href="{{ route('configuracion.index') }}" class="btn btn-outline">
-                            <i class="fas fa-cog"></i> Configuración
-                        </a>
-                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-outline">
-                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </div>
+
+                <!-- Perfil del Empleado -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            Mi Perfil
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="profile-summary">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h3>{{ Auth::user()->nombre ?? 'Empleado' }}</h3>
+                            <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
+                            <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
+                            <p><i class="fas fa-calendar"></i> Miembro desde
+                                {{ Auth::user()->created_at->format('M Y') }}</p>
+
+                            <button onclick="openEditModal()" class="btn btn-outline"
+                                style="margin-top: 15px; width: 100%;">
+                                <i class="fas fa-edit"></i> Editar Perfil
                             </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div id="detalleCitaModal" class="modal">
-                <div class="modal-content" style="max-width: 600px;">
-                    <span class="close-modal" onclick="closeDetalleModal()">&times;</span>
-                    <div id="detalleCitaContent">
-                        <!-- Contenido dinámico -->
+    <!-- Modales -->
+    <div id="finalizarCitaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeFinalizarModal()">&times;</span>
+            <h2 style="margin-bottom: 15px;">
+                <i class="fas fa-check-circle"></i> Finalizar Servicio
+            </h2>
+            <form id="finalizarCitaForm">
+                @csrf
+                <input type="hidden" id="cita_id_finalizar" name="cita_id">
+
+                <div class="form-group">
+                    <label for="observaciones_finalizar">Observaciones:</label>
+                    <textarea id="observaciones_finalizar" name="observaciones" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="metodo_pago">Método de Pago:</label>
+                    <select id="metodo_pago" name="metodo_pago">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="transferencia">Transferencia</option>
+                    </select>
+                </div>
+
+                <div id="efectivoFields">
+                    <div class="form-group">
+                        <label for="monto_recibido">Monto Recibido ($):</label>
+                        <input type="number" step="0.01" id="monto_recibido" name="monto_recibido">
                     </div>
                 </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-check"></i> Confirmar Finalización
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="observacionesModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeObservacionesModal()">&times;</span>
+            <h2 style="margin-bottom: 15px;">
+                <i class="fas fa-edit"></i> Agregar Observaciones
+            </h2>
+            <form id="observacionesForm">
+                @csrf
+                <input type="hidden" id="cita_id_observaciones" name="cita_id">
+
+                <div class="form-group">
+                    <label for="observaciones_texto">Observaciones:</label>
+                    <textarea id="observaciones_texto" name="observaciones" rows="6"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-save"></i> Guardar Observaciones
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="detalleCitaModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="closeDetalleModal()">&times;</span>
+            <div id="detalleCitaContent">
+                <!-- Contenido dinámico -->
             </div>
+        </div>
+    </div>
 
-            <script>
-                // Configuración global de SweetAlert
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true
-                });
 
-                // Funciones para modales
-                function mostrarModalFinalizar(citaId) {
-                    document.getElementById('cita_id_finalizar').value = citaId;
-                    document.getElementById('finalizarCitaModal').style.display = 'flex';
-                }
+    <script>
+        // Configuración global de SweetAlert
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
 
-                function closeFinalizarModal() {
-                    document.getElementById('finalizarCitaModal').style.display = 'none';
-                }
+        // Funciones para modales
+        function mostrarModalFinalizar(citaId) {
+            document.getElementById('cita_id_finalizar').value = citaId;
+            document.getElementById('finalizarCitaModal').style.display = 'flex';
+        }
 
-                function mostrarModalObservaciones(citaId) {
-                    document.getElementById('cita_id_observaciones').value = citaId;
-                    document.getElementById('observacionesModal').style.display = 'flex';
-                }
+        function closeFinalizarModal() {
+            document.getElementById('finalizarCitaModal').style.display = 'none';
+        }
 
-                function closeObservacionesModal() {
-                    document.getElementById('observacionesModal').style.display = 'none';
-                }
+        function mostrarModalObservaciones(citaId) {
+            document.getElementById('cita_id_observaciones').value = citaId;
+            document.getElementById('observacionesModal').style.display = 'flex';
+        }
 
-                function verDetalleCita(citaId) {
-                    // Simulación de datos - en una aplicación real harías una petición AJAX
-                    const detalleContent = `
+        function closeObservacionesModal() {
+            document.getElementById('observacionesModal').style.display = 'none';
+        }
+
+        function verDetalleCita(citaId) {
+            // Simulación de datos - en una aplicación real harías una petición AJAX
+            const detalleContent = `
                 <h2 style="margin-bottom: 15px;">
                     <i class="fas fa-calendar-check"></i> Detalle de Cita
                 </h2>
@@ -616,171 +862,171 @@
                 </div>
             `;
 
-                    document.getElementById('detalleCitaContent').innerHTML = detalleContent;
-                    document.getElementById('detalleCitaModal').style.display = 'flex';
-                }
+            document.getElementById('detalleCitaContent').innerHTML = detalleContent;
+            document.getElementById('detalleCitaModal').style.display = 'flex';
+        }
 
-                function closeDetalleModal() {
-                    document.getElementById('detalleCitaModal').style.display = 'none';
-                }
+        function closeDetalleModal() {
+            document.getElementById('detalleCitaModal').style.display = 'none';
+        }
 
-                // Manejar cambio de método de pago
-                document.getElementById('metodo_pago').addEventListener('change', function() {
-                    const efectivoFields = document.getElementById('efectivoFields');
-                    efectivoFields.style.display = this.value === 'efectivo' ? 'block' : 'none';
-                });
+        // Manejar cambio de método de pago
+        document.getElementById('metodo_pago').addEventListener('change', function() {
+            const efectivoFields = document.getElementById('efectivoFields');
+            efectivoFields.style.display = this.value === 'efectivo' ? 'block' : 'none';
+        });
 
-                // Cambiar estado de cita
-                function cambiarEstadoCita(citaId, estado) {
-                    fetch(`/empleado/citas/${citaId}/estado`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            },
-                            body: JSON.stringify({
-                                estado: estado
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: data.message
-                                });
-                                setTimeout(() => location.reload(), 1000);
-                            } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: data.message
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'Error al cambiar el estado'
-                            });
+        // Cambiar estado de cita
+        function cambiarEstadoCita(citaId, estado) {
+            fetch(`/empleado/citas/${citaId}/estado`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        estado: estado
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message
                         });
-                }
-
-                // Formulario para finalizar cita
-                document.getElementById('finalizarCitaForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    const formData = new FormData(this);
-
-                    fetch('/empleado/citas/finalizar', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            },
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: data.message
-                                });
-                                setTimeout(() => location.reload(), 1000);
-                            } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: data.message
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'Error al finalizar la cita'
-                            });
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message
                         });
-                });
-
-                // Formulario para guardar observaciones
-                document.getElementById('observacionesForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    const formData = new FormData(this);
-
-                    fetch('/empleado/citas/observaciones', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            },
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: data.message
-                                });
-                                setTimeout(() => location.reload(), 1000);
-                            } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: data.message
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'Error al guardar observaciones'
-                            });
-                        });
-                });
-
-                // Marcar tarea como completa
-                function marcarTareaCompleta(tareaId, checkbox) {
-                    fetch(`/empleado/tareas/${tareaId}/completar`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            },
-                            body: JSON.stringify({
-                                completada: checkbox.checked
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (!data.success) {
-                                checkbox.checked = !checkbox.checked;
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: data.message
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            checkbox.checked = !checkbox.checked;
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'Error al actualizar tarea'
-                            });
-                        });
-                }
-
-                // Cerrar modales al hacer clic fuera
-                window.addEventListener('click', function(event) {
-                    if (event.target.classList.contains('modal')) {
-                        document.getElementById('finalizarCitaModal').style.display = 'none';
-                        document.getElementById('observacionesModal').style.display = 'none';
-                        document.getElementById('detalleCitaModal').style.display = 'none';
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error al cambiar el estado'
+                    });
                 });
-            </script>
+        }
+
+        // Formulario para finalizar cita
+        document.getElementById('finalizarCitaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/empleado/citas/finalizar', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message
+                        });
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error al finalizar la cita'
+                    });
+                });
+        });
+
+        // Formulario para guardar observaciones
+        document.getElementById('observacionesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/empleado/citas/observaciones', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message
+                        });
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error al guardar observaciones'
+                    });
+                });
+        });
+
+        // Marcar tarea como completa
+        function marcarTareaCompleta(tareaId, checkbox) {
+            fetch(`/empleado/tareas/${tareaId}/completar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        completada: checkbox.checked
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        checkbox.checked = !checkbox.checked;
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    checkbox.checked = !checkbox.checked;
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error al actualizar tarea'
+                    });
+                });
+        }
+
+        // Cerrar modales al hacer clic fuera
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                document.getElementById('finalizarCitaModal').style.display = 'none';
+                document.getElementById('observacionesModal').style.display = 'none';
+                document.getElementById('detalleCitaModal').style.display = 'none';
+            }
+        });
+    </script>
 </body>
 
 </html>
