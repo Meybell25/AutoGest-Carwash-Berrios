@@ -52,17 +52,22 @@ Route::middleware('auth')->group(function () {
 });
 
 //**************************Rutas de Admin (solo administradores)******************************
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
-});
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
+    });
 
 //*************************Rutas de Empleado (solo empleados)********************************************
-Route::middleware(['auth', 'role:empleado'])->prefix('empleado')->name('empleado.')->group(function () {
-    Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
-    Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
-});
-
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])
+    ->prefix('empleado')
+    ->name('empleado.')
+    ->group(function () {
+        Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
+        Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
+    });
 //**************************************Rutas de Cliente (solo clientes)********************************8
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente'])->prefix('cliente')->name('cliente.')->group(function () {
     Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
