@@ -17,8 +17,8 @@
 
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-            --success-gradient: linear-gradient(45deg, #43e97b 0%, #38f9d7 100%);
+            --secondary-gradient: linear-gradient(45deg, #4facfe 0%, #1be9f4 100%);
+            --success-gradient: linear-gradient(45deg, #3dd26e 0%, #35ebc9 100%);
             --warning-gradient: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
             --info-gradient: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
             --glass-bg: rgba(255, 255, 255, 0.95);
@@ -1133,19 +1133,24 @@
             overflow: hidden;
         }
 
-        .footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--secondary-gradient);
+        .footer {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin-top: auto;
+            border-top-left-radius: var(--border-radius-xl);
+            border-top-right-radius: var(--border-radius-xl);
         }
 
         .footer-content {
             padding: 40px 30px;
             text-align: center;
+            border-radius: var(--border-radius-xl);
         }
 
         .footer-brand {
@@ -2195,11 +2200,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                <tr>
-                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                </tr>
-                                                                                                                            `).join('')}
+                                                                                                                                        <tr>
+                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                        </tr>
+                                                                                                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
