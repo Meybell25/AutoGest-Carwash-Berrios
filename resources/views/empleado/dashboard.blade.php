@@ -1672,6 +1672,7 @@
                                 <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-phone"></i> {{ Auth::user()->telefono ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
+                                <p><i class="fas fa-calendar"></i> Miembro desdeAdd commentMore actions{{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline">
