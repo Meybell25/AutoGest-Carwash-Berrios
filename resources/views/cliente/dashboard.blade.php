@@ -1735,9 +1735,7 @@
                             <div class="profile-info">
                                 <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
                                 <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-calendar"></i> Cliente desde
-                                    {{ $user->created_at->format('M Y') }}</p>
+                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>        
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline"

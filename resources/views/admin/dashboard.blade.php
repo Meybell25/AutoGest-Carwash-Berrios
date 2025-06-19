@@ -2029,16 +2029,14 @@
                         </h2>
                     </div>
                     <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                        @foreach ($alertas as $alerta)
-                            <div class="notification-item {{ $alerta->leida ? 'read' : 'unread' }}">
-                                <div class="notification-icon {{ $alerta->tipo }}">
-                                    <i class="fas fa-{{ $alerta->icono }}"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <h4>{{ $alerta->titulo }}</h4>
-                                    <p>{{ $alerta->mensaje }}</p>
-                                    <small>{{ $alerta->created_at->diffForHumans() }}</small>
-                                </div>
+                        @foreach($alertas as $alerta)
+                        <div class="notification-item {{ $alerta->leida ? 'read' : 'unread' }}">
+                            <div class="notification-icon {{ $alerta->tipo }}">
+                                <i class="fas fa-{{ $alerta->icono }}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h4>{{ $alerta->titulo }}</h4>
+                                <p>{{ $alerta->mensaje }}</p>
                             </div>
                         @endforeach
 

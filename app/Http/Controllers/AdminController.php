@@ -37,9 +37,9 @@ class AdminController extends Controller
                 ->whereMonth('created_at', now()->month)
                 ->count()
         ];
-
-        $ultimas_citas = Cita::with(['usuario', 'vehiculo', 'servicios'])
-            ->orderBy('fecha_hora', 'desc')  // Cambié created_at por fecha_hora que es más lógico
+      
+        $citas_recientes = Cita::with(['usuario', 'vehiculo'])
+             ->orderBy('fecha_hora', 'desc')
             ->limit(5)
             ->get();
 

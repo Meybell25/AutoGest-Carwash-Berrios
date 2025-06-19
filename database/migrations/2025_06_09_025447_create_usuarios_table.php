@@ -19,7 +19,6 @@ return new class extends Migration
         $table->string('password');
         $table->enum('rol', ['cliente','empleado','admin'])->default('cliente');
         $table->boolean('estado')->default(1);
-        $table->timestamps();
     });
     }
 

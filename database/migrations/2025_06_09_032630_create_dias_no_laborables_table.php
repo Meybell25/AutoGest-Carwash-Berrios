@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->date('fecha')->unique();
             $table->string('motivo')->nullable(); // Ej: "Feriado nacional"
-            $table->timestamps();
         });
     }
 

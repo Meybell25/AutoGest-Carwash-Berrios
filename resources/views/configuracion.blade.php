@@ -44,18 +44,7 @@
                                 Información de la Cuenta
                             </h5>
                             <div class="row g-3">
-                                <div class="col-12 col-md-6">
-                                    <div class="bg-light p-3 rounded">
-                                        <small class="text-muted d-block">Fecha de creación</small>
-                                        <strong>{{ $user->created_at->format('d/m/Y H:i') }}</strong>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <div class="bg-light p-3 rounded">
-                                        <small class="text-muted d-block">Última actualización</small>
-                                        <strong>{{ $user->updated_at->format('d/m/Y H:i') }}</strong>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
 
