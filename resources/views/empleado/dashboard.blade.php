@@ -16,12 +16,12 @@
         }
 
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #64748b;
-            --accent: #06b6d4;
-            --success: #10b981;
-            --warning: #f59e0b;
+            --primary: #9b59b6;
+            --primary-dark: #8e44ad;
+            --secondary: #8e44ad;
+            --accent: #00cec9;
+            --success: #55efc4;
+            --warning: #fdcb6e;
             --danger: #ef4444;
             --dark: #0f172a;
             --light: #f8fafc;
@@ -37,10 +37,11 @@
             --gray-800: #1f2937;
             --gray-900: #111827;
 
-            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, var(--gray-700) 100%);
-            --gradient-success: linear-gradient(135deg, var(--success) 0%, #059669 100%);
-            --gradient-warning: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            --gradient-primary: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            --gradient-secondary: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%);
+            --gradient-success: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+            --gradient-warning: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+            --gradient-accent: linear-gradient(45deg, #00cec9 0%, #55efc4 100%);
 
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -55,9 +56,90 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Additional utility classes for the new color palette */
+        .text-primary {
+            color: var(--primary) !important;
+        }
+
+        .text-secondary {
+            color: var(--secondary) !important;
+        }
+
+        .text-accent {
+            color: var(--accent) !important;
+        }
+
+        .text-success {
+            color: var(--success) !important;
+        }
+
+        .text-warning {
+            color: var(--warning) !important;
+        }
+
+        .bg-primary {
+            background: var(--primary) !important;
+        }
+
+        .bg-secondary {
+            background: var(--secondary) !important;
+        }
+
+        .bg-accent {
+            background: var(--accent) !important;
+        }
+
+        .bg-success {
+            background: var(--success) !important;
+        }
+
+        .bg-warning {
+            background: var(--warning) !important;
+        }
+
+        .bg-gradient-primary {
+            background: var(--gradient-primary) !important;
+        }
+
+        .bg-gradient-secondary {
+            background: var(--gradient-secondary) !important;
+        }
+
+        .bg-gradient-success {
+            background: var(--gradient-success) !important;
+        }
+
+        .bg-gradient-warning {
+            background: var(--gradient-warning) !important;
+        }
+
+        .bg-gradient-accent {
+            background: var(--gradient-accent) !important;
+        }
+
+        .border-primary {
+            border-color: var(--primary) !important;
+        }
+
+        .border-secondary {
+            border-color: var(--secondary) !important;
+        }
+
+        .border-accent {
+            border-color: var(--accent) !important;
+        }
+
+        .border-success {
+            border-color: var(--success) !important;
+        }
+
+        .border-warning {
+            border-color: var(--warning) !important;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(315deg, #512da8, #00695c, #0d47a1);
+            background: linear-gradient(315deg, #9b59b6, #00cec9, #8e44ad);
             min-height: 100vh;
             color: var(--gray-900);
             line-height: 1.6;
@@ -156,7 +238,7 @@
             color: white;
             font-size: 1.5rem;
             position: relative;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
         }
 
         .welcome-icon i {
@@ -293,7 +375,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 10px 20px rgba(155, 89, 182, 0.3);
         }
 
         .btn-outline {
@@ -316,7 +398,7 @@
 
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 10px 20px rgba(85, 239, 196, 0.3);
         }
 
         .btn-warning {
@@ -338,7 +420,7 @@
 
         .btn-profile:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+            box-shadow: 0 10px 20px rgba(155, 89, 182, 0.3);
         }
 
         /* ======================
@@ -364,7 +446,7 @@
 
         .btn-outline i {
             color: var(--primary) !important;
-            /* Azul para botones outline */
+            /* Púrpura para botones outline */
         }
 
         .btn-outline:hover i {
@@ -541,21 +623,21 @@
         }
 
         .status-pendiente {
-            background: rgba(251, 191, 36, 0.1);
+            background: rgba(253, 203, 110, 0.1);
             color: #92400e;
-            border: 1px solid rgba(251, 191, 36, 0.2);
+            border: 1px solid rgba(253, 203, 110, 0.2);
         }
 
         .status-en-proceso {
-            background: rgba(59, 130, 246, 0.1);
-            color: #1e40af;
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            background: rgba(155, 89, 182, 0.1);
+            color: #8e44ad;
+            border: 1px solid rgba(155, 89, 182, 0.2);
         }
 
         .status-finalizado {
-            background: rgba(16, 185, 129, 0.1);
-            color: #047857;
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            background: rgba(85, 239, 196, 0.1);
+            color: #00b894;
+            border: 1px solid rgba(85, 239, 196, 0.2);
         }
 
         .service-tag {
@@ -832,7 +914,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
         }
 
         /* Estados vacíos */
@@ -975,7 +1057,6 @@
             background: var(--gray-500);
         }
 
-        /* Footer */
         .footer {
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -1062,7 +1143,7 @@
             color: white;
             border-radius: 50%;
             font-size: 10px;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
         }
 
         .location-link {
@@ -1097,8 +1178,9 @@
 
         .footer-divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
             margin: 20px 0;
+            opacity: 0.3;
         }
 
         .footer-copyright {
@@ -1150,6 +1232,12 @@
             background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             color: white;
             border-color: #bc1888;
+        }
+
+        .social-icon.twitter:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
         }
 
         .schedule-info {
@@ -1210,25 +1298,41 @@
             }
         }
 
-        /* Ajustes para iconos */
-        .fa-user-tie {
-            color: white !important;
+        /* Contact Button in Footer */
+        .footer-contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            margin: 15px 0;
         }
 
-        .btn-outline i,
-        .btn-primary i,
-        .btn-success i {
-            color: white !important;
+        .footer-contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(155, 89, 182, 0.3);
         }
 
-        .appointment-actions .btn-outline i {
-            color: var(--primary) !important;
+        .footer-contact-btn i {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
         }
 
-        .appointment-actions .btn-outline:hover i {
-            color: white !important;
-        }
-
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .footer-info {
                 flex-direction: column;
@@ -1242,6 +1346,61 @@
             .footer-brand h3 {
                 font-size: 24px;
             }
+
+            .social-icons {
+                gap: 12px;
+            }
+
+            .social-icon {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-brand h3 {
+                font-size: 20px;
+            }
+
+            .footer-slogan {
+                font-size: 12px;
+            }
+
+            .info-item {
+                font-size: 14px;
+            }
+        }
+
+        @keyframes primaryPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(155, 89, 182, 0);
+            }
+        }
+
+        @keyframes accentPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 206, 201, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 206, 201, 0);
+            }
+        }
+
+        .pulse-primary {
+            animation: primaryPulse 2s infinite;
+        }
+
+        .pulse-accent {
+            animation: accentPulse 2s infinite;
         }
     </style>
 </head>
