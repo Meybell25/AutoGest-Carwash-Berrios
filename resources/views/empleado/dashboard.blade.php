@@ -16,13 +16,13 @@
         }
 
         :root {
-            --primary: #9b59b6;
-            --primary-dark: #8e44ad;
-            --secondary: #8e44ad;
-            --accent: #00cec9;
-            --success: #55efc4;
-            --warning: #fdcb6e;
-            --danger: #ef4444;
+            --primary: #166088;
+            --primary-dark: #0d4b6e;
+            --secondary: #4a6fa5;
+            --accent: #4fc3f7;
+            --success: #4BB543;
+            --warning: #ff9800;
+            --danger: #f44336;
             --dark: #0f172a;
             --light: #f8fafc;
             --white: #ffffff;
@@ -37,11 +37,11 @@
             --gray-800: #1f2937;
             --gray-900: #111827;
 
-            --gradient-primary: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            --gradient-secondary: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%);
-            --gradient-success: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
-            --gradient-warning: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
-            --gradient-accent: linear-gradient(45deg, #00cec9 0%, #55efc4 100%);
+            --gradient-primary: linear-gradient(135deg, #166088 0%, #0d4b6e 100%);
+            --gradient-secondary: linear-gradient(135deg, #4a6fa5 0%, #166088 100%);
+            --gradient-success: linear-gradient(135deg, #4BB543 0%, #2E7D32 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-accent: linear-gradient(45deg, #4fc3f7 0%, #29b6f6 100%);
 
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -54,6 +54,18 @@
             --border-radius-xl: 1.5rem;
 
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(315deg, #f5f7fa, #e4e8ed, #dbe2ef);
+            min-height: 100vh;
+            color: var(--gray-900);
+            line-height: 1.6;
+            background-attachment: fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
         }
 
         /* Additional utility classes for the new color palette */
@@ -375,7 +387,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(155, 89, 182, 0.3);
+            box-shadow: 0 10px 20px rgba(22, 96, 136, 0.3);
         }
 
         .btn-outline {
@@ -629,9 +641,9 @@
         }
 
         .status-en-proceso {
-            background: rgba(155, 89, 182, 0.1);
-            color: #8e44ad;
-            border: 1px solid rgba(155, 89, 182, 0.2);
+            background: rgba(22, 96, 136, 0.1);
+            color: #166088;
+            border: 1px solid rgba(22, 96, 136, 0.2);
         }
 
         .status-finalizado {
@@ -1672,7 +1684,8 @@
                                 <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-phone"></i> {{ Auth::user()->telefono ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
-                                <p><i class="fas fa-calendar"></i> Miembro desdeAdd commentMore actions{{ Auth::user()->created_at->format('M Y') }}</p>
+                                <p><i class="fas fa-calendar"></i> Miembro desdeAdd commentMore
+                                    actions{{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline">
