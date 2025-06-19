@@ -988,7 +988,6 @@
                             <div class="notification-content">
                                 <h4>{{ $alerta->titulo }}</h4>
                                 <p>{{ $alerta->mensaje }}</p>
-                                <small>{{ $alerta->created_at->diffForHumans() }}</small>
                             </div>
                         </div>
                         @endforeach

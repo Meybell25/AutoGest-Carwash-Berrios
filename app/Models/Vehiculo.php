@@ -12,6 +12,7 @@ class Vehiculo extends Model
 
     protected $table = 'vehiculos';
 
+     public $timestamps = false;
     protected $fillable = [
         'usuario_id',
         'placa',

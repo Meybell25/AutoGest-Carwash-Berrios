@@ -25,7 +25,7 @@ class AdminController extends Controller
         ];
 
         $citas_recientes = Cita::with(['usuario', 'vehiculo'])
-            ->orderBy('created_at', 'desc')
+             ->orderBy('fecha_hora', 'desc')
             ->limit(5)
             ->get();
 
