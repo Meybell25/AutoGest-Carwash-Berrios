@@ -1997,7 +1997,7 @@
 
             <p class="footer-copyright">
                 &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
-                <br>Versión del sistema: 2.5.1
+                <br>Versión del sistema: 2.10.1
             </p>
         </div>
     </footer>
