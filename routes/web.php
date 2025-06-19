@@ -7,6 +7,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\ServicioController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Artisan;
 |--------------------------------------------------------------------------
 */
 
-//*************************************Ruta principal***************************************
+// Ruta principal
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -25,7 +26,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-//***********************************Rutas de autenticación***********************************
+// Rutas de autenticación
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -36,9 +37,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Dashboard general (redirecciona según rol)
+    // Dashboard general
     Route::get('/dashboard', function () {
-        $user = Auth::user(); // ← Cambiar auth()->user() por Auth::user()
+        $user = Auth::user();
         switch ($user->rol) {
             case 'admin':
                 return redirect()->route('admin.dashboard');
@@ -52,55 +53,66 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
     
     Route::resource('vehiculos', VehiculoController::class);
+    
+    // Nuevas rutas para Servicios
+    Route::prefix('servicios')->name('servicios.')->group(function () {
+        Route::get('/', [ServicioController::class, 'index'])->name('index');
+        Route::get('/categoria/{categoria}', [ServicioController::class, 'porCategoria'])->name('categoria');
+        Route::get('/{id}', [ServicioController::class, 'show'])->name('show');
+    });
 });
 
-//**************************Rutas de Admin (solo administradores)******************************
+// Rutas de Admin
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
-        Route::get('/citas/create', [AdminController::class, 'createCita'])->name('citas.create');
-        Route::post('/citas', [AdminController::class, 'storeCita'])->name('citas.store');
-        Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
+    Route::get('/citas/create', [AdminController::class, 'createCita'])->name('citas.create');
+    Route::post('/citas', [AdminController::class, 'storeCita'])->name('citas.store');
+    Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
+    
+    // Rutas de administración de servicios (solo admin)
+    Route::prefix('servicios')->name('servicios.')->group(function () {
+        Route::get('/', [ServicioController::class, 'adminIndex'])->name('admin.index');
+        Route::get('/crear', [ServicioController::class, 'create'])->name('create');
+        Route::post('/', [ServicioController::class, 'store'])->name('store');
+        Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
     });
+});
 
-//*************************Rutas de Empleado (solo empleados)********************************************
+// Rutas de Empleado
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])->prefix('empleado')->name('empleado.')->group(function () {
-        Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
-        Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
-    });
-//**************************************Rutas de Cliente (solo clientes)********************************8
+    Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
+    Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
+    Route::get('/servicios', [ServicioController::class, 'empleadoIndex'])->name('servicios.index');
+});
+
+// Rutas de Cliente
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente'])->prefix('cliente')->name('cliente.')->group(function () {
     Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
     Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
     Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
+    Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
 });
 
-//************************Grupo de rutas para gestión básica del perfil******************************
-
-// Grupo con middleware auth
+// Rutas de perfil
 Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
     Route::get('/', [PerfilController::class, 'edit'])->name('edit');
     Route::post('/actualizar', [PerfilController::class, 'update'])->name('update');
-    Route::post('/actualizar-ajax', [PerfilController::class, 'updateAjax'])
-        ->name('update-ajax');
+    Route::post('/actualizar-ajax', [PerfilController::class, 'updateAjax'])->name('update-ajax');
 });
 
-// Grupo de rutas para configuración avanzada
+// Rutas de configuración
 Route::middleware('auth')->prefix('configuracion')->name('configuracion.')->group(function () {
-    // Página principal de configuración
     Route::get('/', [PerfilController::class, 'configuracion'])->name('index');
-
-    // Actualización de email
     Route::post('/actualizar-email', [PerfilController::class, 'updateEmail'])->name('update-email');
-
-    // Actualización de contraseña
     Route::post('/actualizar-password', [PerfilController::class, 'updatePassword'])->name('update-password');
 });
 
-//*****************************************RUTAS DE PRUEBA*******************************************
+// Rutas de prueba
 Route::get('/debug', function () {
     $user = App\Models\Usuario::first();
-
     return [
         'user' => $user->toArray(),
         'vehiculos' => $user->vehiculos->toArray(),
@@ -121,7 +133,6 @@ Route::get('/debug-session', function () {
     ];
 });
 
-// Ruta de prueba modificada
 Route::get('/test-middleware', function () {
     return response()->json([
         'message' => 'Middleware test passed',
@@ -129,8 +140,3 @@ Route::get('/test-middleware', function () {
         'role' => Auth::user()->rol ?? null
     ]);
 })->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente']);
-
-/*
-Route::post('/notificaciones/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarComoLeida'])
-    ->name('notificaciones.marcar-leida')
-    ->middleware('auth');*/
