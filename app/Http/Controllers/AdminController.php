@@ -63,4 +63,20 @@ class AdminController extends Controller
 
         return view('admin.usuarios', compact('usuarios'));
     }
+
+    public function createCita(): View
+    {
+        return view('admin.citas.create');
+    }
+
+    public function storeCita(Request $request)
+    {
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Cita creada temporalmente. Implementa la lógica real.');
+    }
+
+    public function reportes(): View
+    {
+        return view('admin.reportes.index');
+    }
 }
