@@ -7,6 +7,7 @@
     <title>Panel de Administración - AutoGest Carwash</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -15,55 +16,55 @@
         }
 
         :root {
-            /* Nueva paleta de colores moderna */
-            --primary-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-            --secondary-gradient: linear-gradient(45deg, #fd79a8 0%, #e84393 100%);
-            --success-gradient: linear-gradient(45deg, #00b894 0%, #55efc4 100%);
-            --warning-gradient: linear-gradient(45deg, #fdcb6e 0%, #e17055 100%);
-            --danger-gradient: linear-gradient(45deg, #d63031 0%, #74b9ff 100%);
-            --info-gradient: linear-gradient(45deg, #a29bfe 0%, #6c5ce7 100%);
-            --dark-gradient: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
-            --light-gradient: linear-gradient(135deg, #ddd6fe 0%, #f3e8ff 100%);
-
-            /* Colores base */
-            --coral-primary: #ff6b6b;
-            --coral-secondary: #fd79a8;
-            --emerald-green: #00b894;
-            --sunset-orange: #fdcb6e;
-            --deep-purple: #6c5ce7;
-            --slate-gray: #2d3436;
-            --soft-lavender: #ddd6fe;
-
-            /* Fondos y superficies */
-            --glass-bg: rgba(255, 255, 255, 0.92);
-            --glass-bg-dark: rgba(45, 52, 54, 0.95);
-            --glass-border: rgba(255, 107, 107, 0.15);
-            --surface-elevated: rgba(255, 255, 255, 0.98);
-
+            /* Nueva paleta de colores */
+            --primary: #27ae60;
+            --secondary: #52a088;
+            --accent: #f39c12;
+            --success: #d35400;
+            --warning: #8e44ad;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            
+            /* Gradientes */
+            --primary-gradient: linear-gradient(135deg, #27ae60 0%, #52a088 100%);
+            --accent-gradient: linear-gradient(45deg, #f39c12 0%, #d35400 100%);
+            --secondary-gradient: linear-gradient(135deg, #52a088 0%, #3498db 100%);
+            --success-gradient: linear-gradient(135deg, #d35400 0%, #e74c3c 100%);
+            --warning-gradient: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            --danger-gradient: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            --info-gradient: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            
             /* Texto */
-            --text-primary: #2d3436;
-            --text-secondary: #636e72;
-            --text-accent: #ff6b6b;
-            --text-light: rgba(255, 255, 255, 0.95);
-
-            /* Sombras modernas */
-            --shadow-soft: 0 8px 25px rgba(255, 107, 107, 0.08);
-            --shadow-medium: 0 15px 35px rgba(255, 107, 107, 0.12);
-            --shadow-strong: 0 25px 50px rgba(255, 107, 107, 0.15);
-            --shadow-colored: 0 8px 32px rgba(108, 92, 231, 0.1);
-
-            /* Efectos glassmorphism */
-            --blur-intensity: blur(20px);
-            --backdrop-filter: saturate(180%) blur(20px);
-
-            /* Transiciones suaves */
-            --transition-smooth: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --text-light: #ecf0f1;
+            
+            /* Fondos */
+            --bg-light: rgba(255, 255, 255, 0.95);
+            --bg-dark: rgba(44, 62, 80, 0.95);
+            --bg-surface: rgba(255, 255, 255, 0.98);
+            
+            /* Bordes */
+            --border-light: rgba(255, 255, 255, 0.2);
+            --border-primary: rgba(39, 174, 96, 0.2);
+            
+            /* Sombras */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+            
+            /* Efectos */
+            --blur: blur(20px);
+            --transition: all 0.3s ease;
         }
 
         body {
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 35%, #ff6b6b 70%, #fd79a8 100%);
+            background: linear-gradient(135deg, #3498db, #27ae60, #f39c12);
             background-attachment: fixed;
             min-height: 100vh;
             color: var(--text-primary);
@@ -80,27 +81,17 @@
             width: 100%;
             height: 100%;
             background:
-                radial-gradient(circle at 20% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(0, 184, 148, 0.05) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(39, 174, 96, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(243, 156, 18, 0.05) 0%, transparent 50%);
             z-index: -1;
             animation: float 20s ease-in-out infinite;
         }
 
         @keyframes float {
-
-            0%,
-            100% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-
-            33% {
-                transform: translate(30px, -30px) rotate(120deg);
-            }
-
-            66% {
-                transform: translate(-20px, 20px) rotate(240deg);
-            }
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
         }
 
         .dashboard-container {
@@ -110,15 +101,15 @@
             position: relative;
         }
 
-        /* Header mejorado */
+        /* Header */
         .header {
-            background: var(--glass-bg);
-            backdrop-filter: var(--backdrop-filter);
+            background: var(--bg-light);
+            backdrop-filter: var(--blur);
             padding: 30px 35px;
             border-radius: 24px;
             margin-bottom: 35px;
-            box-shadow: var(--shadow-medium);
-            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
             position: relative;
             overflow: hidden;
         }
@@ -135,15 +126,8 @@
         }
 
         @keyframes shimmer {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.7;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         .header-content {
@@ -178,9 +162,9 @@
             justify-content: center;
             color: white;
             font-size: 1.6rem;
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-md);
             transform: rotate(-5deg);
-            transition: var(--transition-spring);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .welcome-icon:hover {
@@ -202,19 +186,19 @@
         }
 
         .welcome-stat {
-            background: var(--surface-elevated);
+            background: var(--bg-surface);
             padding: 15px 20px;
             border-radius: 15px;
             text-align: center;
             min-width: 90px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid rgba(255, 107, 107, 0.1);
-            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-primary);
+            transition: var(--transition);
         }
 
         .welcome-stat:hover {
             transform: translateY(-5px);
-            box-shadow: var(--shadow-medium);
+            box-shadow: var(--shadow-md);
         }
 
         .welcome-stat .number {
@@ -239,14 +223,14 @@
             flex-wrap: wrap;
         }
 
-        /* Botones modernos */
+        /* Botones */
         .btn {
             padding: 14px 24px;
             border: none;
             border-radius: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -254,6 +238,7 @@
             font-size: 0.95rem;
             position: relative;
             overflow: hidden;
+            box-shadow: var(--shadow-sm);
         }
 
         .btn::before {
@@ -271,39 +256,45 @@
             left: 100%;
         }
 
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
         .btn-primary {
             background: var(--primary-gradient);
             color: white;
-            box-shadow: var(--shadow-soft);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-strong);
         }
 
         .btn-outline {
             background: transparent;
-            border: 2px solid var(--coral-primary);
-            color: var(--coral-primary);
-            backdrop-filter: var(--blur-intensity);
+            border: 2px solid var(--primary);
+            color: var(--primary);
         }
 
         .btn-outline:hover {
-            background: var(--coral-primary);
+            background: var(--primary);
             color: white;
-            transform: translateY(-3px);
         }
 
         .btn-success {
             background: var(--success-gradient);
             color: white;
-            box-shadow: var(--shadow-soft);
         }
 
-        .btn-success:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-medium);
+        .btn-warning {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+            color: white;
+        }
+
+        .btn-info {
+            background: var(--info-gradient);
+            color: white;
         }
 
         .btn-sm {
@@ -311,7 +302,7 @@
             font-size: 0.85rem;
         }
 
-        /* Layout mejorado */
+        /* Layout */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -326,14 +317,14 @@
             gap: 30px;
         }
 
-        /* Cards con glassmorphism */
+        /* Cards */
         .card {
-            background: var(--glass-bg);
-            backdrop-filter: var(--backdrop-filter);
+            background: var(--bg-light);
+            backdrop-filter: var(--blur);
             border-radius: 24px;
-            box-shadow: var(--shadow-medium);
-            border: 1px solid var(--glass-border);
-            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
@@ -347,12 +338,12 @@
             height: 2px;
             background: var(--secondary-gradient);
             opacity: 0;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
         }
 
         .card:hover {
             transform: translateY(-8px);
-            box-shadow: var(--shadow-strong);
+            box-shadow: var(--shadow-xl);
         }
 
         .card:hover::before {
@@ -361,7 +352,7 @@
 
         .card-header {
             padding: 25px 30px 0;
-            border-bottom: 2px solid rgba(255, 107, 107, 0.1);
+            border-bottom: 2px solid var(--border-primary);
             margin-bottom: 25px;
         }
 
@@ -389,22 +380,22 @@
             justify-content: center;
             color: white;
             font-size: 1.3rem;
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-sm);
         }
 
         .card-body {
             padding: 0 30px 30px;
         }
 
-        /* Stats Cards con efectos modernos */
+        /* Stats Cards */
         .admin-stat-card {
-            background: var(--surface-elevated);
+            background: var(--bg-surface);
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-sm);
             border-left: 5px solid;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
@@ -416,30 +407,30 @@
             right: 0;
             width: 100px;
             height: 100px;
-            background: radial-gradient(circle, rgba(255, 107, 107, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(39, 174, 96, 0.1) 0%, transparent 70%);
             border-radius: 50%;
             transform: translate(30px, -30px);
         }
 
         .admin-stat-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: var(--shadow-strong);
+            box-shadow: var(--shadow-lg);
         }
 
         .stat-card-primary {
-            border-left-color: var(--coral-primary);
+            border-left-color: var(--primary);
         }
 
         .stat-card-success {
-            border-left-color: var(--emerald-green);
+            border-left-color: var(--success);
         }
 
         .stat-card-warning {
-            border-left-color: var(--sunset-orange);
+            border-left-color: var(--warning);
         }
 
         .stat-card-danger {
-            border-left-color: var(--deep-purple);
+            border-left-color: var(--danger);
         }
 
         .stat-value {
@@ -468,7 +459,7 @@
             font-size: 1.6rem;
             margin-bottom: 20px;
             color: white;
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-sm);
         }
 
         .icon-primary {
@@ -487,18 +478,18 @@
             background: var(--info-gradient);
         }
 
-        /* Tablas modernas */
+        /* Tablas */
         .admin-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-sm);
         }
 
         .admin-table th {
-            background: var(--light-gradient);
+            background: var(--light);
             padding: 18px 15px;
             text-align: left;
             font-weight: 700;
@@ -509,12 +500,12 @@
 
         .admin-table td {
             padding: 18px 15px;
-            border-bottom: 1px solid rgba(255, 107, 107, 0.08);
-            background: var(--surface-elevated);
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-surface);
         }
 
         .admin-table tr:hover td {
-            background: rgba(255, 107, 107, 0.03);
+            background: rgba(39, 174, 96, 0.03);
             transform: scale(1.01);
         }
 
@@ -532,8 +523,8 @@
             justify-content: center;
             border: none;
             cursor: pointer;
-            transition: var(--transition-smooth);
-            box-shadow: var(--shadow-soft);
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
         }
 
         .table-btn:hover {
@@ -555,7 +546,7 @@
             color: white;
         }
 
-        /* Badges modernos */
+        /* Badges */
         .badge {
             display: inline-block;
             padding: 8px 15px;
@@ -563,7 +554,7 @@
             font-size: 0.8rem;
             font-weight: 700;
             letter-spacing: 0.5px;
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-sm);
         }
 
         .badge-primary {
@@ -591,14 +582,14 @@
             color: white;
         }
 
-        /* Tabs modernos */
+        /* Tabs */
         .tab-container {
             margin-top: 25px;
         }
 
         .tab-buttons {
             display: flex;
-            border-bottom: 2px solid rgba(255, 107, 107, 0.1);
+            border-bottom: 2px solid var(--border-primary);
             margin-bottom: 25px;
             gap: 5px;
         }
@@ -612,16 +603,16 @@
             color: var(--text-secondary);
             position: relative;
             border-radius: 10px 10px 0 0;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
         }
 
         .tab-button:hover {
-            background: rgba(255, 107, 107, 0.05);
-            color: var(--coral-primary);
+            background: rgba(39, 174, 96, 0.05);
+            color: var(--primary);
         }
 
         .tab-button.active {
-            background: var(--coral-primary);
+            background: var(--primary);
             color: white;
         }
 
@@ -635,15 +626,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Charts */
@@ -655,21 +639,21 @@
             overflow: hidden;
         }
 
-        /* Service items modernos */
+        /* Service items */
         .service-history-item {
             display: flex;
             align-items: center;
             padding: 20px;
-            border: 2px solid rgba(255, 107, 107, 0.1);
+            border: 2px solid var(--border-primary);
             border-radius: 18px;
             margin-bottom: 15px;
-            transition: var(--transition-smooth);
-            background: var(--surface-elevated);
+            transition: var(--transition);
+            background: var(--bg-surface);
         }
 
         .service-history-item:hover {
-            border-color: var(--coral-primary);
-            background: rgba(255, 107, 107, 0.03);
+            border-color: var(--primary);
+            background: rgba(39, 174, 96, 0.03);
             transform: translateX(10px);
         }
 
@@ -684,7 +668,7 @@
             color: white;
             font-size: 1.3rem;
             margin-right: 20px;
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-sm);
         }
 
         .service-details {
@@ -698,25 +682,25 @@
             margin-bottom: 8px;
         }
 
-        /* Notificaciones modernas */
+        /* Notificaciones */
         .notification-item {
             display: flex;
             align-items: flex-start;
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 15px;
-            background: var(--surface-elevated);
-            transition: var(--transition-smooth);
+            background: var(--bg-surface);
+            transition: var(--transition);
         }
 
         .notification-item:hover {
             transform: translateX(8px);
-            box-shadow: var(--shadow-medium);
+            box-shadow: var(--shadow-md);
         }
 
         .notification-item.unread {
-            background: linear-gradient(45deg, rgba(255, 107, 107, 0.08), rgba(253, 121, 168, 0.08));
-            border-left: 4px solid var(--coral-primary);
+            background: linear-gradient(45deg, rgba(39, 174, 96, 0.08), rgba(82, 160, 136, 0.08));
+            border-left: 4px solid var(--primary);
         }
 
         .notification-icon {
@@ -729,7 +713,7 @@
             margin-right: 15px;
             font-size: 1.1rem;
             color: white;
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-sm);
         }
 
         .notification-icon.info {
@@ -744,7 +728,7 @@
             background: var(--warning-gradient);
         }
 
-        /* Modal moderno */
+        /* Modales */
         .modal {
             display: none;
             position: fixed;
@@ -753,42 +737,37 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(45, 52, 54, 0.7);
-            backdrop-filter: var(--blur-intensity);
+            background-color: rgba(44, 62, 80, 0.7);
+            backdrop-filter: var(--blur);
+            align-items: center;
+            justify-content: center;
         }
 
         .modal-content {
-            background: var(--glass-bg);
-            backdrop-filter: var(--backdrop-filter);
+            background: var(--bg-light);
+            backdrop-filter: var(--blur);
             margin: 5% auto;
             padding: 35px;
             border-radius: 25px;
             width: 90%;
             max-width: 500px;
-            box-shadow: var(--shadow-strong);
-            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-light);
             animation: modalSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px) scale(0.9);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(-50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .close-modal {
-            color: var(--coral-primary);
+            color: var(--primary);
             float: right;
             font-size: 30px;
             font-weight: bold;
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
         }
 
         .close-modal:hover {
@@ -803,7 +782,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 700;
-            color: var(--coral-primary);
+            color: var(--primary);
         }
 
         .form-group input,
@@ -811,29 +790,29 @@
         .form-group textarea {
             width: 100%;
             padding: 15px;
-            border: 2px solid rgba(255, 107, 107, 0.1);
+            border: 2px solid var(--border-primary);
             border-radius: 12px;
             font-size: 16px;
-            background: var(--surface-elevated);
-            transition: var(--transition-smooth);
+            background: var(--bg-surface);
+            transition: var(--transition);
         }
 
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-            border-color: var(--coral-primary);
-            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
             outline: none;
         }
 
-        /* Footer moderno */
+        /* Footer */
         .footer {
-            background: var(--glass-bg-dark);
-            backdrop-filter: var(--backdrop-filter);
-            border: 1px solid rgba(255, 107, 107, 0.2);
+            background: var(--bg-dark);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(39, 174, 96, 0.2);
             border-radius: 30px;
             margin-top: 40px;
-            box-shadow: var(--shadow-strong);
+            box-shadow: var(--shadow-xl);
             position: relative;
             overflow: hidden;
         }
@@ -900,23 +879,23 @@
             color: white;
             border-radius: 50%;
             font-size: 12px;
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-sm);
         }
 
         .location-link {
             color: inherit;
             text-decoration: none;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
         }
 
         .location-link:hover {
-            color: var(--coral-primary);
+            color: var(--accent);
             text-decoration: underline;
         }
 
         .footer-divider {
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--coral-primary), transparent);
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
             margin: 25px 0;
             border-radius: 1px;
         }
@@ -944,16 +923,16 @@
         .form-control {
             width: 100%;
             padding: 12px 18px;
-            border: 2px solid rgba(255, 107, 107, 0.1);
+            border: 2px solid var(--border-primary);
             border-radius: 12px;
             font-size: 15px;
-            background: var(--surface-elevated);
-            transition: var(--transition-smooth);
+            background: var(--bg-surface);
+            transition: var(--transition);
         }
 
         .form-control:focus {
-            border-color: var(--coral-primary);
-            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
             outline: none;
         }
 
@@ -968,17 +947,17 @@
 
         .page-link {
             padding: 10px 15px;
-            border: 2px solid rgba(255, 107, 107, 0.2);
+            border: 2px solid rgba(39, 174, 96, 0.2);
             border-radius: 10px;
-            color: var(--coral-primary);
+            color: var(--primary);
             text-decoration: none;
             font-weight: 600;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
         }
 
         .page-link:hover,
         .page-link.active {
-            background: var(--coral-primary);
+            background: var(--primary);
             color: white;
             transform: translateY(-2px);
         }
@@ -992,7 +971,7 @@
 
         .empty-state i {
             font-size: 3rem;
-            color: var(--coral-primary);
+            color: var(--primary);
             margin-bottom: 20px;
         }
 
@@ -1110,11 +1089,11 @@
             }
 
             .admin-table tr {
-                border: 2px solid rgba(255, 107, 107, 0.1);
+                border: 2px solid var(--border-primary);
                 border-radius: 15px;
                 margin-bottom: 15px;
                 padding: 15px;
-                background: var(--surface-elevated);
+                background: var(--bg-surface);
             }
 
             .admin-table td {
@@ -1133,7 +1112,7 @@
                 padding-right: 10px;
                 white-space: nowrap;
                 font-weight: 700;
-                color: var(--coral-primary);
+                color: var(--primary);
             }
 
             .tab-buttons {
@@ -1339,7 +1318,6 @@
             .form-group textarea {
                 padding: 12px;
                 font-size: 16px;
-                /* Evita zoom en iOS */
             }
 
             .service-history-item {
@@ -1359,62 +1337,30 @@
             }
         }
 
-        /* Animaciones adicionales para mejor UX */
+        /* Animaciones */
         @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .admin-stat-card {
             animation: slideInUp 0.6s ease-out;
         }
 
-        .admin-stat-card:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-
-        .admin-stat-card:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .admin-stat-card:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-        .admin-stat-card:nth-child(4) {
-            animation-delay: 0.4s;
-        }
+        .admin-stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .admin-stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .admin-stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .admin-stat-card:nth-child(4) { animation-delay: 0.4s; }
 
         .notification-item {
             animation: slideInLeft 0.5s ease-out;
@@ -1428,44 +1374,9 @@
             animation: pulse 2s infinite;
         }
 
-        .welcome-stat:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .welcome-stat:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-
-        .welcome-stat:nth-child(3) {
-            animation-delay: 1s;
-        }
-
-        /* Estados de carga y loading */
-        .loading {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .loading::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            animation: loading 1.5s infinite;
-        }
-
-        @keyframes loading {
-            0% {
-                left: -100%;
-            }
-
-            100% {
-                left: 100%;
-            }
-        }
+        .welcome-stat:nth-child(1) { animation-delay: 0s; }
+        .welcome-stat:nth-child(2) { animation-delay: 0.5s; }
+        .welcome-stat:nth-child(3) { animation-delay: 1s; }
 
         /* Scroll personalizado */
         ::-webkit-scrollbar {
@@ -1478,80 +1389,131 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--primary-gradient);
+            background: var(--primary);
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-gradient);
+            background: var(--secondary);
         }
 
-        /* Print styles */
-        @media print {
-            body {
-                background: white !important;
-                color: black !important;
-            }
-
-            .header-actions,
-            .btn,
-            .table-actions,
-            .footer {
-                display: none !important;
-            }
-
-            .card {
-                box-shadow: none !important;
-                border: 1px solid #ddd !important;
-            }
-
-            .admin-table {
-                font-size: 12px !important;
-            }
+        /* Perfil de usuario */
+        .profile-card {
+            background: var(--bg-light);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
         }
 
-        /* Accesibilidad mejorada */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
         }
 
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            box-shadow: var(--shadow-md);
         }
 
-        /* Focus styles para accesibilidad */
-        .btn:focus,
-        .form-control:focus,
-        .table-btn:focus,
-        .tab-button:focus {
-            outline: 3px solid rgba(255, 107, 107, 0.5);
-            outline-offset: 2px;
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-primary);
         }
 
-        /* Mejoras de contraste para mejor legibilidad */
-        @media (prefers-contrast: high) {
-            .card {
-                border: 2px solid var(--coral-primary);
-            }
+        .profile-role {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding: 5px 15px;
+            background: rgba(39, 174, 96, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+        }
 
-            .btn {
-                border: 2px solid currentColor;
-            }
+        .profile-info {
+            text-align: left;
+            margin-top: 20px;
+        }
 
-            .badge {
-                border: 1px solid rgba(0, 0, 0, 0.3);
+        .profile-info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .profile-info-item i {
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Configuración de cuenta */
+        .settings-form {
+            background: var(--bg-light);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .settings-section h3 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-section h3 i {
+            font-size: 1.1rem;
+        }
+
+        /* Formulario de horarios */
+        .schedule-form {
+            background: var(--bg-light);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -1594,6 +1556,10 @@
                         <i class="fas fa-chart-bar"></i>
                         Reportes
                     </a>
+                    <a href="{{ route('configuracion.index') }}" class="btn btn-info">
+                        <i class="fas fa-cog"></i>
+                        Configuración
+                    </a>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn btn-outline">
@@ -1608,8 +1574,7 @@
         <!-- Estadísticas Rápidas -->
         <div class="dashboard-grid">
             <div class="main-section">
-                <div
-                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
                     <div class="admin-stat-card stat-card-primary">
                         <div class="stat-icon icon-primary">
                             <i class="fas fa-calendar-check"></i>
@@ -1640,7 +1605,7 @@
                     </div>
                 </div>
 
-                <!-- Nuevo Contenedor para Gestión de Horarios -->
+                <!-- Gestión de Horarios -->
                 <div class="card">
                     <div class="card-header">
                         <h2>
@@ -1679,10 +1644,10 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar">
+                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(1)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar">
+                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(1)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1697,10 +1662,10 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar">
+                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(2)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar">
+                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(2)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1715,10 +1680,10 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar">
+                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(3)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar">
+                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(3)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1733,10 +1698,10 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar">
+                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(4)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar">
+                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(4)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1751,10 +1716,10 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar">
+                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(5)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar">
+                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(5)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1769,10 +1734,10 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar">
+                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(6)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar">
+                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(6)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1787,10 +1752,10 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar">
+                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(0)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-success" title="Activar">
+                                                <button class="table-btn btn-success" title="Activar" onclick="activarHorario(0)">
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             </div>
@@ -1815,8 +1780,7 @@
                     <div class="card-body">
                         <div class="tab-container">
                             <div class="tab-buttons">
-                                <button class="tab-button active"
-                                    onclick="openTab(event, 'ingresosTab')">Ingresos</button>
+                                <button class="tab-button active" onclick="openTab(event, 'ingresosTab')">Ingresos</button>
                                 <button class="tab-button" onclick="openTab(event, 'citasTab')">Citas</button>
                                 <button class="tab-button" onclick="openTab(event, 'serviciosTab')">Servicios</button>
                             </div>
@@ -1887,10 +1851,8 @@
                                         <tr>
                                             <td data-label="ID">#{{ $cita->id }}</td>
                                             <td data-label="Cliente">{{ $cita->usuario->nombre }}</td>
-                                            <td data-label="Vehículo">{{ $cita->vehiculo->marca }}
-                                                {{ $cita->vehiculo->modelo }}</td>
-                                            <td data-label="Fecha/Hora">{{ $cita->fecha_hora->format('d/m/Y H:i') }}
-                                            </td>
+                                            <td data-label="Vehículo">{{ $cita->vehiculo->marca }} {{ $cita->vehiculo->modelo }}</td>
+                                            <td data-label="Fecha/Hora">{{ $cita->fecha_hora->format('d/m/Y H:i') }}</td>
                                             <td data-label="Servicios">
                                                 @foreach ($cita->servicios as $servicio)
                                                     <span class="badge badge-primary">{{ $servicio->nombre }}</span>
@@ -1899,29 +1861,19 @@
                                             <td data-label="Total">
                                                 ${{ number_format($cita->servicios->sum('pivot.precio'), 2) }}</td>
                                             <td data-label="Estado">
-                                                <span
-                                                    class="badge badge-{{ $cita->estado == 'pendiente'
-                                                        ? 'warning'
-                                                        : ($cita->estado == 'en_proceso'
-                                                            ? 'info'
-                                                            : ($cita->estado == 'finalizada'
-                                                                ? 'success'
-                                                                : 'danger')) }}">
+                                                <span class="badge badge-{{ $cita->estado == 'pendiente' ? 'warning' : ($cita->estado == 'en_proceso' ? 'info' : ($cita->estado == 'finalizada' ? 'success' : 'danger')) }}">
                                                     {{ $cita->estado_formatted }}
                                                 </span>
                                             </td>
                                             <td data-label="Acciones">
                                                 <div class="table-actions">
-                                                    <button class="table-btn btn-view" title="Ver"
-                                                        onclick="verDetalleCita({{ $cita->id }})">
+                                                    <button class="table-btn btn-view" title="Ver" onclick="verDetalleCita({{ $cita->id }})">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
-                                                    <button class="table-btn btn-edit" title="Editar"
-                                                        onclick="editarCita({{ $cita->id }})">
+                                                    <button class="table-btn btn-edit" title="Editar" onclick="editarCita({{ $cita->id }})">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <button class="table-btn btn-delete" title="Cancelar"
-                                                        onclick="cancelarCita({{ $cita->id }})">
+                                                    <button class="table-btn btn-delete" title="Cancelar" onclick="cancelarCita({{ $cita->id }})">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </div>
@@ -1956,14 +1908,41 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div class="profile-card">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-name">{{ Auth::user()->nombre }}</div>
+                            <div class="profile-role">Administrador</div>
+                            
+                            <div class="profile-info">
+                                <div class="profile-info-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ Auth::user()->email }}</span>
+                                </div>
+                                <div class="profile-info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ Auth::user()->telefono ?? 'No especificado' }}</span>
+                                </div>
+                                <div class="profile-info-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Miembro desde {{ Auth::user()->created_at->format('M Y') }}</span>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-outline" style="width: 100%; margin-top: 20px;" onclick="editarPerfil()">
+                                <i class="fas fa-edit"></i> Editar Perfil
+                            </button>
+                        </div>
+
+                        <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div style="text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #4ca1af;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--primary);">
                                     {{ $stats['usuarios_totales'] ?? 0 }}</div>
                                 <div style="font-size: 0.9rem; color: var(--text-secondary);">Usuarios Totales</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #28a745;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--success);">
                                     {{ $stats['nuevos_clientes_mes'] ?? 0 }}</div>
                                 <div style="font-size: 0.9rem; color: var(--text-secondary);">Nuevos (Mes)</div>
                             </div>
@@ -2002,8 +1981,7 @@
                                 <div class="service-details">
                                     <h4>{{ $servicio->nombre }}</h4>
                                     <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion }} min</p>
-                                    <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces este
-                                        mes</p>
+                                    <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces este mes</p>
                                 </div>
                                 <button class="btn btn-sm btn-outline" onclick="editarServicio({{ $servicio->id }})">
                                     <i class="fas fa-edit"></i>
@@ -2011,8 +1989,7 @@
                             </div>
                         @endforeach
 
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;"
-                            onclick="nuevoServicio()">
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="nuevoServicio()">
                             <i class="fas fa-plus"></i> Agregar Servicio
                         </button>
                     </div>
@@ -2029,14 +2006,16 @@
                         </h2>
                     </div>
                     <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                        @foreach($alertas as $alerta)
-                        <div class="notification-item {{ $alerta->leida ? 'read' : 'unread' }}">
-                            <div class="notification-icon {{ $alerta->tipo }}">
-                                <i class="fas fa-{{ $alerta->icono }}"></i>
-                            </div>
-                            <div class="notification-content">
-                                <h4>{{ $alerta->titulo }}</h4>
-                                <p>{{ $alerta->mensaje }}</p>
+                        @foreach ($alertas as $alerta)
+                            <div class="notification-item {{ $alerta->leida ? 'read' : 'unread' }}">
+                                <div class="notification-icon {{ $alerta->tipo }}">
+                                    <i class="fas fa-{{ $alerta->icono }}"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <h4>{{ $alerta->titulo }}</h4>
+                                    <p>{{ $alerta->mensaje }}</p>
+                                    <small>{{ $alerta->created_at->diffForHumans() }}</small>
+                                </div>
                             </div>
                         @endforeach
 
@@ -2067,7 +2046,7 @@
     <div id="editarCitaModal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
             <span class="close-modal" onclick="closeModal('editarCitaModal')">&times;</span>
-            <h2 style="color: #4facfe; margin-bottom: 20px;">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">
                 <i class="fas fa-edit"></i> Editar Cita
             </h2>
             <form id="editarCitaForm">
@@ -2088,27 +2067,23 @@
 
                 <div class="form-group">
                     <label for="servicio_nombre">Nombre del Servicio:</label>
-                    <input type="text" id="servicio_nombre" name="nombre" required class="form-control"
-                        placeholder="Ej: Lavado Premium">
+                    <input type="text" id="servicio_nombre" name="nombre" required class="form-control" placeholder="Ej: Lavado Premium">
                 </div>
 
                 <div class="form-group">
                     <label for="servicio_descripcion">Descripción:</label>
-                    <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control"
-                        placeholder="Describe los detalles del servicio..."></textarea>
+                    <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control" placeholder="Describe los detalles del servicio..."></textarea>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="servicio_precio">Precio ($):</label>
-                        <input type="number" step="0.01" id="servicio_precio" name="precio" required
-                            class="form-control" placeholder="0.00">
+                        <input type="number" step="0.01" id="servicio_precio" name="precio" required class="form-control" placeholder="0.00">
                     </div>
 
                     <div class="form-group">
                         <label for="servicio_duracion">Duración (min):</label>
-                        <input type="number" id="servicio_duracion" name="duracion" required class="form-control"
-                            placeholder="30">
+                        <input type="number" id="servicio_duracion" name="duracion" required class="form-control" placeholder="30">
                     </div>
                 </div>
 
@@ -2135,6 +2110,8 @@
                 <i class="fas fa-clock"></i> Agregar Horario
             </h2>
             <form id="horarioForm">
+                <input type="hidden" id="horario_id" name="id">
+                
                 <div class="form-group">
                     <label for="horario_dia">Día de la semana:</label>
                     <select id="horario_dia" class="form-control" required>
@@ -2176,6 +2153,46 @@
         </div>
     </div>
 
+    <!-- Modal para editar perfil -->
+    <div id="perfilModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-modal" onclick="closeModal('perfilModal')">&times;</span>
+            <h2 style="color: var(--primary); margin-bottom: 20px;">
+                <i class="fas fa-user-edit"></i> Editar Perfil
+            </h2>
+            <form id="perfilForm">
+                <div class="form-group">
+                    <label for="perfil_nombre">Nombre:</label>
+                    <input type="text" id="perfil_nombre" name="nombre" required class="form-control" value="{{ Auth::user()->nombre }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="perfil_email">Email:</label>
+                    <input type="email" id="perfil_email" name="email" required class="form-control" value="{{ Auth::user()->email }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="perfil_telefono">Teléfono:</label>
+                    <input type="tel" id="perfil_telefono" name="telefono" class="form-control" value="{{ Auth::user()->telefono }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="perfil_password">Nueva Contraseña (opcional):</label>
+                    <input type="password" id="perfil_password" name="password" class="form-control" placeholder="Dejar en blanco para no cambiar">
+                </div>
+
+                <div class="form-group">
+                    <label for="perfil_password_confirmation">Confirmar Contraseña:</label>
+                    <input type="password" id="perfil_password_confirmation" name="password_confirmation" class="form-control">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
@@ -2211,11 +2228,6 @@
     </footer>
 
     <script>
-        // Función para mostrar el modal de horario
-        function mostrarModalHorario() {
-            document.getElementById('horarioModal').style.display = 'block';
-        }
-
         // Configuración global de SweetAlert
         const Toast = Swal.mixin({
             toast: true,
@@ -2232,16 +2244,12 @@
             const ingresosChart = new Chart(ingresosCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
-                        'Dic'
-                    ],
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                     datasets: [{
                         label: 'Ingresos 2023',
-                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800,
-                            2100
-                        ],
-                        backgroundColor: 'rgba(76, 161, 175, 0.2)',
-                        borderColor: 'rgba(76, 161, 175, 1)',
+                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
+                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                        borderColor: 'rgba(39, 174, 96, 1)',
                         borderWidth: 2,
                         tension: 0.4,
                         fill: true
@@ -2280,20 +2288,18 @@
             const citasChart = new Chart(citasCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
-                        'Dic'
-                    ],
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                     datasets: [{
                         label: 'Citas Completadas',
                         data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                        backgroundColor: 'rgba(67, 233, 123, 0.7)',
-                        borderColor: 'rgba(67, 233, 123, 1)',
+                        backgroundColor: 'rgba(211, 84, 0, 0.7)',
+                        borderColor: 'rgba(211, 84, 0, 1)',
                         borderWidth: 1
                     }, {
                         label: 'Citas Canceladas',
                         data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                        backgroundColor: 'rgba(255, 117, 140, 0.7)',
-                        borderColor: 'rgba(255, 117, 140, 1)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
                         borderWidth: 1
                     }]
                 },
@@ -2325,18 +2331,18 @@
                     datasets: [{
                         data: [35, 25, 15, 15, 10],
                         backgroundColor: [
-                            'rgba(76, 161, 175, 0.7)',
-                            'rgba(67, 233, 123, 0.7)',
-                            'rgba(255, 193, 7, 0.7)',
-                            'rgba(23, 162, 184, 0.7)',
-                            'rgba(108, 117, 125, 0.7)'
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
                         ],
                         borderColor: [
-                            'rgba(76, 161, 175, 1)',
-                            'rgba(67, 233, 123, 1)',
-                            'rgba(255, 193, 7, 1)',
-                            'rgba(23, 162, 184, 1)',
-                            'rgba(108, 117, 125, 1)'
+                            'rgba(39, 174, 96, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(231, 76, 60, 1)'
                         ],
                         borderWidth: 1
                     }]
@@ -2361,14 +2367,14 @@
                     datasets: [{
                         data: [85, 10, 5],
                         backgroundColor: [
-                            'rgba(76, 161, 175, 0.7)',
-                            'rgba(255, 193, 7, 0.7)',
-                            'rgba(220, 53, 69, 0.7)'
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)'
                         ],
                         borderColor: [
-                            'rgba(76, 161, 175, 1)',
-                            'rgba(255, 193, 7, 1)',
-                            'rgba(220, 53, 69, 1)'
+                            'rgba(39, 174, 96, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(155, 89, 182, 1)'
                         ],
                         borderWidth: 1
                     }]
@@ -2405,13 +2411,13 @@
         function verDetalleCita(citaId) {
             // Simulación de datos - en una aplicación real harías una petición AJAX
             const detalleContent = `
-                <h2 style="color: #4facfe; margin-bottom: 20px;">
+                <h2 style="color: var(--primary); margin-bottom: 20px;">
                     <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
                 </h2>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: #4facfe;">
+                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
                             <i class="fas fa-user"></i> Información del Cliente
                         </h3>
                         <p><strong>Nombre:</strong> Juan Pérez</p>
@@ -2421,7 +2427,7 @@
                     </div>
                     
                     <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: #4facfe;">
+                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
                             <i class="fas fa-car"></i> Información del Vehículo
                         </h3>
                         <p><strong>Marca/Modelo:</strong> Toyota Corolla</p>
@@ -2432,24 +2438,24 @@
                 </div>
                 
                 <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: #4facfe;">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
                         <i class="fas fa-concierge-bell"></i> Servicios Contratados
                     </h3>
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr style="background: #f1f3f4;">
+                            <tr style="background: var(--light);">
                                 <th style="padding: 10px; text-align: left;">Servicio</th>
                                 <th style="padding: 10px; text-align: right;">Precio</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid #eee;">Lavado Completo</td>
-                                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$25.00</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary);">Lavado Completo</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary); text-align: right;">$25.00</td>
                             </tr>
                             <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid #eee;">Aspirado Interior</td>
-                                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$15.00</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary);">Aspirado Interior</td>
+                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary); text-align: right;">$15.00</td>
                             </tr>
                             <tr>
                                 <td style="padding: 10px; font-weight: bold;">Total</td>
@@ -2460,7 +2466,7 @@
                 </div>
                 
                 <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: #4facfe;">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
                         <i class="fas fa-info-circle"></i> Información Adicional
                     </h3>
                     <p><strong>Fecha/Hora:</strong> 15 Jun 2023 - 10:00 AM</p>
@@ -2481,7 +2487,7 @@
             `;
 
             document.getElementById('detalleCitaContent').innerHTML = detalleContent;
-            document.getElementById('detalleCitaModal').style.display = 'block';
+            document.getElementById('detalleCitaModal').style.display = 'flex';
         }
 
         function editarCita(citaId) {
@@ -2562,7 +2568,7 @@
 
             document.getElementById('editarCitaForm').innerHTML = formContent;
             document.getElementById('detalleCitaModal').style.display = 'none';
-            document.getElementById('editarCitaModal').style.display = 'block';
+            document.getElementById('editarCitaModal').style.display = 'flex';
         }
 
         function cancelarCita(citaId) {
@@ -2619,7 +2625,7 @@
             document.getElementById('servicio_precio').value = '';
             document.getElementById('servicio_duracion').value = '';
             document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'block';
+            document.getElementById('servicioModal').style.display = 'flex';
         }
 
         function editarServicio(servicioId) {
@@ -2627,12 +2633,69 @@
             document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
             document.getElementById('servicio_id').value = servicioId;
             document.getElementById('servicio_nombre').value = 'Lavado Completo';
-            document.getElementById('servicio_descripcion').value =
-                'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
+            document.getElementById('servicio_descripcion').value = 'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
             document.getElementById('servicio_precio').value = '25.00';
             document.getElementById('servicio_duracion').value = '30';
             document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'block';
+            document.getElementById('servicioModal').style.display = 'flex';
+        }
+
+        function mostrarModalHorario() {
+            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Agregar Horario';
+            document.getElementById('horario_id').value = '';
+            document.getElementById('horario_dia').value = '';
+            document.getElementById('horario_inicio').value = '';
+            document.getElementById('horario_fin').value = '';
+            document.getElementById('horario_activo').value = '1';
+            document.getElementById('horarioModal').style.display = 'flex';
+        }
+
+        function editarHorario(diaSemana) {
+            // Simulación de datos - en una aplicación real harías una petición AJAX
+            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            
+            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Horario';
+            document.getElementById('horario_id').value = diaSemana;
+            document.getElementById('horario_dia').value = diaSemana;
+            document.getElementById('horario_inicio').value = '07:00';
+            document.getElementById('horario_fin').value = '18:00';
+            document.getElementById('horario_activo').value = '1';
+            document.getElementById('horarioModal').style.display = 'flex';
+        }
+
+        function activarHorario(diaSemana) {
+            // Aquí iría la petición AJAX para activar el horario
+            Toast.fire({
+                icon: 'success',
+                title: 'Horario activado correctamente'
+            });
+            
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
+
+        function desactivarHorario(diaSemana) {
+            // Aquí iría la petición AJAX para desactivar el horario
+            Toast.fire({
+                icon: 'success',
+                title: 'Horario desactivado correctamente'
+            });
+            
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
+
+        function editarPerfil() {
+            document.getElementById('perfil_nombre').value = '{{ Auth::user()->nombre }}';
+            document.getElementById('perfil_email').value = '{{ Auth::user()->email }}';
+            document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? "" }}';
+            document.getElementById('perfil_password').value = '';
+            document.getElementById('perfil_password_confirmation').value = '';
+            document.getElementById('perfilModal').style.display = 'flex';
         }
 
         // Manejar envío del formulario de horario
@@ -2640,9 +2703,11 @@
             e.preventDefault();
             
             // Aquí iría la petición AJAX para guardar el horario
+            const isNew = document.getElementById('horario_id').value === '';
+            
             Toast.fire({
                 icon: 'success',
-                title: 'Horario guardado correctamente'
+                title: `Horario ${isNew ? 'creado' : 'actualizado'} correctamente`
             });
 
             closeModal('horarioModal');
@@ -2673,6 +2738,24 @@
             }, 1500);
         });
 
+        // Manejar envío del formulario de perfil
+        document.getElementById('perfilForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Aquí iría la petición AJAX para guardar el perfil
+            Toast.fire({
+                icon: 'success',
+                title: 'Perfil actualizado correctamente'
+            });
+
+            closeModal('perfilModal');
+
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        });
+
         // Función para cerrar modales
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
@@ -2685,6 +2768,7 @@
                 closeModal('editarCitaModal');
                 closeModal('servicioModal');
                 closeModal('horarioModal');
+                closeModal('perfilModal');
             }
         });
     </script>
