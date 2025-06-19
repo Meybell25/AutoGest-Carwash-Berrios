@@ -6,6 +6,7 @@ use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
@@ -49,6 +50,8 @@ Route::middleware('auth')->group(function () {
                 return redirect('/');
         }
     })->name('dashboard');
+    
+    Route::resource('vehiculos', VehiculoController::class);
 });
 
 //**************************Rutas de Admin (solo administradores)******************************

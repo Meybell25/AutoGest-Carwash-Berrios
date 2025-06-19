@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"> 
 
 <head>
     <meta charset="UTF-8">
@@ -1369,6 +1369,7 @@
                 transform: scale(1);
             }
         }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 
@@ -1380,7 +1381,7 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon">
-                            <i class="fa-solid fa-car-side"></i>
+                           <i class="fas fa-car"></i>
                         </div>
                         ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
                     </h1>
@@ -1411,6 +1412,10 @@
                     </div>
                 </div>
                 <div class="header-actions">
+                    <button type="button" id="openVehiculoBtn" class="btn btn-primary" onclick="openVehiculoModal()">
+                         <i class="fas fa-plus"></i>
+                         Agregar Vehículo
+                    </button>
                     <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
@@ -1910,6 +1915,82 @@
     </div>
     </div>
 
+    <!-- Modal para agregar vehículo -->
+    <div id="vehiculoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeVehiculoModal()">&times;</span>
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <i class="fas fa-car"></i> Nuevo Vehículo
+            </h2>
+
+            <form action="{{ route('vehiculos.store') }}" method="POST">
+                @csrf
+
+                <div class="mb-4">
+                    <label for="marca" class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
+                    <input type="text" id="marca" name="marca" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="mb-4">
+                    <label for="modelo" class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
+                    <input type="text" id="modelo" name="modelo" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+
+            <div class="mb-4">
+                <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+             <select id="tipo" name="tipo" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                 <option value="">Seleccione</option>
+                 <option value="sedan">Sedán</option>
+                  <option value="pickup">Pickup</option>
+                 <option value="camion">Camión</option>
+                 <option value="moto">Moto</option>
+             </select>
+            </div>
+
+
+                <div class="mb-4">
+                    <label for="color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                    <input type="text" id="color" name="color" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="mb-4">
+                    <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="placa" class="block text-sm font-medium text-gray-700 mb-1">Placa</label>
+                    <input type="text" id="placa" name="placa" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="mb-4">
+                    <label for="fecha_registro" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Registro</label>
+                    <input type="date" id="fecha_registro" name="fecha_registro" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeVehiculoModal()"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Guardar Vehículo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <footer class="footer">
         <div class="sparkle"></div>
         <div class="sparkle"></div>
@@ -2080,6 +2161,7 @@
                 closeEditModal();
             }
         });
+
         // Función para marcar notificaciones como leídas
         //function markAsRead(notificacionId) {
         //fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
@@ -2228,6 +2310,31 @@
                         ripple.remove();
                     }, 600);
                 });
+            });
+        });
+    </script>
+
+<script>
+        function openVehiculoModal() {
+            document.getElementById('vehiculoModal').style.display = 'block';
+        }
+
+        function closeVehiculoModal() {
+            document.getElementById('vehiculoModal').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('vehiculoModal');
+            const openBtn = document.getElementById('openVehiculoBtn');
+            const closeBtn = modal?.querySelector('.close-modal');
+
+            openBtn?.addEventListener('click', openVehiculoModal);
+            closeBtn?.addEventListener('click', closeVehiculoModal);
+
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeVehiculoModal();
+                }
             });
         });
     </script>

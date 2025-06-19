@@ -67,11 +67,13 @@ public function dashboard(): View
 
     public function vehiculos(): View
     {
-        $vehiculos = Vehiculo::where('usuario_id', Auth::id()) 
-            ->with('citas')
-            ->paginate(10);
 
-        return view('cliente.vehiculos', compact('vehiculos'));
+        $vehiculos = Vehiculo::where('usuario_id', Auth::id())
+            ->with('citas')
+             ->get();
+
+
+        return view('VehiculosViews.index', compact('vehiculos'));
     }
 
     public function citas(): View
