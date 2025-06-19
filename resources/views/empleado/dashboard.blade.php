@@ -986,6 +986,8 @@
             position: relative;
             overflow: hidden;
             margin-top: auto;
+            border-top-left-radius: var(--border-radius-xl);
+            border-top-right-radius: var(--border-radius-xl);
         }
 
         .footer::before {
@@ -1001,6 +1003,7 @@
         .footer-content {
             padding: 40px 30px;
             text-align: center;
+            border-radius: var(--border-radius-xl);
         }
 
         .footer-brand {
@@ -1474,7 +1477,8 @@
                                 <span>Ver Facturas</span>
                             </button>
                             <button class="quick-action-btn">
-                                <i class="fa-solid fa-address-book" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <i class="fa-solid fa-address-book"
+                                    style="font-size: 1.5rem; margin-bottom: 5px;"></i>
                                 <span>Ver Bitacora</span>
                             </button>
                             <button class="quick-action-btn">
@@ -1482,7 +1486,7 @@
                                 <span>Generar Pago</span>
                             </button>
                             <button class="quick-action-btn">
-                               <i class="fa-solid fa-coins"style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <i class="fa-solid fa-coins"style="font-size: 1.5rem; margin-bottom: 5px;"></i>
                                 <span>Agregar Gasto</span>
                             </button>
                         </div>
