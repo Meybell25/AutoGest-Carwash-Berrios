@@ -185,7 +185,8 @@
             margin-bottom: 30px;
         }
 
-        .main-section, .sidebar-section {
+        .main-section,
+        .sidebar-section {
             display: flex;
             flex-direction: column;
             gap: 25px;
@@ -248,28 +249,39 @@
             border-left: 4px solid;
             transition: all 0.3s ease;
         }
-        
+
         .admin-stat-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-hover);
         }
-        
-        .stat-card-primary { border-left-color: #4ca1af; }
-        .stat-card-success { border-left-color: #43e97b; }
-        .stat-card-warning { border-left-color: #fa709a; }
-        .stat-card-danger { border-left-color: #ff758c; }
-        
+
+        .stat-card-primary {
+            border-left-color: #4ca1af;
+        }
+
+        .stat-card-success {
+            border-left-color: #43e97b;
+        }
+
+        .stat-card-warning {
+            border-left-color: #fa709a;
+        }
+
+        .stat-card-danger {
+            border-left-color: #ff758c;
+        }
+
         .stat-value {
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 5px;
         }
-        
+
         .stat-label {
             font-size: 0.9rem;
             color: var(--text-secondary);
         }
-        
+
         .stat-icon {
             width: 50px;
             height: 50px;
@@ -281,11 +293,22 @@
             margin-bottom: 15px;
             color: white;
         }
-        
-        .icon-primary { background: var(--primary-gradient); }
-        .icon-success { background: var(--success-gradient); }
-        .icon-warning { background: var(--warning-gradient); }
-        .icon-danger { background: var(--danger-gradient); }
+
+        .icon-primary {
+            background: var(--primary-gradient);
+        }
+
+        .icon-success {
+            background: var(--success-gradient);
+        }
+
+        .icon-warning {
+            background: var(--warning-gradient);
+        }
+
+        .icon-danger {
+            background: var(--danger-gradient);
+        }
 
         /* Tablas */
         .admin-table {
@@ -293,7 +316,7 @@
             border-collapse: collapse;
             margin-top: 15px;
         }
-        
+
         .admin-table th {
             background: #f1f3f4;
             padding: 12px;
@@ -301,21 +324,21 @@
             font-weight: 600;
             color: var(--text-primary);
         }
-        
+
         .admin-table td {
             padding: 12px;
             border-bottom: 1px solid #eee;
         }
-        
+
         .admin-table tr:hover {
             background: #f8f9fa;
         }
-        
+
         .table-actions {
             display: flex;
             gap: 5px;
         }
-        
+
         .table-btn {
             width: 30px;
             height: 30px;
@@ -327,14 +350,25 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .table-btn:hover {
             transform: scale(1.1);
         }
-        
-        .btn-view { background: #4facfe; color: white; }
-        .btn-edit { background: #ffc107; color: white; }
-        .btn-delete { background: #dc3545; color: white; }
+
+        .btn-view {
+            background: #4facfe;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
 
         /* Badges */
         .badge {
@@ -344,24 +378,43 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
-        
-        .badge-primary { background: #4ca1af; color: white; }
-        .badge-success { background: #28a745; color: white; }
-        .badge-warning { background: #ffc107; color: #212529; }
-        .badge-danger { background: #dc3545; color: white; }
-        .badge-info { background: #17a2b8; color: white; }
+
+        .badge-primary {
+            background: #4ca1af;
+            color: white;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .badge-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
 
         /* Tabs */
         .tab-container {
             margin-top: 20px;
         }
-        
+
         .tab-buttons {
             display: flex;
             border-bottom: 1px solid #ddd;
             margin-bottom: 20px;
         }
-        
+
         .tab-button {
             padding: 10px 20px;
             background: none;
@@ -371,11 +424,11 @@
             color: var(--text-secondary);
             position: relative;
         }
-        
+
         .tab-button.active {
             color: #4ca1af;
         }
-        
+
         .tab-button.active::after {
             content: '';
             position: absolute;
@@ -385,11 +438,11 @@
             height: 3px;
             background: #4ca1af;
         }
-        
+
         .tab-content {
             display: none;
         }
-        
+
         .tab-content.active {
             display: block;
         }
@@ -467,9 +520,17 @@
             color: white;
         }
 
-        .notification-icon.info { background: var(--info-gradient); }
-        .notification-icon.success { background: var(--success-gradient); }
-        .notification-icon.warning { background: var(--warning-gradient); }
+        .notification-icon.info {
+            background: var(--info-gradient);
+        }
+
+        .notification-icon.success {
+            background: var(--success-gradient);
+        }
+
+        .notification-icon.warning {
+            background: var(--warning-gradient);
+        }
 
         /* Modal */
         .modal {
@@ -495,8 +556,15 @@
         }
 
         @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .close-modal {
@@ -518,7 +586,9 @@
             color: #4facfe;
         }
 
-        .form-group input, .form-group select, .form-group textarea {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -676,7 +746,9 @@
                 width: 100%;
             }
 
-            .form-group input, textarea, select {
+            .form-group input,
+            textarea,
+            select {
                 font-size: 16px;
             }
         }
@@ -735,7 +807,8 @@
         <!-- Estadísticas Rápidas -->
         <div class="dashboard-grid">
             <div class="main-section">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
                     <div class="admin-stat-card stat-card-primary">
                         <div class="stat-icon icon-primary">
                             <i class="fas fa-calendar-check"></i>
@@ -779,23 +852,24 @@
                     <div class="card-body">
                         <div class="tab-container">
                             <div class="tab-buttons">
-                                <button class="tab-button active" onclick="openTab(event, 'ingresosTab')">Ingresos</button>
+                                <button class="tab-button active"
+                                    onclick="openTab(event, 'ingresosTab')">Ingresos</button>
                                 <button class="tab-button" onclick="openTab(event, 'citasTab')">Citas</button>
                                 <button class="tab-button" onclick="openTab(event, 'serviciosTab')">Servicios</button>
                             </div>
-                            
+
                             <div id="ingresosTab" class="tab-content active">
                                 <div class="chart-container">
                                     <canvas id="ingresosChart"></canvas>
                                 </div>
                             </div>
-                            
+
                             <div id="citasTab" class="tab-content">
                                 <div class="chart-container">
                                     <canvas id="citasChart"></canvas>
                                 </div>
                             </div>
-                            
+
                             <div id="serviciosTab" class="tab-content">
                                 <div class="chart-container">
                                     <canvas id="serviciosChart"></canvas>
@@ -830,7 +904,7 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <div style="overflow-x: auto;">
                             <table class="admin-table">
                                 <thead>
@@ -846,48 +920,53 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($ultimas_citas as $cita)
-                                    <tr>
-                                        <td>#{{ $cita->id }}</td>
-                                        <td>{{ $cita->cliente->nombre }}</td>
-                                        <td>{{ $cita->vehiculo->marca }} {{ $cita->vehiculo->modelo }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d/m/Y H:i') }}</td>
-                                        <td>
-                                            @foreach($cita->servicios as $servicio)
-                                                <span class="badge badge-primary">{{ $servicio->nombre }}</span>
-                                            @endforeach
-                                        </td>
-                                        <td>${{ number_format($cita->servicios->sum('precio'), 2) }}</td>
-                                        <td>
-                                            @if($cita->estado == 'pendiente')
-                                                <span class="badge badge-warning">Pendiente</span>
-                                            @elseif($cita->estado == 'en_proceso')
-                                                <span class="badge badge-info">En Proceso</span>
-                                            @elseif($cita->estado == 'finalizada')
-                                                <span class="badge badge-success">Finalizada</span>
-                                            @else
-                                                <span class="badge badge-danger">Cancelada</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-view" title="Ver" onclick="verDetalleCita({{ $cita->id }})">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="table-btn btn-edit" title="Editar" onclick="editarCita({{ $cita->id }})">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Cancelar" onclick="cancelarCita({{ $cita->id }})">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    @foreach ($ultimas_citas as $cita)
+                                        <tr>
+                                            <td>#{{ $cita->id }}</td>
+                                            <td>{{ $cita->usuario->nombre }}</td> {{-- Cambia cliente->nombre por usuario->nombre --}}
+                                            <td>{{ $cita->vehiculo->marca }} {{ $cita->vehiculo->modelo }}</td>
+                                            <td>{{ $cita->fecha_hora->format('d/m/Y H:i') }}</td> {{-- Formato directo del Carbon --}}
+                                            <td>
+                                                @foreach ($cita->servicios as $servicio)
+                                                    <span class="badge badge-primary">{{ $servicio->nombre }}</span>
+                                                @endforeach
+                                            </td>
+                                            <td>${{ number_format($cita->servicios->sum('pivot.precio'), 2) }}</td>
+                                            {{-- Usar pivot.precio --}}
+                                            <td>
+                                                <span
+                                                    class="badge badge-{{ $cita->estado == 'pendiente'
+                                                        ? 'warning'
+                                                        : ($cita->estado == 'en_proceso'
+                                                            ? 'info'
+                                                            : ($cita->estado == 'finalizada'
+                                                                ? 'success'
+                                                                : 'danger')) }}">
+                                                    {{ $cita->estado_formatted }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="table-actions">
+                                                    <button class="table-btn btn-view" title="Ver"
+                                                        onclick="verDetalleCita({{ $cita->id }})">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="table-btn btn-edit" title="Editar"
+                                                        onclick="editarCita({{ $cita->id }})">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="table-btn btn-delete" title="Cancelar"
+                                                        onclick="cancelarCita({{ $cita->id }})">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         <div class="pagination">
                             <a href="#" class="page-link">&laquo;</a>
                             <a href="#" class="page-link active">1</a>
@@ -914,22 +993,25 @@
                     <div class="card-body">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                             <div style="text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #4ca1af;">{{ $stats['usuarios_totales'] ?? 0 }}</div>
+                                <div style="font-size: 2rem; font-weight: bold; color: #4ca1af;">
+                                    {{ $stats['usuarios_totales'] ?? 0 }}</div>
                                 <div style="font-size: 0.9rem; color: var(--text-secondary);">Usuarios Totales</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #28a745;">{{ $stats['nuevos_clientes_mes'] ?? 0 }}</div>
+                                <div style="font-size: 2rem; font-weight: bold; color: #28a745;">
+                                    {{ $stats['nuevos_clientes_mes'] ?? 0 }}</div>
                                 <div style="font-size: 0.9rem; color: var(--text-secondary);">Nuevos (Mes)</div>
                             </div>
                         </div>
-                        
+
                         <div style="margin-bottom: 15px;">
-                            <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--text-primary);">Distribución por Rol</h3>
+                            <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--text-primary);">
+                                Distribución por Rol</h3>
                             <div class="chart-container" style="height: 200px;">
                                 <canvas id="usuariosChart"></canvas>
                             </div>
                         </div>
-                        
+
                         <a href="{{ route('admin.usuarios') }}" class="btn btn-outline" style="width: 100%;">
                             <i class="fas fa-list"></i> Ver Todos los Usuarios
                         </a>
@@ -947,23 +1029,25 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        @foreach($servicios_populares as $servicio)
-                        <div class="service-history-item" style="margin-bottom: 10px;">
-                            <div class="service-icon" style="background: var(--secondary-gradient);">
-                                <i class="fas fa-spray-can"></i>
+                        @foreach ($servicios_populares as $servicio)
+                            <div class="service-history-item" style="margin-bottom: 10px;">
+                                <div class="service-icon" style="background: var(--secondary-gradient);">
+                                    <i class="fas fa-spray-can"></i>
+                                </div>
+                                <div class="service-details">
+                                    <h4>{{ $servicio->nombre }}</h4>
+                                    <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion }} min</p>
+                                    <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces este
+                                        mes</p>
+                                </div>
+                                <button class="btn btn-sm btn-outline" onclick="editarServicio({{ $servicio->id }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                             </div>
-                            <div class="service-details">
-                                <h4>{{ $servicio->nombre }}</h4>
-                                <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion }} min</p>
-                                <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces este mes</p>
-                            </div>
-                            <button class="btn btn-sm btn-outline" onclick="editarServicio({{ $servicio->id }})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
                         @endforeach
-                        
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="nuevoServicio()">
+
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                            onclick="nuevoServicio()">
                             <i class="fas fa-plus"></i> Agregar Servicio
                         </button>
                     </div>
@@ -980,25 +1064,25 @@
                         </h2>
                     </div>
                     <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                        @foreach($alertas as $alerta)
-                        <div class="notification-item {{ $alerta->leida ? 'read' : 'unread' }}">
-                            <div class="notification-icon {{ $alerta->tipo }}">
-                                <i class="fas fa-{{ $alerta->icono }}"></i>
+                        @foreach ($alertas as $alerta)
+                            <div class="notification-item {{ $alerta->leida ? 'read' : 'unread' }}">
+                                <div class="notification-icon {{ $alerta->tipo }}">
+                                    <i class="fas fa-{{ $alerta->icono }}"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <h4>{{ $alerta->titulo }}</h4>
+                                    <p>{{ $alerta->mensaje }}</p>
+                                    <small>{{ $alerta->created_at->diffForHumans() }}</small>
+                                </div>
                             </div>
-                            <div class="notification-content">
-                                <h4>{{ $alerta->titulo }}</h4>
-                                <p>{{ $alerta->mensaje }}</p>
-                                <small>{{ $alerta->created_at->diffForHumans() }}</small>
-                            </div>
-                        </div>
                         @endforeach
-                        
-                        @if(count($alertas) == 0)
-                        <div class="empty-state" style="padding: 20px;">
-                            <i class="fas fa-check-circle"></i>
-                            <h3>No hay alertas</h3>
-                            <p>No hay notificaciones importantes en este momento</p>
-                        </div>
+
+                        @if (count($alertas) == 0)
+                            <div class="empty-state" style="padding: 20px;">
+                                <i class="fas fa-check-circle"></i>
+                                <h3>No hay alertas</h3>
+                                <p>No hay notificaciones importantes en este momento</p>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -1039,29 +1123,30 @@
             <form id="servicioForm">
                 @csrf
                 <input type="hidden" id="servicio_id" name="id">
-                
+
                 <div class="form-group">
                     <label for="servicio_nombre">Nombre del Servicio:</label>
                     <input type="text" id="servicio_nombre" name="nombre" required class="form-control">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="servicio_descripcion">Descripción:</label>
                     <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control"></textarea>
                 </div>
-                
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div class="form-group">
                         <label for="servicio_precio">Precio ($):</label>
-                        <input type="number" step="0.01" id="servicio_precio" name="precio" required class="form-control">
+                        <input type="number" step="0.01" id="servicio_precio" name="precio" required
+                            class="form-control">
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="servicio_duracion">Duración (min):</label>
                         <input type="number" id="servicio_duracion" name="duracion" required class="form-control">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="servicio_activo">Estado:</label>
                     <select id="servicio_activo" name="activo" class="form-control">
@@ -1069,7 +1154,7 @@
                         <option value="0">Inactivo</option>
                     </select>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary" style="width: 100%;">
                     <i class="fas fa-save"></i> Guardar Servicio
                 </button>
@@ -1128,10 +1213,14 @@
             const ingresosChart = new Chart(ingresosCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
+                        'Dic'
+                    ],
                     datasets: [{
                         label: 'Ingresos 2023',
-                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
+                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800,
+                            2100
+                        ],
                         backgroundColor: 'rgba(76, 161, 175, 0.2)',
                         borderColor: 'rgba(76, 161, 175, 1)',
                         borderWidth: 2,
@@ -1172,7 +1261,9 @@
             const citasChart = new Chart(citasCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
+                        'Dic'
+                    ],
                     datasets: [{
                         label: 'Citas Completadas',
                         data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
@@ -1281,12 +1372,12 @@
             for (let i = 0; i < tabContents.length; i++) {
                 tabContents[i].classList.remove('active');
             }
-            
+
             const tabButtons = document.getElementsByClassName('tab-button');
             for (let i = 0; i < tabButtons.length; i++) {
                 tabButtons[i].classList.remove('active');
             }
-            
+
             document.getElementById(tabName).classList.add('active');
             evt.currentTarget.classList.add('active');
         }
@@ -1369,7 +1460,7 @@
                     </button>
                 </div>
             `;
-            
+
             document.getElementById('detalleCitaContent').innerHTML = detalleContent;
             document.getElementById('detalleCitaModal').style.display = 'block';
         }
@@ -1449,7 +1540,7 @@
                     <i class="fas fa-save"></i> Guardar Cambios
                 </button>
             `;
-            
+
             document.getElementById('editarCitaForm').innerHTML = formContent;
             document.getElementById('detalleCitaModal').style.display = 'none';
             document.getElementById('editarCitaModal').style.display = 'block';
@@ -1472,7 +1563,7 @@
                         icon: 'success',
                         title: 'Cita cancelada correctamente'
                     });
-                    
+
                     // Simulación de recarga de datos
                     setTimeout(() => {
                         window.location.reload();
@@ -1487,9 +1578,9 @@
                 icon: 'success',
                 title: 'Cambios guardados correctamente'
             });
-            
+
             closeModal('editarCitaModal');
-            
+
             // Simulación de recarga de datos
             setTimeout(() => {
                 verDetalleCita(citaId);
@@ -1517,7 +1608,8 @@
             document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
             document.getElementById('servicio_id').value = servicioId;
             document.getElementById('servicio_nombre').value = 'Lavado Completo';
-            document.getElementById('servicio_descripcion').value = 'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
+            document.getElementById('servicio_descripcion').value =
+                'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
             document.getElementById('servicio_precio').value = '25.00';
             document.getElementById('servicio_duracion').value = '30';
             document.getElementById('servicio_activo').value = '1';
@@ -1527,17 +1619,17 @@
         // Manejar envío del formulario de servicio
         document.getElementById('servicioForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             // Aquí iría la petición AJAX para guardar el servicio
             const isNew = document.getElementById('servicio_id').value === '';
-            
+
             Toast.fire({
                 icon: 'success',
                 title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
             });
-            
+
             closeModal('servicioModal');
-            
+
             // Simulación de recarga de datos
             setTimeout(() => {
                 window.location.reload();
@@ -1559,4 +1651,5 @@
         });
     </script>
 </body>
+
 </html>

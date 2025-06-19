@@ -17,8 +17,8 @@
 
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-            --success-gradient: linear-gradient(45deg, #43e97b 0%, #38f9d7 100%);
+            --secondary-gradient: linear-gradient(45deg, #4facfe 0%, #1be9f4 100%);
+            --success-gradient: linear-gradient(45deg, #3dd26e 0%, #35ebc9 100%);
             --warning-gradient: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
             --info-gradient: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
             --glass-bg: rgba(255, 255, 255, 0.95);

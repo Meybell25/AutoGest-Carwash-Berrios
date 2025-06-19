@@ -22,14 +22,38 @@ class AdminController extends Controller
             'citas_pendientes' => Cita::where('estado', 'pendiente')->count(),
             'total_vehiculos' => Vehiculo::count(),
             'total_servicios' => Servicio::where('activo', true)->count(),
+            // Estas son redundantes, puedes eliminarlas si no las usas
+            'usuarios_totales' => Usuario::count(),
+            'citas_hoy' => Cita::whereDate('created_at', today())->count(),
+            'ingresos_hoy' => Cita::whereDate('created_at', today())
+                ->with('servicios')
+                ->get()
+                ->sum(function ($cita) {
+                    return $cita->servicios->sum('precio');
+                }),
+            'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')
+                ->whereMonth('created_at', now()->month)
+                ->count(),
+            'citas_canceladas_mes' => Cita::where('estado', 'cancelada')
+                ->whereMonth('created_at', now()->month)
+                ->count()
         ];
 
-        $citas_recientes = Cita::with(['usuario', 'vehiculo'])
-            ->orderBy('created_at', 'desc')
+        $ultimas_citas = Cita::with(['usuario', 'vehiculo', 'servicios'])
+            ->orderBy('fecha_hora', 'desc')  // Cambié created_at por fecha_hora que es más lógico
             ->limit(5)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'citas_recientes'));
+        $servicios_populares = Servicio::withCount('citas')
+            ->orderBy('citas_count', 'desc')
+            ->limit(3)
+            ->get();
+
+        return view('admin.dashboard', compact(
+            'stats',
+            'ultimas_citas',
+            'servicios_populares'
+        )); // Eliminé $alertas que no estás usando
     }
 
     public function usuarios(): View
