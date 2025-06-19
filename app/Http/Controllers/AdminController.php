@@ -22,7 +22,6 @@ class AdminController extends Controller
             'citas_pendientes' => Cita::where('estado', 'pendiente')->count(),
             'total_vehiculos' => Vehiculo::count(),
             'total_servicios' => Servicio::where('activo', true)->count(),
-            // Estas son redundantes, puedes eliminarlas si no las usas
             'usuarios_totales' => Usuario::count(),
             'citas_hoy' => Cita::whereDate('created_at', today())->count(),
             'ingresos_hoy' => Cita::whereDate('created_at', today())
@@ -49,11 +48,32 @@ class AdminController extends Controller
             ->limit(3)
             ->get();
 
+         $alertas = [
+        (object)[
+            'leida' => false,
+            'tipo' => 'info',
+            'icono' => 'exclamation-circle',
+            'titulo' => 'Bienvenido al sistema',
+            'mensaje' => 'Has iniciado sesión como administrador',
+            'created_at' => now()
+        ],
+        (object)[
+            'leida' => true,
+            'tipo' => 'warning',
+            'icono' => 'calendar-check',
+            'titulo' => 'Cita próxima',
+            'mensaje' => 'Tienes una cita programada para mañana',
+            'created_at' => now()->subHours(2)
+        ]
+    ];
+
+
         return view('admin.dashboard', compact(
             'stats',
             'ultimas_citas',
-            'servicios_populares'
-        )); // Eliminé $alertas que no estás usando
+            'servicios_populares',
+            'alertas'
+        )); 
     }
 
     public function usuarios(): View
