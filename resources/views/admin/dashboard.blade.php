@@ -235,27 +235,25 @@
 
         .header-actions {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
             flex-wrap: wrap;
         }
 
-        /* Botones */
         .btn {
-            padding: 14px 24px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.95rem;
+            gap: 8px;
+            font-size: 0.9rem;
             position: relative;
             overflow: hidden;
-            box-shadow: var(--shadow-sm);
         }
 
         .btn::before {
@@ -265,22 +263,23 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.5s;
         }
 
         .btn:hover::before {
             left: 100%;
         }
 
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-
         .btn-primary {
             background: var(--primary-gradient);
             color: white;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
         }
 
         .btn-outline {
@@ -292,31 +291,35 @@
         .btn-outline:hover {
             background: var(--primary);
             color: white;
+            transform: translateY(-2px);
         }
 
         .btn-success {
             background: var(--success-gradient);
             color: white;
+            box-shadow: 0 4px 15px rgba(234, 147, 8, 0.3);
         }
 
-        .btn-warning {
-            background: var(--warning-gradient);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger-gradient);
-            color: white;
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(234, 147, 8, 0.4);
         }
 
         .btn-info {
             background: var(--info-gradient);
             color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
         }
 
         .btn-sm {
             padding: 8px 16px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
         }
 
         /* Layout */
