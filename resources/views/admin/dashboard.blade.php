@@ -201,7 +201,7 @@
         }
 
         .welcome-stat {
-            background: var(--bg-surface);
+            background: white;
             padding: 15px 20px;
             border-radius: 15px;
             text-align: center;
@@ -218,6 +218,7 @@
             box-shadow: var(--shadow-md);
             border: 1px solid transparent;
             background-clip: padding-box;
+            background: white;
         }
 
         .welcome-stat:hover::before {
@@ -682,6 +683,11 @@
 
         .badge-cancelada {
             background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+            color: white;
+        }
+
+        .badge-finalizada {
+            background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
             color: white;
         }
 
@@ -2662,7 +2668,7 @@
                     </p>
                 </div>
             </footer>
-
+            
             <script>
                 // Configuración global de SweetAlert
                 const Toast = Swal.mixin({
