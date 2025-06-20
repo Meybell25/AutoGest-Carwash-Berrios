@@ -9,6 +9,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        /* ======================
+        ESTILOS GENERALES
+        ====================== */
         * {
             margin: 0;
             padding: 0;
@@ -109,7 +112,9 @@
             position: relative;
         }
 
-        /* Header */
+        /* ======================
+        HEADER
+        ====================== */
         .header {
             background: var(--bg-light);
             backdrop-filter: var(--blur);
@@ -283,6 +288,9 @@
             flex-wrap: wrap;
         }
 
+        /* ======================
+        BOTONES
+        ====================== */
         .btn {
             padding: 12px 20px;
             border: none;
@@ -365,7 +373,9 @@
             border-radius: 8px;
         }
 
-        /* Layout */
+        /* ======================
+        LAYOUT
+        ====================== */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -380,7 +390,9 @@
             gap: 30px;
         }
 
-        /* Cards */
+        /* ======================
+        TARJETAS
+        ====================== */
         .card {
             background: var(--bg-light);
             backdrop-filter: var(--blur);
@@ -461,54 +473,9 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .card-header .icon i,
-        .welcome-icon i,
-        .btn i {
-            color: inherit !important;
-            display: block !important;
-            font-size: inherit !important;
-            opacity: 1 !important;
-        }
-
-        /* Fix para íconos */
-        .fas,
-        .fa-solid,
-        .far,
-        .fa-regular,
-        .fab,
-        .fa-brands {
-            opacity: 1 !important;
-            color: inherit !important;
-            font-size: inherit !important;
-            display: inline-block !important;
-            display: inline-block !important;
-            font-style: normal;
-            font-variant: normal;
-            text-rendering: auto;
-            line-height: 1;
-        }
-
-        .card-header .icon i,
-        .welcome-icon i {
-            color: white !important;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Welcome icon */
-        .welcome-icon i {
-            color: white !important;
-            font-size: 1.5rem !important;
-        }
-
-
-        .btn i {
-            color: inherit !important;
-            margin-right: 8px;
-        }
-
-        /* Stats Cards */
+        /* ======================
+        ESTADÍSTICAS
+        ====================== */
         .admin-stat-card {
             background: var(--bg-surface);
             border-radius: 20px;
@@ -611,44 +578,9 @@
             background: var(--info-gradient);
         }
 
-        /* Estilos para íconos */
-        .icon {
-            position: relative;
-            z-index: 10;
-        }
-
-        .icon i {
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-        }
-
-
-        .profile-info-item i {
-            width: 24px !important;
-            height: 24px !important;
-            font-size: 12px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            background: var(--primary) !important;
-            color: white !important;
-            border-radius: 50% !important;
-            margin-right: 10px !important;
-            flex-shrink: 0;
-        }
-
-        /* Asegurar que los íconos sean visibles */
-        .fas,
-        .fa-solid {
-            opacity: 1 !important;
-            color: inherit !important;
-        }
-
-        /* Tablas */
+        /* ======================
+        TABLAS
+        ====================== */
         .admin-table {
             width: 100%;
             border-collapse: collapse;
@@ -716,7 +648,9 @@
             color: white;
         }
 
-        /* Badges */
+        /* ======================
+        BADGES
+        ====================== */
         .badge {
             display: inline-block;
             padding: 8px 15px;
@@ -788,7 +722,9 @@
             letter-spacing: 0.5px;
         }
 
-        /* Tabs */
+        /* ======================
+        PESTAÑAS
+        ====================== */
         .tab-container {
             margin-top: 25px;
         }
@@ -843,7 +779,9 @@
             }
         }
 
-        /* Charts */
+        /* ======================
+        GRÁFICOS
+        ====================== */
         .chart-container {
             position: relative;
             height: 320px;
@@ -852,7 +790,9 @@
             overflow: hidden;
         }
 
-        /* Service items */
+        /* ======================
+        SERVICIOS
+        ====================== */
         .service-history-item {
             display: flex;
             align-items: center;
@@ -932,7 +872,9 @@
             color: white !important;
         }
 
-        /* Notificaciones */
+        /* ======================
+        NOTIFICACIONES
+        ====================== */
         .notification-item {
             display: flex;
             align-items: flex-start;
@@ -978,7 +920,9 @@
             background: var(--warning-gradient);
         }
 
-        /* Modales */
+        /* ======================
+        MODALES
+        ====================== */
         .modal {
             display: none;
             position: fixed;
@@ -1062,7 +1006,9 @@
             outline: none;
         }
 
-        /* Footer */
+        /* ======================
+        FOOTER
+        ====================== */
         .footer {
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -1072,8 +1018,6 @@
             position: relative;
             overflow: hidden;
             margin-top: 40px;
-
-            /* Bordes redondeados solo en la parte superior */
             border-top-left-radius: 30px;
             border-top-right-radius: 30px;
         }
@@ -1098,7 +1042,6 @@
             z-index: 1;
         }
 
-        /* El resto de los estilos se mantienen igual */
         .footer-brand {
             margin-bottom: 15px;
         }
@@ -1132,16 +1075,11 @@
             margin-bottom: 25px;
         }
 
-        .info-item i {
-            width: 24px !important;
-            height: 24px !important;
-            font-size: 12px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            color: white !important;
-            background: var(--primary-gradient) !important;
-            border-radius: 50% !important;
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
         }
 
         .info-item:hover {
@@ -1149,24 +1087,17 @@
         }
 
         .info-item i {
-            width: 18px;
-            height: 18px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: var(--primary-gradient);
-            color: white;
+            color: white !important;
             border-radius: 50%;
-            font-size: 10px;
+            font-size: 12px;
             box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
         }
-
-
-        .footer .info-item i {
-            color: white !important;
-        }
-
-
 
         .location-link {
             color: var(--text-primary);
@@ -1278,598 +1209,9 @@
             }
         }
 
-        @media (max-width: 768px) {
-            .footer-info {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .footer-content {
-                padding: 30px 20px;
-            }
-
-            .footer-brand h3 {
-                font-size: 24px;
-            }
-
-            .social-icons {
-                gap: 12px;
-            }
-
-            .social-icon {
-                width: 36px;
-                height: 36px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .footer-brand h3 {
-                font-size: 20px;
-            }
-
-            .footer-slogan {
-                font-size: 12px;
-            }
-
-            .info-item {
-                font-size: 14px;
-            }
-        }
-
-        /* Search y filtros */
-        .search-filter-container {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .search-box,
-        .filter-select {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 18px;
-            border: 2px solid var(--border-primary);
-            border-radius: 12px;
-            font-size: 15px;
-            background: var(--bg-surface);
-            transition: var(--transition);
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
-            outline: none;
-        }
-
-        /* Paginación */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 30px;
-        }
-
-        .page-link {
-            padding: 10px 15px;
-            border: 2px solid rgba(39, 174, 96, 0.2);
-            border-radius: 10px;
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-        .page-link:hover,
-        .page-link.active {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-
-        .empty-state h3 {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            color: var(--text-primary);
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: 25px;
-            }
-
-            .welcome-section h1 {
-                font-size: 2.2rem;
-            }
-
-            .admin-stat-card {
-                padding: 20px;
-            }
-
-            .stat-value {
-                font-size: 2.2rem;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .dashboard-container {
-                padding: 20px 15px;
-            }
-
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
-            }
-
-            .welcome-section h1 {
-                font-size: 2rem;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .welcome-stats {
-                justify-content: center;
-                gap: 15px;
-            }
-
-            .header-actions {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-
-            .card-header,
-            .card-body {
-                padding: 20px 25px;
-            }
-
-            .admin-table {
-                font-size: 0.85rem;
-            }
-
-            .admin-table th,
-            .admin-table td {
-                padding: 12px 8px;
-            }
-
-            .table-actions {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .chart-container {
-                height: 250px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .welcome-section h1 {
-                font-size: 1.8rem;
-            }
-
-            .welcome-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 1.3rem;
-            }
-
-            .search-filter-container {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .admin-table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-
-            .admin-table thead,
-            .admin-table tbody,
-            .admin-table th,
-            .admin-table td,
-            .admin-table tr {
-                display: block;
-            }
-
-            .admin-table thead tr {
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
-            }
-
-            .admin-table tr {
-                border: 2px solid var(--border-primary);
-                border-radius: 15px;
-                margin-bottom: 15px;
-                padding: 15px;
-                background: var(--bg-surface);
-            }
-
-            .admin-table td {
-                border: none;
-                padding: 8px 0;
-                position: relative;
-                padding-left: 40%;
-                background: transparent;
-            }
-
-            .admin-table td:before {
-                content: attr(data-label) ": ";
-                position: absolute;
-                left: 0;
-                width: 35%;
-                padding-right: 10px;
-                white-space: nowrap;
-                font-weight: 700;
-                color: var(--primary);
-            }
-
-            .tab-buttons {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-
-            .tab-button {
-                padding: 12px 18px;
-                font-size: 0.9rem;
-                flex: 1;
-                min-width: 100px;
-                text-align: center;
-            }
-
-            .modal-content {
-                margin: 10% auto;
-                padding: 25px;
-                width: 95%;
-            }
-
-            .footer-info {
-                flex-direction: column;
-                gap: 20px;
-                text-align: center;
-            }
-
-            .stat-value {
-                font-size: 2rem;
-            }
-
-            .service-history-item {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-            }
-
-            .service-icon {
-                margin-right: 0;
-                align-self: center;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .dashboard-container {
-                padding: 15px 10px;
-            }
-
-            .header {
-                padding: 20px 20px;
-                border-radius: 18px;
-            }
-
-            .welcome-section h1 {
-                font-size: 1.6rem;
-            }
-
-            .welcome-stats {
-                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-                gap: 10px;
-            }
-
-            .welcome-stat {
-                padding: 12px 15px;
-                min-width: 70px;
-            }
-
-            .welcome-stat .number {
-                font-size: 1.2rem;
-            }
-
-            .welcome-stat .label {
-                font-size: 0.75rem;
-            }
-
-            .card {
-                border-radius: 18px;
-            }
-
-            .card-header,
-            .card-body {
-                padding: 15px 20px;
-            }
-
-            .card-header h2 {
-                font-size: 1.3rem;
-                gap: 12px;
-            }
-
-            .card-header .icon {
-                width: 35px;
-                height: 35px;
-                font-size: 1.1rem;
-            }
-
-            .admin-stat-card {
-                padding: 20px 15px;
-                text-align: center;
-            }
-
-            .stat-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 1.3rem;
-                margin: 0 auto 15px;
-            }
-
-            .stat-value {
-                font-size: 1.8rem;
-            }
-
-            .btn {
-                padding: 12px 18px;
-                font-size: 0.9rem;
-                gap: 8px;
-            }
-
-            .btn-sm {
-                padding: 6px 12px;
-                font-size: 0.8rem;
-            }
-
-            .table-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 0.8rem;
-            }
-
-            .badge {
-                padding: 6px 12px;
-                font-size: 0.75rem;
-            }
-
-            .chart-container {
-                height: 200px;
-            }
-
-            .pagination {
-                gap: 5px;
-            }
-
-            .page-link {
-                padding: 8px 12px;
-                font-size: 0.85rem;
-            }
-
-            .notification-item {
-                padding: 15px;
-                flex-direction: column;
-            }
-
-            .notification-icon {
-                margin-right: 0;
-                margin-bottom: 10px;
-                align-self: flex-start;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .welcome-section h1 {
-                font-size: 1.4rem;
-            }
-
-            .header-actions {
-                width: 100%;
-            }
-
-            .btn {
-                flex: 1;
-                justify-content: center;
-                min-width: 120px;
-            }
-
-            .modal-content {
-                margin: 5% auto;
-                padding: 20px;
-                width: 98%;
-                border-radius: 15px;
-            }
-
-            .form-group input,
-            .form-group select,
-            .form-group textarea {
-                padding: 12px;
-                font-size: 16px;
-            }
-
-            .service-history-item {
-                padding: 15px;
-            }
-
-            .empty-state {
-                padding: 30px 15px;
-            }
-
-            .empty-state i {
-                font-size: 2.5rem;
-            }
-
-            .empty-state h3 {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* Animaciones */
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        .admin-stat-card {
-            animation: slideInUp 0.6s ease-out;
-        }
-
-        .admin-stat-card:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-
-        .admin-stat-card:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .admin-stat-card:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-        .admin-stat-card:nth-child(4) {
-            animation-delay: 0.4s;
-        }
-
-        .notification-item {
-            animation: slideInLeft 0.5s ease-out;
-        }
-
-        .service-history-item {
-            animation: slideInUp 0.4s ease-out;
-        }
-
-        .welcome-stat {
-            animation: pulse 2s infinite;
-        }
-
-        .welcome-stat:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .welcome-stat:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-
-        .welcome-stat:nth-child(3) {
-            animation-delay: 1s;
-        }
-
         /* ======================
-   SCROLLBAR PERSONALIZADA
-   ====================== */
-
-        /* Para navegadores WebKit (Chrome, Safari, Edge) */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(39, 174, 96, 0.1);
-            /* Usando el color primary con transparencia */
-            border-radius: 10px;
-            backdrop-filter: blur(5px);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, rgba(39, 174, 96, 0.8) 0%, rgba(82, 160, 136, 0.9) 100%);
-            backdrop-filter: blur(5px);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #27ae60 0%, #52a088 100%);
-            transform: scale(1.05);
-            box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
-        }
-
-        ::-webkit-scrollbar-corner {
-            background: transparent;
-        }
-
-        /* Para Firefox */
-        html {
-            scrollbar-width: thin;
-            scrollbar-color: #27ae60 #f8fafc;
-            /* thumb y track */
-        }
-
-        /* Animación de brillo al hacer hover */
-        @keyframes scrollbar-glow {
-            0% {
-                box-shadow: 0 0 0 rgba(39, 174, 96, 0);
-            }
-
-            50% {
-                box-shadow: 0 0 8px rgba(39, 174, 96, 0.7);
-            }
-
-            100% {
-                box-shadow: 0 0 0 rgba(39, 174, 96, 0);
-            }
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            animation: scrollbar-glow 1.5s infinite;
-        }
-
-        /* Perfil de usuario */
+        PERFIL DE USUARIO
+        ====================== */
         .profile-card {
             background: var(--bg-light);
             border-radius: 20px;
@@ -1935,51 +1277,664 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        /* Configuración de cuenta */
-        .settings-form {
-            background: var(--bg-light);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: var(--shadow-md);
+        /* ======================
+        ÍCONOS
+        ====================== */
+        .fas,
+        .fa-solid,
+        .far,
+        .fa-regular,
+        .fab,
+        .fa-brands {
+            opacity: 1 !important;
+            color: inherit !important;
+            font-size: inherit !important;
+            display: inline-block !important;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
         }
 
-        .settings-section {
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-primary);
-        }
-
-        .settings-section h3 {
-            font-size: 1.2rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: flex;
+        .card-header .icon i,
+        .welcome-icon i {
+            color: white !important;
+            display: flex !important;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
         }
 
-        .settings-section h3 i {
-            font-size: 1.1rem;
+        .welcome-icon i {
+            color: white !important;
+            font-size: 1.5rem !important;
         }
 
-        /* Formulario de horarios */
-        .schedule-form {
-            background: var(--bg-light);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: var(--shadow-md);
-            margin-bottom: 30px;
+        .btn i {
+            color: inherit !important;
+            margin-right: 8px;
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+        .profile-info-item i {
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: var(--primary) !important;
+            color: white !important;
+            border-radius: 50% !important;
+            margin-right: 10px !important;
+            flex-shrink: 0;
 
-        @media (max-width: 768px) {
+            /* ======================
+            FORMULARIOS
+            ====================== */
+            .search-filter-container {
+                display: flex;
+                gap: 20px;
+                margin-bottom: 25px;
+                flex-wrap: wrap;
+            }
+
+            .search-box,
+            .filter-select {
+                flex: 1;
+                min-width: 200px;
+            }
+
+            .form-control {
+                width: 100%;
+                padding: 12px 18px;
+                border: 2px solid var(--border-primary);
+                border-radius: 12px;
+                font-size: 15px;
+                background: var(--bg-surface);
+                transition: var(--transition);
+            }
+
+            .form-control:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+                outline: none;
+            }
+
             .form-grid {
-                grid-template-columns: 1fr;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            /* ======================
+            PAGINACIÓN
+            ===================== */
+            .pagination {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                margin-top: 30px;
+            }
+
+            .page-link {
+                padding: 10px 15px;
+                border: 2px solid rgba(39, 174, 96, 0.2);
+                border-radius: 10px;
+                color: var(--primary);
+                text-decoration: none;
+                font-weight: 600;
+                transition: var(--transition);
+            }
+
+            .page-link:hover,
+            .page-link.active {
+                background: var(--primary);
+                color: white;
+                transform: translateY(-2px);
+            }
+
+            /* ======================
+            ESTADO VACÍO
+            ====================== */
+            .empty-state {
+                text-align: center;
+                padding: 40px 20px;
+                color: var(--text-secondary);
+            }
+
+            .empty-state i {
+                font-size: 3rem;
+                color: var(--primary);
+                margin-bottom: 20px;
+            }
+
+            .empty-state h3 {
+                font-size: 1.3rem;
+                margin-bottom: 10px;
+                color: var(--text-primary);
+            }
+
+            /* ======================
+            CONFIGURACIÓN DE CUENTA
+            ====================== */
+            .settings-form {
+                background: var(--bg-light);
+                border-radius: 20px;
+                padding: 25px;
+                box-shadow: var(--shadow-md);
+            }
+
+            .settings-section {
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid var(--border-primary);
+            }
+
+            .settings-section h3 {
+                font-size: 1.2rem;
+                color: var(--primary);
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .settings-section h3 i {
+                font-size: 1.1rem;
+            }
+
+            /* ======================
+            FORMULARIO DE HORARIOS
+            ====================== */
+            .schedule-form {
+                background: var(--bg-light);
+                border-radius: 20px;
+                padding: 25px;
+                box-shadow: var(--shadow-md);
+                margin-bottom: 30px;
+            }
+
+            /* ======================
+            RESPONSIVE DESIGN
+            ====================== */
+            @media (max-width: 1200px) {
+                .dashboard-grid {
+                    grid-template-columns: 1fr;
+                    gap: 25px;
+                }
+
+                .welcome-section h1 {
+                    font-size: 2.2rem;
+                }
+
+                .admin-stat-card {
+                    padding: 20px;
+                }
+
+                .stat-value {
+                    font-size: 2.2rem;
+                }
+            }
+
+            @media (max-width: 992px) {
+                .dashboard-container {
+                    padding: 20px 15px;
+                }
+
+                .header-content {
+                    flex-direction: column;
+                    text-align: center;
+                    gap: 20px;
+                }
+
+                .welcome-section h1 {
+                    font-size: 2rem;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .welcome-stats {
+                    justify-content: center;
+                    gap: 15px;
+                }
+
+                .header-actions {
+                    justify-content: center;
+                    flex-wrap: wrap;
+                }
+
+                .card-header,
+                .card-body {
+                    padding: 20px 25px;
+                }
+
+                .admin-table {
+                    font-size: 0.85rem;
+                }
+
+                .admin-table th,
+                .admin-table td {
+                    padding: 12px 8px;
+                }
+
+                .table-actions {
+                    flex-direction: column;
+                    gap: 5px;
+                }
+
+                .chart-container {
+                    height: 250px;
+                }
+
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .welcome-section h1 {
+                    font-size: 1.8rem;
+                }
+
+                .welcome-icon {
+                    width: 45px;
+                    height: 45px;
+                    font-size: 1.3rem;
+                }
+
+                .search-filter-container {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .admin-table {
+                    display: block;
+                    overflow-x: auto;
+                    white-space: nowrap;
+                }
+
+                .admin-table thead,
+                .admin-table tbody,
+                .admin-table th,
+                .admin-table td,
+                .admin-table tr {
+                    display: block;
+                }
+
+                .admin-table thead tr {
+                    position: absolute;
+                    top: -9999px;
+                    left: -9999px;
+                }
+
+                .admin-table tr {
+                    border: 2px solid var(--border-primary);
+                    border-radius: 15px;
+                    margin-bottom: 15px;
+                    padding: 15px;
+                    background: var(--bg-surface);
+                }
+
+                .admin-table td {
+                    border: none;
+                    padding: 8px 0;
+                    position: relative;
+                    padding-left: 40%;
+                    background: transparent;
+                }
+
+                .admin-table td:before {
+                    content: attr(data-label) ": ";
+                    position: absolute;
+                    left: 0;
+                    width: 35%;
+                    padding-right: 10px;
+                    white-space: nowrap;
+                    font-weight: 700;
+                    color: var(--primary);
+                }
+
+                .tab-buttons {
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+
+                .tab-button {
+                    padding: 12px 18px;
+                    font-size: 0.9rem;
+                    flex: 1;
+                    min-width: 100px;
+                    text-align: center;
+                }
+
+                .modal-content {
+                    margin: 10% auto;
+                    padding: 25px;
+                    width: 95%;
+                }
+
+                .footer-info {
+                    flex-direction: column;
+                    gap: 20px;
+                    text-align: center;
+                }
+
+                .stat-value {
+                    font-size: 2rem;
+                }
+
+                .service-history-item {
+                    flex-direction: column;
+                    text-align: center;
+                    gap: 15px;
+                }
+
+                .service-icon {
+                    margin-right: 0;
+                    align-self: center;
+                }
+            }
+
+            @media (max-width: 576px) {
+                .dashboard-container {
+                    padding: 15px 10px;
+                }
+
+                .header {
+                    padding: 20px 20px;
+                    border-radius: 18px;
+                }
+
+                .welcome-section h1 {
+                    font-size: 1.6rem;
+                }
+
+                .welcome-stats {
+                    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                    gap: 10px;
+                }
+
+                .welcome-stat {
+                    padding: 12px 15px;
+                    min-width: 70px;
+                }
+
+                .welcome-stat .number {
+                    font-size: 1.2rem;
+                }
+
+                .welcome-stat .label {
+                    font-size: 0.75rem;
+                }
+
+                .card {
+                    border-radius: 18px;
+                }
+
+                .card-header,
+                .card-body {
+                    padding: 15px 20px;
+                }
+
+                .card-header h2 {
+                    font-size: 1.3rem;
+                    gap: 12px;
+                }
+
+                .card-header .icon {
+                    width: 35px;
+                    height: 35px;
+                    font-size: 1.1rem;
+                }
+
+                .admin-stat-card {
+                    padding: 20px 15px;
+                    text-align: center;
+                }
+
+                .stat-icon {
+                    width: 45px;
+                    height: 45px;
+                    font-size: 1.3rem;
+                    margin: 0 auto 15px;
+                }
+
+                .stat-value {
+                    font-size: 1.8rem;
+                }
+
+                .btn {
+                    padding: 12px 18px;
+                    font-size: 0.9rem;
+                    gap: 8px;
+                }
+
+                .btn-sm {
+                    padding: 6px 12px;
+                    font-size: 0.8rem;
+                }
+
+                .table-btn {
+                    width: 30px;
+                    height: 30px;
+                    font-size: 0.8rem;
+                }
+
+                .badge {
+                    padding: 6px 12px;
+                    font-size: 0.75rem;
+                }
+
+                .chart-container {
+                    height: 200px;
+                }
+
+                .pagination {
+                    gap: 5px;
+                }
+
+                .page-link {
+                    padding: 8px 12px;
+                    font-size: 0.85rem;
+                }
+
+                .notification-item {
+                    padding: 15px;
+                    flex-direction: column;
+                }
+
+                .notification-icon {
+                    margin-right: 0;
+                    margin-bottom: 10px;
+                    align-self: flex-start;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .welcome-section h1 {
+                    font-size: 1.4rem;
+                }
+
+                .header-actions {
+                    width: 100%;
+                }
+
+                .btn {
+                    flex: 1;
+                    justify-content: center;
+                    min-width: 120px;
+                }
+
+                .modal-content {
+                    margin: 5% auto;
+                    padding: 20px;
+                    width: 98%;
+                    border-radius: 15px;
+                }
+
+                .form-group input,
+                .form-group select,
+                .form-group textarea {
+                    padding: 12px;
+                    font-size: 16px;
+                }
+
+                .service-history-item {
+                    padding: 15px;
+                }
+
+                .empty-state {
+                    padding: 30px 15px;
+                }
+
+                .empty-state i {
+                    font-size: 2.5rem;
+                }
+
+                .empty-state h3 {
+                    font-size: 1.1rem;
+                }
+            }
+
+            /* ======================
+            ANIMACIONES
+            ====================== */
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes slideInLeft {
+                from {
+                    opacity: 0;
+                    transform: translateX(-30px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            @keyframes pulse {
+
+                0%,
+                100% {
+                    transform: scale(1);
+                }
+
+                50% {
+                    transform: scale(1.05);
+                }
+            }
+
+            .admin-stat-card {
+                animation: slideInUp 0.6s ease-out;
+            }
+
+            .admin-stat-card:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .admin-stat-card:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .admin-stat-card:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+            .admin-stat-card:nth-child(4) {
+                animation-delay: 0.4s;
+            }
+
+            .notification-item {
+                animation: slideInLeft 0.5s ease-out;
+            }
+
+            .service-history-item {
+                animation: slideInUp 0.4s ease-out;
+            }
+
+            .welcome-stat {
+                animation: pulse 2s infinite;
+            }
+
+            .welcome-stat:nth-child(1) {
+                animation-delay: 0s;
+            }
+
+            .welcome-stat:nth-child(2) {
+                animation-delay: 0.5s;
+            }
+
+            .welcome-stat:nth-child(3) {
+                animation-delay: 1s;
+            }
+
+            /* ======================
+            SCROLLBAR PERSONALIZADA
+            ====================== */
+            /* Para navegadores WebKit (Chrome, Safari, Edge) */
+            ::-webkit-scrollbar {
+                width: 10px;
+                height: 10px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: rgba(39, 174, 96, 0.1);
+                border-radius: 10px;
+                backdrop-filter: blur(5px);
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: linear-gradient(135deg, rgba(39, 174, 96, 0.8) 0%, rgba(82, 160, 136, 0.9) 100%);
+                backdrop-filter: blur(5px);
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                transition: all 0.3s ease;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(135deg, #27ae60 0%, #52a088 100%);
+                transform: scale(1.05);
+                box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+            }
+
+            ::-webkit-scrollbar-corner {
+                background: transparent;
+            }
+
+            /* Para Firefox */
+            html {
+                scrollbar-width: thin;
+                scrollbar-color: #27ae60 #f8fafc;
+            }
+
+            /* Animación de brillo al hacer hover */
+            @keyframes scrollbar-glow {
+                0% {
+                    box-shadow: 0 0 0 rgba(39, 174, 96, 0);
+                }
+
+                50% {
+                    box-shadow: 0 0 8px rgba(39, 174, 96, 0.7);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 rgba(39, 174, 96, 0);
+                }
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                animation: scrollbar-glow 1.5s infinite;
             }
         }
     </style>
