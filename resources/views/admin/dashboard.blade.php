@@ -1143,13 +1143,7 @@
             color: white !important;
         }
 
-        .social-icon i {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
+        
 
         .location-link {
             color: var(--text-primary);
