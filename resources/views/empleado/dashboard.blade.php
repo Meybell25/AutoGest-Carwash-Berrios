@@ -428,7 +428,10 @@
         /* Íconos en cards (títulos) */
         .card-header .icon i {
             color: white !important;
-            /* Fuerza blanco en íconos de títulos */
+            font-size: 1.3rem !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Íconos en texto normal (como los de perfil) */

@@ -481,15 +481,31 @@
             color: inherit !important;
             font-size: inherit !important;
             display: inline-block !important;
+            display: inline-block !important;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
         }
 
         .card-header .icon i,
         .welcome-icon i {
             color: white !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
         }
+
+        /* Welcome icon */
+        .welcome-icon i {
+            color: white !important;
+            font-size: 1.5rem !important;
+        }
+
 
         .btn i {
             color: inherit !important;
+            margin-right: 8px;
         }
 
         /* Stats Cards */
@@ -543,7 +559,7 @@
         }
 
         .stat-card-warning {
-            border-left-color: var(--warning);
+            border-left-color: var(--info);
         }
 
         .stat-card-danger {
@@ -588,7 +604,7 @@
         }
 
         .icon-warning {
-            background: var(--warning-gradient);
+            background: var(--info-gradient);
         }
 
         .icon-danger {
@@ -610,18 +626,19 @@
             height: 100%;
         }
 
-        /* Íconos del perfil en blanco */
+
         .profile-info-item i {
-            width: 32px !important;
-            height: 32px !important;
-            font-size: 14px !important;
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 12px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            color: white !important;
             background: var(--primary) !important;
+            color: white !important;
             border-radius: 50% !important;
-            margin-left: 5em;
+            margin-right: 10px !important;
+            flex-shrink: 0;
         }
 
         /* Asegurar que los íconos sean visibles */
@@ -898,8 +915,12 @@
             background: linear-gradient(135deg, #00838f 0%, #00695c 100%);
         }
 
+        /* Service icons */
+        .service-icon i {
+            color: white !important;
+        }
+
         .service-icon {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             opacity: 0.9;
         }
 
@@ -1145,7 +1166,7 @@
             color: white !important;
         }
 
-        
+
 
         .location-link {
             color: var(--text-primary);
@@ -1898,6 +1919,9 @@
         .profile-info {
             text-align: left;
             margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .profile-info-item {
@@ -1905,6 +1929,10 @@
             align-items: center;
             margin-bottom: 10px;
             color: var(--text-secondary);
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         /* Configuración de cuenta */
