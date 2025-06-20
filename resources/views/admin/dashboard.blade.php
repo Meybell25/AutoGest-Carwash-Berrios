@@ -16,26 +16,24 @@
         }
 
         :root {
-            /* Nueva paleta de colores */
-            --primary: #27ae60;
-            --secondary: #52a088;
-            --accent: #f39c12;
-            --success: #ea9308;
-            --warning: #4412e9;
-            --danger: #c1201a;
-            --info: #3498db;
-            --dark: #2c3e50;
-            --light: #ecf0f1;
+            --primary: #2e7d32;
+            --secondary: #00695c;
+            --accent: #ff8f00;
+            --success: #388e3c;
+            --warning: #d84315;
+            --danger: #c62828;
+            --info: #0277bd;
+            --dark: #263238;
+            --light: #eceff1;
 
-            /* Gradientes */
-            --primary-gradient: linear-gradient(135deg, #27ae60 0%, #52a088 100%);
-            --accent-gradient: linear-gradient(45deg, #f39c12 0%, #d35400 100%);
-            --secondary-gradient: linear-gradient(135deg, #52a088 0%, #3498db 100%);
-            --success-gradient: linear-gradient(135deg, #d35400 0%, #e74c3c 100%);
-            --warning-gradient: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
-            --danger-gradient: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            --info-gradient: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            --primary-gradient: linear-gradient(135deg, #2e7d32 0%, #00695c 100%);
+            --accent-gradient: linear-gradient(45deg, #ff8f00 0%, #ef6c00 100%);
+            --secondary-gradient: linear-gradient(135deg, #00695c 0%, #0277bd 100%);
+            --success-gradient: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+            --warning-gradient: linear-gradient(135deg, #d84315 0%, #bf360c 100%);
+            --danger-gradient: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+            --info-gradient: linear-gradient(135deg, #0277bd 0%, #01579b 100%);
+            --dark-gradient: linear-gradient(135deg, #263238 0%, #37474f 100%);
 
             /* Texto */
             --text-primary: #2c3e50;
@@ -407,6 +405,11 @@
             padding: 0 30px 30px;
         }
 
+        .card-header .icon,
+        .welcome-icon {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
         /* Stats Cards */
         .admin-stat-card {
             background: var(--bg-surface);
@@ -602,6 +605,37 @@
             color: white;
         }
 
+        .badge-pendiente {
+            background: linear-gradient(135deg, #ff8f00 0%, #ef6c00 100%);
+            color: white;
+        }
+
+        .badge-confirmado {
+            background: linear-gradient(135deg, #0277bd 0%, #01579b 100%);
+            color: white;
+        }
+
+        .badge-en_proceso {
+            background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%);
+            color: white;
+        }
+
+        .badge-finalizada {
+            background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+            color: white;
+        }
+
+        .badge-cancelada {
+            background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+            color: white;
+        }
+
+        .badge {
+            font-weight: 600;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+        }
+
         /* Tabs */
         .tab-container {
             margin-top: 25px;
@@ -707,6 +741,31 @@
             font-size: 1.1rem;
             font-weight: 700;
             margin-bottom: 8px;
+        }
+
+        .service-badge-1 {
+            background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+        }
+
+        .service-badge-2 {
+            background: linear-gradient(135deg, #0277bd 0%, #0288d1 100%);
+        }
+
+        .service-badge-3 {
+            background: linear-gradient(135deg, #5e35b1 0%, #7e57c2 100%);
+        }
+
+        .service-badge-4 {
+            background: linear-gradient(135deg, #d84315 0%, #ff8f00 100%);
+        }
+
+        .service-badge-5 {
+            background: linear-gradient(135deg, #00838f 0%, #00695c 100%);
+        }
+
+        .service-icon {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
         }
 
         /* Notificaciones */
@@ -1770,7 +1829,7 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon">
-                            <i class="fa-solid fa-user-shield"></i>
+                            <i class="fas fa-user-cog"></i>
                         </div>
                         Panel de Administración
                     </h1>
@@ -1854,7 +1913,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-clock"></i>
+                                <i class="fas fa-business-time"></i>
                             </div>
                             Gestión de Horarios
                         </h2>
@@ -2030,7 +2089,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-chart-line"></i>
+                                <i class="fas fa-chart-pie"></i>
                             </div>
                             Rendimiento Mensual
                         </h2>
@@ -2070,7 +2129,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-calendar-alt"></i>
+                                <i class="fas fa-calendar-day"></i>
                             </div>
                             Últimas Citas
                         </h2>
@@ -2115,15 +2174,24 @@
                                             <td data-label="Fecha/Hora">{{ $cita->fecha_hora->format('d/m/Y H:i') }}
                                             </td>
                                             <td data-label="Servicios">
-                                                @foreach ($cita->servicios as $servicio)
-                                                    <span class="badge badge-primary">{{ $servicio->nombre }}</span>
+                                                @foreach ($cita->servicios as $index => $servicio)
+                                                    <span
+                                                        class="badge service-badge-{{ ($index % 5) + 1 }}">{{ $servicio->nombre }}</span>
                                                 @endforeach
                                             </td>
                                             <td data-label="Total">
                                                 ${{ number_format($cita->servicios->sum('pivot.precio'), 2) }}</td>
                                             <td data-label="Estado">
                                                 <span
-                                                    class="badge badge-{{ $cita->estado == 'pendiente' ? 'warning' : ($cita->estado == 'en_proceso' ? 'info' : ($cita->estado == 'finalizada' ? 'success' : 'danger')) }}">
+                                                    class="badge badge-{{ $cita->estado == 'pendiente'
+                                                        ? 'pendiente'
+                                                        : ($cita->estado == 'confirmado'
+                                                            ? 'confirmado'
+                                                            : ($cita->estado == 'en_proceso'
+                                                                ? 'en_proceso'
+                                                                : ($cita->estado == 'finalizada'
+                                                                    ? 'finalizada'
+                                                                    : 'cancelada'))) }}">
                                                     {{ $cita->estado_formatted }}
                                                 </span>
                                             </td>
@@ -2160,6 +2228,47 @@
                 </div>
             </div>
 
+            <!-- Agregar esta nueva card antes del Resumen de Usuarios -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>
+                        <div class="icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        Mi Perfil
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="profile-card">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-name">{{ Auth::user()->nombre }}</div>
+                        <div class="profile-role">Administrador</div>
+
+                        <div class="profile-info">
+                            <div class="profile-info-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ Auth::user()->email }}</span>
+                            </div>
+                            <div class="profile-info-item">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ Auth::user()->telefono ?? 'No especificado' }}</span>
+                            </div>
+                            <div class="profile-info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Miembro desde {{ Auth::user()->created_at->format('M Y') }}</span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
+                            onclick="editarPerfil()">
+                            <i class="fas fa-edit"></i> Editar Perfil
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Sección Sidebar -->
             <div class="sidebar-section">
                 <!-- Resumen de Usuarios -->
@@ -2167,40 +2276,12 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-users"></i>
+                                <i class="fas fa-user-friends"></i>
                             </div>
                             Resumen de Usuarios
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div class="profile-card">
-                            <div class="profile-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="profile-name">{{ Auth::user()->nombre }}</div>
-                            <div class="profile-role">Administrador</div>
-
-                            <div class="profile-info">
-                                <div class="profile-info-item">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>{{ Auth::user()->email }}</span>
-                                </div>
-                                <div class="profile-info-item">
-                                    <i class="fas fa-phone"></i>
-                                    <span>{{ Auth::user()->telefono ?? 'No especificado' }}</span>
-                                </div>
-                                <div class="profile-info-item">
-                                    <i class="fas fa-calendar"></i>
-                                    <span>Miembro desde {{ Auth::user()->created_at->format('M Y') }}</span>
-                                </div>
-                            </div>
-
-                            <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
-                                onclick="editarPerfil()">
-                                <i class="fas fa-edit"></i> Editar Perfil
-                            </button>
-                        </div>
-
                         <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div style="text-align: center;">
                                 <div style="font-size: 2rem; font-weight: bold; color: var(--primary);">
@@ -2233,7 +2314,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-star"></i>
+                                <i class="fas fa-award"></i>
                             </div>
                             Servicios Populares
                         </h2>
@@ -2268,7 +2349,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-bell"></i>
+                                <i class="fas fa-exclamation-triangle"></i>
                             </div>
                             Alertas del Sistema
                         </h2>
