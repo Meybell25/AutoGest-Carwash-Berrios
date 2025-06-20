@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - AutoGest Carwash</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -445,7 +445,6 @@
             font-size: 1.3rem;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
-            backdrop-filter: none !important;
             background: var(--secondary-gradient) !important;
         }
 
@@ -463,9 +462,34 @@
         }
 
         .card-header .icon i,
-        .welcome-icon i {
+        .welcome-icon i,
+        .btn i {
+            color: inherit !important;
             display: block !important;
             font-size: inherit !important;
+            opacity: 1 !important;
+        }
+
+        /* Fix para íconos */
+        .fas,
+        .fa-solid,
+        .far,
+        .fa-regular,
+        .fab,
+        .fa-brands {
+            opacity: 1 !important;
+            color: inherit !important;
+            font-size: inherit !important;
+            display: inline-block !important;
+        }
+
+        .card-header .icon i,
+        .welcome-icon i {
+            color: white !important;
+        }
+
+        .btn i {
+            color: inherit !important;
         }
 
         /* Stats Cards */
