@@ -1,4 +1,4 @@
-:<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -986,6 +986,8 @@
             position: relative;
             overflow: hidden;
             margin-top: auto;
+            border-top-left-radius: var(--border-radius-xl);
+            border-top-right-radius: var(--border-radius-xl);
         }
 
         .footer::before {
@@ -1001,6 +1003,7 @@
         .footer-content {
             padding: 40px 30px;
             text-align: center;
+            border-radius: var(--border-radius-xl);
         }
 
         .footer-brand {
@@ -1094,8 +1097,9 @@
 
         .footer-divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
             margin: 20px 0;
+            opacity: 0.3;
         }
 
         .footer-copyright {
@@ -1147,6 +1151,12 @@
             background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             color: white;
             border-color: #bc1888;
+        }
+
+        .social-icon.twitter:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
         }
 
         .schedule-info {
@@ -1207,25 +1217,41 @@
             }
         }
 
-        /* Ajustes para iconos */
-        .fa-user-tie {
-            color: white !important;
+        /* Contact Button in Footer */
+        .footer-contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            margin: 15px 0;
         }
 
-        .btn-outline i,
-        .btn-primary i,
-        .btn-success i {
-            color: white !important;
+        .footer-contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
         }
 
-        .appointment-actions .btn-outline i {
-            color: var(--primary) !important;
+        .footer-contact-btn i {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
         }
 
-        .appointment-actions .btn-outline:hover i {
-            color: white !important;
-        }
-
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .footer-info {
                 flex-direction: column;
@@ -1239,6 +1265,61 @@
             .footer-brand h3 {
                 font-size: 24px;
             }
+
+            .social-icons {
+                gap: 12px;
+            }
+
+            .social-icon {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-brand h3 {
+                font-size: 20px;
+            }
+
+            .footer-slogan {
+                font-size: 12px;
+            }
+
+            .info-item {
+                font-size: 14px;
+            }
+        }
+
+        @keyframes primaryPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+            }
+        }
+
+        @keyframes accentPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(6, 182, 212, 0);
+            }
+        }
+
+        .pulse-primary {
+            animation: primaryPulse 2s infinite;
+        }
+
+        .pulse-accent {
+            animation: accentPulse 2s infinite;
         }
     </style>
 </head>
@@ -1474,7 +1555,8 @@
                                 <span>Ver Facturas</span>
                             </button>
                             <button class="quick-action-btn">
-                                <i class="fa-solid fa-address-book" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <i class="fa-solid fa-address-book"
+                                    style="font-size: 1.5rem; margin-bottom: 5px;"></i>
                                 <span>Ver Bitacora</span>
                             </button>
                             <button class="quick-action-btn">
@@ -1482,7 +1564,7 @@
                                 <span>Generar Pago</span>
                             </button>
                             <button class="quick-action-btn">
-                               <i class="fa-solid fa-coins"style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <i class="fa-solid fa-coins"style="font-size: 1.5rem; margin-bottom: 5px;"></i>
                                 <span>Agregar Gasto</span>
                             </button>
                         </div>
@@ -1509,8 +1591,7 @@
                                 <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-phone"></i> {{ Auth::user()->telefono ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
-                                <p><i class="fas fa-calendar"></i> Miembro desde
-                                    {{ Auth::user()->created_at->format('M Y') }}</p>
+                                <p><i class="fas fa-calendar"></i> Miembro desde {{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline">
