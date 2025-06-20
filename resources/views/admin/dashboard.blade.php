@@ -208,12 +208,30 @@
             min-width: 90px;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-primary);
-            transition: var(--transition);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .welcome-stat:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-md);
+            border: 1px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .welcome-stat:hover::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #2e7d32, #00695c, #0277bd);
+            border-radius: 16px;
+            z-index: -1;
+            animation: gradientBorder 3s ease infinite;
+            background-size: 200% 200%;
         }
 
         .welcome-stat .number {
@@ -223,12 +241,38 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            transition: all 0.3s ease;
+        }
+
+        .welcome-stat:hover .number {
+            background: linear-gradient(135deg, #2e7d32, #00695c);
+            -webkit-background-clip: text;
+            background-clip: text;
         }
 
         .welcome-stat .label {
             font-size: 0.85rem;
             color: var(--text-secondary);
             font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .welcome-stat:hover .label {
+            color: var(--primary);
+        }
+
+        @keyframes gradientBorder {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .header-actions {
@@ -270,14 +314,14 @@
         }
 
         .btn-primary {
-            background: var(--primary-gradient);
+            background: var(--secondary-gradient);
             color: white;
-            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 105, 92, 0.3);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+            background: linear-gradient(135deg, #00695c 0%, #004d40 100%);
+            box-shadow: 0 8px 25px rgba(0, 105, 92, 0.4);
         }
 
         .btn-outline {
@@ -295,23 +339,23 @@
         .btn-success {
             background: var(--success-gradient);
             color: white;
-            box-shadow: 0 4px 15px rgba(234, 147, 8, 0.3);
+            box-shadow: 0 4px 15px rgba(56, 142, 60, 0.3);
         }
 
         .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(234, 147, 8, 0.4);
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+            box-shadow: 0 8px 25px rgba(56, 142, 60, 0.4);
         }
 
         .btn-info {
             background: var(--info-gradient);
             color: white;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 4px 15px rgba(2, 119, 189, 0.3);
         }
 
         .btn-info:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+            background: linear-gradient(135deg, #01579b 0%, #003d6b 100%);
+            box-shadow: 0 8px 25px rgba(2, 119, 189, 0.4);
         }
 
         .btn-sm {
@@ -398,7 +442,12 @@
             justify-content: center;
             color: white;
             font-size: 1.3rem;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card-header .icon:hover {
+            transform: scale(1.1) rotate(5deg);
         }
 
         .card-body {
@@ -421,6 +470,8 @@
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
         .admin-stat-card::before {
@@ -437,23 +488,27 @@
 
         .admin-stat-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
         }
 
         .stat-card-primary {
             border-left-color: var(--primary);
+            background: linear-gradient(to right, rgba(46, 125, 50, 0.1), rgba(46, 125, 50, 0.05));
         }
 
         .stat-card-success {
             border-left-color: var(--success);
+            background: linear-gradient(to right, rgba(56, 142, 60, 0.1), rgba(56, 142, 60, 0.05));
         }
 
         .stat-card-warning {
             border-left-color: var(--warning);
+            background: linear-gradient(to right, rgba(216, 67, 21, 0.1), rgba(216, 67, 21, 0.05));
         }
 
         .stat-card-danger {
             border-left-color: var(--danger);
+            background: linear-gradient(to right, rgba(198, 40, 40, 0.1), rgba(198, 40, 40, 0.05));
         }
 
         .stat-value {
@@ -560,7 +615,7 @@
         }
 
         .btn-edit {
-            background: var(--warning-gradient);
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
             color: white;
         }
 
@@ -610,18 +665,18 @@
             color: white;
         }
 
+        .badge-pendiente {
+            background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+            color: white;
+        }
+
         .badge-confirmado {
-            background: linear-gradient(135deg, #0277bd 0%, #01579b 100%);
+            background: linear-gradient(135deg, #4fc3f7 0%, #0288d1 100%);
             color: white;
         }
 
         .badge-en_proceso {
-            background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%);
-            color: white;
-        }
-
-        .badge-finalizada {
-            background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+            background: linear-gradient(135deg, #7e57c2 0%, #5e35b1 100%);
             color: white;
         }
 
@@ -766,6 +821,14 @@
         .service-icon {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             opacity: 0.9;
+        }
+
+        .service-badge-1,
+        .service-badge-2,
+        .service-badge-3,
+        .service-badge-4,
+        .service-badge-5 {
+            color: white !important;
         }
 
         /* Notificaciones */
@@ -2228,49 +2291,49 @@
                 </div>
             </div>
 
-            <!-- Agregar esta nueva card antes del Resumen de Usuarios -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>
-                        <div class="icon">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        Mi Perfil
-                    </h2>
-                </div>
-                <div class="card-body">
-                    <div class="profile-card">
-                        <div class="profile-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="profile-name">{{ Auth::user()->nombre }}</div>
-                        <div class="profile-role">Administrador</div>
-
-                        <div class="profile-info">
-                            <div class="profile-info-item">
-                                <i class="fas fa-envelope"></i>
-                                <span>{{ Auth::user()->email }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <i class="fas fa-phone"></i>
-                                <span>{{ Auth::user()->telefono ?? 'No especificado' }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <i class="fas fa-calendar"></i>
-                                <span>Miembro desde {{ Auth::user()->created_at->format('M Y') }}</span>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
-                            onclick="editarPerfil()">
-                            <i class="fas fa-edit"></i> Editar Perfil
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <!-- Sección Sidebar -->
             <div class="sidebar-section">
+                <!-- Card de Perfil -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            Mi Perfil
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="profile-card">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-name">{{ Auth::user()->nombre }}</div>
+                            <div class="profile-role">Administrador</div>
+
+                            <div class="profile-info">
+                                <div class="profile-info-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ Auth::user()->email }}</span>
+                                </div>
+                                <div class="profile-info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ Auth::user()->telefono ?? 'No especificado' }}</span>
+                                </div>
+                                <div class="profile-info-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Miembro desde {{ Auth::user()->created_at->format('M Y') }}</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
+                                onclick="editarPerfil()">
+                                <i class="fas fa-edit"></i> Editar Perfil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Resumen de Usuarios -->
                 <div class="card">
                     <div class="card-header">
@@ -2378,419 +2441,418 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Modal para ver detalle de cita -->
-    <div id="detalleCitaModal" class="modal">
-        <div class="modal-content" style="max-width: 700px;">
-            <span class="close-modal" onclick="closeModal('detalleCitaModal')">&times;</span>
-            <div id="detalleCitaContent">
-                <!-- Contenido dinámico -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para editar cita -->
-    <div id="editarCitaModal" class="modal">
-        <div class="modal-content" style="max-width: 700px;">
-            <span class="close-modal" onclick="closeModal('editarCitaModal')">&times;</span>
-            <h2 style="color: var(--primary); margin-bottom: 20px;">
-                <i class="fas fa-edit"></i> Editar Cita
-            </h2>
-            <form id="editarCitaForm">
-                <!-- Formulario se llenará dinámicamente -->
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal para nuevo/editar servicio -->
-    <div id="servicioModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('servicioModal')">&times;</span>
-            <h2 id="servicioModalTitle">
-                <i class="fas fa-plus"></i> Nuevo Servicio
-            </h2>
-            <form id="servicioForm">
-                <input type="hidden" id="servicio_id" name="id">
-
-                <div class="form-group">
-                    <label for="servicio_nombre">Nombre del Servicio:</label>
-                    <input type="text" id="servicio_nombre" name="nombre" required class="form-control"
-                        placeholder="Ej: Lavado Premium">
-                </div>
-
-                <div class="form-group">
-                    <label for="servicio_descripcion">Descripción:</label>
-                    <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control"
-                        placeholder="Describe los detalles del servicio..."></textarea>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="servicio_precio">Precio ($):</label>
-                        <input type="number" step="0.01" id="servicio_precio" name="precio" required
-                            class="form-control" placeholder="0.00">
+            <!-- Modal para ver detalle de cita -->
+            <div id="detalleCitaModal" class="modal">
+                <div class="modal-content" style="max-width: 700px;">
+                    <span class="close-modal" onclick="closeModal('detalleCitaModal')">&times;</span>
+                    <div id="detalleCitaContent">
+                        <!-- Contenido dinámico -->
                     </div>
-
-                    <div class="form-group">
-                        <label for="servicio_duracion">Duración (min):</label>
-                        <input type="number" id="servicio_duracion" name="duracion" required class="form-control"
-                            placeholder="30">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="servicio_activo">Estado:</label>
-                    <select id="servicio_activo" name="activo" class="form-control">
-                        <option value="1">Activo</option>
-                        <option value="0">Inactivo</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-save"></i> Guardar Servicio
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal para gestión de horarios -->
-    <div id="horarioModal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <span class="close-modal" onclick="closeModal('horarioModal')">&times;</span>
-            <h2 id="horarioModalTitle">
-                <i class="fas fa-clock"></i> Agregar Horario
-            </h2>
-            <form id="horarioForm">
-                <input type="hidden" id="horario_id" name="id">
-
-                <div class="form-group">
-                    <label for="horario_dia">Día de la semana:</label>
-                    <select id="horario_dia" class="form-control" required>
-                        <option value="">Seleccione un día</option>
-                        <option value="0">Domingo</option>
-                        <option value="1">Lunes</option>
-                        <option value="2">Martes</option>
-                        <option value="3">Miércoles</option>
-                        <option value="4">Jueves</option>
-                        <option value="5">Viernes</option>
-                        <option value="6">Sábado</option>
-                    </select>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="horario_inicio">Hora de inicio:</label>
-                        <input type="time" id="horario_inicio" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="horario_fin">Hora de fin:</label>
-                        <input type="time" id="horario_fin" class="form-control" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="horario_activo">Estado:</label>
-                    <select id="horario_activo" class="form-control">
-                        <option value="1" selected>Activo</option>
-                        <option value="0">Inactivo</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-save"></i> Guardar Horario
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal para editar perfil -->
-    <div id="perfilModal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <span class="close-modal" onclick="closeModal('perfilModal')">&times;</span>
-            <h2 style="color: var(--primary); margin-bottom: 20px;">
-                <i class="fas fa-user-edit"></i> Editar Perfil
-            </h2>
-            <form id="perfilForm">
-                <div class="form-group">
-                    <label for="perfil_nombre">Nombre:</label>
-                    <input type="text" id="perfil_nombre" name="nombre" required class="form-control"
-                        value="{{ Auth::user()->nombre }}">
-                </div>
-
-                <div class="form-group">
-                    <label for="perfil_email">Email:</label>
-                    <input type="email" id="perfil_email" name="email" required class="form-control"
-                        value="{{ Auth::user()->email }}">
-                </div>
-
-                <div class="form-group">
-                    <label for="perfil_telefono">Teléfono:</label>
-                    <input type="tel" id="perfil_telefono" name="telefono" class="form-control"
-                        value="{{ Auth::user()->telefono }}">
-                </div>
-
-                <div class="form-group">
-                    <label for="perfil_password">Nueva Contraseña (opcional):</label>
-                    <input type="password" id="perfil_password" name="password" class="form-control"
-                        placeholder="Dejar en blanco para no cambiar">
-                </div>
-
-                <div class="form-group">
-                    <label for="perfil_password_confirmation">Confirmar Contraseña:</label>
-                    <input type="password" id="perfil_password_confirmation" name="password_confirmation"
-                        class="form-control">
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-save"></i> Guardar Cambios
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
-
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                <p class="footer-slogan">✨ "Sistema de Administración Integral" ✨</p>
-            </div>
-
-            <div class="footer-info">
-                <div class="info-item">
-                    <i class="fas fa-phone"></i>
-                    <span>75855197</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
-                        Ver ubicación en mapa
-                    </a>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-clock"></i>
-                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
                 </div>
             </div>
 
-            <div class="social-icons">
-                <a href="#" class="social-icon facebook" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-                <a href="#" class="social-icon instagram" title="Instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
+            <!-- Modal para editar cita -->
+            <div id="editarCitaModal" class="modal">
+                <div class="modal-content" style="max-width: 700px;">
+                    <span class="close-modal" onclick="closeModal('editarCitaModal')">&times;</span>
+                    <h2 style="color: var(--primary); margin-bottom: 20px;">
+                        <i class="fas fa-edit"></i> Editar Cita
+                    </h2>
+                    <form id="editarCitaForm">
+                        <!-- Formulario se llenará dinámicamente -->
+                    </form>
+                </div>
             </div>
 
-            <div class="footer-divider"></div>
+            <!-- Modal para nuevo/editar servicio -->
+            <div id="servicioModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('servicioModal')">&times;</span>
+                    <h2 id="servicioModalTitle">
+                        <i class="fas fa-plus"></i> Nuevo Servicio
+                    </h2>
+                    <form id="servicioForm">
+                        <input type="hidden" id="servicio_id" name="id">
 
-            <p class="footer-copyright">
-                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
-                <br>Versión del sistema: 2.10.1
-            </p>
-        </div>
-    </footer>
+                        <div class="form-group">
+                            <label for="servicio_nombre">Nombre del Servicio:</label>
+                            <input type="text" id="servicio_nombre" name="nombre" required class="form-control"
+                                placeholder="Ej: Lavado Premium">
+                        </div>
 
-    <script>
-        // Configuración global de SweetAlert
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
+                        <div class="form-group">
+                            <label for="servicio_descripcion">Descripción:</label>
+                            <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control"
+                                placeholder="Describe los detalles del servicio..."></textarea>
+                        </div>
 
-        // Inicializar gráficos
-        document.addEventListener('DOMContentLoaded', function() {
-            // Gráfico de ingresos mensuales
-            const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
-            const ingresosChart = new Chart(ingresosCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
-                        'Dic'
-                    ],
-                    datasets: [{
-                        label: 'Ingresos 2023',
-                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800,
-                            2100
-                        ],
-                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
-                        borderColor: 'rgba(39, 174, 96, 1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="servicio_precio">Precio ($):</label>
+                                <input type="number" step="0.01" id="servicio_precio" name="precio" required
+                                    class="form-control" placeholder="0.00">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="servicio_duracion">Duración (min):</label>
+                                <input type="number" id="servicio_duracion" name="duracion" required
+                                    class="form-control" placeholder="30">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="servicio_activo">Estado:</label>
+                            <select id="servicio_activo" name="activo" class="form-control">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i> Guardar Servicio
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal para gestión de horarios -->
+            <div id="horarioModal" class="modal">
+                <div class="modal-content" style="max-width: 500px;">
+                    <span class="close-modal" onclick="closeModal('horarioModal')">&times;</span>
+                    <h2 id="horarioModalTitle">
+                        <i class="fas fa-clock"></i> Agregar Horario
+                    </h2>
+                    <form id="horarioForm">
+                        <input type="hidden" id="horario_id" name="id">
+
+                        <div class="form-group">
+                            <label for="horario_dia">Día de la semana:</label>
+                            <select id="horario_dia" class="form-control" required>
+                                <option value="">Seleccione un día</option>
+                                <option value="0">Domingo</option>
+                                <option value="1">Lunes</option>
+                                <option value="2">Martes</option>
+                                <option value="3">Miércoles</option>
+                                <option value="4">Jueves</option>
+                                <option value="5">Viernes</option>
+                                <option value="6">Sábado</option>
+                            </select>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="horario_inicio">Hora de inicio:</label>
+                                <input type="time" id="horario_inicio" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="horario_fin">Hora de fin:</label>
+                                <input type="time" id="horario_fin" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="horario_activo">Estado:</label>
+                            <select id="horario_activo" class="form-control">
+                                <option value="1" selected>Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i> Guardar Horario
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal para editar perfil -->
+            <div id="perfilModal" class="modal">
+                <div class="modal-content" style="max-width: 500px;">
+                    <span class="close-modal" onclick="closeModal('perfilModal')">&times;</span>
+                    <h2 style="color: var(--primary); margin-bottom: 20px;">
+                        <i class="fas fa-user-edit"></i> Editar Perfil
+                    </h2>
+                    <form id="perfilForm">
+                        <div class="form-group">
+                            <label for="perfil_nombre">Nombre:</label>
+                            <input type="text" id="perfil_nombre" name="nombre" required class="form-control"
+                                value="{{ Auth::user()->nombre }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="perfil_email">Email:</label>
+                            <input type="email" id="perfil_email" name="email" required class="form-control"
+                                value="{{ Auth::user()->email }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="perfil_telefono">Teléfono:</label>
+                            <input type="tel" id="perfil_telefono" name="telefono" class="form-control"
+                                value="{{ Auth::user()->telefono }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="perfil_password">Nueva Contraseña (opcional):</label>
+                            <input type="password" id="perfil_password" name="password" class="form-control"
+                                placeholder="Dejar en blanco para no cambiar">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="perfil_password_confirmation">Confirmar Contraseña:</label>
+                            <input type="password" id="perfil_password_confirmation" name="password_confirmation"
+                                class="form-control">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="sparkle"></div>
+                <div class="sparkle"></div>
+                <div class="sparkle"></div>
+
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                        <p class="footer-slogan">✨ "Sistema de Administración Integral" ✨</p>
+                    </div>
+
+                    <div class="footer-info">
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <span>75855197</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank"
+                                class="location-link">
+                                Ver ubicación en mapa
+                            </a>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
+                        </div>
+                    </div>
+
+                    <div class="social-icons">
+                        <a href="#" class="social-icon facebook" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-icon instagram" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+
+                    <div class="footer-divider"></div>
+
+                    <p class="footer-copyright">
+                        &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+                        <br>Versión del sistema: 2.10.1
+                    </p>
+                </div>
+            </footer>
+
+            <script>
+                // Configuración global de SweetAlert
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                // Inicializar gráficos
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Gráfico de ingresos mensuales
+                    const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
+                    const ingresosChart = new Chart(ingresosCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
+                                'Dic'
+                            ],
+                            datasets: [{
+                                label: 'Ingresos 2023',
+                                data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800,
+                                    2100
+                                ],
+                                backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                                borderColor: 'rgba(39, 174, 96, 1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true
+                            }]
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return '$' + context.raw.toLocaleString();
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return '$' + context.raw.toLocaleString();
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '$' + value;
+                                        }
+                                    }
                                 }
                             }
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value;
+                    });
+
+                    // Gráfico de citas mensuales
+                    const citasCtx = document.getElementById('citasChart').getContext('2d');
+                    const citasChart = new Chart(citasCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
+                                'Dic'
+                            ],
+                            datasets: [{
+                                label: 'Citas Completadas',
+                                data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
+                                backgroundColor: 'rgba(211, 84, 0, 0.7)',
+                                borderColor: 'rgba(211, 84, 0, 1)',
+                                borderWidth: 1
+                            }, {
+                                label: 'Citas Canceladas',
+                                data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
+                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                                borderColor: 'rgba(231, 76, 60, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-            });
+                    });
 
-            // Gráfico de citas mensuales
-            const citasCtx = document.getElementById('citasChart').getContext('2d');
-            const citasChart = new Chart(citasCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
-                        'Dic'
-                    ],
-                    datasets: [{
-                        label: 'Citas Completadas',
-                        data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                        backgroundColor: 'rgba(211, 84, 0, 0.7)',
-                        borderColor: 'rgba(211, 84, 0, 1)',
-                        borderWidth: 1
-                    }, {
-                        label: 'Citas Canceladas',
-                        data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
+                    // Gráfico de servicios populares
+                    const serviciosCtx = document.getElementById('serviciosChart').getContext('2d');
+                    const serviciosChart = new Chart(serviciosCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
+                            datasets: [{
+                                data: [35, 25, 15, 15, 10],
+                                backgroundColor: [
+                                    'rgba(39, 174, 96, 0.7)',
+                                    'rgba(52, 152, 219, 0.7)',
+                                    'rgba(243, 156, 18, 0.7)',
+                                    'rgba(155, 89, 182, 0.7)',
+                                    'rgba(231, 76, 60, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(39, 174, 96, 1)',
+                                    'rgba(52, 152, 219, 1)',
+                                    'rgba(243, 156, 18, 1)',
+                                    'rgba(155, 89, 182, 1)',
+                                    'rgba(231, 76, 60, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                }
                             }
                         }
-                    }
-                }
-            });
+                    });
 
-            // Gráfico de servicios populares
-            const serviciosCtx = document.getElementById('serviciosChart').getContext('2d');
-            const serviciosChart = new Chart(serviciosCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
-                    datasets: [{
-                        data: [35, 25, 15, 15, 10],
-                        backgroundColor: [
-                            'rgba(39, 174, 96, 0.7)',
-                            'rgba(52, 152, 219, 0.7)',
-                            'rgba(243, 156, 18, 0.7)',
-                            'rgba(155, 89, 182, 0.7)',
-                            'rgba(231, 76, 60, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(52, 152, 219, 1)',
-                            'rgba(243, 156, 18, 1)',
-                            'rgba(155, 89, 182, 1)',
-                            'rgba(231, 76, 60, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
+                    // Gráfico de distribución de usuarios
+                    const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
+                    const usuariosChart = new Chart(usuariosCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Clientes', 'Empleados', 'Administradores'],
+                            datasets: [{
+                                data: [85, 10, 5],
+                                backgroundColor: [
+                                    'rgba(39, 174, 96, 0.7)',
+                                    'rgba(52, 152, 219, 0.7)',
+                                    'rgba(155, 89, 182, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(39, 174, 96, 1)',
+                                    'rgba(52, 152, 219, 1)',
+                                    'rgba(155, 89, 182, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                }
+                            }
                         }
+                    });
+                });
+
+                // Funciones para pestañas
+                function openTab(evt, tabName) {
+                    const tabContents = document.getElementsByClassName('tab-content');
+                    for (let i = 0; i < tabContents.length; i++) {
+                        tabContents[i].classList.remove('active');
                     }
-                }
-            });
 
-            // Gráfico de distribución de usuarios
-            const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
-            const usuariosChart = new Chart(usuariosCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Clientes', 'Empleados', 'Administradores'],
-                    datasets: [{
-                        data: [85, 10, 5],
-                        backgroundColor: [
-                            'rgba(39, 174, 96, 0.7)',
-                            'rgba(52, 152, 219, 0.7)',
-                            'rgba(155, 89, 182, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(52, 152, 219, 1)',
-                            'rgba(155, 89, 182, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        }
+                    const tabButtons = document.getElementsByClassName('tab-button');
+                    for (let i = 0; i < tabButtons.length; i++) {
+                        tabButtons[i].classList.remove('active');
                     }
+
+                    document.getElementById(tabName).classList.add('active');
+                    evt.currentTarget.classList.add('active');
                 }
-            });
-        });
 
-        // Funciones para pestañas
-        function openTab(evt, tabName) {
-            const tabContents = document.getElementsByClassName('tab-content');
-            for (let i = 0; i < tabContents.length; i++) {
-                tabContents[i].classList.remove('active');
-            }
-
-            const tabButtons = document.getElementsByClassName('tab-button');
-            for (let i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].classList.remove('active');
-            }
-
-            document.getElementById(tabName).classList.add('active');
-            evt.currentTarget.classList.add('active');
-        }
-
-        // Funciones para modales
-        function verDetalleCita(citaId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            const detalleContent = `
+                // Funciones para modales
+                function verDetalleCita(citaId) {
+                    // Simulación de datos - en una aplicación real harías una petición AJAX
+                    const detalleContent = `
                 <h2 style="color: var(--primary); margin-bottom: 20px;">
                     <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
                 </h2>
@@ -2866,13 +2928,13 @@
                 </div>
             `;
 
-            document.getElementById('detalleCitaContent').innerHTML = detalleContent;
-            document.getElementById('detalleCitaModal').style.display = 'flex';
-        }
+                    document.getElementById('detalleCitaContent').innerHTML = detalleContent;
+                    document.getElementById('detalleCitaModal').style.display = 'flex';
+                }
 
-        function editarCita(citaId) {
-            // Simulación de formulario - en una aplicación real harías una petición AJAX
-            const formContent = `
+                function editarCita(citaId) {
+                    // Simulación de formulario - en una aplicación real harías una petición AJAX
+                    const formContent = `
                 <div class="form-group">
                     <label for="edit_cliente">Cliente:</label>
                     <select id="edit_cliente" class="form-control" required>
@@ -2946,27 +3008,109 @@
                 </button>
             `;
 
-            document.getElementById('editarCitaForm').innerHTML = formContent;
-            document.getElementById('detalleCitaModal').style.display = 'none';
-            document.getElementById('editarCitaModal').style.display = 'flex';
-        }
+                    document.getElementById('editarCitaForm').innerHTML = formContent;
+                    document.getElementById('detalleCitaModal').style.display = 'none';
+                    document.getElementById('editarCitaModal').style.display = 'flex';
+                }
 
-        function cancelarCita(citaId) {
-            Swal.fire({
-                title: '¿Cancelar esta cita?',
-                text: "Esta acción no se puede deshacer",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, cancelar',
-                cancelButtonText: 'No, volver'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Aquí iría la petición AJAX para cancelar la cita
+                function cancelarCita(citaId) {
+                    Swal.fire({
+                        title: '¿Cancelar esta cita?',
+                        text: "Esta acción no se puede deshacer",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Sí, cancelar',
+                        cancelButtonText: 'No, volver'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Aquí iría la petición AJAX para cancelar la cita
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Cita cancelada correctamente'
+                            });
+
+                            // Simulación de recarga de datos
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    });
+                }
+
+                function guardarCambiosCita(citaId) {
+                    // Aquí iría la petición AJAX para guardar los cambios
                     Toast.fire({
                         icon: 'success',
-                        title: 'Cita cancelada correctamente'
+                        title: 'Cambios guardados correctamente'
+                    });
+
+                    closeModal('editarCitaModal');
+
+                    // Simulación de recarga de datos
+                    setTimeout(() => {
+                        verDetalleCita(citaId);
+                    }, 500);
+                }
+
+                function imprimirRecibo(citaId) {
+                    // Aquí iría la lógica para imprimir el recibo
+                    window.open(`/admin/citas/${citaId}/recibo`, '_blank');
+                }
+
+                function nuevoServicio() {
+                    document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Nuevo Servicio';
+                    document.getElementById('servicio_id').value = '';
+                    document.getElementById('servicio_nombre').value = '';
+                    document.getElementById('servicio_descripcion').value = '';
+                    document.getElementById('servicio_precio').value = '';
+                    document.getElementById('servicio_duracion').value = '';
+                    document.getElementById('servicio_activo').value = '1';
+                    document.getElementById('servicioModal').style.display = 'flex';
+                }
+
+                function editarServicio(servicioId) {
+                    // Simulación de datos - en una aplicación real harías una petición AJAX
+                    document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
+                    document.getElementById('servicio_id').value = servicioId;
+                    document.getElementById('servicio_nombre').value = 'Lavado Completo';
+                    document.getElementById('servicio_descripcion').value =
+                        'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
+                    document.getElementById('servicio_precio').value = '25.00';
+                    document.getElementById('servicio_duracion').value = '30';
+                    document.getElementById('servicio_activo').value = '1';
+                    document.getElementById('servicioModal').style.display = 'flex';
+                }
+
+                function mostrarModalHorario() {
+                    document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Agregar Horario';
+                    document.getElementById('horario_id').value = '';
+                    document.getElementById('horario_dia').value = '';
+                    document.getElementById('horario_inicio').value = '';
+                    document.getElementById('horario_fin').value = '';
+                    document.getElementById('horario_activo').value = '1';
+                    document.getElementById('horarioModal').style.display = 'flex';
+                }
+
+                function editarHorario(diaSemana) {
+                    // Simulación de datos - en una aplicación real harías una petición AJAX
+                    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+                    document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Horario';
+                    document.getElementById('horario_id').value = diaSemana;
+                    document.getElementById('horario_dia').value = diaSemana;
+                    document.getElementById('horario_inicio').value = '07:00';
+                    document.getElementById('horario_fin').value = '18:00';
+                    document.getElementById('horario_activo').value = '1';
+                    document.getElementById('horarioModal').style.display = 'flex';
+                }
+
+                function activarHorario(diaSemana) {
+                    // Aquí iría la petición AJAX para activar el horario
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Horario activado correctamente'
                     });
 
                     // Simulación de recarga de datos
@@ -2974,185 +3118,103 @@
                         window.location.reload();
                     }, 1500);
                 }
-            });
-        }
 
-        function guardarCambiosCita(citaId) {
-            // Aquí iría la petición AJAX para guardar los cambios
-            Toast.fire({
-                icon: 'success',
-                title: 'Cambios guardados correctamente'
-            });
+                function desactivarHorario(diaSemana) {
+                    // Aquí iría la petición AJAX para desactivar el horario
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Horario desactivado correctamente'
+                    });
 
-            closeModal('editarCitaModal');
+                    // Simulación de recarga de datos
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
 
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                verDetalleCita(citaId);
-            }, 500);
-        }
+                function editarPerfil() {
+                    document.getElementById('perfil_nombre').value = '{{ Auth::user()->nombre }}';
+                    document.getElementById('perfil_email').value = '{{ Auth::user()->email }}';
+                    document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? '' }}';
+                    document.getElementById('perfil_password').value = '';
+                    document.getElementById('perfil_password_confirmation').value = '';
+                    document.getElementById('perfilModal').style.display = 'flex';
+                }
 
-        function imprimirRecibo(citaId) {
-            // Aquí iría la lógica para imprimir el recibo
-            window.open(`/admin/citas/${citaId}/recibo`, '_blank');
-        }
+                // Manejar envío del formulario de horario
+                document.getElementById('horarioForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
 
-        function nuevoServicio() {
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Nuevo Servicio';
-            document.getElementById('servicio_id').value = '';
-            document.getElementById('servicio_nombre').value = '';
-            document.getElementById('servicio_descripcion').value = '';
-            document.getElementById('servicio_precio').value = '';
-            document.getElementById('servicio_duracion').value = '';
-            document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'flex';
-        }
+                    // Aquí iría la petición AJAX para guardar el horario
+                    const isNew = document.getElementById('horario_id').value === '';
 
-        function editarServicio(servicioId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
-            document.getElementById('servicio_id').value = servicioId;
-            document.getElementById('servicio_nombre').value = 'Lavado Completo';
-            document.getElementById('servicio_descripcion').value =
-                'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
-            document.getElementById('servicio_precio').value = '25.00';
-            document.getElementById('servicio_duracion').value = '30';
-            document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'flex';
-        }
+                    Toast.fire({
+                        icon: 'success',
+                        title: `Horario ${isNew ? 'creado' : 'actualizado'} correctamente`
+                    });
 
-        function mostrarModalHorario() {
-            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Agregar Horario';
-            document.getElementById('horario_id').value = '';
-            document.getElementById('horario_dia').value = '';
-            document.getElementById('horario_inicio').value = '';
-            document.getElementById('horario_fin').value = '';
-            document.getElementById('horario_activo').value = '1';
-            document.getElementById('horarioModal').style.display = 'flex';
-        }
+                    closeModal('horarioModal');
 
-        function editarHorario(diaSemana) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                    // Simulación de recarga de datos
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                });
 
-            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Horario';
-            document.getElementById('horario_id').value = diaSemana;
-            document.getElementById('horario_dia').value = diaSemana;
-            document.getElementById('horario_inicio').value = '07:00';
-            document.getElementById('horario_fin').value = '18:00';
-            document.getElementById('horario_activo').value = '1';
-            document.getElementById('horarioModal').style.display = 'flex';
-        }
+                // Manejar envío del formulario de servicio
+                document.getElementById('servicioForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
 
-        function activarHorario(diaSemana) {
-            // Aquí iría la petición AJAX para activar el horario
-            Toast.fire({
-                icon: 'success',
-                title: 'Horario activado correctamente'
-            });
+                    // Aquí iría la petición AJAX para guardar el servicio
+                    const isNew = document.getElementById('servicio_id').value === '';
 
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        }
+                    Toast.fire({
+                        icon: 'success',
+                        title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
+                    });
 
-        function desactivarHorario(diaSemana) {
-            // Aquí iría la petición AJAX para desactivar el horario
-            Toast.fire({
-                icon: 'success',
-                title: 'Horario desactivado correctamente'
-            });
+                    closeModal('servicioModal');
 
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        }
+                    // Simulación de recarga de datos
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                });
 
-        function editarPerfil() {
-            document.getElementById('perfil_nombre').value = '{{ Auth::user()->nombre }}';
-            document.getElementById('perfil_email').value = '{{ Auth::user()->email }}';
-            document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? '' }}';
-            document.getElementById('perfil_password').value = '';
-            document.getElementById('perfil_password_confirmation').value = '';
-            document.getElementById('perfilModal').style.display = 'flex';
-        }
+                // Manejar envío del formulario de perfil
+                document.getElementById('perfilForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
 
-        // Manejar envío del formulario de horario
-        document.getElementById('horarioForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+                    // Aquí iría la petición AJAX para guardar el perfil
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Perfil actualizado correctamente'
+                    });
 
-            // Aquí iría la petición AJAX para guardar el horario
-            const isNew = document.getElementById('horario_id').value === '';
+                    closeModal('perfilModal');
 
-            Toast.fire({
-                icon: 'success',
-                title: `Horario ${isNew ? 'creado' : 'actualizado'} correctamente`
-            });
+                    // Simulación de recarga de datos
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                });
 
-            closeModal('horarioModal');
+                // Función para cerrar modales
+                function closeModal(modalId) {
+                    document.getElementById(modalId).style.display = 'none';
+                }
 
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Manejar envío del formulario de servicio
-        document.getElementById('servicioForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Aquí iría la petición AJAX para guardar el servicio
-            const isNew = document.getElementById('servicio_id').value === '';
-
-            Toast.fire({
-                icon: 'success',
-                title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
-            });
-
-            closeModal('servicioModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Manejar envío del formulario de perfil
-        document.getElementById('perfilForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Aquí iría la petición AJAX para guardar el perfil
-            Toast.fire({
-                icon: 'success',
-                title: 'Perfil actualizado correctamente'
-            });
-
-            closeModal('perfilModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Función para cerrar modales
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Cerrar modales al hacer clic fuera
-        window.addEventListener('click', function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal('detalleCitaModal');
-                closeModal('editarCitaModal');
-                closeModal('servicioModal');
-                closeModal('horarioModal');
-                closeModal('perfilModal');
-            }
-        });
-    </script>
+                // Cerrar modales al hacer clic fuera
+                window.addEventListener('click', function(event) {
+                    if (event.target.classList.contains('modal')) {
+                        closeModal('detalleCitaModal');
+                        closeModal('editarCitaModal');
+                        closeModal('servicioModal');
+                        closeModal('horarioModal');
+                        closeModal('perfilModal');
+                    }
+                });
+            </script>
 </body>
 
 </html>
