@@ -586,6 +586,12 @@
             height: 100%;
         }
 
+        /* Íconos del perfil en blanco */
+        .profile-info-item i {
+            color: white !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
         /* Asegurar que los íconos sean visibles */
         .fas,
         .fa-solid {
@@ -1933,7 +1939,7 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="icon">
+                        <div class="welcome-icon ">
                             <i class="fas fa-user-cog"></i>
                         </div>
                         Panel de Administración
@@ -2355,15 +2361,15 @@
 
                             <div class="profile-info">
                                 <div class="profile-info-item">
-                                    <i class="fas fa-envelope"></i>
+                                    <i class="fas fa-envelope" style="color: white;"></i>
                                     <span>{{ Auth::user()->email }}</span>
                                 </div>
                                 <div class="profile-info-item">
-                                    <i class="fas fa-phone"></i>
+                                    <i class="fas fa-phone" style="color: white;"></i>
                                     <span>{{ Auth::user()->telefono ?? 'No especificado' }}</span>
                                 </div>
                                 <div class="profile-info-item">
-                                    <i class="fas fa-calendar"></i>
+                                    <i class="fas fa-calendar" style="color: white;"></i>
                                     <span>Miembro desde {{ Auth::user()->created_at->format('M Y') }}</span>
                                 </div>
                             </div>
@@ -2654,249 +2660,248 @@
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
 
-            <!-- Footer -->
-            <footer class="footer">
-                <div class="sparkle"></div>
-                <div class="sparkle"></div>
-                <div class="sparkle"></div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
 
-                <div class="footer-content">
-                    <div class="footer-brand">
-                        <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                        <p class="footer-slogan">✨ "Sistema de Administración Integral" ✨</p>
-                    </div>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
+                <p class="footer-slogan">✨ "Sistema de Administración Integral" ✨</p>
+            </div>
 
-                    <div class="footer-info">
-                        <div class="info-item">
-                            <i class="fas fa-phone"></i>
-                            <span>75855197</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank"
-                                class="location-link">
-                                Ver ubicación en mapa
-                            </a>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-clock"></i>
-                            <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
-                        </div>
-                    </div>
-
-                    <div class="social-icons">
-                        <a href="#" class="social-icon facebook" title="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                        <a href="#" class="social-icon instagram" title="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-
-                    <div class="footer-divider"></div>
-
-                    <p class="footer-copyright">
-                        &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
-                        <br>Versión del sistema: 2.10.1
-                    </p>
+            <div class="footer-info">
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>75855197</span>
                 </div>
-            </footer>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <a href="https://maps.app.goo.gl/PhHLaky3ZPrhtdb88" target="_blank" class="location-link">
+                        Ver ubicación en mapa
+                    </a>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
+                </div>
+            </div>
 
-            <script>
-                // Configuración global de SweetAlert
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true
-                });
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="#" class="social-icon instagram" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
 
-                // Inicializar gráficos
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Gráfico de ingresos mensuales
-                    const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
-                    const ingresosChart = new Chart(ingresosCtx, {
-                        type: 'line',
-                        data: {
-                            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
-                                'Dic'
-                            ],
-                            datasets: [{
-                                label: 'Ingresos 2023',
-                                data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800,
-                                    2100
-                                ],
-                                backgroundColor: 'rgba(39, 174, 96, 0.2)',
-                                borderColor: 'rgba(39, 174, 96, 1)',
-                                borderWidth: 2,
-                                tension: 0.4,
-                                fill: true
-                            }]
+            <div class="footer-divider"></div>
+
+            <p class="footer-copyright">
+                &copy; 2025 AutoGest Carwash Berrios. Todos los derechos reservados.
+                <br>Versión del sistema: 2.10.1
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Configuración global de SweetAlert
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        // Inicializar gráficos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gráfico de ingresos mensuales
+            const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
+            const ingresosChart = new Chart(ingresosCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
+                        'Dic'
+                    ],
+                    datasets: [{
+                        label: 'Ingresos 2023',
+                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800,
+                            2100
+                        ],
+                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                        borderColor: 'rgba(39, 174, 96, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            return '$' + context.raw.toLocaleString();
-                                        }
-                                    }
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        callback: function(value) {
-                                            return '$' + value;
-                                        }
-                                    }
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.raw.toLocaleString();
                                 }
                             }
                         }
-                    });
-
-                    // Gráfico de citas mensuales
-                    const citasCtx = document.getElementById('citasChart').getContext('2d');
-                    const citasChart = new Chart(citasCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
-                                'Dic'
-                            ],
-                            datasets: [{
-                                label: 'Citas Completadas',
-                                data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                                backgroundColor: 'rgba(211, 84, 0, 0.7)',
-                                borderColor: 'rgba(211, 84, 0, 1)',
-                                borderWidth: 1
-                            }, {
-                                label: 'Citas Canceladas',
-                                data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                                borderColor: 'rgba(231, 76, 60, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        precision: 0
-                                    }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
                                 }
                             }
                         }
-                    });
-
-                    // Gráfico de servicios populares
-                    const serviciosCtx = document.getElementById('serviciosChart').getContext('2d');
-                    const serviciosChart = new Chart(serviciosCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
-                            datasets: [{
-                                data: [35, 25, 15, 15, 10],
-                                backgroundColor: [
-                                    'rgba(39, 174, 96, 0.7)',
-                                    'rgba(52, 152, 219, 0.7)',
-                                    'rgba(243, 156, 18, 0.7)',
-                                    'rgba(155, 89, 182, 0.7)',
-                                    'rgba(231, 76, 60, 0.7)'
-                                ],
-                                borderColor: [
-                                    'rgba(39, 174, 96, 1)',
-                                    'rgba(52, 152, 219, 1)',
-                                    'rgba(243, 156, 18, 1)',
-                                    'rgba(155, 89, 182, 1)',
-                                    'rgba(231, 76, 60, 1)'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'right',
-                                }
-                            }
-                        }
-                    });
-
-                    // Gráfico de distribución de usuarios
-                    const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
-                    const usuariosChart = new Chart(usuariosCtx, {
-                        type: 'pie',
-                        data: {
-                            labels: ['Clientes', 'Empleados', 'Administradores'],
-                            datasets: [{
-                                data: [85, 10, 5],
-                                backgroundColor: [
-                                    'rgba(39, 174, 96, 0.7)',
-                                    'rgba(52, 152, 219, 0.7)',
-                                    'rgba(155, 89, 182, 0.7)'
-                                ],
-                                borderColor: [
-                                    'rgba(39, 174, 96, 1)',
-                                    'rgba(52, 152, 219, 1)',
-                                    'rgba(155, 89, 182, 1)'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                }
-                            }
-                        }
-                    });
-                });
-
-                // Funciones para pestañas
-                function openTab(evt, tabName) {
-                    const tabContents = document.getElementsByClassName('tab-content');
-                    for (let i = 0; i < tabContents.length; i++) {
-                        tabContents[i].classList.remove('active');
                     }
-
-                    const tabButtons = document.getElementsByClassName('tab-button');
-                    for (let i = 0; i < tabButtons.length; i++) {
-                        tabButtons[i].classList.remove('active');
-                    }
-
-                    document.getElementById(tabName).classList.add('active');
-                    evt.currentTarget.classList.add('active');
                 }
+            });
 
-                // Funciones para modales
-                function verDetalleCita(citaId) {
-                    // Simulación de datos - en una aplicación real harías una petición AJAX
-                    const detalleContent = `
+            // Gráfico de citas mensuales
+            const citasCtx = document.getElementById('citasChart').getContext('2d');
+            const citasChart = new Chart(citasCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
+                        'Dic'
+                    ],
+                    datasets: [{
+                        label: 'Citas Completadas',
+                        data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
+                        backgroundColor: 'rgba(211, 84, 0, 0.7)',
+                        borderColor: 'rgba(211, 84, 0, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Citas Canceladas',
+                        data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de servicios populares
+            const serviciosCtx = document.getElementById('serviciosChart').getContext('2d');
+            const serviciosChart = new Chart(serviciosCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
+                    datasets: [{
+                        data: [35, 25, 15, 15, 10],
+                        backgroundColor: [
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(39, 174, 96, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de distribución de usuarios
+            const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
+            const usuariosChart = new Chart(usuariosCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Clientes', 'Empleados', 'Administradores'],
+                    datasets: [{
+                        data: [85, 10, 5],
+                        backgroundColor: [
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(39, 174, 96, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(155, 89, 182, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        });
+
+        // Funciones para pestañas
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+
+            const tabButtons = document.getElementsByClassName('tab-button');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Funciones para modales
+        function verDetalleCita(citaId) {
+            // Simulación de datos - en una aplicación real harías una petición AJAX
+            const detalleContent = `
                 <h2 style="color: var(--primary); margin-bottom: 20px;">
                     <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
                 </h2>
@@ -2972,13 +2977,13 @@
                 </div>
             `;
 
-                    document.getElementById('detalleCitaContent').innerHTML = detalleContent;
-                    document.getElementById('detalleCitaModal').style.display = 'flex';
-                }
+            document.getElementById('detalleCitaContent').innerHTML = detalleContent;
+            document.getElementById('detalleCitaModal').style.display = 'flex';
+        }
 
-                function editarCita(citaId) {
-                    // Simulación de formulario - en una aplicación real harías una petición AJAX
-                    const formContent = `
+        function editarCita(citaId) {
+            // Simulación de formulario - en una aplicación real harías una petición AJAX
+            const formContent = `
                 <div class="form-group">
                     <label for="edit_cliente">Cliente:</label>
                     <select id="edit_cliente" class="form-control" required>
@@ -3052,109 +3057,27 @@
                 </button>
             `;
 
-                    document.getElementById('editarCitaForm').innerHTML = formContent;
-                    document.getElementById('detalleCitaModal').style.display = 'none';
-                    document.getElementById('editarCitaModal').style.display = 'flex';
-                }
+            document.getElementById('editarCitaForm').innerHTML = formContent;
+            document.getElementById('detalleCitaModal').style.display = 'none';
+            document.getElementById('editarCitaModal').style.display = 'flex';
+        }
 
-                function cancelarCita(citaId) {
-                    Swal.fire({
-                        title: '¿Cancelar esta cita?',
-                        text: "Esta acción no se puede deshacer",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#dc3545',
-                        cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'Sí, cancelar',
-                        cancelButtonText: 'No, volver'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Aquí iría la petición AJAX para cancelar la cita
-                            Toast.fire({
-                                icon: 'success',
-                                title: 'Cita cancelada correctamente'
-                            });
-
-                            // Simulación de recarga de datos
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                        }
-                    });
-                }
-
-                function guardarCambiosCita(citaId) {
-                    // Aquí iría la petición AJAX para guardar los cambios
+        function cancelarCita(citaId) {
+            Swal.fire({
+                title: '¿Cancelar esta cita?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, cancelar',
+                cancelButtonText: 'No, volver'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Aquí iría la petición AJAX para cancelar la cita
                     Toast.fire({
                         icon: 'success',
-                        title: 'Cambios guardados correctamente'
-                    });
-
-                    closeModal('editarCitaModal');
-
-                    // Simulación de recarga de datos
-                    setTimeout(() => {
-                        verDetalleCita(citaId);
-                    }, 500);
-                }
-
-                function imprimirRecibo(citaId) {
-                    // Aquí iría la lógica para imprimir el recibo
-                    window.open(`/admin/citas/${citaId}/recibo`, '_blank');
-                }
-
-                function nuevoServicio() {
-                    document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Nuevo Servicio';
-                    document.getElementById('servicio_id').value = '';
-                    document.getElementById('servicio_nombre').value = '';
-                    document.getElementById('servicio_descripcion').value = '';
-                    document.getElementById('servicio_precio').value = '';
-                    document.getElementById('servicio_duracion').value = '';
-                    document.getElementById('servicio_activo').value = '1';
-                    document.getElementById('servicioModal').style.display = 'flex';
-                }
-
-                function editarServicio(servicioId) {
-                    // Simulación de datos - en una aplicación real harías una petición AJAX
-                    document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
-                    document.getElementById('servicio_id').value = servicioId;
-                    document.getElementById('servicio_nombre').value = 'Lavado Completo';
-                    document.getElementById('servicio_descripcion').value =
-                        'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
-                    document.getElementById('servicio_precio').value = '25.00';
-                    document.getElementById('servicio_duracion').value = '30';
-                    document.getElementById('servicio_activo').value = '1';
-                    document.getElementById('servicioModal').style.display = 'flex';
-                }
-
-                function mostrarModalHorario() {
-                    document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Agregar Horario';
-                    document.getElementById('horario_id').value = '';
-                    document.getElementById('horario_dia').value = '';
-                    document.getElementById('horario_inicio').value = '';
-                    document.getElementById('horario_fin').value = '';
-                    document.getElementById('horario_activo').value = '1';
-                    document.getElementById('horarioModal').style.display = 'flex';
-                }
-
-                function editarHorario(diaSemana) {
-                    // Simulación de datos - en una aplicación real harías una petición AJAX
-                    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-
-                    document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Horario';
-                    document.getElementById('horario_id').value = diaSemana;
-                    document.getElementById('horario_dia').value = diaSemana;
-                    document.getElementById('horario_inicio').value = '07:00';
-                    document.getElementById('horario_fin').value = '18:00';
-                    document.getElementById('horario_activo').value = '1';
-                    document.getElementById('horarioModal').style.display = 'flex';
-                }
-
-                function activarHorario(diaSemana) {
-                    // Aquí iría la petición AJAX para activar el horario
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Horario activado correctamente'
+                        title: 'Cita cancelada correctamente'
                     });
 
                     // Simulación de recarga de datos
@@ -3162,103 +3085,185 @@
                         window.location.reload();
                     }, 1500);
                 }
+            });
+        }
 
-                function desactivarHorario(diaSemana) {
-                    // Aquí iría la petición AJAX para desactivar el horario
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Horario desactivado correctamente'
-                    });
+        function guardarCambiosCita(citaId) {
+            // Aquí iría la petición AJAX para guardar los cambios
+            Toast.fire({
+                icon: 'success',
+                title: 'Cambios guardados correctamente'
+            });
 
-                    // Simulación de recarga de datos
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                }
+            closeModal('editarCitaModal');
 
-                function editarPerfil() {
-                    document.getElementById('perfil_nombre').value = '{{ Auth::user()->nombre }}';
-                    document.getElementById('perfil_email').value = '{{ Auth::user()->email }}';
-                    document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? '' }}';
-                    document.getElementById('perfil_password').value = '';
-                    document.getElementById('perfil_password_confirmation').value = '';
-                    document.getElementById('perfilModal').style.display = 'flex';
-                }
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                verDetalleCita(citaId);
+            }, 500);
+        }
 
-                // Manejar envío del formulario de horario
-                document.getElementById('horarioForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
+        function imprimirRecibo(citaId) {
+            // Aquí iría la lógica para imprimir el recibo
+            window.open(`/admin/citas/${citaId}/recibo`, '_blank');
+        }
 
-                    // Aquí iría la petición AJAX para guardar el horario
-                    const isNew = document.getElementById('horario_id').value === '';
+        function nuevoServicio() {
+            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Nuevo Servicio';
+            document.getElementById('servicio_id').value = '';
+            document.getElementById('servicio_nombre').value = '';
+            document.getElementById('servicio_descripcion').value = '';
+            document.getElementById('servicio_precio').value = '';
+            document.getElementById('servicio_duracion').value = '';
+            document.getElementById('servicio_activo').value = '1';
+            document.getElementById('servicioModal').style.display = 'flex';
+        }
 
-                    Toast.fire({
-                        icon: 'success',
-                        title: `Horario ${isNew ? 'creado' : 'actualizado'} correctamente`
-                    });
+        function editarServicio(servicioId) {
+            // Simulación de datos - en una aplicación real harías una petición AJAX
+            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
+            document.getElementById('servicio_id').value = servicioId;
+            document.getElementById('servicio_nombre').value = 'Lavado Completo';
+            document.getElementById('servicio_descripcion').value =
+                'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
+            document.getElementById('servicio_precio').value = '25.00';
+            document.getElementById('servicio_duracion').value = '30';
+            document.getElementById('servicio_activo').value = '1';
+            document.getElementById('servicioModal').style.display = 'flex';
+        }
 
-                    closeModal('horarioModal');
+        function mostrarModalHorario() {
+            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Agregar Horario';
+            document.getElementById('horario_id').value = '';
+            document.getElementById('horario_dia').value = '';
+            document.getElementById('horario_inicio').value = '';
+            document.getElementById('horario_fin').value = '';
+            document.getElementById('horario_activo').value = '1';
+            document.getElementById('horarioModal').style.display = 'flex';
+        }
 
-                    // Simulación de recarga de datos
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                });
+        function editarHorario(diaSemana) {
+            // Simulación de datos - en una aplicación real harías una petición AJAX
+            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-                // Manejar envío del formulario de servicio
-                document.getElementById('servicioForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
+            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Horario';
+            document.getElementById('horario_id').value = diaSemana;
+            document.getElementById('horario_dia').value = diaSemana;
+            document.getElementById('horario_inicio').value = '07:00';
+            document.getElementById('horario_fin').value = '18:00';
+            document.getElementById('horario_activo').value = '1';
+            document.getElementById('horarioModal').style.display = 'flex';
+        }
 
-                    // Aquí iría la petición AJAX para guardar el servicio
-                    const isNew = document.getElementById('servicio_id').value === '';
+        function activarHorario(diaSemana) {
+            // Aquí iría la petición AJAX para activar el horario
+            Toast.fire({
+                icon: 'success',
+                title: 'Horario activado correctamente'
+            });
 
-                    Toast.fire({
-                        icon: 'success',
-                        title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
-                    });
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
 
-                    closeModal('servicioModal');
+        function desactivarHorario(diaSemana) {
+            // Aquí iría la petición AJAX para desactivar el horario
+            Toast.fire({
+                icon: 'success',
+                title: 'Horario desactivado correctamente'
+            });
 
-                    // Simulación de recarga de datos
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                });
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
 
-                // Manejar envío del formulario de perfil
-                document.getElementById('perfilForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
+        function editarPerfil() {
+            document.getElementById('perfil_nombre').value = '{{ Auth::user()->nombre }}';
+            document.getElementById('perfil_email').value = '{{ Auth::user()->email }}';
+            document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? '' }}';
+            document.getElementById('perfil_password').value = '';
+            document.getElementById('perfil_password_confirmation').value = '';
+            document.getElementById('perfilModal').style.display = 'flex';
+        }
 
-                    // Aquí iría la petición AJAX para guardar el perfil
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Perfil actualizado correctamente'
-                    });
+        // Manejar envío del formulario de horario
+        document.getElementById('horarioForm').addEventListener('submit', function(e) {
+            e.preventDefault();
 
-                    closeModal('perfilModal');
+            // Aquí iría la petición AJAX para guardar el horario
+            const isNew = document.getElementById('horario_id').value === '';
 
-                    // Simulación de recarga de datos
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                });
+            Toast.fire({
+                icon: 'success',
+                title: `Horario ${isNew ? 'creado' : 'actualizado'} correctamente`
+            });
 
-                // Función para cerrar modales
-                function closeModal(modalId) {
-                    document.getElementById(modalId).style.display = 'none';
-                }
+            closeModal('horarioModal');
 
-                // Cerrar modales al hacer clic fuera
-                window.addEventListener('click', function(event) {
-                    if (event.target.classList.contains('modal')) {
-                        closeModal('detalleCitaModal');
-                        closeModal('editarCitaModal');
-                        closeModal('servicioModal');
-                        closeModal('horarioModal');
-                        closeModal('perfilModal');
-                    }
-                });
-            </script>
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        });
+
+        // Manejar envío del formulario de servicio
+        document.getElementById('servicioForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Aquí iría la petición AJAX para guardar el servicio
+            const isNew = document.getElementById('servicio_id').value === '';
+
+            Toast.fire({
+                icon: 'success',
+                title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
+            });
+
+            closeModal('servicioModal');
+
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        });
+
+        // Manejar envío del formulario de perfil
+        document.getElementById('perfilForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Aquí iría la petición AJAX para guardar el perfil
+            Toast.fire({
+                icon: 'success',
+                title: 'Perfil actualizado correctamente'
+            });
+
+            closeModal('perfilModal');
+
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        });
+
+        // Función para cerrar modales
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Cerrar modales al hacer clic fuera
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModal('detalleCitaModal');
+                closeModal('editarCitaModal');
+                closeModal('servicioModal');
+                closeModal('horarioModal');
+                closeModal('perfilModal');
+            }
+        });
+    </script>
 </body>
 
 </html>
