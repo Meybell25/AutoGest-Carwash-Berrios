@@ -837,19 +837,28 @@
         }
 
         /* Footer */
-        /* Footer */
+        /* Estilos actualizados para el footer del admin con bordes redondeados */
         .footer {
             width: 100%;
             background: var(--bg-dark);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(39, 174, 96, 0.2);
+            /* Borde sutil con color primary */
+            box-shadow: var(--shadow-xl);
             position: relative;
             overflow: hidden;
-            margin-top: auto;
-            border-top-left-radius: var(--border-radius-xl);
-            border-top-right-radius: var(--border-radius-xl);
+            margin-top: 40px;
+
+            /* Bordes redondeados superiores como en empleado */
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+
+            /* Efecto de borde degradado */
+            border-top: 4px solid transparent;
+            background-clip: padding-box;
+            position: relative;
         }
 
         .footer::before {
@@ -860,12 +869,34 @@
             right: 0;
             height: 4px;
             background: var(--primary-gradient);
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+        }
+
+        .footer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            padding: 4px;
+            background: var(--primary-gradient);
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
         }
 
         .footer-content {
-            padding: 40px 30px;
+            padding: 50px 35px;
             text-align: center;
-            border-radius: var(--border-radius-xl);
+            color: var(--text-light);
+            position: relative;
+            z-index: 1;
         }
 
         .footer-brand {
@@ -1037,7 +1068,6 @@
             }
         }
 
-        /* Responsive adjustments */
         @media (max-width: 768px) {
             .footer-info {
                 flex-direction: column;
@@ -1573,7 +1603,7 @@
         }
 
         /* ======================
-   SCROLLBAR PERSONALIZADA (Estilo Admin con animación)
+   SCROLLBAR PERSONALIZADA
    ====================== */
 
         /* Para navegadores WebKit (Chrome, Safari, Edge) */
