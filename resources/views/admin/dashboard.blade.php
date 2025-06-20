@@ -575,7 +575,7 @@
         }
 
         .icon-danger {
-            background: var(--info-gradient);
+            background: var(--danger-gradient);
         }
 
         /* ======================
@@ -1166,6 +1166,14 @@
             box-shadow: var(--shadow-lg);
             background: var(--primary);
             color: white;
+        }
+
+        .social-icon i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
         }
 
         .sparkle {
