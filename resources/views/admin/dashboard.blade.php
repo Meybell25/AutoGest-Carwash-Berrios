@@ -1069,7 +1069,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: row;
             flex-wrap: wrap;
             gap: 30px;
             margin-bottom: 25px;
@@ -1077,9 +1076,12 @@
 
         .info-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 8px;
             transition: var(--transition);
+            text-align: center;
+            max-width: 200px;
         }
 
         .info-item:hover {
@@ -1161,19 +1163,22 @@
             box-shadow: var(--shadow-sm);
         }
 
-        .social-icon:hover {
-            transform: translateY(-3px) scale(1.1);
-            box-shadow: var(--shadow-lg);
-            background: var(--primary);
+        .social-icon.facebook:hover {
+            background: #1877f2;
             color: white;
+            border-color: #1877f2;
         }
 
-        .social-icon i {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
+        .social-icon.whatsapp:hover {
+            background: #25d366;
+            color: white;
+            border-color: #25d366;
+        }
+
+        .social-icon.instagram:hover {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            border-color: #bc1888;
         }
 
         .sparkle {
