@@ -621,6 +621,7 @@
             color: white !important;
             background: var(--primary) !important;
             border-radius: 50% !important;
+            margin-left: 5em;
         }
 
         /* Asegurar que los íconos sean visibles */
