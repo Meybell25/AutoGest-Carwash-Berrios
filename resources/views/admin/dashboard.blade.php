@@ -1101,9 +1101,7 @@
             box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
             flex-shrink: 0;
             line-height: 24px;
-            /* Asegura que el icono esté centrado verticalmente */
             text-align: center;
-            /* Asegura que el icono esté centrado horizontalmente */
         }
 
         .info-item:last-child {
@@ -1968,7 +1966,7 @@
         ::-webkit-scrollbar-thumb:hover {
             animation: scrollbar-glow 1.5s infinite;
         }
-        }
+
     </style>
 </head>
 
@@ -1980,7 +1978,8 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon ">
-                            <i class="fas fa-user-cog"></i>
+                           <!-- <i class="fas fa-user-cog"></i>-->
+                             <i class="fas fa-cog"></i>
                         </div>
                         Panel de Administración
                     </h1>
@@ -2064,7 +2063,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fa-solid fa-business-time"></i>
+                                <i class="fas fa-briefcase"></i>
                             </div>
                             Gestión de Horarios
                         </h2>
@@ -2240,7 +2239,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fa-solid fa-chart-pie"></i>
+                                <i class="fas fa-chart-pie"></i>
                             </div>
                             Rendimiento Mensual
                         </h2>
@@ -2280,7 +2279,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fa-solid fa-calendar-day"></i>
+                                <i class="fas fa-calendar-day"></i>
                             </div>
                             Últimas Citas
                         </h2>
@@ -2386,7 +2385,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fa-solid fa-user-tie"></i>
+                                <i class="fas fa-user-tie"></i>
                             </div>
                             Mi Perfil
                         </h2>
@@ -2427,7 +2426,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fa-solid fa-user-group"></i>
+                                <i class="fas fa-users"></i>
                             </div>
                             Resumen de Usuarios
                         </h2>
@@ -2465,7 +2464,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fa-solid fa-award"></i>
+                                <i class="fas fa-award"></i>
                             </div>
                             Servicios Populares
                         </h2>
@@ -2500,7 +2499,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <i class="fas fa-exclamation-triangle"></i>
                             </div>
                             Alertas del Sistema
                         </h2>
