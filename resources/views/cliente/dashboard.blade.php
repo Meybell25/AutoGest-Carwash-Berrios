@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es"> 
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -1122,17 +1122,7 @@
             font-size: 16px;
         }
 
-        .footer {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 25px;
-            margin-top: 30px;
-            box-shadow: var(--shadow-soft);
-            position: relative;
-            overflow: hidden;
-        }
-
+        /* Footer */
         .footer {
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -1143,14 +1133,24 @@
             position: relative;
             overflow: hidden;
             margin-top: auto;
-            border-top-left-radius: var(--border-radius-xl);
-            border-top-right-radius: var(--border-radius-xl);
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .footer-content {
             padding: 40px 30px;
             text-align: center;
-            border-radius: var(--border-radius-xl);
+            border-radius: 25px;
         }
 
         .footer-brand {
@@ -1160,7 +1160,7 @@
         .footer-brand h3 {
             font-size: 28px;
             font-weight: 700;
-            background: var(--secondary-gradient);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -1170,7 +1170,7 @@
 
         .footer-slogan {
             font-size: 14px;
-            color: var(--text-secondary);
+            color: #666;
             font-style: italic;
             margin-bottom: 25px;
             opacity: 0.8;
@@ -1181,7 +1181,7 @@
             justify-content: center;
             align-items: center;
             flex-direction: row;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             gap: 30px;
             margin-bottom: 25px;
         }
@@ -1190,7 +1190,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--text-primary);
+            color: #333;
             font-size: 15px;
             transition: all 0.3s ease;
         }
@@ -1205,7 +1205,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--secondary-gradient);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 50%;
             font-size: 10px;
@@ -1213,7 +1213,7 @@
         }
 
         .location-link {
-            color: var(--text-primary);
+            color: #333;
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -1227,7 +1227,7 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: var(--secondary-gradient);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             transition: width 0.3s ease;
         }
 
@@ -1236,7 +1236,7 @@
         }
 
         .location-link:hover {
-            background: var(--secondary-gradient);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -1244,12 +1244,12 @@
 
         .footer-divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             margin: 20px 0;
         }
 
         .footer-copyright {
-            color: var(--text-secondary);
+            color: #666;
             font-size: 13px;
             opacity: 0.8;
         }
@@ -1264,13 +1264,13 @@
         .social-icon {
             width: 40px;
             height: 40px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-secondary);
+            color: #666;
             text-decoration: none;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -1278,7 +1278,7 @@
 
         .social-icon:hover {
             transform: translateY(-3px) scale(1.1);
-            box-shadow: var(--shadow-hover);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
 
         .social-icon.facebook:hover {
@@ -1307,33 +1307,20 @@
 
         .schedule-main {
             font-weight: 500;
-            color: var(--text-primary);
+            color: #333;
         }
 
         .schedule-closed {
             font-size: 13px;
-            color: var(--text-secondary);
+            color: #666;
             opacity: 0.8;
-        }
-
-        .footer-info {
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .footer-content {
-            padding: 30px 20px;
-        }
-
-        .footer-brand h3 {
-            font-size: 24px;
         }
 
         .sparkle {
             position: absolute;
             width: 4px;
             height: 4px;
-            background: var(--secondary-gradient);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 50%;
             animation: sparkle 2s infinite;
         }
@@ -1369,7 +1356,45 @@
                 transform: scale(1);
             }
         }
-        [x-cloak] { display: none !important; }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .footer-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .footer-content {
+                padding: 30px 20px;
+            }
+
+            .footer-brand h3 {
+                font-size: 24px;
+            }
+
+            .social-icons {
+                gap: 12px;
+            }
+
+            .social-icon {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-brand h3 {
+                font-size: 20px;
+            }
+
+            .footer-slogan {
+                font-size: 12px;
+            }
+
+            .info-item {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 
@@ -1381,7 +1406,7 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon">
-                           <i class="fas fa-car"></i>
+                            <i class="fas fa-car"></i>
                         </div>
                         ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
                     </h1>
@@ -1413,8 +1438,8 @@
                 </div>
                 <div class="header-actions">
                     <button type="button" id="openVehiculoBtn" class="btn btn-primary" onclick="openVehiculoModal()">
-                         <i class="fas fa-plus"></i>
-                         Agregar Vehículo
+                        <i class="fas fa-plus"></i>
+                        Agregar Vehículo
                     </button>
                     <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
                         <i class="fas fa-calendar-plus"></i>
@@ -1735,8 +1760,9 @@
                             <div class="profile-info">
                                 <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
                                 <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
-                                 <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-calendar"></i> Cliente desde: {{ $user->created_at->format('M Y') }}</p>
+                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-calendar"></i> Cliente desde:
+                                    {{ $user->created_at->format('M Y') }}</p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline"
@@ -1936,19 +1962,19 @@
                     <input type="text" id="modelo" name="modelo" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                
 
-            <div class="mb-4">
-                <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-             <select id="tipo" name="tipo" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                 <option value="">Seleccione</option>
-                 <option value="sedan">Sedán</option>
-                  <option value="pickup">Pickup</option>
-                 <option value="camion">Camión</option>
-                 <option value="moto">Moto</option>
-             </select>
-            </div>
+
+                <div class="mb-4">
+                    <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                    <select id="tipo" name="tipo" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione</option>
+                        <option value="sedan">Sedán</option>
+                        <option value="pickup">Pickup</option>
+                        <option value="camion">Camión</option>
+                        <option value="moto">Moto</option>
+                    </select>
+                </div>
 
 
                 <div class="mb-4">
@@ -1970,7 +1996,8 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="fecha_registro" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Registro</label>
+                    <label for="fecha_registro" class="block text-sm font-medium text-gray-700 mb-1">Fecha de
+                        Registro</label>
                     <input type="date" id="fecha_registro" name="fecha_registro" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -1980,8 +2007,7 @@
                         class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
                         Cancelar
                     </button>
-                    <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                         Guardar Vehículo
                     </button>
                 </div>
@@ -1990,6 +2016,7 @@
     </div>
 
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="sparkle"></div>
         <div class="sparkle"></div>
@@ -2201,11 +2228,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                        <tr>
-                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                        </tr>
-                                                                                                                                    `).join('')}
+                                                                                                                                                <tr>
+                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                </tr>
+                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -2313,7 +2340,7 @@
         });
     </script>
 
-<script>
+    <script>
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -2322,7 +2349,7 @@
             document.getElementById('vehiculoModal').style.display = 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('vehiculoModal');
             const openBtn = document.getElementById('openVehiculoBtn');
             const closeBtn = modal?.querySelector('.close-modal');
