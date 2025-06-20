@@ -612,8 +612,14 @@
 
         /* Íconos del perfil en blanco */
         .profile-info-item i {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
             color: white !important;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            background: var(--primary) !important;
         }
 
         /* Asegurar que los íconos sean visibles */
@@ -1103,13 +1109,16 @@
             margin-bottom: 25px;
         }
 
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-primary);
-            font-size: 15px;
-            transition: var(--transition);
+        .info-item i {
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white !important;
+            background: var(--primary-gradient) !important;
+            border-radius: 50% !important;
         }
 
         .info-item:hover {
@@ -1132,6 +1141,14 @@
         .footer .social-icon i,
         .footer .info-item i {
             color: white !important;
+        }
+
+        .social-icon i {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            height: 100% !important;
         }
 
         .location-link {
@@ -1516,10 +1533,6 @@
                 text-align: center;
             }
 
-            .info-item {
-                justify-content: center;
-            }
-
             .stat-value {
                 font-size: 2rem;
             }
@@ -1896,19 +1909,6 @@
             align-items: center;
             margin-bottom: 10px;
             color: var(--text-secondary);
-        }
-
-        .profile-info-item i {
-            width: 30px;
-            height: 30px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-            font-size: 0.9rem;
         }
 
         /* Configuración de cuenta */
