@@ -620,6 +620,7 @@
             justify-content: center !important;
             color: white !important;
             background: var(--primary) !important;
+            border-radius: 50% !important;
         }
 
         /* Asegurar que los íconos sean visibles */
