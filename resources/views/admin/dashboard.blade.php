@@ -3205,46 +3205,41 @@
         document.getElementById('perfilForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const nombre = document.getElementById('perfil_nombre').value.trim();
-            const telefono = document.getElementById('perfil_telefono').value.trim();
+            const formData = new FormData(this);
 
             try {
                 const response = await fetch('{{ route('perfil.update-ajax') }}', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        nombre: nombre,
-                        telefono: telefono
+                        nombre: document.getElementById('perfil_nombre').value,
+                        telefono: document.getElementById('perfil_telefono').value
                     })
                 });
 
                 const data = await response.json();
 
-                if (!response.ok) throw new Error(data.message || 'Error en la respuesta');
+                if (data.success) {
+                    // Actualizar la UI
+                    document.querySelector('.profile-name').textContent = data.user.nombre;
+                    if (data.user.telefono) {
+                        document.querySelector('.profile-info-item:nth-child(2) span').textContent = data.user
+                            .telefono;
+                    }
 
-                // Actualizar UI
-                document.querySelector('.welcome-section h1').innerHTML = `
-            <div class="welcome-icon">
-                <i class="fas fa-user-cog"></i>
-            </div>
-            Panel de Administración
-        `;
+                    Toast.fire({
+                        icon: 'success',
+                        title: data.message
+                    });
 
-                document.querySelector('.profile-name').textContent = nombre;
-                document.querySelector('.profile-info-item:nth-child(2) span').textContent = telefono ||
-                    'No especificado';
-
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Perfil actualizado correctamente'
-                });
-
-                closeModal('perfilModal');
-
+                    closeModal('perfilModal');
+                } else {
+                    throw new Error(data.message);
+                }
             } catch (error) {
                 Toast.fire({
                     icon: 'error',
