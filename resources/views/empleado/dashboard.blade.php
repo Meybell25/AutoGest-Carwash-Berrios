@@ -75,24 +75,36 @@
             min-height: calc(100vh - 200px);
         }
 
-        /* Scrollbar personalizado */
+        /* BARRA DE DESPLAZAMIENTO PERSONALIZADA */
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(91, 33, 182, 0.1);
             border-radius: 10px;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
+        /* ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
             border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }*/
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, rgba(123, 59, 237, 0.8) 0%, rgba(91, 33, 182, 0.9) 100%);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
+            background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%);
+        }
+
+        /* Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #7c3aed #5b21b6;
         }
 
         /* Header */
@@ -1591,7 +1603,8 @@
                                 <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-phone"></i> {{ Auth::user()->telefono ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
-                                <p><i class="fas fa-calendar"></i> Miembro desde {{ Auth::user()->created_at->format('M Y') }}</p>
+                                <p><i class="fas fa-calendar"></i> Miembro desde
+                                    {{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline">

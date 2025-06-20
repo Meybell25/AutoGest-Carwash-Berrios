@@ -1144,7 +1144,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--secondary-gradient);
         }
 
         .footer-content {
@@ -1160,7 +1160,7 @@
         .footer-brand h3 {
             font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--secondary-gradient);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -1170,7 +1170,7 @@
 
         .footer-slogan {
             font-size: 14px;
-            color: #666;
+            color: var(--text-secondary);
             font-style: italic;
             margin-bottom: 25px;
             opacity: 0.8;
@@ -1190,7 +1190,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #333;
+            color: var(--text-primary);
             font-size: 15px;
             transition: all 0.3s ease;
         }
@@ -1205,7 +1205,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--secondary-gradient);
             color: white;
             border-radius: 50%;
             font-size: 10px;
@@ -1213,7 +1213,7 @@
         }
 
         .location-link {
-            color: #333;
+            color: var(--text-primary);
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -1227,7 +1227,7 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--secondary-gradient);
             transition: width 0.3s ease;
         }
 
@@ -1236,7 +1236,7 @@
         }
 
         .location-link:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--secondary-gradient);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -1244,12 +1244,12 @@
 
         .footer-divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
             margin: 20px 0;
         }
 
         .footer-copyright {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 13px;
             opacity: 0.8;
         }
@@ -1264,21 +1264,21 @@
         .social-icon {
             width: 40px;
             height: 40px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #666;
+            color: var(--text-secondary);
             text-decoration: none;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-soft);
         }
 
         .social-icon:hover {
             transform: translateY(-3px) scale(1.1);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-hover);
         }
 
         .social-icon.facebook:hover {
@@ -1307,12 +1307,12 @@
 
         .schedule-main {
             font-weight: 500;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .schedule-closed {
             font-size: 13px;
-            color: #666;
+            color: var(--text-secondary);
             opacity: 0.8;
         }
 
@@ -1320,7 +1320,7 @@
             position: absolute;
             width: 4px;
             height: 4px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--secondary-gradient);
             border-radius: 50%;
             animation: sparkle 2s infinite;
         }
@@ -2228,11 +2228,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                <tr>
-                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                </tr>
-                                                                                                                                            `).join('')}
+                                                                                                                                                    <tr>
+                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                    </tr>
+                                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>

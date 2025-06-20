@@ -26,7 +26,7 @@
             --info: #3498db;
             --dark: #2c3e50;
             --light: #ecf0f1;
-            
+
             /* Gradientes */
             --primary-gradient: linear-gradient(135deg, #27ae60 0%, #52a088 100%);
             --accent-gradient: linear-gradient(45deg, #f39c12 0%, #d35400 100%);
@@ -36,27 +36,27 @@
             --danger-gradient: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             --info-gradient: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            
+
             /* Texto */
             --text-primary: #2c3e50;
             --text-secondary: #7f8c8d;
             --text-light: #ecf0f1;
-            
+
             /* Fondos */
             --bg-light: rgba(255, 255, 255, 0.95);
             --bg-dark: rgba(44, 62, 80, 0.95);
             --bg-surface: rgba(255, 255, 255, 0.98);
-            
+
             /* Bordes */
             --border-light: rgba(255, 255, 255, 0.2);
             --border-primary: rgba(39, 174, 96, 0.2);
-            
+
             /* Sombras */
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
             --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
-            
+
             /* Efectos */
             --blur: blur(20px);
             --transition: all 0.3s ease;
@@ -89,9 +89,19 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(30px, -30px) rotate(120deg); }
-            66% { transform: translate(-20px, 20px) rotate(240deg); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
         }
 
         .dashboard-container {
@@ -126,8 +136,15 @@
         }
 
         @keyframes shimmer {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
         }
 
         .header-content {
@@ -626,8 +643,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Charts */
@@ -757,8 +781,15 @@
         }
 
         @keyframes modalSlideIn {
-            from { opacity: 0; transform: translateY(-50px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .close-modal {
@@ -806,15 +837,19 @@
         }
 
         /* Footer */
+        /* Footer */
         .footer {
+            width: 100%;
             background: var(--bg-dark);
-            backdrop-filter: var(--blur);
-            border: 1px solid rgba(39, 174, 96, 0.2);
-            border-radius: 30px;
-            margin-top: 40px;
-            box-shadow: var(--shadow-xl);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
+            margin-top: auto;
+            border-top-left-radius: var(--border-radius-xl);
+            border-top-right-radius: var(--border-radius-xl);
         }
 
         .footer::before {
@@ -823,87 +858,222 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
+            height: 4px;
             background: var(--primary-gradient);
         }
 
         .footer-content {
-            padding: 50px 35px;
+            padding: 40px 30px;
             text-align: center;
-            color: var(--text-light);
+            border-radius: var(--border-radius-xl);
+        }
+
+        .footer-brand {
+            margin-bottom: 15px;
         }
 
         .footer-brand h3 {
-            font-size: 32px;
-            font-weight: 800;
+            font-size: 28px;
+            font-weight: 700;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 0 0 12px 0;
-            letter-spacing: -0.5px;
+            margin: 0 0 8px 0;
+            text-shadow: none;
         }
 
         .footer-slogan {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            color: var(--text-light);
             font-style: italic;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            opacity: 0.8;
         }
 
         .footer-info {
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: row;
             flex-wrap: wrap;
-            gap: 35px;
-            margin-bottom: 30px;
+            gap: 30px;
+            margin-bottom: 25px;
         }
 
         .info-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 16px;
-            font-weight: 500;
+            gap: 8px;
+            color: var(--text-light);
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .info-item:hover {
+            transform: translateY(-2px);
         }
 
         .info-item i {
-            width: 22px;
-            height: 22px;
+            width: 18px;
+            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: var(--primary-gradient);
             color: white;
             border-radius: 50%;
-            font-size: 12px;
-            box-shadow: var(--shadow-sm);
+            font-size: 10px;
+            box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
         }
 
         .location-link {
-            color: inherit;
+            color: var(--text-light);
             text-decoration: none;
+            font-weight: 500;
             transition: var(--transition);
+            position: relative;
+        }
+
+        .location-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: width 0.3s ease;
+        }
+
+        .location-link:hover::after {
+            width: 100%;
         }
 
         .location-link:hover {
             color: var(--accent);
-            text-decoration: underline;
         }
 
         .footer-divider {
-            height: 2px;
+            height: 1px;
             background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            margin: 25px 0;
-            border-radius: 1px;
+            margin: 20px 0;
+            opacity: 0.3;
         }
 
         .footer-copyright {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            line-height: 1.6;
+            color: var(--text-light);
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: var(--shadow-lg);
+            background: var(--primary);
+            color: white;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+
+        .sparkle:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .sparkle:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 0.5s;
+        }
+
+        .sparkle:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 1s;
+        }
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .footer-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .footer-content {
+                padding: 30px 20px;
+            }
+
+            .footer-brand h3 {
+                font-size: 24px;
+            }
+
+            .social-icons {
+                gap: 12px;
+            }
+
+            .social-icon {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-brand h3 {
+                font-size: 20px;
+            }
+
+            .footer-slogan {
+                font-size: 12px;
+            }
+
+            .info-item {
+                font-size: 14px;
+            }
         }
 
         /* Search y filtros */
@@ -1273,22 +1443,6 @@
                 margin-bottom: 10px;
                 align-self: flex-start;
             }
-
-            .footer {
-                border-radius: 20px 20px 0 0;
-            }
-
-            .footer-content {
-                padding: 30px 20px;
-            }
-
-            .footer-brand h3 {
-                font-size: 24px;
-            }
-
-            .footer-slogan {
-                font-size: 14px;
-            }
         }
 
         @media (max-width: 480px) {
@@ -1339,28 +1493,60 @@
 
         /* Animaciones */
         @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         .admin-stat-card {
             animation: slideInUp 0.6s ease-out;
         }
 
-        .admin-stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .admin-stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .admin-stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .admin-stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .admin-stat-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .admin-stat-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .admin-stat-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .admin-stat-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
 
         .notification-item {
             animation: slideInLeft 0.5s ease-out;
@@ -1374,27 +1560,77 @@
             animation: pulse 2s infinite;
         }
 
-        .welcome-stat:nth-child(1) { animation-delay: 0s; }
-        .welcome-stat:nth-child(2) { animation-delay: 0.5s; }
-        .welcome-stat:nth-child(3) { animation-delay: 1s; }
+        .welcome-stat:nth-child(1) {
+            animation-delay: 0s;
+        }
 
-        /* Scroll personalizado */
+        .welcome-stat:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .welcome-stat:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        /* ======================
+   SCROLLBAR PERSONALIZADA (Estilo Admin con animación)
+   ====================== */
+
+        /* Para navegadores WebKit (Chrome, Safari, Edge) */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
+            height: 10px;
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(39, 174, 96, 0.1);
+            /* Usando el color primary con transparencia */
             border-radius: 10px;
+            backdrop-filter: blur(5px);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--primary);
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.8) 0%, rgba(82, 160, 136, 0.9) 100%);
+            backdrop-filter: blur(5px);
             border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary);
+            background: linear-gradient(135deg, #27ae60 0%, #52a088 100%);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* Para Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #27ae60 #f8fafc;
+            /* thumb y track */
+        }
+
+        /* Animación de brillo al hacer hover */
+        @keyframes scrollbar-glow {
+            0% {
+                box-shadow: 0 0 0 rgba(39, 174, 96, 0);
+            }
+
+            50% {
+                box-shadow: 0 0 8px rgba(39, 174, 96, 0.7);
+            }
+
+            100% {
+                box-shadow: 0 0 0 rgba(39, 174, 96, 0);
+            }
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            animation: scrollbar-glow 1.5s infinite;
         }
 
         /* Perfil de usuario */
@@ -1574,7 +1810,8 @@
         <!-- Estadísticas Rápidas -->
         <div class="dashboard-grid">
             <div class="main-section">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
                     <div class="admin-stat-card stat-card-primary">
                         <div class="stat-icon icon-primary">
                             <i class="fas fa-calendar-check"></i>
@@ -1644,10 +1881,12 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(1)">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarHorario(1)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(1)">
+                                                <button class="table-btn btn-delete" title="Desactivar"
+                                                    onclick="desactivarHorario(1)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1662,10 +1901,12 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(2)">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarHorario(2)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(2)">
+                                                <button class="table-btn btn-delete" title="Desactivar"
+                                                    onclick="desactivarHorario(2)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1680,10 +1921,12 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(3)">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarHorario(3)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(3)">
+                                                <button class="table-btn btn-delete" title="Desactivar"
+                                                    onclick="desactivarHorario(3)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1698,10 +1941,12 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(4)">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarHorario(4)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(4)">
+                                                <button class="table-btn btn-delete" title="Desactivar"
+                                                    onclick="desactivarHorario(4)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1716,10 +1961,12 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(5)">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarHorario(5)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(5)">
+                                                <button class="table-btn btn-delete" title="Desactivar"
+                                                    onclick="desactivarHorario(5)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1734,10 +1981,12 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(6)">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarHorario(6)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar" onclick="desactivarHorario(6)">
+                                                <button class="table-btn btn-delete" title="Desactivar"
+                                                    onclick="desactivarHorario(6)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -1752,10 +2001,12 @@
                                         </td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar" onclick="editarHorario(0)">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarHorario(0)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-success" title="Activar" onclick="activarHorario(0)">
+                                                <button class="table-btn btn-success" title="Activar"
+                                                    onclick="activarHorario(0)">
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             </div>
@@ -1780,7 +2031,8 @@
                     <div class="card-body">
                         <div class="tab-container">
                             <div class="tab-buttons">
-                                <button class="tab-button active" onclick="openTab(event, 'ingresosTab')">Ingresos</button>
+                                <button class="tab-button active"
+                                    onclick="openTab(event, 'ingresosTab')">Ingresos</button>
                                 <button class="tab-button" onclick="openTab(event, 'citasTab')">Citas</button>
                                 <button class="tab-button" onclick="openTab(event, 'serviciosTab')">Servicios</button>
                             </div>
@@ -1851,8 +2103,10 @@
                                         <tr>
                                             <td data-label="ID">#{{ $cita->id }}</td>
                                             <td data-label="Cliente">{{ $cita->usuario->nombre }}</td>
-                                            <td data-label="Vehículo">{{ $cita->vehiculo->marca }} {{ $cita->vehiculo->modelo }}</td>
-                                            <td data-label="Fecha/Hora">{{ $cita->fecha_hora->format('d/m/Y H:i') }}</td>
+                                            <td data-label="Vehículo">{{ $cita->vehiculo->marca }}
+                                                {{ $cita->vehiculo->modelo }}</td>
+                                            <td data-label="Fecha/Hora">{{ $cita->fecha_hora->format('d/m/Y H:i') }}
+                                            </td>
                                             <td data-label="Servicios">
                                                 @foreach ($cita->servicios as $servicio)
                                                     <span class="badge badge-primary">{{ $servicio->nombre }}</span>
@@ -1861,19 +2115,23 @@
                                             <td data-label="Total">
                                                 ${{ number_format($cita->servicios->sum('pivot.precio'), 2) }}</td>
                                             <td data-label="Estado">
-                                                <span class="badge badge-{{ $cita->estado == 'pendiente' ? 'warning' : ($cita->estado == 'en_proceso' ? 'info' : ($cita->estado == 'finalizada' ? 'success' : 'danger')) }}">
+                                                <span
+                                                    class="badge badge-{{ $cita->estado == 'pendiente' ? 'warning' : ($cita->estado == 'en_proceso' ? 'info' : ($cita->estado == 'finalizada' ? 'success' : 'danger')) }}">
                                                     {{ $cita->estado_formatted }}
                                                 </span>
                                             </td>
                                             <td data-label="Acciones">
                                                 <div class="table-actions">
-                                                    <button class="table-btn btn-view" title="Ver" onclick="verDetalleCita({{ $cita->id }})">
+                                                    <button class="table-btn btn-view" title="Ver"
+                                                        onclick="verDetalleCita({{ $cita->id }})">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
-                                                    <button class="table-btn btn-edit" title="Editar" onclick="editarCita({{ $cita->id }})">
+                                                    <button class="table-btn btn-edit" title="Editar"
+                                                        onclick="editarCita({{ $cita->id }})">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <button class="table-btn btn-delete" title="Cancelar" onclick="cancelarCita({{ $cita->id }})">
+                                                    <button class="table-btn btn-delete" title="Cancelar"
+                                                        onclick="cancelarCita({{ $cita->id }})">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </div>
@@ -1914,7 +2172,7 @@
                             </div>
                             <div class="profile-name">{{ Auth::user()->nombre }}</div>
                             <div class="profile-role">Administrador</div>
-                            
+
                             <div class="profile-info">
                                 <div class="profile-info-item">
                                     <i class="fas fa-envelope"></i>
@@ -1929,8 +2187,9 @@
                                     <span>Miembro desde {{ Auth::user()->created_at->format('M Y') }}</span>
                                 </div>
                             </div>
-                            
-                            <button class="btn btn-outline" style="width: 100%; margin-top: 20px;" onclick="editarPerfil()">
+
+                            <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
+                                onclick="editarPerfil()">
                                 <i class="fas fa-edit"></i> Editar Perfil
                             </button>
                         </div>
@@ -1981,7 +2240,8 @@
                                 <div class="service-details">
                                     <h4>{{ $servicio->nombre }}</h4>
                                     <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion }} min</p>
-                                    <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces este mes</p>
+                                    <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces este
+                                        mes</p>
                                 </div>
                                 <button class="btn btn-sm btn-outline" onclick="editarServicio({{ $servicio->id }})">
                                     <i class="fas fa-edit"></i>
@@ -1989,7 +2249,8 @@
                             </div>
                         @endforeach
 
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="nuevoServicio()">
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                            onclick="nuevoServicio()">
                             <i class="fas fa-plus"></i> Agregar Servicio
                         </button>
                     </div>
@@ -2067,23 +2328,27 @@
 
                 <div class="form-group">
                     <label for="servicio_nombre">Nombre del Servicio:</label>
-                    <input type="text" id="servicio_nombre" name="nombre" required class="form-control" placeholder="Ej: Lavado Premium">
+                    <input type="text" id="servicio_nombre" name="nombre" required class="form-control"
+                        placeholder="Ej: Lavado Premium">
                 </div>
 
                 <div class="form-group">
                     <label for="servicio_descripcion">Descripción:</label>
-                    <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control" placeholder="Describe los detalles del servicio..."></textarea>
+                    <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control"
+                        placeholder="Describe los detalles del servicio..."></textarea>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="servicio_precio">Precio ($):</label>
-                        <input type="number" step="0.01" id="servicio_precio" name="precio" required class="form-control" placeholder="0.00">
+                        <input type="number" step="0.01" id="servicio_precio" name="precio" required
+                            class="form-control" placeholder="0.00">
                     </div>
 
                     <div class="form-group">
                         <label for="servicio_duracion">Duración (min):</label>
-                        <input type="number" id="servicio_duracion" name="duracion" required class="form-control" placeholder="30">
+                        <input type="number" id="servicio_duracion" name="duracion" required class="form-control"
+                            placeholder="30">
                     </div>
                 </div>
 
@@ -2111,7 +2376,7 @@
             </h2>
             <form id="horarioForm">
                 <input type="hidden" id="horario_id" name="id">
-                
+
                 <div class="form-group">
                     <label for="horario_dia">Día de la semana:</label>
                     <select id="horario_dia" class="form-control" required>
@@ -2163,27 +2428,32 @@
             <form id="perfilForm">
                 <div class="form-group">
                     <label for="perfil_nombre">Nombre:</label>
-                    <input type="text" id="perfil_nombre" name="nombre" required class="form-control" value="{{ Auth::user()->nombre }}">
+                    <input type="text" id="perfil_nombre" name="nombre" required class="form-control"
+                        value="{{ Auth::user()->nombre }}">
                 </div>
 
                 <div class="form-group">
                     <label for="perfil_email">Email:</label>
-                    <input type="email" id="perfil_email" name="email" required class="form-control" value="{{ Auth::user()->email }}">
+                    <input type="email" id="perfil_email" name="email" required class="form-control"
+                        value="{{ Auth::user()->email }}">
                 </div>
 
                 <div class="form-group">
                     <label for="perfil_telefono">Teléfono:</label>
-                    <input type="tel" id="perfil_telefono" name="telefono" class="form-control" value="{{ Auth::user()->telefono }}">
+                    <input type="tel" id="perfil_telefono" name="telefono" class="form-control"
+                        value="{{ Auth::user()->telefono }}">
                 </div>
 
                 <div class="form-group">
                     <label for="perfil_password">Nueva Contraseña (opcional):</label>
-                    <input type="password" id="perfil_password" name="password" class="form-control" placeholder="Dejar en blanco para no cambiar">
+                    <input type="password" id="perfil_password" name="password" class="form-control"
+                        placeholder="Dejar en blanco para no cambiar">
                 </div>
 
                 <div class="form-group">
                     <label for="perfil_password_confirmation">Confirmar Contraseña:</label>
-                    <input type="password" id="perfil_password_confirmation" name="password_confirmation" class="form-control">
+                    <input type="password" id="perfil_password_confirmation" name="password_confirmation"
+                        class="form-control">
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">
@@ -2195,6 +2465,10 @@
 
     <!-- Footer -->
     <footer class="footer">
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+
         <div class="footer-content">
             <div class="footer-brand">
                 <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
@@ -2216,6 +2490,18 @@
                     <i class="fas fa-clock"></i>
                     <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
                 </div>
+            </div>
+
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/50375855197" class="social-icon whatsapp" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="#" class="social-icon instagram" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
             </div>
 
             <div class="footer-divider"></div>
@@ -2244,10 +2530,14 @@
             const ingresosChart = new Chart(ingresosCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
+                        'Dic'
+                    ],
                     datasets: [{
                         label: 'Ingresos 2023',
-                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
+                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800,
+                            2100
+                        ],
                         backgroundColor: 'rgba(39, 174, 96, 0.2)',
                         borderColor: 'rgba(39, 174, 96, 1)',
                         borderWidth: 2,
@@ -2288,7 +2578,9 @@
             const citasChart = new Chart(citasCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
+                        'Dic'
+                    ],
                     datasets: [{
                         label: 'Citas Completadas',
                         data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
@@ -2633,7 +2925,8 @@
             document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
             document.getElementById('servicio_id').value = servicioId;
             document.getElementById('servicio_nombre').value = 'Lavado Completo';
-            document.getElementById('servicio_descripcion').value = 'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
+            document.getElementById('servicio_descripcion').value =
+                'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
             document.getElementById('servicio_precio').value = '25.00';
             document.getElementById('servicio_duracion').value = '30';
             document.getElementById('servicio_activo').value = '1';
@@ -2653,7 +2946,7 @@
         function editarHorario(diaSemana) {
             // Simulación de datos - en una aplicación real harías una petición AJAX
             const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-            
+
             document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Horario';
             document.getElementById('horario_id').value = diaSemana;
             document.getElementById('horario_dia').value = diaSemana;
@@ -2669,7 +2962,7 @@
                 icon: 'success',
                 title: 'Horario activado correctamente'
             });
-            
+
             // Simulación de recarga de datos
             setTimeout(() => {
                 window.location.reload();
@@ -2682,7 +2975,7 @@
                 icon: 'success',
                 title: 'Horario desactivado correctamente'
             });
-            
+
             // Simulación de recarga de datos
             setTimeout(() => {
                 window.location.reload();
@@ -2692,7 +2985,7 @@
         function editarPerfil() {
             document.getElementById('perfil_nombre').value = '{{ Auth::user()->nombre }}';
             document.getElementById('perfil_email').value = '{{ Auth::user()->email }}';
-            document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? "" }}';
+            document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? '' }}';
             document.getElementById('perfil_password').value = '';
             document.getElementById('perfil_password_confirmation').value = '';
             document.getElementById('perfilModal').style.display = 'flex';
@@ -2701,10 +2994,10 @@
         // Manejar envío del formulario de horario
         document.getElementById('horarioForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             // Aquí iría la petición AJAX para guardar el horario
             const isNew = document.getElementById('horario_id').value === '';
-            
+
             Toast.fire({
                 icon: 'success',
                 title: `Horario ${isNew ? 'creado' : 'actualizado'} correctamente`
