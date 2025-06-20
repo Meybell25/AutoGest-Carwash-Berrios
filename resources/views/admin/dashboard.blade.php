@@ -837,28 +837,19 @@
         }
 
         /* Footer */
-        /* Footer */
         .footer {
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
             margin-top: 40px;
 
-            /* Bordes redondeados superiores como en empleado */
+            /* Bordes redondeados solo en la parte superior */
             border-top-left-radius: 30px;
             border-top-right-radius: 30px;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-
-            /* Efecto de borde degradado */
-            border-top: 4px solid transparent;
-            background-clip: padding-box;
-            position: relative;
         }
 
         .footer::before {
@@ -873,24 +864,6 @@
             border-top-right-radius: 30px;
         }
 
-        .footer::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: inherit;
-            padding: 4px;
-            background: var(--primary-gradient);
-            -webkit-mask:
-                linear-gradient(#fff 0 0) content-box,
-                linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-
         .footer-content {
             padding: 50px 35px;
             text-align: center;
@@ -899,6 +872,7 @@
             z-index: 1;
         }
 
+        /* El resto de los estilos se mantienen igual */
         .footer-brand {
             margin-bottom: 15px;
         }
