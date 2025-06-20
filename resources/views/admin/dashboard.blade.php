@@ -1068,7 +1068,7 @@
         .footer-info {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             flex-wrap: wrap;
             gap: 30px;
             margin-bottom: 25px;
@@ -1076,11 +1076,11 @@
 
         .info-item {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             transition: var(--transition);
-            text-align: center;
+            text-align: left;
             max-width: 200px;
         }
 
@@ -1099,6 +1099,7 @@
             border-radius: 50%;
             font-size: 12px;
             box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+            flex-shrink: 0;
         }
 
         .location-link {
@@ -2045,7 +2046,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-business-time"></i>
+                                <i class="fa-solid fa-business-time"></i>
                             </div>
                             Gestión de Horarios
                         </h2>
@@ -2221,7 +2222,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-chart-pie"></i>
+                                <i class="fa-solid fa-chart-pie"></i>
                             </div>
                             Rendimiento Mensual
                         </h2>
@@ -2261,7 +2262,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-calendar-day"></i>
+                                <i class="fa-solid fa-calendar-day"></i>
                             </div>
                             Últimas Citas
                         </h2>
@@ -2367,7 +2368,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-user-tie"></i>
+                                <i class="fa-solid fa-user-tie"></i>
                             </div>
                             Mi Perfil
                         </h2>
@@ -2408,7 +2409,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-user-friends"></i>
+                                <i class="fa-solid fa-user-group"></i>
                             </div>
                             Resumen de Usuarios
                         </h2>
@@ -2446,7 +2447,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-award"></i>
+                                <i class="fa-solid fa-award"></i>
                             </div>
                             Servicios Populares
                         </h2>
@@ -2481,7 +2482,7 @@
                     <div class="card-header">
                         <h2>
                             <div class="icon">
-                                <i class="fas fa-exclamation-triangle"></i>
+                                <i class="fa-solid fa-triangle-exclamation"></i>
                             </div>
                             Alertas del Sistema
                         </h2>
