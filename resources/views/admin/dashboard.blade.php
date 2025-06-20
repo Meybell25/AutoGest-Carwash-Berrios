@@ -1138,7 +1138,7 @@
             box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
         }
 
-        .footer .social-icon i,
+
         .footer .info-item i {
             color: white !important;
         }
