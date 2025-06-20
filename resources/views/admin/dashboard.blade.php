@@ -20,9 +20,9 @@
             --primary: #27ae60;
             --secondary: #52a088;
             --accent: #f39c12;
-            --success: #d35400;
-            --warning: #8e44ad;
-            --danger: #e74c3c;
+            --success: #ea9308;
+            --warning: #4412e9;
+            --danger: #c1201a;
             --info: #3498db;
             --dark: #2c3e50;
             --light: #ecf0f1;
@@ -837,14 +837,14 @@
         }
 
         /* Footer */
-        /* Estilos actualizados para el footer del admin con bordes redondeados */
+        /* Footer */
         .footer {
             width: 100%;
-            background: var(--bg-dark);
-            backdrop-filter: var(--blur);
-            border: 1px solid rgba(39, 174, 96, 0.2);
-            /* Borde sutil con color primary */
-            box-shadow: var(--shadow-xl);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
             margin-top: 40px;
@@ -894,7 +894,7 @@
         .footer-content {
             padding: 50px 35px;
             text-align: center;
-            color: var(--text-light);
+            color: var(--text-primary);
             position: relative;
             z-index: 1;
         }
@@ -916,7 +916,7 @@
 
         .footer-slogan {
             font-size: 14px;
-            color: var(--text-light);
+            color: var(--text-secondary);
             font-style: italic;
             margin-bottom: 25px;
             opacity: 0.8;
@@ -936,7 +936,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--text-light);
+            color: var(--text-primary);
             font-size: 15px;
             transition: var(--transition);
         }
@@ -959,7 +959,7 @@
         }
 
         .location-link {
-            color: var(--text-light);
+            color: var(--text-primary);
             text-decoration: none;
             font-weight: 500;
             transition: var(--transition);
@@ -982,7 +982,7 @@
         }
 
         .location-link:hover {
-            color: var(--accent);
+            color: var(--primary);
         }
 
         .footer-divider {
@@ -993,7 +993,7 @@
         }
 
         .footer-copyright {
-            color: var(--text-light);
+            color: var(--text-secondary);
             font-size: 13px;
             opacity: 0.8;
         }
@@ -1014,7 +1014,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-light);
+            color: var(--text-primary);
             text-decoration: none;
             transition: var(--transition);
             box-shadow: var(--shadow-sm);
