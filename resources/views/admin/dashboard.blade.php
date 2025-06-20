@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - AutoGest Carwash</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -445,6 +445,8 @@
             font-size: 1.3rem;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
+            backdrop-filter: none !important;
+            background: var(--secondary-gradient) !important;
         }
 
         .card-header .icon:hover {
@@ -458,6 +460,12 @@
         .card-header .icon,
         .welcome-icon {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header .icon i,
+        .welcome-icon i {
+            display: block !important;
+            font-size: inherit !important;
         }
 
         /* Stats Cards */
@@ -476,7 +484,7 @@
         }
 
         .admin-stat-card::before {
-            content: '';
+            content: none !important;
             position: absolute;
             top: 0;
             right: 0;
@@ -492,24 +500,30 @@
             box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
         }
 
+        .stat-card-primary,
+        .stat-card-success,
+        .stat-card-warning,
+        .stat-card-danger {
+            background: white !important;
+            border-left: 5px solid;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Colores de los bordes izquierdos */
         .stat-card-primary {
             border-left-color: var(--primary);
-            background: linear-gradient(to right, rgba(46, 125, 50, 0.1), rgba(46, 125, 50, 0.05));
         }
 
         .stat-card-success {
             border-left-color: var(--success);
-            background: linear-gradient(to right, rgba(56, 142, 60, 0.1), rgba(56, 142, 60, 0.05));
         }
 
         .stat-card-warning {
             border-left-color: var(--warning);
-            background: linear-gradient(to right, rgba(216, 67, 21, 0.1), rgba(216, 67, 21, 0.05));
         }
 
         .stat-card-danger {
             border-left-color: var(--danger);
-            background: linear-gradient(to right, rgba(198, 40, 40, 0.1), rgba(198, 40, 40, 0.05));
         }
 
         .stat-value {
@@ -555,6 +569,28 @@
 
         .icon-danger {
             background: var(--info-gradient);
+        }
+
+        /* Estilos para íconos */
+        .icon {
+            position: relative;
+            z-index: 10;
+        }
+
+        .icon i {
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Asegurar que los íconos sean visibles */
+        .fas,
+        .fa-solid {
+            opacity: 1 !important;
+            color: inherit !important;
         }
 
         /* Tablas */
@@ -1897,7 +1933,7 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="welcome-icon">
+                        <div class="icon">
                             <i class="fas fa-user-cog"></i>
                         </div>
                         Panel de Administración
@@ -2617,6 +2653,8 @@
                     </form>
                 </div>
             </div>
+        </div>
+    </div> 
 
             <!-- Footer -->
             <footer class="footer">
@@ -2668,7 +2706,7 @@
                     </p>
                 </div>
             </footer>
-            
+
             <script>
                 // Configuración global de SweetAlert
                 const Toast = Swal.mixin({
