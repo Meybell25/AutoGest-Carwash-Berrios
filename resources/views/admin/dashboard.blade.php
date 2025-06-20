@@ -1301,6 +1301,21 @@
         /* ======================
         ÍCONOS
         ====================== */
+        .fas,
+        .fa-solid,
+        .far,
+        .fa-regular,
+        .fab,
+        .fa-brands {
+            color: inherit !important;
+            font-size: inherit !important;
+            display: inline-block !important;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
+        }
+
         .fas:not(.card-header .icon i),
         .fa-solid:not(.card-header .icon i),
         .far:not(.card-header .icon i),
@@ -1325,6 +1340,14 @@
         }
 
         .card-header .icon i {
+            color: white !important;
+            font-size: 1.3rem !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-header h2 .icon i {
             color: white !important;
             font-size: 1.3rem !important;
             display: flex !important;
