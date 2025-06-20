@@ -1301,12 +1301,12 @@
         /* ======================
         ÍCONOS
         ====================== */
-        .fas,
-        .fa-solid,
-        .far,
-        .fa-regular,
-        .fab,
-        .fa-brands {
+        .fas:not(.card-header .icon i),
+        .fa-solid:not(.card-header .icon i),
+        .far:not(.card-header .icon i),
+        .fa-regular:not(.card-header .icon i),
+        .fab:not(.card-header .icon i),
+        .fa-brands:not(.card-header .icon i) {
             color: inherit !important;
             font-size: inherit !important;
             display: inline-block !important;
@@ -1319,6 +1319,14 @@
         .card-header .icon i,
         .welcome-icon i {
             color: white !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-header .icon i {
+            color: white !important;
+            font-size: 1.3rem !important;
             display: flex !important;
             align-items: center;
             justify-content: center;
@@ -1966,7 +1974,6 @@
         ::-webkit-scrollbar-thumb:hover {
             animation: scrollbar-glow 1.5s infinite;
         }
-
     </style>
 </head>
 
@@ -1978,8 +1985,8 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon ">
-                           <!-- <i class="fas fa-user-cog"></i>-->
-                             <i class="fas fa-cog"></i>
+                            <!-- <i class="fas fa-user-cog"></i>-->
+                            <i class="fas fa-cog"></i>
                         </div>
                         Panel de Administración
                     </h1>
