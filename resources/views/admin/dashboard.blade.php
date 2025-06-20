@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - AutoGest Carwash</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -1068,20 +1068,20 @@
         .footer-info {
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             flex-wrap: wrap;
             gap: 30px;
             margin-bottom: 25px;
         }
 
+
         .info-item {
             display: flex;
-            flex-direction: row;
             align-items: center;
             gap: 10px;
             transition: var(--transition);
             text-align: left;
-            max-width: 200px;
+            max-width: 100%;
         }
 
         .info-item:hover {
@@ -1100,6 +1100,15 @@
             font-size: 12px;
             box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
             flex-shrink: 0;
+            line-height: 24px;
+            /* Asegura que el icono esté centrado verticalmente */
+            text-align: center;
+            /* Asegura que el icono esté centrado horizontalmente */
+        }
+
+        .info-item:last-child {
+            flex-wrap: nowrap;
+            white-space: nowrap;
         }
 
         .location-link {
@@ -1300,7 +1309,6 @@
         .fa-regular,
         .fab,
         .fa-brands {
-            opacity: 1 !important;
             color: inherit !important;
             font-size: inherit !important;
             display: inline-block !important;
@@ -1629,8 +1637,17 @@
 
                 .footer-info {
                     flex-direction: column;
-                    gap: 20px;
-                    text-align: center;
+                    align-items: flex-start;
+                    gap: 15px;
+                }
+
+                .info-item {
+                    max-width: 100%;
+                    white-space: normal;
+                }
+
+                .info-item:last-child {
+                    white-space: normal;
                 }
 
                 .stat-value {
@@ -2691,7 +2708,7 @@
                         Ver ubicación en mapa
                     </a>
                 </div>
-                <div class="info-item">
+                <div class="info-item" style="white-space: nowrap;">
                     <i class="fas fa-clock"></i>
                     <span>Lun - Sáb: 7:00 AM - 6:00 PM | Dom: Cerrado</span>
                 </div>
