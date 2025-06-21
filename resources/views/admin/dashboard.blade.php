@@ -2825,6 +2825,52 @@
             timerProgressBar: true
         });
 
+
+
+        // Configuración global de SweetAlert
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        // Inicializar Pusher
+        const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+            cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+            encrypted: true
+        });
+
+        // Suscribirse al canal
+        const channel = pusher.subscribe('usuarios');
+
+        // Escuchar eventos
+        channel.bind('UsuarioCreado', function(data) {
+            console.log('Evento recibido:', data);
+            actualizarGraficoUsuarios();
+            Toast.fire({
+                icon: 'success',
+                title: `Nuevo ${data.usuario.rol}: ${data.usuario.nombre}`,
+                timer: 5000
+            });
+        });
+
+
+        // LOGS DE DEPURACION
+        console.log('Pusher config:', {
+            key: '{{ env('PUSHER_APP_KEY') }}',
+            cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+        });
+
+        pusher.connection.bind('state_change', function(states) {
+            console.log('Pusher connection state changed:', states);
+        });
+
+        pusher.connection.bind('error', function(err) {
+            console.error('Pusher error:', err);
+        });
+
         // Inicializar gráficos
         document.addEventListener('DOMContentLoaded', function() {
             // Gráfico de ingresos mensuales
@@ -3533,21 +3579,6 @@
                 });
             }
         });
-
-        window.Echo.channel('usuarios')
-            .listen('UsuarioCreado', (data) => {
-                console.log('Evento recibido:', data);
-                actualizarGraficoUsuarios();
-
-                Toast.fire({
-                    icon: 'success',
-                    title: `Nuevo ${data.usuario.rol}: ${data.usuario.nombre}`,
-                    timer: 5000
-                });
-            })
-            .error((error) => {
-                console.error('Error en Pusher:', error);
-            });
     </script>
 </body>
 
