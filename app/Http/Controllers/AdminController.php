@@ -9,6 +9,7 @@ use App\Models\Vehiculo;
 use App\Models\Servicio;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -39,11 +40,11 @@ class AdminController extends Controller
         ];
 
         $ultimas_citas = Cita::with(['usuario', 'vehiculo', 'servicios'])
-        ->latest()
-        ->take(5)
-        ->get();
-      
-       $citas_recientes = Cita::with(['usuario', 'vehiculo'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $citas_recientes = Cita::with(['usuario', 'vehiculo'])
             ->orderBy('created_at', 'desc')
             ->orderBy('fecha_hora', 'desc')
             ->limit(5)
@@ -54,24 +55,24 @@ class AdminController extends Controller
             ->limit(3)
             ->get();
 
-         $alertas = [
-        (object)[
-            'leida' => false,
-            'tipo' => 'info',
-            'icono' => 'exclamation-circle',
-            'titulo' => 'Bienvenido al sistema',
-            'mensaje' => 'Has iniciado sesión como administrador',
-            'created_at' => now()
-        ],
-        (object)[
-            'leida' => true,
-            'tipo' => 'warning',
-            'icono' => 'calendar-check',
-            'titulo' => 'Cita próxima',
-            'mensaje' => 'Tienes una cita programada para mañana',
-            'created_at' => now()->subHours(2)
-        ]
-    ];
+        $alertas = [
+            (object)[
+                'leida' => false,
+                'tipo' => 'info',
+                'icono' => 'exclamation-circle',
+                'titulo' => 'Bienvenido al sistema',
+                'mensaje' => 'Has iniciado sesión como administrador',
+                'created_at' => now()
+            ],
+            (object)[
+                'leida' => true,
+                'tipo' => 'warning',
+                'icono' => 'calendar-check',
+                'titulo' => 'Cita próxima',
+                'mensaje' => 'Tienes una cita programada para mañana',
+                'created_at' => now()->subHours(2)
+            ]
+        ];
 
 
         return view('admin.dashboard', compact(
@@ -79,7 +80,7 @@ class AdminController extends Controller
             'ultimas_citas',
             'servicios_populares',
             'alertas'
-        )); 
+        ));
     }
 
     public function usuarios(): View
@@ -88,6 +89,40 @@ class AdminController extends Controller
             ->paginate(10);
 
         return view('admin.usuarios', compact('usuarios'));
+    }
+
+    public function storeUsuario(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:usuarios',
+            'telefono' => 'nullable|string|max:20',
+            'rol' => 'required|in:cliente,empleado,admin',
+            'password' => 'required|string|min:8|confirmed',
+            'estado' => 'required|boolean'
+        ]);
+
+        try {
+            $usuario = Usuario::create([
+                'nombre' => $validated['nombre'],
+                'email' => $validated['email'],
+                'telefono' => $validated['telefono'],
+                'rol' => $validated['rol'],
+                'password' => Hash::make($validated['password']),
+                'estado' => $validated['estado']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario creado correctamente',
+                'usuario' => $usuario
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el usuario: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function createCita(): View

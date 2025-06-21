@@ -2010,8 +2010,8 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('admin.citas.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
+                    <a href="#" class="btn btn-primary" onclick="mostrarModalUsuario()">
+                        <i class="fas fa-user-plus"></i>
                         Crear Usuarios
                     </a>
                     <a href="{{ route('admin.reportes') }}" class="btn btn-success">
@@ -2695,6 +2695,72 @@
         </div>
     </div>
 
+    <!-- Modal para crear usuarios -->
+    <div id="usuarioModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
+            <h2 style="color: var(--primary); margin-bottom: 20px;">
+                <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
+            </h2>
+            <form id="usuarioForm">
+                @csrf
+                <div class="form-group">
+                    <label for="usuario_nombre">Nombre Completo:</label>
+                    <input type="text" id="usuario_nombre" name="nombre" required class="form-control"
+                        placeholder="Ej: Juan Pérez">
+                </div>
+
+                <div class="form-group">
+                    <label for="usuario_email">Email:</label>
+                    <input type="email" id="usuario_email" name="email" required class="form-control"
+                        placeholder="Ej: usuario@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="usuario_telefono">Teléfono:</label>
+                    <input type="tel" id="usuario_telefono" name="telefono" class="form-control"
+                        placeholder="Ej: 75855197">
+                </div>
+
+                <div class="form-group">
+                    <label for="usuario_rol">Rol:</label>
+                    <select id="usuario_rol" name="rol" class="form-control" required>
+                        <option value="">Seleccione un rol</option>
+                        <option value="cliente">Cliente</option>
+                        <option value="empleado">Empleado</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="usuario_password">Contraseña:</label>
+                        <input type="password" id="usuario_password" name="password" required class="form-control"
+                            placeholder="Mínimo 8 caracteres">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="usuario_password_confirmation">Confirmar Contraseña:</label>
+                        <input type="password" id="usuario_password_confirmation" name="password_confirmation"
+                            required class="form-control" placeholder="Repite la contraseña">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="usuario_estado">Estado:</label>
+                    <select id="usuario_estado" name="estado" class="form-control">
+                        <option value="1" selected>Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-save"></i> Crear Usuario
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="sparkle"></div>
@@ -3339,6 +3405,65 @@
                 closeModal('servicioModal');
                 closeModal('horarioModal');
                 closeModal('perfilModal');
+                closeModal('usuarioModal');
+            }
+        });
+
+        // Función para mostrar el modal de usuario
+        function mostrarModalUsuario() {
+            document.getElementById('usuarioModal').style.display = 'flex';
+        }
+
+        // Manejar envío del formulario de usuario
+        document.getElementById('usuarioForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                nombre: document.getElementById('usuario_nombre').value,
+                email: document.getElementById('usuario_email').value,
+                telefono: document.getElementById('usuario_telefono').value,
+                rol: document.getElementById('usuario_rol').value,
+                password: document.getElementById('usuario_password').value,
+                password_confirmation: document.getElementById('usuario_password_confirmation').value,
+                estado: document.getElementById('usuario_estado').value
+            };
+
+            try {
+                const response = await fetch('{{ route('admin.usuarios.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Usuario creado correctamente'
+                    });
+
+                    closeModal('usuarioModal');
+
+                    // Limpiar el formulario
+                    document.getElementById('usuarioForm').reset();
+
+                    // Recargar la página para ver los cambios
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Error al crear el usuario');
+                }
+            } catch (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message
+                });
             }
         });
     </script>

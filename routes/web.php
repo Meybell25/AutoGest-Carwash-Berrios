@@ -66,6 +66,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
+    Route::post('/usuarios', [AdminController::class, 'storeUsuario'])->name('usuarios.store');
     Route::get('/citas/create', [AdminController::class, 'createCita'])->name('citas.create');
     Route::post('/citas', [AdminController::class, 'storeCita'])->name('citas.store');
     Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
