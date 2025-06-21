@@ -1316,40 +1316,9 @@
             line-height: 1;
         }
 
-        .fas:not(.card-header .icon i),
-        .fa-solid:not(.card-header .icon i),
-        .far:not(.card-header .icon i),
-        .fa-regular:not(.card-header .icon i),
-        .fab:not(.card-header .icon i),
-        .fa-brands:not(.card-header .icon i) {
-            color: inherit !important;
-            font-size: inherit !important;
-            display: inline-block !important;
-            font-style: normal;
-            font-variant: normal;
-            text-rendering: auto;
-            line-height: 1;
-        }
-
         .card-header .icon i,
         .welcome-icon i {
             color: white !important;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card-header .icon i {
-            color: white !important;
-            font-size: 1.3rem !important;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card-header h2 .icon i {
-            color: white !important;
-            font-size: 1.3rem !important;
             display: flex !important;
             align-items: center;
             justify-content: center;
@@ -1997,6 +1966,7 @@
         ::-webkit-scrollbar-thumb:hover {
             animation: scrollbar-glow 1.5s infinite;
         }
+
     </style>
 </head>
 
@@ -2008,8 +1978,8 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon ">
-                            <!-- <i class="fas fa-user-cog"></i>-->
-                            <i class="fas fa-cog"></i>
+                           <!-- <i class="fas fa-user-cog"></i>-->
+                             <i class="fas fa-cog"></i>
                         </div>
                         Panel de Administración
                     </h1>
@@ -2058,10 +2028,8 @@
             <div class="main-section">
                 <div
                     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-                    <div class="admin-stat-card stat-card-primary">
-                        <div class="stat-icon icon-primary">
+                    <div class="admin-stat-card stat-card-primary">              
                             <i class="fas fa-calendar-check"></i>
-                        </div>
                         <div class="stat-value">{{ $stats['citas_hoy'] ?? 0 }}</div>
                         <div class="stat-label">Citas Hoy</div>
                     </div>
