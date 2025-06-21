@@ -176,7 +176,7 @@
             background-clip: text;
         }
 
-         .welcome-icon {
+        .welcome-icon {
             background: var(--secondary-gradient);
             width: 50px;
             height: 50px;
@@ -193,7 +193,7 @@
         .welcome-icon i {
             z-index: 2;
             text-shadow: none;
-            text-stroke: 0.5px white ;
+            text-stroke: 0.5px white;
             -webkit-text-stroke: 0.5px white;
         }
 
@@ -209,73 +209,56 @@
         }
 
         .welcome-stats {
-            display: flex;
-            gap: 25px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
 
         .welcome-stat {
-            background: white;
-            padding: 15px 20px;
-            border-radius: 15px;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: var(--border-radius);
             text-align: center;
-            min-width: 90px;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-primary);
-            transition: all 0.3s ease;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
 
-        .welcome-stat:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-            border: 1px solid transparent;
-            background-clip: padding-box;
-            background: white;
-            position: relative;
+        .welcome-stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: var(--transition);
         }
 
         .welcome-stat:hover::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(135deg, #2e7d32, #00695c, #0277bd);
-            border-radius: 16px;
-            z-index: -1;
-            animation: gradientBorder 3s ease infinite;
-            background-size: 200% 200%;
+            transform: scaleX(1);
+        }
+
+        .welcome-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .welcome-stat .number {
-            font-size: 1.4rem;
-            font-weight: 800;
-            background: var(--secondary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            transition: all 0.3s ease;
-        }
-
-        .welcome-stat:hover .number {
-            background: linear-gradient(135deg, #2e7d32, #00695c);
-            -webkit-background-clip: text;
-            background-clip: text;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
         }
 
         .welcome-stat .label {
-            font-size: 0.85rem;
+            font-size: 0.875rem;
             color: var(--text-secondary);
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .welcome-stat:hover .label {
-            color: var(--primary);
+            font-weight: 500;
         }
 
         @keyframes gradientBorder {
@@ -453,7 +436,7 @@
         }
 
 
-      .card-header .icon {
+        .card-header .icon {
             background: var(--secondary-gradient);
             width: 40px;
             height: 40px;
