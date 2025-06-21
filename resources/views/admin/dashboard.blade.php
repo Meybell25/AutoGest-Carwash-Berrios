@@ -2709,20 +2709,32 @@
                 @csrf
                 <div class="form-group">
                     <label for="usuario_nombre">Nombre Completo:</label>
-                    <input type="text" id="usuario_nombre" name="nombre" required class="form-control"
-                        placeholder="Ej: Juan Pérez">
+                    <input type="text" id="usuario_nombre" name="nombre" class="form-control"
+                        placeholder="Ej: Juan Pérez" required>
+                    <div class="invalid-feedback">
+                        <strong>Por favor ingresa un nombre válido (solo letras y espacios)</strong>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="usuario_email">Email:</label>
-                    <input type="email" id="usuario_email" name="email" required class="form-control"
-                        placeholder="Ej: usuario@example.com">
+                    <input type="email" id="usuario_email" name="email" class="form-control"
+                        placeholder="Ej: usuario@example.com" required>
+                    <div class="invalid-feedback">
+                        <strong>Por favor ingresa un correo electrónico válido</strong>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="usuario_telefono">Teléfono:</label>
                     <input type="tel" id="usuario_telefono" name="telefono" class="form-control"
-                        placeholder="Ej: 75855197">
+                        placeholder="Ej: +503 1234-5678">
+                    <div class="invalid-feedback">
+                        <strong>Por favor ingresa un número de teléfono válido</strong>
+                    </div>
+                    <div class="form-text">
+                        <small>Formato: +código país número (ej: +503 1234-5678)</small>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -2733,19 +2745,53 @@
                         <option value="empleado">Empleado</option>
                         <option value="admin">Administrador</option>
                     </select>
+                    <div class="invalid-feedback">
+                        <strong>Por favor selecciona un rol para el usuario</strong>
+                    </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="usuario_password">Contraseña:</label>
-                        <input type="password" id="usuario_password" name="password" required class="form-control"
-                            placeholder="Mínimo 8 caracteres">
+                        <div class="input-group">
+                            <input type="password" id="usuario_password" name="password" class="form-control"
+                                placeholder="Mínimo 8 caracteres" required>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="togglePassword('usuario_password')">
+                                <i class="fas fa-eye" id="usuario_password_icon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            <strong>La contraseña no cumple con los requisitos de seguridad</strong>
+                        </div>
+                        <div class="form-text">
+                            <small>Mínimo 8 caracteres, incluye mayúsculas, minúsculas y números</small>
+                        </div>
+
+                        <div class="password-strength mt-2">
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" id="usuario_password-strength-bar" role="progressbar"
+                                    style="width: 0%"></div>
+                            </div>
+                            <small class="text-muted" id="usuario_password-strength-text">
+                                Seguridad de la contraseña
+                            </small>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="usuario_password_confirmation">Confirmar Contraseña:</label>
-                        <input type="password" id="usuario_password_confirmation" name="password_confirmation"
-                            required class="form-control" placeholder="Repite la contraseña">
+                        <div class="input-group">
+                            <input type="password" id="usuario_password_confirmation" name="password_confirmation"
+                                class="form-control" placeholder="Repite la contraseña" required>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="togglePassword('usuario_password_confirmation')">
+                                <i class="fas fa-eye" id="usuario_password_confirmation_icon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            <strong>Las contraseñas no coinciden</strong>
+                        </div>
                     </div>
                 </div>
 
@@ -3263,6 +3309,9 @@
             if (document.getElementById('serviciosChart')) {
                 inicializarGraficoServicios();
             }
+            if (document.getElementById('usuarioForm')) {
+                initUsuarioFormValidation();
+            }
 
             actualizarDatosDashboard();
 
@@ -3299,9 +3348,237 @@
             });
         });
 
-        // Formulario de usuario
-        document.getElementById('usuarioForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // =============================================
+        // FORMUALRIO DE CREACION DE USUARIOS DESDE ADMIN
+        // =============================================
+        // Función para inicializar validaciones del formulario de usuario
+        function initUsuarioFormValidation() {
+            // Función para mostrar/ocultar contraseñas
+            function togglePassword(fieldId) {
+                const field = document.getElementById(fieldId);
+                const icon = document.getElementById(fieldId + '_icon');
+
+                if (field.type === 'password') {
+                    field.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    field.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+
+            // Asignar evento a los botones de mostrar/ocultar contraseña
+            document.getElementById('usuario_password_icon').parentNode.addEventListener('click', function() {
+                togglePassword('usuario_password');
+            });
+
+            document.getElementById('usuario_password_confirmation_icon').parentNode.addEventListener('click', function() {
+                togglePassword('usuario_password_confirmation');
+            });
+
+            // Validación de nombre (solo letras y espacios)
+            document.getElementById('usuario_nombre').addEventListener('input', function() {
+                const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                if (!regex.test(this.value)) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML = '<strong>Por favor ingresa solo letras y espacios</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación de email
+            document.getElementById('usuario_email').addEventListener('input', function() {
+                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!regex.test(this.value)) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML =
+                        '<strong>Por favor ingresa un correo electrónico válido</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación de teléfono
+            document.getElementById('usuario_telefono').addEventListener('input', function() {
+                const regex = /^\+?[\d\s\-]+$/;
+                if (this.value && !regex.test(this.value)) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML =
+                        '<strong>Por favor ingresa un número de teléfono válido</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación de rol
+            document.getElementById('usuario_rol').addEventListener('change', function() {
+                if (!this.value) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML =
+                        '<strong>Por favor selecciona un rol para el usuario</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación en tiempo real de la contraseña
+            document.getElementById('usuario_password').addEventListener('input', function() {
+                const password = this.value;
+                const hasMinLength = password.length >= 8;
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasLowerCase = /[a-z]/.test(password);
+                const hasNumber = /\d/.test(password);
+
+                // Validación de fortaleza
+                if (hasMinLength && hasUpperCase && hasLowerCase && hasNumber) {
+                    this.classList.add('is-valid');
+                    this.classList.remove('is-invalid');
+                } else {
+                    this.classList.remove('is-valid');
+
+                    let errorMessage = 'La contraseña debe tener:';
+                    if (!hasMinLength) errorMessage += '<br>- Mínimo 8 caracteres';
+                    if (!hasUpperCase || !hasLowerCase) errorMessage += '<br>- Mayúsculas y minúsculas';
+                    if (!hasNumber) errorMessage += '<br>- Al menos un número';
+
+                    const feedback = this.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) feedback.innerHTML = `<strong>${errorMessage}</strong>`;
+                }
+
+                // Actualizar indicador de fortaleza
+                updatePasswordStrengthIndicator(password);
+
+                // Disparar validación de confirmación si hay valor
+                const confirmField = document.getElementById('usuario_password_confirmation');
+                if (confirmField.value) {
+                    confirmField.dispatchEvent(new Event('input'));
+                }
+            });
+
+            // Validación en tiempo real de confirmación de contraseña
+            document.getElementById('usuario_password_confirmation').addEventListener('input', function() {
+                const password = document.getElementById('usuario_password').value;
+                const confirmPassword = this.value;
+
+                if (confirmPassword && password !== confirmPassword) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML = '<strong>Las contraseñas no coinciden</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación antes de enviar el formulario
+            document.getElementById('usuarioForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let isValid = true;
+                const fieldsToValidate = [
+                    'usuario_nombre',
+                    'usuario_email',
+                    'usuario_rol',
+                    'usuario_password',
+                    'usuario_password_confirmation'
+                ];
+
+                // Validar campos obligatorios
+                fieldsToValidate.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (!field.value) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                });
+
+                // Validar teléfono si tiene valor
+                const telefono = document.getElementById('usuario_telefono');
+                if (telefono.value && !/^\+?[\d\s\-]+$/.test(telefono.value)) {
+                    telefono.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                // Validar contraseña cumple requisitos
+                const password = document.getElementById('usuario_password');
+                if (password.value.length < 8 || !/[A-Z]/.test(password.value) ||
+                    !/[a-z]/.test(password.value) || !/\d/.test(password.value)) {
+                    password.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                // Validar confirmación de contraseña
+                const passwordConfirm = document.getElementById('usuario_password_confirmation');
+                if (password.value !== passwordConfirm.value) {
+                    passwordConfirm.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    Swal.fire({
+                        title: 'Error en el formulario',
+                        html: 'Por favor completa correctamente todos los campos requeridos.',
+                        icon: 'error',
+                        confirmButtonText: 'Entendido'
+                    });
+                    return;
+                }
+
+                // Si todo está bien, proceder con el envío
+                crearUsuario();
+            });
+        }
+
+        // Función para actualizar el indicador de fortaleza de contraseña
+        function updatePasswordStrengthIndicator(password) {
+            const strength = calculatePasswordStrength(password);
+            const strengthBar = document.getElementById('usuario_password-strength-bar');
+            const strengthText = document.getElementById('usuario_password-strength-text');
+
+            if (strengthBar && strengthText) {
+                strengthBar.style.width = strength.percentage + '%';
+                strengthBar.className = 'progress-bar ' + strength.class;
+                strengthText.textContent = strength.text;
+                strengthText.className = strength.textClass;
+            }
+        }
+
+        // Función para resetear el formulario de usuario al cerrar
+        function resetUsuarioForm() {
+            const form = document.getElementById('usuarioForm');
+            if (form) {
+                form.reset();
+
+                // Resetear indicadores de validación
+                const fields = form.querySelectorAll('.is-invalid, .is-valid');
+                fields.forEach(field => {
+                    field.classList.remove('is-invalid', 'is-valid');
+                });
+
+                // Resetear indicador de fortaleza
+                updatePasswordStrengthIndicator('');
+            }
+        }
+
+        // Modificar la función closeModal para resetear el formulario
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+
+            if (modalId === 'usuarioModal') {
+                resetUsuarioForm();
+            }
+        }
+
+        // Función para crear usuario via AJAX
+        async function crearUsuario() {
+            const form = document.getElementById('usuarioForm');
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+
+            // Mostrar estado de carga
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando usuario...';
 
             const formData = {
                 nombre: document.getElementById('usuario_nombre').value,
@@ -3328,22 +3605,36 @@
                 if (response.ok) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Usuario creado',
-                        text: 'El usuario se ha creado correctamente'
+                        title: '¡Usuario creado!',
+                        text: 'El usuario ha sido registrado correctamente.',
+                        confirmButtonText: 'Aceptar'
+                    }).then(() => {
+                        closeModal('usuarioModal');
+                        actualizarDatosDashboard();
                     });
-                    closeModal('usuarioModal');
-                    actualizarDatosDashboard();
                 } else {
-                    throw new Error(data.message || 'Error al crear el usuario');
+                    let errorMessage = 'No se pudo crear el usuario.';
+                    if (data.errors) {
+                        errorMessage += '<br><br>' + Object.values(data.errors).join('<br>');
+                    } else if (data.message) {
+                        errorMessage += '<br><br>' + data.message;
+                    }
+
+                    throw new Error(errorMessage);
                 }
             } catch (error) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: error.message
+                    html: error.message,
+                    confirmButtonText: 'Entendido'
                 });
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             }
-        });
+        }
+
 
         // Formulario de perfil
         document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
