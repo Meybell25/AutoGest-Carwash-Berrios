@@ -224,6 +224,7 @@
             border: 1px solid transparent;
             background-clip: padding-box;
             background: white;
+            position: relative;
         }
 
         .welcome-stat:hover::before {
@@ -272,7 +273,7 @@
                 background-position: 0% 50%;
             }
 
-            50% {
+            .welcome-stat50% {
                 background-position: 100% 50%;
             }
 
@@ -561,7 +562,7 @@
             color: white;
             box-shadow: var(--shadow-sm);
         }
-        
+
         .icon-primary {
             background: var(--primary-gradient);
         }
@@ -1315,12 +1316,12 @@
 
         .card-header .icon i,
         .welcome-icon i {
-             color: white !important;
+            color: white !important;
             font-size: 1.6rem;
             z-index: 1000;
         }
 
-    
+
 
         .welcome-icon::before,
         .welcome-icon::after {
@@ -1965,6 +1966,31 @@
         ::-webkit-scrollbar-thumb:hover {
             animation: scrollbar-glow 1.5s infinite;
         }
+
+        /* ======================
+            Nueva clase para contenedores de íconos
+            ====================== */
+        .icon-container {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            background: var(--secondary-gradient) !important;
+        }
+
+        .icon-container:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Asegurarnos que los íconos dentro sean blancos */
+        .icon-container i {
+            color: white !important;
+        }
     </style>
 </head>
 
@@ -2060,7 +2086,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                             <div class="card-header-icon icon-container">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-briefcase"></i>
                             </div>
                             Gestión de Horarios
@@ -2236,7 +2262,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                             <div class="card-header-icon icon-container">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-chart-pie"></i>
                             </div>
                             Rendimiento Mensual
@@ -2276,7 +2302,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                             <div class="card-header-icon icon-container">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-calendar-day"></i>
                             </div>
                             Últimas Citas
@@ -2382,7 +2408,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                             <div class="card-header-icon icon-container">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-user-tie"></i>
                             </div>
                             Mi Perfil
@@ -2423,7 +2449,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                             <div class="card-header-icon icon-container">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-users"></i>
                             </div>
                             Resumen de Usuarios
@@ -2461,7 +2487,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                             <div class="card-header-icon icon-container">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-award"></i>
                             </div>
                             Servicios Populares
@@ -2496,7 +2522,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                             <div class="card-header-icon icon-container">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </div>
                             Alertas del Sistema
@@ -2692,7 +2718,7 @@
         <div class="footer-content">
             <div class="footer-brand">
                 <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                <p class="footer-slogan">✨ "Sistema de Administración Integral" ✨</p>
+                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
             </div>
 
             <div class="footer-info">
