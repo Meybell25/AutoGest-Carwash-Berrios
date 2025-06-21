@@ -2002,7 +2002,7 @@
                 <div class="header-actions">
                     <a href="{{ route('admin.citas.create') }}" class="btn btn-primary">
                         <i class="fas fa-plus"></i>
-                        Nueva Cita
+                        Crear Usuarios
                     </a>
                     <a href="{{ route('admin.reportes') }}" class="btn btn-success">
                         <i class="fas fa-chart-bar"></i>
@@ -2064,7 +2064,7 @@
                         <h2>
                             <i class="fas fa-briefcase"></i>
                             <div class="icon">
-                                <i class="fas fa-briefcase"></i>
+                                <i class="fas fa-briefcase" style="color: white"></i>
                             </div>
                             Gestión de Horarios
                         </h2>
