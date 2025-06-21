@@ -170,7 +170,7 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-            background: var(--gradient-primary);
+            background: var(--secondary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
