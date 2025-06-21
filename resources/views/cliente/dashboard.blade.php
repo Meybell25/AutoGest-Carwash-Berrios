@@ -1471,10 +1471,10 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button type="button" id="openVehiculoBtn" class="btn btn-primary" onclick="openVehiculoModal()">
+                    <a href="{{ route('vehiculos.index') }}" class="btn btn-primary">
                         <i class="fas fa-plus"></i>
                         Agregar Vehículo
-                    </button>
+                    </a>
                     <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
@@ -1994,10 +1994,9 @@
                 </div>
 
 
-                <div class="mb-4">
-                    <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                    <select id="tipo" name="tipo" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+               <div class="form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo" required>
                         <option value="">Seleccione</option>
                         <option value="sedan">Sedán</option>
                         <option value="pickup">Pickup</option>
@@ -2017,24 +2016,16 @@
                     <textarea id="descripcion" name="descripcion" rows="3"></textarea>
              </div>
 
-                <div class="mb-4">
-                    <label for="placa" class="block text-sm font-medium text-gray-700 mb-1">Placa</label>
-                    <input type="text" id="placa" name="placa" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-
-                <div class="mb-4">
-                    <label for="fecha_registro" class="block text-sm font-medium text-gray-700 mb-1">Fecha de
-                        Registro</label>
-                    <input type="date" id="fecha_registro" name="fecha_registro" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="form-group">
+                    <label for="placa">Placa</label>
+                    <input type="text" id="placa" name="placa" required>
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="closeVehiculoModal()" class="btn btn-outline">
                         Cancelar
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    <button type="submit" class="btn btn-primary">
                         Guardar Vehículo
                     </button>
                 </div>
