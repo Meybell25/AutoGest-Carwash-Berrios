@@ -117,7 +117,7 @@
 
         /* Header con bienvenida mejorada */
         .header {
-            background: rgba(228, 228, 228, 0.95);
+            background: rgba(243, 243, 243, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
