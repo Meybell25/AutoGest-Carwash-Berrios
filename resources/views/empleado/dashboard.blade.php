@@ -402,18 +402,13 @@
         .btn-outline i,
         .btn-primary i,
         .btn-success i,
-        .btn-warning i,
-        .btn-profile i {
+        .btn-warning i {
             color: inherit !important;
             /* Hereda el color del texto del botón */
             transition: all 0.3s ease;
         }
 
         /* Casos específicos */
-        .btn-profile i {
-            color: white !important;
-            /* Fuerza blanco en botón de perfil */
-        }
 
         .btn-outline i {
             color: var(--primary) !important;
@@ -432,11 +427,6 @@
             display: flex !important;
             align-items: center;
             justify-content: center;
-        }
-
-        /* Íconos en texto normal (como los de perfil) */
-        .profile-summary i:not(.btn i) {
-            color: white !important;
         }
 
 
@@ -811,6 +801,21 @@
             color: var(--gray-600);
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
+        }
+
+        .profile-summary i.fas {
+            color: var(--primary);
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .profile-summary i.fa-phone {
+            color: var(--primary);
+        }
+
+        .profile-summary i.fa-id-badge {
+            color: var(--primary);
         }
 
         /* Modales */
