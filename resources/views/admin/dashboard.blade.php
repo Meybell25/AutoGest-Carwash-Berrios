@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Panel de Administración - AutoGest Carwash</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -2012,10 +2013,10 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="#" class="btn btn-primary" onclick="mostrarModalUsuario()">
+                    <button type="button" class="btn btn-primary" onclick="mostrarModalUsuario()">
                         <i class="fas fa-user-plus"></i>
                         Crear Usuarios
-                    </a>
+                    </button>
                     <a href="{{ route('admin.reportes') }}" class="btn btn-success">
                         <i class="fas fa-chart-bar"></i>
                         Reportes
@@ -2710,20 +2711,32 @@
                 @csrf
                 <div class="form-group">
                     <label for="usuario_nombre">Nombre Completo:</label>
-                    <input type="text" id="usuario_nombre" name="nombre" required class="form-control"
-                        placeholder="Ej: Juan Pérez">
+                    <input type="text" id="usuario_nombre" name="nombre" class="form-control"
+                        placeholder="Ej: Juan Pérez" required>
+                    <div class="invalid-feedback">
+                        <strong>Por favor ingresa un nombre válido (solo letras y espacios)</strong>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="usuario_email">Email:</label>
-                    <input type="email" id="usuario_email" name="email" required class="form-control"
-                        placeholder="Ej: usuario@example.com">
+                    <input type="email" id="usuario_email" name="email" class="form-control"
+                        placeholder="Ej: usuario@example.com" required>
+                    <div class="invalid-feedback">
+                        <strong>Por favor ingresa un correo electrónico válido</strong>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="usuario_telefono">Teléfono:</label>
                     <input type="tel" id="usuario_telefono" name="telefono" class="form-control"
-                        placeholder="Ej: 75855197">
+                        placeholder="Ej: +503 1234-5678">
+                    <div class="invalid-feedback">
+                        <strong>Por favor ingresa un número de teléfono válido</strong>
+                    </div>
+                    <div class="form-text">
+                        <small>Formato: +código país número (ej: +503 1234-5678)</small>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -2734,19 +2747,53 @@
                         <option value="empleado">Empleado</option>
                         <option value="admin">Administrador</option>
                     </select>
+                    <div class="invalid-feedback">
+                        <strong>Por favor selecciona un rol para el usuario</strong>
+                    </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="usuario_password">Contraseña:</label>
-                        <input type="password" id="usuario_password" name="password" required class="form-control"
-                            placeholder="Mínimo 8 caracteres">
+                        <div class="input-group">
+                            <input type="password" id="usuario_password" name="password" class="form-control"
+                                placeholder="Mínimo 8 caracteres" required>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="togglePassword('usuario_password')">
+                                <i class="fas fa-eye" id="usuario_password_icon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            <strong>La contraseña no cumple con los requisitos de seguridad</strong>
+                        </div>
+                        <div class="form-text">
+                            <small>Mínimo 8 caracteres, incluye mayúsculas, minúsculas y números</small>
+                        </div>
+
+                        <div class="password-strength mt-2">
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" id="usuario_password-strength-bar" role="progressbar"
+                                    style="width: 0%"></div>
+                            </div>
+                            <small class="text-muted" id="usuario_password-strength-text">
+                                Seguridad de la contraseña
+                            </small>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="usuario_password_confirmation">Confirmar Contraseña:</label>
-                        <input type="password" id="usuario_password_confirmation" name="password_confirmation"
-                            required class="form-control" placeholder="Repite la contraseña">
+                        <div class="input-group">
+                            <input type="password" id="usuario_password_confirmation" name="password_confirmation"
+                                class="form-control" placeholder="Repite la contraseña" required>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="togglePassword('usuario_password_confirmation')">
+                                <i class="fas fa-eye" id="usuario_password_confirmation_icon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            <strong>Las contraseñas no coinciden</strong>
+                        </div>
                     </div>
                 </div>
 
@@ -2816,7 +2863,11 @@
     </footer>
 
     <script>
-        // Configuración global de SweetAlert
+        // =============================================
+        // CONFIGURACIONES GLOBALES
+        // =============================================
+
+        // Configuración de SweetAlert
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -2825,72 +2876,36 @@
             timerProgressBar: true
         });
 
-        // Variables globales para los gráficos
+        // Variables globales para gráficos
         let usuariosChart, ingresosChart, citasChart, serviciosChart;
 
-        // Inicializar Pusher con tus credenciales
-        const pusher = new Pusher('7aad3a0de2b398e2f0b4', {
-            cluster: 'mt1',
-            encrypted: true,
-            authEndpoint: '/broadcasting/auth',
-            auth: {
-                headers: {
-                    'X-CSRF-Token': '{{ csrf_token() }}'
-                }
-            }
-        });
+        // =============================================
+        // FUNCIONES DE INICIALIZACIÓN
+        // =============================================
 
-        // Manejo de conexión Pusher
-        pusher.connection.bind('state_change', (states) => {
-            console.log('Estado de conexión cambiado:', states);
-            if (states.current === 'disconnected') {
-                console.log('Intentando reconectar...');
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Reconectando con el servidor...'
-                });
-            }
-        });
-
-        pusher.connection.bind('connected', () => {
-            Toast.fire({
-                icon: 'success',
-                title: 'Conexión en tiempo real establecida'
+        function inicializarGraficoUsuarios(data) {
+            const ctx = document.getElementById('usuariosChart').getContext('2d');
+            usuariosChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Clientes', 'Empleados', 'Administradores'],
+                    datasets: [{
+                        data: [data.clientes, data.empleados, data.administradores],
+                        backgroundColor: [
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: getCommonChartOptions('bottom')
             });
-        });
+        }
 
-        pusher.connection.bind('error', (err) => {
-            console.error('Error de Pusher:', err);
-            Toast.fire({
-                icon: 'error',
-                title: 'Error de conexión en tiempo real'
-            });
-        });
-
-        // Suscribirse a canales y eventos
-        const channel = pusher.subscribe('usuarios');
-        channel.bind('UsuarioCreado', function(data) {
-            Toast.fire({
-                icon: 'info',
-                title: 'Nuevo usuario registrado'
-            });
-            actualizarGraficoUsuarios();
-        });
-
-        // Función para inicializar todos los gráficos
-        function inicializarGraficos() {
-            // Verificar que los elementos canvas existan
-            if (!document.getElementById('ingresosChart') ||
-                !document.getElementById('citasChart') ||
-                !document.getElementById('serviciosChart') ||
-                !document.getElementById('usuariosChart')) {
-                console.error('No se encontraron todos los elementos canvas para los gráficos');
-                return;
-            }
-
-            // Gráfico de ingresos mensuales
-            const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
-            ingresosChart = new Chart(ingresosCtx, {
+        function inicializarGraficoIngresos() {
+            const ctx = document.getElementById('ingresosChart').getContext('2d');
+            ingresosChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
@@ -2905,75 +2920,29 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    ...getCommonChartOptions('top'),
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => '$' + value
+                            }
+                        }
+                    },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                        },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
-                                    return '$' + context.raw.toLocaleString();
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value;
-                                }
+                                label: context => '$' + context.raw.toLocaleString()
                             }
                         }
                     }
                 }
             });
+        }
 
-            // Gráfico de citas mensuales
-            const citasCtx = document.getElementById('citasChart').getContext('2d');
-            citasChart = new Chart(citasCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                    datasets: [{
-                        label: 'Citas Completadas',
-                        data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                        backgroundColor: 'rgba(211, 84, 0, 0.7)',
-                        borderColor: 'rgba(211, 84, 0, 1)',
-                        borderWidth: 1
-                    }, {
-                        label: 'Citas Canceladas',
-                        data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Gráfico de servicios populares
-            const serviciosCtx = document.getElementById('serviciosChart').getContext('2d');
-            serviciosChart = new Chart(serviciosCtx, {
+        function inicializarGraficoServicios() {
+            const ctx = document.getElementById('serviciosChart').getContext('2d');
+            serviciosChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
@@ -2986,68 +2955,38 @@
                             'rgba(155, 89, 182, 0.7)',
                             'rgba(231, 76, 60, 0.7)'
                         ],
-                        borderColor: [
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(52, 152, 219, 1)',
-                            'rgba(243, 156, 18, 1)',
-                            'rgba(155, 89, 182, 1)',
-                            'rgba(231, 76, 60, 1)'
-                        ],
                         borderWidth: 1
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                        }
-                    }
-                }
+                options: getCommonChartOptions('right')
             });
+        }
 
-            // Gráfico de distribución de usuarios
-            const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
-            usuariosChart = new Chart(usuariosCtx, {
-                type: 'pie',
+        function inicializarGraficoCitas() {
+            const ctx = document.getElementById('citasChart').getContext('2d');
+            citasChart = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: ['Clientes', 'Empleados', 'Administradores'],
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                     datasets: [{
-                        data: [
-                            {{ $rolesDistribucion['clientes'] }},
-                            {{ $rolesDistribucion['empleados'] }},
-                            {{ $rolesDistribucion['administradores'] }}
-                        ],
-                        backgroundColor: [
-                            'rgba(39, 174, 96, 0.7)',
-                            'rgba(52, 152, 219, 0.7)',
-                            'rgba(155, 89, 182, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(52, 152, 219, 1)',
-                            'rgba(155, 89, 182, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
+                            label: 'Citas Completadas',
+                            data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
+                            backgroundColor: 'rgba(211, 84, 0, 0.7)'
+                        },
+                        {
+                            label: 'Citas Canceladas',
+                            data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)'
+                        }
+                    ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
+                    ...getCommonChartOptions('top'),
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
                             }
                         }
                     }
@@ -3055,259 +2994,169 @@
             });
         }
 
-        // Función para actualizar datos de gráficos
-        async function actualizarGraficoUsuarios() {
+        function getCommonChartOptions(legendPosition) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: legendPosition
+                    }
+                }
+            };
+        }
+
+        // =============================================
+        // FUNCIONES DE ACTUALIZACIÓN DE DATOS
+        // =============================================
+
+        async function actualizarDatosDashboard() {
             try {
                 const response = await fetch('{{ route('admin.dashboard.data') }}');
+                if (!response.ok) throw new Error('Error en la respuesta del servidor');
+
                 const data = await response.json();
 
-                // Función helper segura
-                const safeUpdate = (selector, value) => {
-                    const element = document.querySelector(selector);
-                    if (element) element.textContent = value;
-                };
-
-                // Actualización de estadísticas
-                if (data.stats) {
-                    safeUpdate('.welcome-stat:nth-child(1) .number', data.stats.usuarios_totales || '0');
-                    safeUpdate('.welcome-stat:nth-child(2) .number', data.stats.citas_hoy || '0');
-                    safeUpdate('.welcome-stat:nth-child(3) .number', `$${(data.stats.ingresos_hoy || 0).toFixed(2)}`);
-
-                    // Actualización de cards
-                    safeUpdate('.card-body [style*="grid-template-columns"] div:first-child div:first-child',
-                        data.stats.usuarios_totales || '0');
-                    safeUpdate('.card-body [style*="grid-template-columns"] div:nth-child(2) div:first-child',
-                        data.stats.nuevos_clientes_mes || '0');
+                if (!data.stats || !data.rolesDistribucion) {
+                    throw new Error('Formato de datos incorrecto');
                 }
 
-                // Actualización de gráficos
-                if (window.usuariosChart && data.rolesDistribucion) {
-                    window.usuariosChart.data.datasets[0].data = [
-                        data.rolesDistribucion.clientes || 0,
-                        data.rolesDistribucion.empleados || 0,
-                        data.rolesDistribucion.administradores || 0
-                    ];
-                    window.usuariosChart.update();
-                }
+                actualizarEstadisticas(data.stats);
+                actualizarGraficoUsuarios(data.rolesDistribucion);
 
-                if (window.ingresosChart && data.ingresosMensuales) {
-                    window.ingresosChart.data.datasets[0].data = data.ingresosMensuales || [];
-                    window.ingresosChart.update();
-                }
-
-                if (window.citasChart && data.citasMensuales) {
-                    window.citasChart.data.datasets[0].data = data.citasMensuales?.completadas || [];
-                    window.citasChart.data.datasets[1].data = data.citasMensuales?.canceladas || [];
-                    window.citasChart.update();
-                }
-
-                if (window.serviciosChart && data.serviciosPopulares) {
-                    window.serviciosChart.data.datasets[0].data = data.serviciosPopulares || [];
-                    window.serviciosChart.update();
-                }
-
+                return true;
             } catch (error) {
                 console.error('Error al actualizar datos:', error);
                 Toast.fire({
                     icon: 'error',
-                    title: 'Error al actualizar datos'
+                    title: 'Error al cargar datos',
+                    text: error.message
                 });
+                return false;
             }
         }
-        // Inicializar todo cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
-            inicializarGraficos();
-            actualizarGraficoUsuarios();
 
-            // Actualizar cada 10 segundos
-            setInterval(actualizarGraficoUsuarios, 10000);
-        });
-
-        // Actualizar cuando la pestaña vuelve a estar activa
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                actualizarGraficoUsuarios();
+        function actualizarEstadisticas(stats) {
+            const welcomeStats = document.querySelectorAll('.welcome-stat .number');
+            if (welcomeStats.length >= 3) {
+                welcomeStats[0].textContent = stats.usuarios_totales ?? 0;
+                welcomeStats[1].textContent = stats.citas_hoy ?? 0;
+                welcomeStats[2].textContent = `$${(stats.ingresos_hoy ?? 0).toFixed(2)}`;
+            } else {
+                console.warn('No se encontraron los elementos de estadísticas principales');
             }
-        });
+
+            const cardCounters = document.querySelectorAll('.card-body [style*="grid-template-columns"] div');
+            if (cardCounters.length >= 2) {
+                const numberElements = cardCounters[0].querySelectorAll('div:first-child');
+                if (numberElements.length > 0) {
+                    numberElements[0].textContent = stats.usuarios_totales ?? 0;
+                }
+                if (numberElements.length > 1) {
+                    numberElements[1].textContent = stats.nuevos_clientes_mes ?? 0;
+                }
+            }
+        }
+
+        function actualizarGraficoUsuarios(data) {
+            if (usuariosChart) {
+                usuariosChart.data.datasets[0].data = [
+                    data.clientes,
+                    data.empleados,
+                    data.administradores
+                ];
+                usuariosChart.update();
+            } else {
+                inicializarGraficoUsuarios(data);
+            }
+        }
+
+        // =============================================
+        // FUNCIONES DE INTERFAZ
+        // =============================================
 
         // Funciones para pestañas
         function openTab(evt, tabName) {
             const tabContents = document.getElementsByClassName('tab-content');
-            for (let i = 0; i < tabContents.length; i++) {
-                tabContents[i].classList.remove('active');
-            }
-
             const tabButtons = document.getElementsByClassName('tab-button');
-            for (let i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].classList.remove('active');
-            }
+
+            Array.from(tabContents).forEach(content => content.classList.remove('active'));
+            Array.from(tabButtons).forEach(button => button.classList.remove('active'));
 
             document.getElementById(tabName).classList.add('active');
             evt.currentTarget.classList.add('active');
         }
 
         // Funciones para modales
-        function verDetalleCita(citaId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            const detalleContent = `
-                <h2 style="color: var(--primary); margin-bottom: 20px;">
-                    <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
-                </h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-user"></i> Información del Cliente
-                        </h3>
-                        <p><strong>Nombre:</strong> Juan Pérez</p>
-                        <p><strong>Teléfono:</strong> 5555-1234</p>
-                        <p><strong>Email:</strong> juan@example.com</p>
-                        <p><strong>Cliente desde:</strong> Ene 2023</p>
-                    </div>
-                    
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-car"></i> Información del Vehículo
-                        </h3>
-                        <p><strong>Marca/Modelo:</strong> Toyota Corolla</p>
-                        <p><strong>Año:</strong> 2020</p>
-                        <p><strong>Color:</strong> Rojo</p>
-                        <p><strong>Placa:</strong> P123456</p>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-concierge-bell"></i> Servicios Contratados
-                    </h3>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: var(--light);">
-                                <th style="padding: 10px; text-align: left;">Servicio</th>
-                                <th style="padding: 10px; text-align: right;">Precio</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary);">Lavado Completo</td>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary); text-align: right;">$25.00</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary);">Aspirado Interior</td>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary); text-align: right;">$15.00</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; font-weight: bold;">Total</td>
-                                <td style="padding: 10px; font-weight: bold; text-align: right;">$40.00</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-info-circle"></i> Información Adicional
-                    </h3>
-                    <p><strong>Fecha/Hora:</strong> 15 Jun 2023 - 10:00 AM</p>
-                    <p><strong>Estado:</strong> <span class="badge badge-success">Finalizada</span></p>
-                    <p><strong>Empleado asignado:</strong> Carlos López</p>
-                    <p><strong>Observaciones del cliente:</strong> Por favor prestar atención a las manchas en los asientos traseros.</p>
-                    <p><strong>Observaciones del empleado:</strong> Se detectó pequeño rayón en la puerta derecha, cliente fue notificado.</p>
-                </div>
-                
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button class="btn btn-outline" onclick="imprimirRecibo(${citaId})">
-                        <i class="fas fa-print"></i> Imprimir Recibo
-                    </button>
-                    <button class="btn btn-primary" onclick="editarCita(${citaId})">
-                        <i class="fas fa-edit"></i> Editar Cita
-                    </button>
-                </div>
-            `;
+        function mostrarModal(modalId, title = '', content = '') {
+            if (title) document.getElementById(`${modalId}Title`).innerHTML = title;
+            if (content) document.getElementById(`${modalId}Content`).innerHTML = content;
+            document.getElementById(modalId).style.display = 'flex';
+        }
 
-            document.getElementById('detalleCitaContent').innerHTML = detalleContent;
-            document.getElementById('detalleCitaModal').style.display = 'flex';
+        function mostrarModalUsuario() {
+            document.getElementById('usuarioModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // =============================================
+        // FUNCIONES ESPECÍFICAS
+        // =============================================
+
+        // Gestión de citas
+        function verDetalleCita(citaId) {
+            const detalleContent = `
+        <h2 style="color: var(--primary); margin-bottom: 20px;">
+            <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                    <i class="fas fa-user"></i> Información del Cliente
+                </h3>
+                <p><strong>Nombre:</strong> ${citaId.nombre || 'Juan Pérez'}</p>
+                <p><strong>Teléfono:</strong> ${citaId.telefono || '5555-1234'}</p>
+                <p><strong>Email:</strong> ${citaId.email || 'juan@example.com'}</p>
+            </div>
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                    <i class="fas fa-car"></i> Información del Vehículo
+                </h3>
+                <p><strong>Marca/Modelo:</strong> ${citaId.vehiculo || 'Toyota Corolla'}</p>
+                <p><strong>Placa:</strong> ${citaId.placa || 'P123456'}</p>
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                <i class="fas fa-concierge-bell"></i> Servicios
+            </h3>
+            <ul>
+                ${citaId.servicios ? citaId.servicios.map(s => `<li>${s.nombre} - $${s.precio}</li>`).join('') : '<li>Lavado Completo - $25.00</li>'}
+            </ul>
+        </div>
+    `;
+            mostrarModal('detalleCitaModal', '<i class="fas fa-calendar-check"></i> Detalle de Cita', detalleContent);
         }
 
         function editarCita(citaId) {
-            // Simulación de formulario 
             const formContent = `
-                <div class="form-group">
-                    <label for="edit_cliente">Cliente:</label>
-                    <select id="edit_cliente" class="form-control" required>
-                        <option value="1" selected>Juan Pérez</option>
-                        <option value="2">María González</option>
-                        <option value="3">Carlos López</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_vehiculo">Vehículo:</label>
-                    <select id="edit_vehiculo" class="form-control" required>
-                        <option value="1" selected>Toyota Corolla (P123456)</option>
-                        <option value="2">Honda Civic (P654321)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_fecha">Fecha:</label>
-                    <input type="date" id="edit_fecha" class="form-control" value="2023-06-15" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_hora">Hora:</label>
-                    <input type="time" id="edit_hora" class="form-control" value="10:00" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Servicios:</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div>
-                            <input type="checkbox" id="serv1" checked>
-                            <label for="serv1">Lavado Completo ($25.00)</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="serv2" checked>
-                            <label for="serv2">Aspirado Interior ($15.00)</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="serv3">
-                            <label for="serv3">Encerado ($20.00)</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_empleado">Empleado Asignado:</label>
-                    <select id="edit_empleado" class="form-control" required>
-                        <option value="1" selected>Carlos López</option>
-                        <option value="2">Ana Martínez</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_estado">Estado:</label>
-                    <select id="edit_estado" class="form-control" required>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="en_proceso">En Proceso</option>
-                        <option value="finalizada" selected>Finalizada</option>
-                        <option value="cancelada">Cancelada</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_observaciones">Observaciones:</label>
-                    <textarea id="edit_observaciones" rows="3" class="form-control">Por favor prestar atención a las manchas en los asientos traseros.</textarea>
-                </div>
-                
-                <button type="button" class="btn btn-success" style="width: 100%;" onclick="guardarCambiosCita(${citaId})">
-                    <i class="fas fa-save"></i> Guardar Cambios
-                </button>
-            `;
-
-            document.getElementById('editarCitaForm').innerHTML = formContent;
-            document.getElementById('detalleCitaModal').style.display = 'none';
-            document.getElementById('editarCitaModal').style.display = 'flex';
+        <form id="editarCitaForm">
+            <div class="form-group">
+                <label for="editFecha">Fecha:</label>
+                <input type="date" id="editFecha" class="form-control" value="${new Date().toISOString().split('T')[0]}" required>
+            </div>
+            <div class="form-group">
+                <label for="editHora">Hora:</label>
+                <input type="time" id="editHora" class="form-control" value="10:00" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    `;
+            closeModal('detalleCitaModal');
+            mostrarModal('editarCitaModal', '<i class="fas fa-edit"></i> Editar Cita', formContent);
         }
 
         function cancelarCita(citaId) {
@@ -3322,250 +3171,416 @@
                 cancelButtonText: 'No, volver'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Aquí iría la petición AJAX para cancelar la cita
                     Toast.fire({
                         icon: 'success',
                         title: 'Cita cancelada correctamente'
                     });
-
-                    // Simulación de recarga de datos
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    actualizarDatosDashboard();
                 }
             });
         }
 
-        function guardarCambiosCita(citaId) {
-            // Aquí iría la petición AJAX para guardar los cambios
-            Toast.fire({
-                icon: 'success',
-                title: 'Cambios guardados correctamente'
-            });
-
-            closeModal('editarCitaModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                verDetalleCita(citaId);
-            }, 500);
-        }
-
-        function imprimirRecibo(citaId) {
-            // Aquí iría la lógica para imprimir el recibo
-            window.open(`/admin/citas/${citaId}/recibo`, '_blank');
-        }
-
+        // Gestión de servicios
         function nuevoServicio() {
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Nuevo Servicio';
-            document.getElementById('servicio_id').value = '';
-            document.getElementById('servicio_nombre').value = '';
-            document.getElementById('servicio_descripcion').value = '';
-            document.getElementById('servicio_precio').value = '';
-            document.getElementById('servicio_duracion').value = '';
-            document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'flex';
+            const formContent = `
+        <form id="servicioForm">
+            <div class="form-group">
+                <label for="servicioNombre">Nombre:</label>
+                <input type="text" id="servicioNombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="servicioPrecio">Precio:</label>
+                <input type="number" id="servicioPrecio" class="form-control" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Servicio</button>
+        </form>
+    `;
+            mostrarModal('servicioModal', '<i class="fas fa-plus"></i> Nuevo Servicio', formContent);
         }
 
         function editarServicio(servicioId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
-            document.getElementById('servicio_id').value = servicioId;
-            document.getElementById('servicio_nombre').value = 'Lavado Completo';
-            document.getElementById('servicio_descripcion').value =
-                'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
-            document.getElementById('servicio_precio').value = '25.00';
-            document.getElementById('servicio_duracion').value = '30';
-            document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'flex';
+            const formContent = `
+        <form id="editarServicioForm">
+            <input type="hidden" id="servicioId" value="${servicioId}">
+            <div class="form-group">
+                <label for="editServicioNombre">Nombre:</label>
+                <input type="text" id="editServicioNombre" class="form-control" value="Lavado Premium" required>
+            </div>
+            <div class="form-group">
+                <label for="editServicioPrecio">Precio:</label>
+                <input type="number" id="editServicioPrecio" class="form-control" value="35.00" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Servicio</button>
+        </form>
+    `;
+            mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
         }
 
+        // Gestión de horarios
         function mostrarModalHorario() {
-            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Agregar Horario';
-            document.getElementById('horario_id').value = '';
-            document.getElementById('horario_dia').value = '';
-            document.getElementById('horario_inicio').value = '';
-            document.getElementById('horario_fin').value = '';
-            document.getElementById('horario_activo').value = '1';
-            document.getElementById('horarioModal').style.display = 'flex';
+            const formContent = `
+        <form id="horarioForm">
+            <div class="form-group">
+                <label for="horarioDia">Día:</label>
+                <select id="horarioDia" class="form-control" required>
+                    <option value="Lunes">Lunes</option>
+                    <option value="Martes">Martes</option>
+                    <!-- Más días -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="horarioInicio">Hora Inicio:</label>
+                <input type="time" id="horarioInicio" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Horario</button>
+        </form>
+    `;
+            mostrarModal('horarioModal', '<i class="fas fa-plus"></i> Agregar Horario', formContent);
         }
 
-        function editarHorario(diaSemana) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-
-            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Horario';
-            document.getElementById('horario_id').value = diaSemana;
-            document.getElementById('horario_dia').value = diaSemana;
-            document.getElementById('horario_inicio').value = '07:00';
-            document.getElementById('horario_fin').value = '18:00';
-            document.getElementById('horario_activo').value = '1';
-            document.getElementById('horarioModal').style.display = 'flex';
+        function editarHorario(horarioId) {
+            const formContent = `
+        <form id="editarHorarioForm">
+            <input type="hidden" id="horarioId" value="${horarioId}">
+            <div class="form-group">
+                <label for="editHorarioDia">Día:</label>
+                <select id="editHorarioDia" class="form-control" required>
+                    <option value="Lunes" selected>Lunes</option>
+                    <option value="Martes">Martes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editHorarioInicio">Hora Inicio:</label>
+                <input type="time" id="editHorarioInicio" class="form-control" value="08:00" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Horario</button>
+        </form>
+    `;
+            mostrarModal('horarioModal', '<i class="fas fa-edit"></i> Editar Horario', formContent);
         }
 
-        function activarHorario(diaSemana) {
-            // Aquí iría la petición AJAX para activar el horario
-            Toast.fire({
-                icon: 'success',
-                title: 'Horario activado correctamente'
-            });
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        }
-
-        function desactivarHorario(diaSemana) {
-            // Aquí iría la petición AJAX para desactivar el horario
-            Toast.fire({
-                icon: 'success',
-                title: 'Horario desactivado correctamente'
-            });
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        }
-
-        // Función para abrir el modal de edición de perfil
+        // Gestión de perfil
         function editarPerfil() {
-            document.getElementById('perfil_nombre').value = '{{ Auth::user()->nombre }}';
-            document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? '' }}';
-            document.getElementById('perfilModal').style.display = 'flex';
+            const formContent = `
+        <form id="perfilForm">
+            <div class="form-group">
+                <label for="perfilNombre">Nombre:</label>
+                <input type="text" id="perfilNombre" class="form-control" value="{{ Auth::user()->nombre }}" required>
+            </div>
+            <div class="form-group">
+                <label for="perfilTelefono">Teléfono:</label>
+                <input type="tel" id="perfilTelefono" class="form-control" value="{{ Auth::user()->telefono ?? '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    `;
+            mostrarModal('perfilModal', '<i class="fas fa-user-edit"></i> Editar Perfil', formContent);
         }
 
-        // Manejar envío del formulario de perfil
-        document.getElementById('perfilForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // =============================================
+        // EVENT LISTENERS
+        // =============================================
 
-            const formData = new FormData(this);
-
-            try {
-                const response = await fetch('{{ route('perfil.update-ajax') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        nombre: document.getElementById('perfil_nombre').value,
-                        telefono: document.getElementById('perfil_telefono').value
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Actualizar la UI
-                    document.querySelector('.profile-name').textContent = data.user.nombre;
-                    if (data.user.telefono) {
-                        document.querySelector('.profile-info-item:nth-child(2) span').textContent = data.user
-                            .telefono;
-                    }
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: data.message
-                    });
-
-                    closeModal('perfilModal');
-                } else {
-                    throw new Error(data.message);
-                }
-            } catch (error) {
-                Toast.fire({
-                    icon: 'error',
-                    title: error.message || 'Error al actualizar el perfil'
-                });
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. PRIMERO VERIFICAR QUE LOS CONTENEDORES DE GRÁFICOS EXISTAN
+            if (!document.getElementById('usuariosChart')) {
+                console.error('No se encontró el elemento usuariosChart');
             }
-        });
 
-        // Manejar envío del formulario de horario
-        document.getElementById('horarioForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+            if (!document.getElementById('ingresosChart')) {
+                console.error('No se encontró el elemento ingresosChart');
+            }
 
-            // Aquí iría la petición AJAX para guardar el horario
-            const isNew = document.getElementById('horario_id').value === '';
+            if (!document.getElementById('citasChart')) {
+                console.error('No se encontró el elemento citasChart');
+            }
 
-            Toast.fire({
-                icon: 'success',
-                title: `Horario ${isNew ? 'creado' : 'actualizado'} correctamente`
+            if (!document.getElementById('serviciosChart')) {
+                console.error('No se encontró el elemento serviciosChart');
+            }
+
+            // 2. SOLO INICIALIZAR GRÁFICOS SI SUS CONTENEDORES EXISTEN
+            if (document.getElementById('ingresosChart')) {
+                inicializarGraficoIngresos();
+            }
+
+            if (document.getElementById('citasChart')) {
+                inicializarGraficoCitas();
+            }
+
+            if (document.getElementById('serviciosChart')) {
+                inicializarGraficoServicios();
+            }
+            if (document.getElementById('usuarioForm')) {
+                initUsuarioFormValidation();
+            }
+
+            actualizarDatosDashboard();
+
+            // Configurar intervalo para actualizaciones (5 segundos)
+            setInterval(actualizarDatosDashboard, 5000);
+
+            // Actualizar cuando la pestaña vuelve a estar activa
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) actualizarDatosDashboard();
             });
 
-            closeModal('horarioModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Manejar envío del formulario de servicio
-        document.getElementById('servicioForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Aquí iría la petición AJAX para guardar el servicio
-            const isNew = document.getElementById('servicio_id').value === '';
-
-            Toast.fire({
-                icon: 'success',
-                title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
+            // Listeners para botones de pestañas
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    openTab(e, this.getAttribute('data-tab'));
+                });
             });
 
-            closeModal('servicioModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Manejar envío del formulario de perfil
-        document.getElementById('perfilForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Aquí iría la petición AJAX para guardar el perfil
-            Toast.fire({
-                icon: 'success',
-                title: 'Perfil actualizado correctamente'
+            // Listener para cerrar modales al hacer clic fuera
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    ['detalleCita', 'editarCita', 'servicio', 'horario', 'perfil', 'usuario'].forEach(
+                        modal => {
+                            closeModal(`${modal}Modal`);
+                        });
+                }
             });
 
-            closeModal('perfilModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
+            // Listener para botones de cerrar modal
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    closeModal(this.closest('.modal').id);
+                });
+            });
         });
 
-        // Función para cerrar modales
+        // =============================================
+        // FORMUALRIO DE CREACION DE USUARIOS DESDE ADMIN
+        // =============================================
+        // Función para inicializar validaciones del formulario de usuario
+        function initUsuarioFormValidation() {
+            // Función para mostrar/ocultar contraseñas
+            function togglePassword(fieldId) {
+                const field = document.getElementById(fieldId);
+                const icon = document.getElementById(fieldId + '_icon');
+
+                if (field.type === 'password') {
+                    field.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    field.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+
+            // Asignar evento a los botones de mostrar/ocultar contraseña
+            document.getElementById('usuario_password_icon').parentNode.addEventListener('click', function() {
+                togglePassword('usuario_password');
+            });
+
+            document.getElementById('usuario_password_confirmation_icon').parentNode.addEventListener('click', function() {
+                togglePassword('usuario_password_confirmation');
+            });
+
+            // Validación de nombre (solo letras y espacios)
+            document.getElementById('usuario_nombre').addEventListener('input', function() {
+                const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                if (!regex.test(this.value)) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML = '<strong>Por favor ingresa solo letras y espacios</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación de email
+            document.getElementById('usuario_email').addEventListener('input', function() {
+                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!regex.test(this.value)) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML =
+                        '<strong>Por favor ingresa un correo electrónico válido</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación de teléfono
+            document.getElementById('usuario_telefono').addEventListener('input', function() {
+                const regex = /^\+?[\d\s\-]+$/;
+                if (this.value && !regex.test(this.value)) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML =
+                        '<strong>Por favor ingresa un número de teléfono válido</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación de rol
+            document.getElementById('usuario_rol').addEventListener('change', function() {
+                if (!this.value) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML =
+                        '<strong>Por favor selecciona un rol para el usuario</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación en tiempo real de la contraseña
+            document.getElementById('usuario_password').addEventListener('input', function() {
+                const password = this.value;
+                const hasMinLength = password.length >= 8;
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasLowerCase = /[a-z]/.test(password);
+                const hasNumber = /\d/.test(password);
+
+                // Validación de fortaleza
+                if (hasMinLength && hasUpperCase && hasLowerCase && hasNumber) {
+                    this.classList.add('is-valid');
+                    this.classList.remove('is-invalid');
+                } else {
+                    this.classList.remove('is-valid');
+
+                    let errorMessage = 'La contraseña debe tener:';
+                    if (!hasMinLength) errorMessage += '<br>- Mínimo 8 caracteres';
+                    if (!hasUpperCase || !hasLowerCase) errorMessage += '<br>- Mayúsculas y minúsculas';
+                    if (!hasNumber) errorMessage += '<br>- Al menos un número';
+
+                    const feedback = this.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) feedback.innerHTML = `<strong>${errorMessage}</strong>`;
+                }
+
+                // Actualizar indicador de fortaleza
+                updatePasswordStrengthIndicator(password);
+
+                // Disparar validación de confirmación si hay valor
+                const confirmField = document.getElementById('usuario_password_confirmation');
+                if (confirmField.value) {
+                    confirmField.dispatchEvent(new Event('input'));
+                }
+            });
+
+            // Validación en tiempo real de confirmación de contraseña
+            document.getElementById('usuario_password_confirmation').addEventListener('input', function() {
+                const password = document.getElementById('usuario_password').value;
+                const confirmPassword = this.value;
+
+                if (confirmPassword && password !== confirmPassword) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.innerHTML = '<strong>Las contraseñas no coinciden</strong>';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Validación antes de enviar el formulario
+            document.getElementById('usuarioForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let isValid = true;
+                const fieldsToValidate = [
+                    'usuario_nombre',
+                    'usuario_email',
+                    'usuario_rol',
+                    'usuario_password',
+                    'usuario_password_confirmation'
+                ];
+
+                // Validar campos obligatorios
+                fieldsToValidate.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (!field.value) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                });
+
+                // Validar teléfono si tiene valor
+                const telefono = document.getElementById('usuario_telefono');
+                if (telefono.value && !/^\+?[\d\s\-]+$/.test(telefono.value)) {
+                    telefono.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                // Validar contraseña cumple requisitos
+                const password = document.getElementById('usuario_password');
+                if (password.value.length < 8 || !/[A-Z]/.test(password.value) ||
+                    !/[a-z]/.test(password.value) || !/\d/.test(password.value)) {
+                    password.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                // Validar confirmación de contraseña
+                const passwordConfirm = document.getElementById('usuario_password_confirmation');
+                if (password.value !== passwordConfirm.value) {
+                    passwordConfirm.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    Swal.fire({
+                        title: 'Error en el formulario',
+                        html: 'Por favor completa correctamente todos los campos requeridos.',
+                        icon: 'error',
+                        confirmButtonText: 'Entendido'
+                    });
+                    return;
+                }
+
+                // Si todo está bien, proceder con el envío
+                crearUsuario();
+            });
+        }
+
+        // Función para actualizar el indicador de fortaleza de contraseña
+        function updatePasswordStrengthIndicator(password) {
+            const strength = calculatePasswordStrength(password);
+            const strengthBar = document.getElementById('usuario_password-strength-bar');
+            const strengthText = document.getElementById('usuario_password-strength-text');
+
+            if (strengthBar && strengthText) {
+                strengthBar.style.width = strength.percentage + '%';
+                strengthBar.className = 'progress-bar ' + strength.class;
+                strengthText.textContent = strength.text;
+                strengthText.className = strength.textClass;
+            }
+        }
+
+        // Función para resetear el formulario de usuario al cerrar
+        function resetUsuarioForm() {
+            const form = document.getElementById('usuarioForm');
+            if (form) {
+                form.reset();
+
+                // Resetear indicadores de validación
+                const fields = form.querySelectorAll('.is-invalid, .is-valid');
+                fields.forEach(field => {
+                    field.classList.remove('is-invalid', 'is-valid');
+                });
+
+                // Resetear indicador de fortaleza
+                updatePasswordStrengthIndicator('');
+            }
+        }
+
+        // Modificar la función closeModal para resetear el formulario
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
-        }
 
-        // Cerrar modales al hacer clic fuera
-        window.addEventListener('click', function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal('detalleCitaModal');
-                closeModal('editarCitaModal');
-                closeModal('servicioModal');
-                closeModal('horarioModal');
-                closeModal('perfilModal');
-                closeModal('usuarioModal');
+            if (modalId === 'usuarioModal') {
+                resetUsuarioForm();
             }
-        });
-
-        // Función para mostrar el modal de usuario
-        function mostrarModalUsuario() {
-            document.getElementById('usuarioModal').style.display = 'flex';
         }
 
-        // Manejar envío del formulario de usuario
-        document.getElementById('usuarioForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Función para crear usuario via AJAX
+        async function crearUsuario() {
+            const form = document.getElementById('usuarioForm');
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+
+            // Mostrar estado de carga
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando usuario...';
 
             const formData = {
                 nombre: document.getElementById('usuario_nombre').value,
@@ -3574,15 +3589,69 @@
                 rol: document.getElementById('usuario_rol').value,
                 password: document.getElementById('usuario_password').value,
                 password_confirmation: document.getElementById('usuario_password_confirmation').value,
-                estado: document.getElementById('usuario_estado').value
+                estado: document.getElementById('usuario_estado').value === '1'
             };
 
             try {
                 const response = await fetch('{{ route('admin.usuarios.store') }}', {
                     method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Usuario creado!',
+                        text: 'El usuario ha sido registrado correctamente.',
+                        confirmButtonText: 'Aceptar'
+                    }).then(() => {
+                        closeModal('usuarioModal');
+                        actualizarDatosDashboard();
+                    });
+                } else {
+                    let errorMessage = 'No se pudo crear el usuario.';
+                    if (data.errors) {
+                        errorMessage += '<br><br>' + Object.values(data.errors).join('<br>');
+                    } else if (data.message) {
+                        errorMessage += '<br><br>' + data.message;
+                    }
+
+                    throw new Error(errorMessage);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: error.message,
+                    confirmButtonText: 'Entendido'
+                });
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        }
+
+
+        // Formulario de perfil
+        document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                nombre: document.getElementById('perfilNombre').value,
+                telefono: document.getElementById('perfilTelefono').value
+            };
+
+            try {
+                const response = await fetch('{{ route('perfil.update') }}', {
+                    method: 'POST',
+                    headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(formData)
@@ -3593,22 +3662,12 @@
                 if (response.ok) {
                     Toast.fire({
                         icon: 'success',
-                        title: 'Usuario creado correctamente'
+                        title: 'Perfil actualizado correctamente'
                     });
-
-                    closeModal('usuarioModal');
-
-                    // Limpiar el formulario
-                    document.getElementById('usuarioForm').reset();
-
-                    actualizarGraficoUsuarios();
-
-                    // Recargar la página para ver los cambios
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    closeModal('perfilModal');
+                    await actualizarDatosDashboard();
                 } else {
-                    throw new Error(data.message || 'Error al crear el usuario');
+                    throw new Error(data.message || 'Error al actualizar el perfil');
                 }
             } catch (error) {
                 Toast.fire({
@@ -3617,6 +3676,84 @@
                 });
             }
         });
+
+        // Formulario de servicio
+        document.getElementById('servicioForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                nombre: document.getElementById('servicioNombre').value,
+                precio: document.getElementById('servicioPrecio').value
+            };
+
+            try {
+                const response = await fetch('{{ route('admin.servicios.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Servicio creado correctamente'
+                    });
+                    closeModal('servicioModal');
+                    await actualizarDatosDashboard();
+                } else {
+                    throw new Error(data.message || 'Error al crear el servicio');
+                }
+            } catch (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message
+                });
+            }
+        });
+
+        // Asignación de eventos a botones dinámicos
+        document.addEventListener('click', function(e) {
+            // Botones de ver detalle de cita
+            if (e.target.closest('.btn-view')) {
+                const citaId = e.target.closest('tr').getAttribute('data-id');
+                verDetalleCita(citaId);
+            }
+
+            // Botones de editar cita
+            if (e.target.closest('.btn-edit')) {
+                const citaId = e.target.closest('tr').getAttribute('data-id');
+                editarCita(citaId);
+            }
+
+            // Botones de cancelar cita
+            if (e.target.closest('.btn-delete')) {
+                const citaId = e.target.closest('tr').getAttribute('data-id');
+                cancelarCita(citaId);
+            }
+
+            // Botones de editar servicio
+            if (e.target.closest('.btn-edit-servicio')) {
+                const servicioId = e.target.closest('.service-history-item').getAttribute('data-id');
+                editarServicio(servicioId);
+            }
+        });
+
+        // Botón para mostrar modal de usuario
+        document.getElementById('btnCrearUsuario')?.addEventListener('click', mostrarModalUsuario);
+
+        // Botón para mostrar modal de nuevo servicio
+        document.getElementById('btnNuevoServicio')?.addEventListener('click', nuevoServicio);
+
+        // Botón para mostrar modal de horario
+        document.getElementById('btnAgregarHorario')?.addEventListener('click', mostrarModalHorario);
+
+        // Botón para editar perfil
+        document.getElementById('btnEditarPerfil')?.addEventListener('click', editarPerfil);
     </script>
 </body>
 
