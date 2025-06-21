@@ -1644,10 +1644,12 @@
                             </div>
                             <div>
                                 <h3>{{ Auth::user()->nombre ?? 'Empleado' }}</h3>
-                                <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-phone"></i> {{ Auth::user()->telefono ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
-                                <p><i class="fas fa-calendar"></i> Miembro desde
+                                <p><i class="fas fa-envelope" style="color: var(--primary);"></i>
+                                    {{ Auth::user()->email ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-phone" style="color: var(--primary);"></i>
+                                    {{ Auth::user()->telefono ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-id-badge" style="color: var(--primary);"></i> Rol: Empleado</p>
+                                <p><i class="fas fa-calendar" style="color: var(--primary);"></i> Miembro desde
                                     {{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
 
