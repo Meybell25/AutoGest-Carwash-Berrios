@@ -117,7 +117,7 @@
 
         /* Header con bienvenida mejorada */
         .header {
-            background: var(--glass-bg);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
             padding: 25px 30px;
             border-radius: 20px;
