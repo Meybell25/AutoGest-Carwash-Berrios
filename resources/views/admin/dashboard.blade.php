@@ -443,7 +443,7 @@
         }
 
         .card-header h2 {
-            font-size: 1.25rem;
+            font-size: 1.75rem;
             font-weight: 700;
             display: flex;
             align-items: center;
