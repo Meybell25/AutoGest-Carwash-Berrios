@@ -2999,7 +2999,7 @@
         });
 
 
-        async function actualizarGraficoUsuarios() {
+        async function actualizarComponentesUsuario() {
             try {
                 const response = await fetch('{{ route('admin.dashboard.data') }}');
                 const data = await response.json();
@@ -3029,10 +3029,13 @@
                     cardCounters[1].querySelector('div:first-child').textContent = data.stats.nuevos_clientes_mes;
                 }
 
+                return true;
             } catch (error) {
                 console.error('Error al actualizar datos:', error);
+                return false;
             }
         }
+
 
         // Actualizar cada 10 segundos
         setInterval(actualizarGraficoUsuarios, 10000);
@@ -3511,16 +3514,17 @@
                     });
 
                     closeModal('usuarioModal');
-
-                    // Limpiar el formulario
                     document.getElementById('usuarioForm').reset();
 
-                    actualizarGraficoUsuarios();
+                    // Actualizar solo los componentes necesarios
+                    const success = await actualizarComponentesUsuario();
 
-                    // Recargar la página para ver los cambios
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    if (!success) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Usuario creado pero no se pudieron actualizar todos los componentes'
+                        });
+                    }
                 } else {
                     throw new Error(data.message || 'Error al crear el usuario');
                 }

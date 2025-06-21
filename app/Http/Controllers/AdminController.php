@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/AdminController.php
 
 namespace App\Http\Controllers;
 
@@ -14,12 +13,45 @@ use Illuminate\Support\Facades\Cache;
 
 class AdminController extends Controller
 {
+    /**
+     * Muestra el dashboard del administrador
+     */
     public function dashboard(): View
+    {
+        $stats = $this->getDashboardStats();
+        
+        $ultimas_citas = Cita::with(['usuario', 'vehiculo', 'servicios'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $servicios_populares = Servicio::withCount('citas')
+            ->orderBy('citas_count', 'desc')
+            ->limit(3)
+            ->get();
+
+        $rolesDistribucion = $this->getRolesDistribution();
+
+        $alertas = $this->getAlertas();
+
+        return view('admin.dashboard', compact(
+            'stats',
+            'ultimas_citas',
+            'servicios_populares',
+            'alertas',
+            'rolesDistribucion'
+        ));
+    }
+
+    /**
+     * Obtiene las estadísticas para el dashboard
+     */
+    protected function getDashboardStats(): array
     {
         $mesActual = now()->month;
         $anoActual = now()->year;
 
-        $stats = [
+        return [
             'total_usuarios' => Usuario::count(),
             'total_clientes' => Usuario::where('rol', 'cliente')->count(),
             'total_empleados' => Usuario::where('rol', 'empleado')->count(),
@@ -28,40 +60,39 @@ class AdminController extends Controller
             'total_vehiculos' => Vehiculo::count(),
             'total_servicios' => Servicio::where('activo', true)->count(),
             'usuarios_totales' => Usuario::count(),
-            'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')->whereMonth('created_at', $mesActual)->whereYear('created_at', $anoActual)->count(),
+            'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')
+                ->whereMonth('created_at', $mesActual)
+                ->whereYear('created_at', $anoActual)
+                ->count(),
             'citas_hoy' => Cita::whereDate('created_at', today())->count(),
-            'ingresos_hoy' => Cita::whereDate('created_at', today())->with('servicios')
-                ->get()->sum(function ($cita) {
-                    return $cita->servicios->sum('precio');
-                }),
+            'ingresos_hoy' => Cita::whereDate('created_at', today())
+                ->with('servicios')
+                ->get()
+                ->sum(fn($cita) => $cita->servicios->sum('precio')),
             'citas_canceladas_mes' => Cita::where('estado', 'cancelada')
                 ->whereMonth('created_at', now()->month)
                 ->count()
         ];
+    }
 
-        $ultimas_citas = Cita::with(['usuario', 'vehiculo', 'servicios'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $citas_recientes = Cita::with(['usuario', 'vehiculo'])
-            ->orderBy('created_at', 'desc')
-            ->orderBy('fecha_hora', 'desc')
-            ->limit(5)
-            ->get();
-
-        $servicios_populares = Servicio::withCount('citas')
-            ->orderBy('citas_count', 'desc')
-            ->limit(3)
-            ->get();
-
-        $rolesDistribucion = [
+    /**
+     * Obtiene la distribución de roles de usuarios
+     */
+    protected function getRolesDistribution(): array
+    {
+        return [
             'clientes' => Usuario::where('rol', 'cliente')->count(),
             'empleados' => Usuario::where('rol', 'empleado')->count(),
             'administradores' => Usuario::where('rol', 'admin')->count()
         ];
+    }
 
-        $alertas = [
+    /**
+     * Obtiene las alertas del sistema
+     */
+    protected function getAlertas(): array
+    {
+        return [
             (object)[
                 'leida' => false,
                 'tipo' => 'info',
@@ -79,17 +110,11 @@ class AdminController extends Controller
                 'created_at' => now()->subHours(2)
             ]
         ];
-
-
-        return view('admin.dashboard', compact(
-            'stats',
-            'ultimas_citas',
-            'servicios_populares',
-            'alertas',
-            'rolesDistribucion'
-        ));
     }
 
+    /**
+     * Muestra la lista de usuarios
+     */
     public function usuarios(): View
     {
         $usuarios = Usuario::with(['vehiculos', 'citas'])
@@ -98,26 +123,18 @@ class AdminController extends Controller
         return view('admin.usuarios', compact('usuarios'));
     }
 
+    /**
+     * Almacena un nuevo usuario
+     */
     public function storeUsuario(Request $request)
     {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:usuarios',
-            'telefono' => 'nullable|string|max:20',
-            'rol' => 'required|in:cliente,empleado,admin',
-            'password' => 'required|string|min:8|confirmed',
-            'estado' => 'required|boolean'
-        ]);
+        $validated = $this->validateUsuarioRequest($request);
 
         try {
-            $usuario = Usuario::create([
-                'nombre' => $validated['nombre'],
-                'email' => $validated['email'],
-                'telefono' => $validated['telefono'],
-                'rol' => $validated['rol'],
-                'password' => Hash::make($validated['password']),
-                'estado' => $validated['estado']
-            ]);
+            $usuario = $this->createUsuario($validated);
+
+            // Limpiar caché de estadísticas
+            Cache::forget('dashboard_stats');
 
             return response()->json([
                 'success' => true,
@@ -132,46 +149,72 @@ class AdminController extends Controller
         }
     }
 
-    public function getDashboardData()
+    /**
+     * Valida los datos del formulario de usuario
+     */
+    protected function validateUsuarioRequest(Request $request): array
     {
-        return Cache::remember('dashboard_stats', now()->addMinutes(5), function () {
-            $mesActual = now()->month;
-            $anoActual = now()->year;
-
-            return [
-                'stats' => [
-                    'usuarios_totales' => Usuario::count(),
-                    'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')
-                        ->whereMonth('created_at', $mesActual)
-                        ->whereYear('created_at', $anoActual)
-                        ->count(),
-                    'citas_hoy' => Cita::whereDate('created_at', today())->count(),
-                    'ingresos_hoy' => Cita::whereDate('created_at', today())
-                        ->with('servicios')
-                        ->get()
-                        ->sum(fn($cita) => $cita->servicios->sum('precio'))
-                ],
-                'rolesDistribucion' => [
-                    'clientes' => Usuario::where('rol', 'cliente')->count(),
-                    'empleados' => Usuario::where('rol', 'empleado')->count(),
-                    'administradores' => Usuario::where('rol', 'admin')->count()
-                ]
-            ];
-        });
+        return $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:usuarios',
+            'telefono' => 'nullable|string|max:20',
+            'rol' => 'required|in:cliente,empleado,admin',
+            'password' => 'required|string|min:8|confirmed',
+            'estado' => 'required|boolean'
+        ]);
     }
 
+    /**
+     * Crea un nuevo usuario
+     */
+    protected function createUsuario(array $data): Usuario
+    {
+        return Usuario::create([
+            'nombre' => $data['nombre'],
+            'email' => $data['email'],
+            'telefono' => $data['telefono'],
+            'rol' => $data['rol'],
+            'password' => Hash::make($data['password']),
+            'estado' => $data['estado']
+        ]);
+    }
 
+    /**
+     * Obtiene los datos para actualizar el dashboard via AJAX
+     */
+    public function getDashboardData()
+    {
+        $data = Cache::remember('dashboard_stats', now()->addMinutes(5), function () {
+            return [
+                'stats' => $this->getDashboardStats(),
+                'rolesDistribucion' => $this->getRolesDistribution()
+            ];
+        });
+
+        return response()->json($data);
+    }
+
+    /**
+     * Muestra el formulario para crear una cita
+     */
     public function createCita(): View
     {
         return view('admin.citas.create');
     }
 
+    /**
+     * Almacena una nueva cita
+     */
     public function storeCita(Request $request)
     {
+        // TODO: Implementar lógica real de creación de cita
         return redirect()->route('admin.dashboard')
             ->with('success', 'Cita creada temporalmente. Implementa la lógica real.');
     }
 
+    /**
+     * Muestra la página de reportes
+     */
     public function reportes(): View
     {
         return view('admin.reportes.index');
