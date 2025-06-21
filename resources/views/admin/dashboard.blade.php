@@ -2064,7 +2064,7 @@
                         <h2>
                             <i class="fas fa-briefcase"></i>
                             <div class="icon">
-                                <i class="fas fa-briefcase" style="color: white"></i>
+                                <i class="fas fa-briefcase" style="color: white; z-index:1000;"></i>
                             </div>
                             Gestión de Horarios
                         </h2>
