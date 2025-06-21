@@ -561,7 +561,7 @@
             color: white;
             box-shadow: var(--shadow-sm);
         }
-
+        
         .icon-primary {
             background: var(--primary-gradient);
         }
@@ -859,6 +859,7 @@
         .service-icon i {
             color: white !important;
         }
+
 
         .service-badge-1,
         .service-badge-2,
@@ -1314,12 +1315,12 @@
 
         .card-header .icon i,
         .welcome-icon i {
-            color: white !important;
+             color: white !important;
             font-size: 1.6rem;
             z-index: 1000;
         }
 
-
+    
 
         .welcome-icon::before,
         .welcome-icon::after {
@@ -1974,7 +1975,7 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="welcome-icon ">
+                        <div class="welcome-icon icon-container">
                             <!-- <i class="fas fa-user-cog"></i>-->
                             <i class="fas fa-cog"></i>
                         </div>
@@ -2059,8 +2060,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div
-                                style="background: var(--secondary-gradient); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: all 0.3s ease;">
+                             <div class="card-header-icon icon-container">
                                 <i class="fas fa-briefcase"></i>
                             </div>
                             Gestión de Horarios
@@ -2236,8 +2236,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div
-                                style="background: var(--secondary-gradient); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: all 0.3s ease;">
+                             <div class="card-header-icon icon-container">
                                 <i class="fas fa-chart-pie"></i>
                             </div>
                             Rendimiento Mensual
@@ -2277,8 +2276,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div
-                                style="background: var(--secondary-gradient); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: all 0.3s ease;">
+                             <div class="card-header-icon icon-container">
                                 <i class="fas fa-calendar-day"></i>
                             </div>
                             Últimas Citas
@@ -2384,8 +2382,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div
-                                style="background: var(--secondary-gradient); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: all 0.3s ease;">
+                             <div class="card-header-icon icon-container">
                                 <i class="fas fa-user-tie"></i>
                             </div>
                             Mi Perfil
@@ -2426,8 +2423,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div
-                                style="background: var(--secondary-gradient); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: all 0.3s ease;">
+                             <div class="card-header-icon icon-container">
                                 <i class="fas fa-users"></i>
                             </div>
                             Resumen de Usuarios
@@ -2465,8 +2461,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div
-                                style="background: var(--secondary-gradient); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: all 0.3s ease;">
+                             <div class="card-header-icon icon-container">
                                 <i class="fas fa-award"></i>
                             </div>
                             Servicios Populares
@@ -2501,8 +2496,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div
-                                style="background: var(--secondary-gradient); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: all 0.3s ease;">
+                             <div class="card-header-icon icon-container">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </div>
                             Alertas del Sistema
