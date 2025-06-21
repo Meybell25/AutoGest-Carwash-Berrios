@@ -446,7 +446,6 @@
         }
 
         .card-header .icon {
-            background: var(--secondary-gradient);
             width: 45px;
             height: 45px;
             border-radius: 12px;
@@ -455,7 +454,6 @@
             justify-content: center;
             color: white;
             font-size: 1.3rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
             background: var(--secondary-gradient) !important;
         }
@@ -468,10 +466,6 @@
             padding: 0 30px 30px;
         }
 
-        .card-header .icon,
-        .welcome-icon {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
 
         /* ======================
         ESTADÍSTICAS
@@ -561,7 +555,40 @@
             color: white;
             box-shadow: var(--shadow-sm);
         }
+/*******************prueba***********************/
+        .icon {
+            position: relative;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: var(--secondary-gradient) !important;
+            overflow: visible !important;
+        }
+        .icon,
+.icon i,
+.welcome-icon,
+.welcome-icon i {
+    animation: none !important;
+}
+        .icon i {
+            position: relative;
+            z-index: 10;
+            color: white !important;
+            font-size: 1.3rem !important;
+        }
+        .icon::before,
+        .icon::after {
+            display: none !important;
+        }
 
+
+/*******************88fin de prueba ************************88888*/
         .icon-primary {
             background: var(--primary-gradient);
         }
@@ -1319,14 +1346,19 @@
         .card-header .icon i,
         .welcome-icon i {
             color: white !important;
-            display: flex !important;
             align-items: center;
             justify-content: center;
         }
 
         .welcome-icon i {
             color: white !important;
-            font-size: 1.5rem !important;
+            z-index: 100 !important;
+        }
+
+        .welcome-icon::before,
+        .welcome-icon::after {
+            content: none !important;
+            display: none !important;
         }
 
         .btn i {
@@ -1966,7 +1998,6 @@
         ::-webkit-scrollbar-thumb:hover {
             animation: scrollbar-glow 1.5s infinite;
         }
-
     </style>
 </head>
 
@@ -1978,8 +2009,8 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon ">
-                           <!-- <i class="fas fa-user-cog"></i>-->
-                             <i class="fas fa-cog"></i>
+                            <!-- <i class="fas fa-user-cog"></i>-->
+                            <i class="fas fa-cog"></i>
                         </div>
                         Panel de Administración
                     </h1>
@@ -2062,13 +2093,11 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <i class="fas fa-briefcase"></i>
                             <div class="icon">
                                 <i class="fas fa-briefcase" style="color: white; z-index:1000;"></i>
                             </div>
                             Gestión de Horarios
                         </h2>
-                        <i class="fas fa-briefcase"></i>
                     </div>
                     <div class="card-body">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
