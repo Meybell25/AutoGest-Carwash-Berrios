@@ -173,18 +173,19 @@
         }
 
         .welcome-icon {
-            background: var(--primary-gradient);
             width: 55px;
             height: 55px;
             border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
             font-size: 1.6rem;
             box-shadow: var(--shadow-md);
             transform: rotate(-5deg);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .welcome-icon>i {
+            color: white !important;
+            z-index: 1000;
+            position: relative;
         }
 
         .welcome-icon:hover {
@@ -2003,7 +2004,7 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="icon-container">
+                        <div class="welcome-icon icon-container">
                             <!-- <i class="fas fa-user-cog"></i>-->
                             <i class="fas fa-cog"></i>
                         </div>
