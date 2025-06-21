@@ -2,15 +2,15 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
 export default defineConfig({
-  plugins: [
-    laravel({
-      input: ['resources/css/app.css', 'resources/js/app.js'],
-      refresh: true,
-    }),
-  ],
-  server: {
-    hmr: {
-      host: process.env.NODE_ENV === 'development' ? 'localhost' : undefined,
-    },
-  }
+    plugins: [
+        laravel({
+            input: ['resources/css/app.css', 'resources/js/app.js'],
+            refresh: true,
+        }),
+    ],
+    resolve: {
+        alias: {
+            'pusher-js': 'pusher-js/dist/web/pusher.min.js'
+        }
+    }
 });

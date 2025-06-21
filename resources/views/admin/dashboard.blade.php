@@ -2825,307 +2825,310 @@
             timerProgressBar: true
         });
 
-       // Variables globales para los gráficos
-    let usuariosChart, ingresosChart, citasChart, serviciosChart;
+        // Variables globales para los gráficos
+        let usuariosChart, ingresosChart, citasChart, serviciosChart;
 
-    // Inicializar Pusher con tus credenciales
-    const pusher = new Pusher('7aad3a0de2b398e2f0b4', {
-        cluster: 'mt1',
-        encrypted: true,
-        authEndpoint: '/broadcasting/auth',
-        auth: {
-            headers: {
-                'X-CSRF-Token': '{{ csrf_token() }}'
+        // Inicializar Pusher con tus credenciales
+        const pusher = new Pusher('7aad3a0de2b398e2f0b4', {
+            cluster: 'mt1',
+            encrypted: true,
+            authEndpoint: '/broadcasting/auth',
+            auth: {
+                headers: {
+                    'X-CSRF-Token': '{{ csrf_token() }}'
+                }
             }
-        }
-    });
+        });
 
-    // Manejo de conexión Pusher
-    pusher.connection.bind('state_change', (states) => {
-        console.log('Estado de conexión cambiado:', states);
-        if (states.current === 'disconnected') {
-            console.log('Intentando reconectar...');
+        // Manejo de conexión Pusher
+        pusher.connection.bind('state_change', (states) => {
+            console.log('Estado de conexión cambiado:', states);
+            if (states.current === 'disconnected') {
+                console.log('Intentando reconectar...');
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Reconectando con el servidor...'
+                });
+            }
+        });
+
+        pusher.connection.bind('connected', () => {
             Toast.fire({
-                icon: 'warning',
-                title: 'Reconectando con el servidor...'
+                icon: 'success',
+                title: 'Conexión en tiempo real establecida'
             });
-        }
-    });
-
-    pusher.connection.bind('connected', () => {
-        Toast.fire({
-            icon: 'success',
-            title: 'Conexión en tiempo real establecida'
-        });
-    });
-
-    pusher.connection.bind('error', (err) => {
-        console.error('Error de Pusher:', err);
-        Toast.fire({
-            icon: 'error',
-            title: 'Error de conexión en tiempo real'
-        });
-    });
-
-    // Suscribirse a canales y eventos
-    const channel = pusher.subscribe('usuarios');
-    channel.bind('UsuarioCreado', function(data) {
-        Toast.fire({
-            icon: 'info',
-            title: 'Nuevo usuario registrado'
-        });
-        actualizarGraficoUsuarios();
-    });
-
-    // Función para inicializar todos los gráficos
-    function inicializarGraficos() {
-        // Verificar que los elementos canvas existan
-        if (!document.getElementById('ingresosChart') || 
-            !document.getElementById('citasChart') || 
-            !document.getElementById('serviciosChart') || 
-            !document.getElementById('usuariosChart')) {
-            console.error('No se encontraron todos los elementos canvas para los gráficos');
-            return;
-        }
-
-       // Gráfico de ingresos mensuales
-        const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
-        ingresosChart = new Chart(ingresosCtx, {
-            type: 'line',
-            data: {
-                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                datasets: [{
-                    label: 'Ingresos 2023',
-                    data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
-                    backgroundColor: 'rgba(39, 174, 96, 0.2)',
-                    borderColor: 'rgba(39, 174, 96, 1)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return '$' + context.raw.toLocaleString();
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value;
-                            }
-                        }
-                    }
-                }
-            }
         });
 
-        // Gráfico de citas mensuales
-        const citasCtx = document.getElementById('citasChart').getContext('2d');
-        citasChart = new Chart(citasCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                datasets: [{
-                    label: 'Citas Completadas',
-                    data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                    backgroundColor: 'rgba(211, 84, 0, 0.7)',
-                    borderColor: 'rgba(211, 84, 0, 1)',
-                    borderWidth: 1
-                }, {
-                    label: 'Citas Canceladas',
-                    data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                    backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                    borderColor: 'rgba(231, 76, 60, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
-                    }
-                }
-            }
-        });
-
-        // Gráfico de servicios populares
-        const serviciosCtx = document.getElementById('serviciosChart').getContext('2d');
-        serviciosChart = new Chart(serviciosCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
-                datasets: [{
-                    data: [35, 25, 15, 15, 10],
-                    backgroundColor: [
-                        'rgba(39, 174, 96, 0.7)',
-                        'rgba(52, 152, 219, 0.7)',
-                        'rgba(243, 156, 18, 0.7)',
-                        'rgba(155, 89, 182, 0.7)',
-                        'rgba(231, 76, 60, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgba(39, 174, 96, 1)',
-                        'rgba(52, 152, 219, 1)',
-                        'rgba(243, 156, 18, 1)',
-                        'rgba(155, 89, 182, 1)',
-                        'rgba(231, 76, 60, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                    }
-                }
-            }
-        });
-
-        // Gráfico de distribución de usuarios
-        const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
-        usuariosChart = new Chart(usuariosCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Clientes', 'Empleados', 'Administradores'],
-                datasets: [{
-                    data: [
-                        {{ $rolesDistribucion['clientes'] }},
-                        {{ $rolesDistribucion['empleados'] }},
-                        {{ $rolesDistribucion['administradores'] }}
-                    ],
-                    backgroundColor: [
-                        'rgba(39, 174, 96, 0.7)',
-                        'rgba(52, 152, 219, 0.7)',
-                        'rgba(155, 89, 182, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgba(39, 174, 96, 1)',
-                        'rgba(52, 152, 219, 1)',
-                        'rgba(155, 89, 182, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-        // Función para actualizar datos de gráficos
-    async function actualizarGraficoUsuarios() {
-        try {
-            const response = await fetch('{{ route('admin.dashboard.data') }}');
-            const data = await response.json();
-
-            // Verificar que los gráficos existan antes de actualizar
-            if (usuariosChart && data.rolesDistribucion) {
-                usuariosChart.data.datasets[0].data = [
-                    data.rolesDistribucion.clientes,
-                    data.rolesDistribucion.empleados,
-                    data.rolesDistribucion.administradores
-                ];
-                usuariosChart.update();
-            }
-
-            if (ingresosChart && data.ingresosMensuales) {
-                ingresosChart.data.datasets[0].data = data.ingresosMensuales;
-                ingresosChart.update();
-            }
-
-            if (citasChart && data.citasMensuales) {
-                citasChart.data.datasets[0].data = data.citasMensuales.completadas;
-                citasChart.data.datasets[1].data = data.citasMensuales.canceladas;
-                citasChart.update();
-            }
-
-            if (serviciosChart && data.serviciosPopulares) {
-                serviciosChart.data.datasets[0].data = data.serviciosPopulares;
-                serviciosChart.update();
-            }
-
-            // Actualizar estadísticas
-            const welcomeStats = document.querySelectorAll('.welcome-stat');
-            if (welcomeStats.length >= 3) {
-                welcomeStats[0].querySelector('.number').textContent = data.stats.usuarios_totales;
-                welcomeStats[1].querySelector('.number').textContent = data.stats.citas_hoy;
-                welcomeStats[2].querySelector('.number').textContent = `$${data.stats.ingresos_hoy.toFixed(2)}`;
-            }
-
-            // Actualizar card de resumen de usuarios
-            const cardCounters = document.querySelectorAll('.card-body [style*="grid-template-columns"] div');
-            if (cardCounters.length >= 2) {
-                cardCounters[0].querySelector('div:first-child').textContent = data.stats.usuarios_totales;
-                cardCounters[1].querySelector('div:first-child').textContent = data.stats.nuevos_clientes_mes;
-            }
-
-        } catch (error) {
-            console.error('Error al actualizar datos:', error);
+        pusher.connection.bind('error', (err) => {
+            console.error('Error de Pusher:', err);
             Toast.fire({
                 icon: 'error',
-                title: 'Error al actualizar datos'
+                title: 'Error de conexión en tiempo real'
+            });
+        });
+
+        // Suscribirse a canales y eventos
+        const channel = pusher.subscribe('usuarios');
+        channel.bind('UsuarioCreado', function(data) {
+            Toast.fire({
+                icon: 'info',
+                title: 'Nuevo usuario registrado'
+            });
+            actualizarGraficoUsuarios();
+        });
+
+        // Función para inicializar todos los gráficos
+        function inicializarGraficos() {
+            // Verificar que los elementos canvas existan
+            if (!document.getElementById('ingresosChart') ||
+                !document.getElementById('citasChart') ||
+                !document.getElementById('serviciosChart') ||
+                !document.getElementById('usuariosChart')) {
+                console.error('No se encontraron todos los elementos canvas para los gráficos');
+                return;
+            }
+
+            // Gráfico de ingresos mensuales
+            const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
+            ingresosChart = new Chart(ingresosCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                        label: 'Ingresos 2023',
+                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
+                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                        borderColor: 'rgba(39, 174, 96, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de citas mensuales
+            const citasCtx = document.getElementById('citasChart').getContext('2d');
+            citasChart = new Chart(citasCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                        label: 'Citas Completadas',
+                        data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
+                        backgroundColor: 'rgba(211, 84, 0, 0.7)',
+                        borderColor: 'rgba(211, 84, 0, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Citas Canceladas',
+                        data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de servicios populares
+            const serviciosCtx = document.getElementById('serviciosChart').getContext('2d');
+            serviciosChart = new Chart(serviciosCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
+                    datasets: [{
+                        data: [35, 25, 15, 15, 10],
+                        backgroundColor: [
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(39, 174, 96, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de distribución de usuarios
+            const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
+            usuariosChart = new Chart(usuariosCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Clientes', 'Empleados', 'Administradores'],
+                    datasets: [{
+                        data: [
+                            {{ $rolesDistribucion['clientes'] }},
+                            {{ $rolesDistribucion['empleados'] }},
+                            {{ $rolesDistribucion['administradores'] }}
+                        ],
+                        backgroundColor: [
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(39, 174, 96, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(155, 89, 182, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
-    }
 
-    // Inicializar todo cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', function() {
-        inicializarGraficos();
-        actualizarGraficoUsuarios();
-        
-        // Actualizar cada 10 segundos
-        setInterval(actualizarGraficoUsuarios, 10000);
-    });
+        // Función para actualizar datos de gráficos
+        async function actualizarGraficoUsuarios() {
+            try {
+                const response = await fetch('{{ route('admin.dashboard.data') }}');
+                const data = await response.json();
 
-    // Actualizar cuando la pestaña vuelve a estar activa
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            actualizarGraficoUsuarios();
+                // Función helper segura
+                const safeUpdate = (selector, value) => {
+                    const element = document.querySelector(selector);
+                    if (element) element.textContent = value;
+                };
+
+                // Actualización de estadísticas
+                if (data.stats) {
+                    safeUpdate('.welcome-stat:nth-child(1) .number', data.stats.usuarios_totales || '0');
+                    safeUpdate('.welcome-stat:nth-child(2) .number', data.stats.citas_hoy || '0');
+                    safeUpdate('.welcome-stat:nth-child(3) .number', `$${(data.stats.ingresos_hoy || 0).toFixed(2)}`);
+
+                    // Actualización de cards
+                    safeUpdate('.card-body [style*="grid-template-columns"] div:first-child div:first-child',
+                        data.stats.usuarios_totales || '0');
+                    safeUpdate('.card-body [style*="grid-template-columns"] div:nth-child(2) div:first-child',
+                        data.stats.nuevos_clientes_mes || '0');
+                }
+
+                // Actualización de gráficos
+                if (window.usuariosChart && data.rolesDistribucion) {
+                    window.usuariosChart.data.datasets[0].data = [
+                        data.rolesDistribucion.clientes || 0,
+                        data.rolesDistribucion.empleados || 0,
+                        data.rolesDistribucion.administradores || 0
+                    ];
+                    window.usuariosChart.update();
+                }
+
+                if (window.ingresosChart && data.ingresosMensuales) {
+                    window.ingresosChart.data.datasets[0].data = data.ingresosMensuales || [];
+                    window.ingresosChart.update();
+                }
+
+                if (window.citasChart && data.citasMensuales) {
+                    window.citasChart.data.datasets[0].data = data.citasMensuales?.completadas || [];
+                    window.citasChart.data.datasets[1].data = data.citasMensuales?.canceladas || [];
+                    window.citasChart.update();
+                }
+
+                if (window.serviciosChart && data.serviciosPopulares) {
+                    window.serviciosChart.data.datasets[0].data = data.serviciosPopulares || [];
+                    window.serviciosChart.update();
+                }
+
+            } catch (error) {
+                console.error('Error al actualizar datos:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error al actualizar datos'
+                });
+            }
         }
-    });
+        // Inicializar todo cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarGraficos();
+            actualizarGraficoUsuarios();
+
+            // Actualizar cada 10 segundos
+            setInterval(actualizarGraficoUsuarios, 10000);
+        });
+
+        // Actualizar cuando la pestaña vuelve a estar activa
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                actualizarGraficoUsuarios();
+            }
+        });
 
         // Funciones para pestañas
         function openTab(evt, tabName) {
