@@ -118,12 +118,13 @@
         /* Header con bienvenida mejorada */
         .header {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            padding: 25px 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            border-radius: var(--border-radius-xl);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
             position: relative;
             overflow: hidden;
         }
@@ -199,7 +200,7 @@
             margin-top: 1.5rem;
         }
 
-    
+
         .welcome-stat {
             background: var(--white);
             padding: 1rem;
@@ -435,7 +436,6 @@
         }
 
         /* Próximas Citas */
-        /* Reemplaza .next-appointment con este */
         .next-appointment {
             background: linear-gradient(135deg, #667eea20, #764ba220);
             padding: 20px;
@@ -735,10 +735,13 @@
             margin-bottom: 5px;
         }
 
-        .profile-info p {
-            color: var(--secondary-gradient);
-            font-size: 0.9rem;
-            margin-bottom: 2px;
+        .profile-info-item i {
+            background: var(--secondary-gradient) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            padding: 0 5px;
+            border-radius: 3px;
+            display: inline-block;
         }
 
         .profile-stats {
@@ -1806,10 +1809,21 @@
                             </div>
                             <div class="profile-info">
                                 <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
-                                <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-calendar"></i> Cliente desde:
-                                    {{ $user->created_at->format('M Y') }}</p>
+                                <p>
+                                    <i class="fas fa-envelope"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    {{ $user->email ?? 'No especificado' }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-phone"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    {{ $user->telefono ?? 'No especificado' }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-calendar"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    Cliente desde: {{ $user->created_at->format('M Y') }}
+                                </p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline"
@@ -2275,11 +2289,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                        <tr>
-                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                        </tr>
-                                                                                                                                                    `).join('')}
+                                                                                                                                                                <tr>
+                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                </tr>
+                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
