@@ -2815,232 +2815,248 @@
     </footer>
 
     <script>
-     // =============================================
-// CONFIGURACIONES GLOBALES
-// =============================================
+        // =============================================
+        // CONFIGURACIONES GLOBALES
+        // =============================================
 
-// Configuración de SweetAlert
-const Toast = Swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true
-});
+        // Configuración de SweetAlert
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
 
-// Variables globales para gráficos
-let usuariosChart, ingresosChart, citasChart, serviciosChart;
+        // Variables globales para gráficos
+        let usuariosChart, ingresosChart, citasChart, serviciosChart;
 
-// =============================================
-// FUNCIONES DE INICIALIZACIÓN
-// =============================================
+        // =============================================
+        // FUNCIONES DE INICIALIZACIÓN
+        // =============================================
 
-function inicializarGraficoUsuarios(data) {
-    const ctx = document.getElementById('usuariosChart').getContext('2d');
-    usuariosChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Clientes', 'Empleados', 'Administradores'],
-            datasets: [{
-                data: [data.clientes, data.empleados, data.administradores],
-                backgroundColor: [
-                    'rgba(39, 174, 96, 0.7)',
-                    'rgba(52, 152, 219, 0.7)',
-                    'rgba(155, 89, 182, 0.7)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: getCommonChartOptions('bottom')
-    });
-}
-
-function inicializarGraficoIngresos() {
-    const ctx = document.getElementById('ingresosChart').getContext('2d');
-    ingresosChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-            datasets: [{
-                label: 'Ingresos 2023',
-                data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
-                backgroundColor: 'rgba(39, 174, 96, 0.2)',
-                borderColor: 'rgba(39, 174, 96, 1)',
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            ...getCommonChartOptions('top'),
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: value => '$' + value
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: context => '$' + context.raw.toLocaleString()
-                    }
-                }
-            }
-        }
-    });
-}
-
-function inicializarGraficoServicios() {
-    const ctx = document.getElementById('serviciosChart').getContext('2d');
-    serviciosChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
-            datasets: [{
-                data: [35, 25, 15, 15, 10],
-                backgroundColor: [
-                    'rgba(39, 174, 96, 0.7)',
-                    'rgba(52, 152, 219, 0.7)',
-                    'rgba(243, 156, 18, 0.7)',
-                    'rgba(155, 89, 182, 0.7)',
-                    'rgba(231, 76, 60, 0.7)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: getCommonChartOptions('right')
-    });
-}
-
-function inicializarGraficoCitas() {
-    const ctx = document.getElementById('citasChart').getContext('2d');
-    citasChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-            datasets: [
-                {
-                    label: 'Citas Completadas',
-                    data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                    backgroundColor: 'rgba(211, 84, 0, 0.7)'
+        function inicializarGraficoUsuarios(data) {
+            const ctx = document.getElementById('usuariosChart').getContext('2d');
+            usuariosChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Clientes', 'Empleados', 'Administradores'],
+                    datasets: [{
+                        data: [data.clientes, data.empleados, data.administradores],
+                        backgroundColor: [
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
                 },
-                {
-                    label: 'Citas Canceladas',
-                    data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                    backgroundColor: 'rgba(231, 76, 60, 0.7)'
+                options: getCommonChartOptions('bottom')
+            });
+        }
+
+        function inicializarGraficoIngresos() {
+            const ctx = document.getElementById('ingresosChart').getContext('2d');
+            ingresosChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                        label: 'Ingresos 2023',
+                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
+                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                        borderColor: 'rgba(39, 174, 96, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    ...getCommonChartOptions('top'),
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => '$' + value
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: context => '$' + context.raw.toLocaleString()
+                            }
+                        }
+                    }
                 }
-            ]
-        },
-        options: {
-            ...getCommonChartOptions('top'),
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { precision: 0 }
+            });
+        }
+
+        function inicializarGraficoServicios() {
+            const ctx = document.getElementById('serviciosChart').getContext('2d');
+            serviciosChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
+                    datasets: [{
+                        data: [35, 25, 15, 15, 10],
+                        backgroundColor: [
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: getCommonChartOptions('right')
+            });
+        }
+
+        function inicializarGraficoCitas() {
+            const ctx = document.getElementById('citasChart').getContext('2d');
+            citasChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                            label: 'Citas Completadas',
+                            data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
+                            backgroundColor: 'rgba(211, 84, 0, 0.7)'
+                        },
+                        {
+                            label: 'Citas Canceladas',
+                            data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    ...getCommonChartOptions('top'),
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function getCommonChartOptions(legendPosition) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: legendPosition
+                    }
+                }
+            };
+        }
+
+        // =============================================
+        // FUNCIONES DE ACTUALIZACIÓN DE DATOS
+        // =============================================
+
+        async function actualizarDatosDashboard() {
+            try {
+                const response = await fetch('{{ route('admin.dashboard.data') }}');
+                if (!response.ok) throw new Error('Error en la respuesta del servidor');
+
+                const data = await response.json();
+
+                if (!data.stats || !data.rolesDistribucion) {
+                    throw new Error('Formato de datos incorrecto');
+                }
+
+                actualizarEstadisticas(data.stats);
+                actualizarGraficoUsuarios(data.rolesDistribucion);
+
+                return true;
+            } catch (error) {
+                console.error('Error al actualizar datos:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error al cargar datos',
+                    text: error.message
+                });
+                return false;
+            }
+        }
+
+        function actualizarEstadisticas(stats) {
+            const welcomeStats = document.querySelectorAll('.welcome-stat .number');
+            if (welcomeStats.length >= 3) {
+                welcomeStats[0].textContent = stats.usuarios_totales ?? 0;
+                welcomeStats[1].textContent = stats.citas_hoy ?? 0;
+                welcomeStats[2].textContent = `$${(stats.ingresos_hoy ?? 0).toFixed(2)}`;
+            } else {
+                console.warn('No se encontraron los elementos de estadísticas principales');
+            }
+
+            const cardCounters = document.querySelectorAll('.card-body [style*="grid-template-columns"] div');
+            if (cardCounters.length >= 2) {
+                const numberElements = cardCounters[0].querySelectorAll('div:first-child');
+                if (numberElements.length > 0) {
+                    numberElements[0].textContent = stats.usuarios_totales ?? 0;
+                }
+                if (numberElements.length > 1) {
+                    numberElements[1].textContent = stats.nuevos_clientes_mes ?? 0;
                 }
             }
         }
-    });
-}
 
-function getCommonChartOptions(legendPosition) {
-    return {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { position: legendPosition }
+        function actualizarGraficoUsuarios(data) {
+            if (usuariosChart) {
+                usuariosChart.data.datasets[0].data = [
+                    data.clientes,
+                    data.empleados,
+                    data.administradores
+                ];
+                usuariosChart.update();
+            } else {
+                inicializarGraficoUsuarios(data);
+            }
         }
-    };
-}
 
-// =============================================
-// FUNCIONES DE ACTUALIZACIÓN DE DATOS
-// =============================================
+        // =============================================
+        // FUNCIONES DE INTERFAZ
+        // =============================================
 
-async function actualizarDatosDashboard() {
-    try {
-        const response = await fetch('{{ route('admin.dashboard.data') }}');
-        const data = await response.json();
+        // Funciones para pestañas
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            const tabButtons = document.getElementsByClassName('tab-button');
 
-        // Actualizar estadísticas
-        actualizarEstadisticas(data.stats);
-        
-        // Actualizar gráfico de usuarios
-        actualizarGraficoUsuarios(data.rolesDistribucion);
+            Array.from(tabContents).forEach(content => content.classList.remove('active'));
+            Array.from(tabButtons).forEach(button => button.classList.remove('active'));
 
-        return true;
-    } catch (error) {
-        console.error('Error al actualizar datos:', error);
-        return false;
-    }
-}
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
 
-function actualizarEstadisticas(stats) {
-    // Actualizar welcome stats
-    const welcomeStats = document.querySelectorAll('.welcome-stat');
-    if (welcomeStats.length >= 3) {
-        welcomeStats[0].querySelector('.number').textContent = stats.usuarios_totales;
-        welcomeStats[1].querySelector('.number').textContent = stats.citas_hoy;
-        welcomeStats[2].querySelector('.number').textContent = `$${stats.ingresos_hoy.toFixed(2)}`;
-    }
+        // Funciones para modales
+        function mostrarModal(modalId, title = '', content = '') {
+            if (title) document.getElementById(`${modalId}Title`).innerHTML = title;
+            if (content) document.getElementById(`${modalId}Content`).innerHTML = content;
+            document.getElementById(modalId).style.display = 'flex';
+        }
 
-    // Actualizar card de resumen
-    const cardCounters = document.querySelectorAll('.card-body [style*="grid-template-columns"] div');
-    if (cardCounters.length >= 2) {
-        cardCounters[0].querySelector('div:first-child').textContent = stats.usuarios_totales;
-        cardCounters[1].querySelector('div:first-child').textContent = stats.nuevos_clientes_mes;
-    }
-}
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
 
-function actualizarGraficoUsuarios(data) {
-    if (usuariosChart) {
-        usuariosChart.data.datasets[0].data = [
-            data.clientes,
-            data.empleados,
-            data.administradores
-        ];
-        usuariosChart.update();
-    } else {
-        inicializarGraficoUsuarios(data);
-    }
-}
+        // =============================================
+        // FUNCIONES ESPECÍFICAS
+        // =============================================
 
-// =============================================
-// FUNCIONES DE INTERFAZ
-// =============================================
-
-// Funciones para pestañas
-function openTab(evt, tabName) {
-    const tabContents = document.getElementsByClassName('tab-content');
-    const tabButtons = document.getElementsByClassName('tab-button');
-    
-    Array.from(tabContents).forEach(content => content.classList.remove('active'));
-    Array.from(tabButtons).forEach(button => button.classList.remove('active'));
-    
-    document.getElementById(tabName).classList.add('active');
-    evt.currentTarget.classList.add('active');
-}
-
-// Funciones para modales
-function mostrarModal(modalId, title = '', content = '') {
-    if (title) document.getElementById(`${modalId}Title`).innerHTML = title;
-    if (content) document.getElementById(`${modalId}Content`).innerHTML = content;
-    document.getElementById(modalId).style.display = 'flex';
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
-
-// =============================================
-// FUNCIONES ESPECÍFICAS
-// =============================================
-
-// Gestión de citas
-function verDetalleCita(citaId) {
-    const detalleContent = `
+        // Gestión de citas
+        function verDetalleCita(citaId) {
+            const detalleContent = `
         <h2 style="color: var(--primary); margin-bottom: 20px;">
             <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
         </h2>
@@ -3070,11 +3086,11 @@ function verDetalleCita(citaId) {
             </ul>
         </div>
     `;
-    mostrarModal('detalleCitaModal', '<i class="fas fa-calendar-check"></i> Detalle de Cita', detalleContent);
-}
+            mostrarModal('detalleCitaModal', '<i class="fas fa-calendar-check"></i> Detalle de Cita', detalleContent);
+        }
 
-function editarCita(citaId) {
-    const formContent = `
+        function editarCita(citaId) {
+            const formContent = `
         <form id="editarCitaForm">
             <div class="form-group">
                 <label for="editFecha">Fecha:</label>
@@ -3087,34 +3103,34 @@ function editarCita(citaId) {
             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
         </form>
     `;
-    closeModal('detalleCitaModal');
-    mostrarModal('editarCitaModal', '<i class="fas fa-edit"></i> Editar Cita', formContent);
-}
-
-function cancelarCita(citaId) {
-    Swal.fire({
-        title: '¿Cancelar esta cita?',
-        text: "Esta acción no se puede deshacer",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, cancelar',
-        cancelButtonText: 'No, volver'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Toast.fire({
-                icon: 'success',
-                title: 'Cita cancelada correctamente'
-            });
-            actualizarDatosDashboard();
+            closeModal('detalleCitaModal');
+            mostrarModal('editarCitaModal', '<i class="fas fa-edit"></i> Editar Cita', formContent);
         }
-    });
-}
 
-// Gestión de servicios
-function nuevoServicio() {
-    const formContent = `
+        function cancelarCita(citaId) {
+            Swal.fire({
+                title: '¿Cancelar esta cita?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, cancelar',
+                cancelButtonText: 'No, volver'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Cita cancelada correctamente'
+                    });
+                    actualizarDatosDashboard();
+                }
+            });
+        }
+
+        // Gestión de servicios
+        function nuevoServicio() {
+            const formContent = `
         <form id="servicioForm">
             <div class="form-group">
                 <label for="servicioNombre">Nombre:</label>
@@ -3127,11 +3143,11 @@ function nuevoServicio() {
             <button type="submit" class="btn btn-primary">Guardar Servicio</button>
         </form>
     `;
-    mostrarModal('servicioModal', '<i class="fas fa-plus"></i> Nuevo Servicio', formContent);
-}
+            mostrarModal('servicioModal', '<i class="fas fa-plus"></i> Nuevo Servicio', formContent);
+        }
 
-function editarServicio(servicioId) {
-    const formContent = `
+        function editarServicio(servicioId) {
+            const formContent = `
         <form id="editarServicioForm">
             <input type="hidden" id="servicioId" value="${servicioId}">
             <div class="form-group">
@@ -3145,12 +3161,12 @@ function editarServicio(servicioId) {
             <button type="submit" class="btn btn-primary">Actualizar Servicio</button>
         </form>
     `;
-    mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
-}
+            mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
+        }
 
-// Gestión de horarios
-function mostrarModalHorario() {
-    const formContent = `
+        // Gestión de horarios
+        function mostrarModalHorario() {
+            const formContent = `
         <form id="horarioForm">
             <div class="form-group">
                 <label for="horarioDia">Día:</label>
@@ -3167,11 +3183,11 @@ function mostrarModalHorario() {
             <button type="submit" class="btn btn-primary">Guardar Horario</button>
         </form>
     `;
-    mostrarModal('horarioModal', '<i class="fas fa-plus"></i> Agregar Horario', formContent);
-}
+            mostrarModal('horarioModal', '<i class="fas fa-plus"></i> Agregar Horario', formContent);
+        }
 
-function editarHorario(horarioId) {
-    const formContent = `
+        function editarHorario(horarioId) {
+            const formContent = `
         <form id="editarHorarioForm">
             <input type="hidden" id="horarioId" value="${horarioId}">
             <div class="form-group">
@@ -3188,12 +3204,12 @@ function editarHorario(horarioId) {
             <button type="submit" class="btn btn-primary">Actualizar Horario</button>
         </form>
     `;
-    mostrarModal('horarioModal', '<i class="fas fa-edit"></i> Editar Horario', formContent);
-}
+            mostrarModal('horarioModal', '<i class="fas fa-edit"></i> Editar Horario', formContent);
+        }
 
-// Gestión de perfil
-function editarPerfil() {
-    const formContent = `
+        // Gestión de perfil
+        function editarPerfil() {
+            const formContent = `
         <form id="perfilForm">
             <div class="form-group">
                 <label for="perfilNombre">Nombre:</label>
@@ -3206,195 +3222,240 @@ function editarPerfil() {
             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
         </form>
     `;
-    mostrarModal('perfilModal', '<i class="fas fa-user-edit"></i> Editar Perfil', formContent);
-}
+            mostrarModal('perfilModal', '<i class="fas fa-user-edit"></i> Editar Perfil', formContent);
+        }
 
-// =============================================
-// EVENT LISTENERS
-// =============================================
+        // =============================================
+        // EVENT LISTENERS
+        // =============================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar gráficos
-    inicializarGraficoIngresos();
-    inicializarGraficoCitas();
-    inicializarGraficoServicios();
-    actualizarDatosDashboard();
-    
-    // Configurar intervalo para actualizaciones (5 segundos)
-    setInterval(actualizarDatosDashboard, 5000);
-    
-    // Actualizar cuando la pestaña vuelve a estar activa
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) actualizarDatosDashboard();
-    });
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. PRIMERO VERIFICAR QUE LOS CONTENEDORES DE GRÁFICOS EXISTAN
+            if (!document.getElementById('usuariosChart')) {
+                console.error('No se encontró el elemento usuariosChart');
+            }
 
-    // Listeners para botones de pestañas
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', function(e) {
-            openTab(e, this.getAttribute('data-tab'));
-        });
-    });
+            if (!document.getElementById('ingresosChart')) {
+                console.error('No se encontró el elemento ingresosChart');
+            }
 
-    // Listener para cerrar modales al hacer clic fuera
-    window.addEventListener('click', function(event) {
-        if (event.target.classList.contains('modal')) {
-            ['detalleCita', 'editarCita', 'servicio', 'horario', 'perfil', 'usuario'].forEach(modal => {
-                closeModal(`${modal}Modal`);
+            if (!document.getElementById('citasChart')) {
+                console.error('No se encontró el elemento citasChart');
+            }
+
+            if (!document.getElementById('serviciosChart')) {
+                console.error('No se encontró el elemento serviciosChart');
+            }
+
+            // 2. SOLO INICIALIZAR GRÁFICOS SI SUS CONTENEDORES EXISTEN
+            if (document.getElementById('ingresosChart')) {
+                inicializarGraficoIngresos();
+            }
+
+            if (document.getElementById('citasChart')) {
+                inicializarGraficoCitas();
+            }
+
+            if (document.getElementById('serviciosChart')) {
+                inicializarGraficoServicios();
+            }
+
+            actualizarDatosDashboard();
+
+            // Configurar intervalo para actualizaciones (5 segundos)
+            setInterval(actualizarDatosDashboard, 5000);
+
+            // Actualizar cuando la pestaña vuelve a estar activa
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) actualizarDatosDashboard();
             });
-        }
-    });
 
-    // Listener para botones de cerrar modal
-    document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.addEventListener('click', function() {
-            closeModal(this.closest('.modal').id);
-        });
-    });
-});
+            // Listeners para botones de pestañas
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    openTab(e, this.getAttribute('data-tab'));
+                });
+            });
 
-// Formulario de usuario
-document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = {
-        nombre: document.getElementById('usuario_nombre').value,
-        email: document.getElementById('usuario_email').value,
-        telefono: document.getElementById('usuario_telefono').value,
-        rol: document.getElementById('usuario_rol').value,
-        password: document.getElementById('usuario_password').value,
-        password_confirmation: document.getElementById('usuario_password_confirmation').value,
-        estado: document.getElementById('usuario_estado').value
-    };
+            // Listener para cerrar modales al hacer clic fuera
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    ['detalleCita', 'editarCita', 'servicio', 'horario', 'perfil', 'usuario'].forEach(
+                        modal => {
+                            closeModal(`${modal}Modal`);
+                        });
+                }
+            });
 
-    try {
-        const response = await fetch('{{ route('admin.usuarios.store') }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
+            // Listener para botones de cerrar modal
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    closeModal(this.closest('.modal').id);
+                });
+            });
         });
 
-        const data = await response.json();
+        // Formulario de usuario
+        document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        if (response.ok) {
-            Toast.fire({ icon: 'success', title: 'Usuario creado correctamente' });
-            closeModal('usuarioModal');
-            this.reset();
-            await actualizarDatosDashboard();
-        } else {
-            throw new Error(data.message || 'Error al crear el usuario');
-        }
-    } catch (error) {
-        Toast.fire({ icon: 'error', title: error.message });
-    }
-});
+            const formData = {
+                nombre: document.getElementById('usuario_nombre').value,
+                email: document.getElementById('usuario_email').value,
+                telefono: document.getElementById('usuario_telefono').value,
+                rol: document.getElementById('usuario_rol').value,
+                password: document.getElementById('usuario_password').value,
+                password_confirmation: document.getElementById('usuario_password_confirmation').value,
+                estado: document.getElementById('usuario_estado').value
+            };
 
-// Formulario de perfil
-document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = {
-        nombre: document.getElementById('perfilNombre').value,
-        telefono: document.getElementById('perfilTelefono').value
-    };
+            try {
+                const response = await fetch('{{ route('admin.usuarios.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
 
-    try {
-        const response = await fetch('{{ route('perfil.update') }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
+                const data = await response.json();
+
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Usuario creado correctamente'
+                    });
+                    closeModal('usuarioModal');
+                    this.reset();
+                    await actualizarDatosDashboard();
+                } else {
+                    throw new Error(data.message || 'Error al crear el usuario');
+                }
+            } catch (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message
+                });
+            }
         });
 
-        const data = await response.json();
+        // Formulario de perfil
+        document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        if (response.ok) {
-            Toast.fire({ icon: 'success', title: 'Perfil actualizado correctamente' });
-            closeModal('perfilModal');
-            await actualizarDatosDashboard();
-        } else {
-            throw new Error(data.message || 'Error al actualizar el perfil');
-        }
-    } catch (error) {
-        Toast.fire({ icon: 'error', title: error.message });
-    }
-});
+            const formData = {
+                nombre: document.getElementById('perfilNombre').value,
+                telefono: document.getElementById('perfilTelefono').value
+            };
 
-// Formulario de servicio
-document.getElementById('servicioForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = {
-        nombre: document.getElementById('servicioNombre').value,
-        precio: document.getElementById('servicioPrecio').value
-    };
+            try {
+                const response = await fetch('{{ route('perfil.update') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
 
-    try {
-        const response = await fetch('{{ route('admin.servicios.store') }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
+                const data = await response.json();
+
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Perfil actualizado correctamente'
+                    });
+                    closeModal('perfilModal');
+                    await actualizarDatosDashboard();
+                } else {
+                    throw new Error(data.message || 'Error al actualizar el perfil');
+                }
+            } catch (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message
+                });
+            }
         });
 
-        const data = await response.json();
+        // Formulario de servicio
+        document.getElementById('servicioForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        if (response.ok) {
-            Toast.fire({ icon: 'success', title: 'Servicio creado correctamente' });
-            closeModal('servicioModal');
-            await actualizarDatosDashboard();
-        } else {
-            throw new Error(data.message || 'Error al crear el servicio');
-        }
-    } catch (error) {
-        Toast.fire({ icon: 'error', title: error.message });
-    }
-});
+            const formData = {
+                nombre: document.getElementById('servicioNombre').value,
+                precio: document.getElementById('servicioPrecio').value
+            };
 
-// Asignación de eventos a botones dinámicos
-document.addEventListener('click', function(e) {
-    // Botones de ver detalle de cita
-    if (e.target.closest('.btn-view')) {
-        const citaId = e.target.closest('tr').getAttribute('data-id');
-        verDetalleCita(citaId);
-    }
-    
-    // Botones de editar cita
-    if (e.target.closest('.btn-edit')) {
-        const citaId = e.target.closest('tr').getAttribute('data-id');
-        editarCita(citaId);
-    }
-    
-    // Botones de cancelar cita
-    if (e.target.closest('.btn-delete')) {
-        const citaId = e.target.closest('tr').getAttribute('data-id');
-        cancelarCita(citaId);
-    }
-    
-    // Botones de editar servicio
-    if (e.target.closest('.btn-edit-servicio')) {
-        const servicioId = e.target.closest('.service-history-item').getAttribute('data-id');
-        editarServicio(servicioId);
-    }
-});
+            try {
+                const response = await fetch('{{ route('admin.servicios.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
 
-// Botón para mostrar modal de usuario
-document.getElementById('btnCrearUsuario')?.addEventListener('click', mostrarModalUsuario);
+                const data = await response.json();
 
-// Botón para mostrar modal de nuevo servicio
-document.getElementById('btnNuevoServicio')?.addEventListener('click', nuevoServicio);
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Servicio creado correctamente'
+                    });
+                    closeModal('servicioModal');
+                    await actualizarDatosDashboard();
+                } else {
+                    throw new Error(data.message || 'Error al crear el servicio');
+                }
+            } catch (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message
+                });
+            }
+        });
 
-// Botón para mostrar modal de horario
-document.getElementById('btnAgregarHorario')?.addEventListener('click', mostrarModalHorario);
+        // Asignación de eventos a botones dinámicos
+        document.addEventListener('click', function(e) {
+            // Botones de ver detalle de cita
+            if (e.target.closest('.btn-view')) {
+                const citaId = e.target.closest('tr').getAttribute('data-id');
+                verDetalleCita(citaId);
+            }
 
-// Botón para editar perfil
-document.getElementById('btnEditarPerfil')?.addEventListener('click', editarPerfil);
+            // Botones de editar cita
+            if (e.target.closest('.btn-edit')) {
+                const citaId = e.target.closest('tr').getAttribute('data-id');
+                editarCita(citaId);
+            }
+
+            // Botones de cancelar cita
+            if (e.target.closest('.btn-delete')) {
+                const citaId = e.target.closest('tr').getAttribute('data-id');
+                cancelarCita(citaId);
+            }
+
+            // Botones de editar servicio
+            if (e.target.closest('.btn-edit-servicio')) {
+                const servicioId = e.target.closest('.service-history-item').getAttribute('data-id');
+                editarServicio(servicioId);
+            }
+        });
+
+        // Botón para mostrar modal de usuario
+        document.getElementById('btnCrearUsuario')?.addEventListener('click', mostrarModalUsuario);
+
+        // Botón para mostrar modal de nuevo servicio
+        document.getElementById('btnNuevoServicio')?.addEventListener('click', nuevoServicio);
+
+        // Botón para mostrar modal de horario
+        document.getElementById('btnAgregarHorario')?.addEventListener('click', mostrarModalHorario);
+
+        // Botón para editar perfil
+        document.getElementById('btnEditarPerfil')?.addEventListener('click', editarPerfil);
     </script>
 </body>
 
