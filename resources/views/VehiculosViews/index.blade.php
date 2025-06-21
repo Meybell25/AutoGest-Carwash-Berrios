@@ -25,6 +25,8 @@
                         <th>Modelo</th>
                         <th>Tipo</th>
                         <th>Color</th>
+                        <th>Descripción</th>
+                        <th>Fecha de Registro</th>
                         <th>Placa</th>
                         <th class="text-end">Acciones</th>
                     </tr>
@@ -36,6 +38,8 @@
                             <td>{{ $vehiculo->modelo }}</td>
                             <td>{{ $vehiculo->tipo_formatted }}</td>
                             <td>{{ $vehiculo->color }}</td>
+                            <td>{{ $vehiculo->descripcion }}</td>
+                            <td>{{ optional($vehiculo->fecha_registro)->format('d/m/Y') }}</td>
                             <td>{{ $vehiculo->placa }}</td>
                             <td class="text-end">
                                 @if(auth()->user()->rol === 'admin' || (auth()->user()->rol === 'cliente' && $vehiculo->usuario_id === auth()->id()))
@@ -50,7 +54,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center">No hay vehículos registrados.</td>
+                             <td colspan="7" class="text-center">No hay vehículos registrados.</td>
                         </tr>
                     @endforelse
                 </tbody>

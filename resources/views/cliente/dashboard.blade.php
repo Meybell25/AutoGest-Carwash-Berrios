@@ -1114,7 +1114,9 @@
             color: #4facfe;
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -1407,10 +1409,10 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button type="button" id="openVehiculoBtn" class="btn btn-primary" onclick="openVehiculoModal()">
-                         <i class="fas fa-plus"></i>
-                         Agregar Vehículo
-                    </button>
+                    <a href="{{ route('cliente.vehiculos') }}" class="btn btn-primary">
+                        <i class="fas fa-car"></i>
+                        Mis Vehículos
+                    </a>
                     <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
@@ -1852,12 +1854,10 @@
                                 <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
                             </div>
                         @endif
-
-                        <a href="{{ route('cliente.vehiculos') }}" class="btn btn-outline"
-                            style="width: 100%; margin-top: 10px;">
+                         <button type="button" id="openVehiculoBtn" class="btn btn-outline" style="width: 100%; margin-top: 10px;" onclick="openVehiculoModal()">
                             <i class="fas fa-plus"></i>
                             Agregar Vehículo
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1912,70 +1912,56 @@
     <div id="vehiculoModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeVehiculoModal()">&times;</span>
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+             <h2 style="color: #4facfe; margin-bottom: 20px;">
                 <i class="fas fa-car"></i> Nuevo Vehículo
             </h2>
 
             <form action="{{ route('vehiculos.store') }}" method="POST">
                 @csrf
 
-                <div class="mb-4">
-                    <label for="marca" class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
-                    <input type="text" id="marca" name="marca" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="form-group">
+                     <label for="marca">Marca</label>
+                    <input type="text" id="marca" name="marca" required>   
                 </div>
 
-                <div class="mb-4">
-                    <label for="modelo" class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
-                    <input type="text" id="modelo" name="modelo" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+               <div class="form-group">
+                  <label for="modelo">Modelo</label>
+                   <input type="text" id="modelo" name="modelo" required>      
                 </div>
                 
 
-            <div class="mb-4">
-                <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-             <select id="tipo" name="tipo" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                 <option value="">Seleccione</option>
-                 <option value="sedan">Sedán</option>
-                  <option value="pickup">Pickup</option>
-                 <option value="camion">Camión</option>
-                 <option value="moto">Moto</option>
-             </select>
-            </div>
-
-
-                <div class="mb-4">
-                    <label for="color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                    <input type="text" id="color" name="color" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+             <div class="form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="">Seleccione</option>
+                        <option value="sedan">Sedán</option>
+                        <option value="pickup">Pickup</option>
+                        <option value="camion">Camión</option>
+                        <option value="moto">Moto</option>
+                    </select>
                 </div>
 
-                <div class="mb-4">
-                    <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                    <textarea id="descripcion" name="descripcion" rows="3"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+
+                <div class="form-group">
+                    <label for="color">Color</label>
+                    <input type="text" id="color" name="color" required>
                 </div>
 
-                <div class="mb-4">
-                    <label for="placa" class="block text-sm font-medium text-gray-700 mb-1">Placa</label>
-                    <input type="text" id="placa" name="placa" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+             <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" rows="3"></textarea>
+             </div>
 
-                <div class="mb-4">
-                    <label for="fecha_registro" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Registro</label>
-                    <input type="date" id="fecha_registro" name="fecha_registro" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="form-group">
+                    <label for="placa">Placa</label>
+                    <input type="text" id="placa" name="placa" required>
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeVehiculoModal()"
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                    <button type="button" onclick="closeVehiculoModal()" class="btn btn-outline">
                         Cancelar
                     </button>
-                    <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                   <button type="submit" class="btn btn-primary">
                         Guardar Vehículo
                     </button>
                 </div>

@@ -28,7 +28,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="tipo" class="form-label">Tipo</label>
-                    <select name="tipo" id="tipo" class="form-select">
+                    <select name="tipo" id="tipo" class="form-control">
                         <option value="">Seleccione un tipo</option>
                         @foreach(App\Models\Vehiculo::getTipos() as $key => $label)
                             <option value="{{ $key }}" {{ old('tipo', $vehiculo->tipo) === $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -46,10 +46,6 @@
                 <div class="mb-3">
                     <label for="placa" class="form-label">Placa</label>
                     <input type="text" name="placa" id="placa" class="form-control" value="{{ old('placa', $vehiculo->placa) }}" required>
-                </div>
-                <div class="mb-3">
-                    <label for="fecha_registro" class="form-label">Fecha de Registro</label>
-                    <input type="date" name="fecha_registro" id="fecha_registro" class="form-control" value="{{ old('fecha_registro', optional($vehiculo->fecha_registro)->format('Y-m-d')) }}">
                 </div>
                 <button type="submit" class="btn btn-primary">Actualizar</button>
             </form>

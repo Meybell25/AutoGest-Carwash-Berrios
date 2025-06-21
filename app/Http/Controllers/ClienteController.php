@@ -85,4 +85,11 @@ public function dashboard(): View
 
         return view('cliente.citas', compact('citas'));
     }
+
+     public function misVehiculosAjax()
+    {
+        $vehiculos = Auth::user()->vehiculos()->take(3)->get();
+
+        return response()->json(['vehiculos' => $vehiculos]);
+    }
 }

@@ -40,14 +40,14 @@ class VehiculoController extends Controller
             'color' => 'nullable|string',
             'descripcion' => 'nullable|string',
             'placa' => 'required|unique:vehiculos,placa',
-            'fecha_registro' => 'nullable|date',
         ]);
 
         $validated['usuario_id'] = Auth::id();
+        $validated['fecha_registro'] = now();
 
         Vehiculo::create($validated);
 
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo creado correctamente');
+        return redirect()->back()->with('success', 'Vehículo creado correctamente');
     }
 
 
@@ -78,12 +78,11 @@ class VehiculoController extends Controller
             'color' => 'nullable|string',
             'descripcion' => 'nullable|string',
             'placa' => 'required|unique:vehiculos,placa,' . $vehiculo->id,
-            'fecha_registro' => 'nullable|date',
         ]);
 
         $vehiculo->update($validated);
 
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo actualizado correctamente');
+             return redirect()->back()->with('success', 'Vehículo actualizado correctamente');
     }
 
 
@@ -101,6 +100,6 @@ class VehiculoController extends Controller
 
         $vehiculo->delete();
 
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo eliminado correctamente');
+         return redirect()->back()->with('success', 'Vehículo eliminado correctamente');
     }
 }
