@@ -158,33 +158,43 @@
             gap: 25px;
         }
 
+        .welcome-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
         .welcome-section h1 {
-            background: var(--primary-gradient);
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--secondary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            letter-spacing: -0.5px;
         }
 
         .welcome-icon {
-            background: var(--primary-gradient);
-            width: 55px;
-            height: 55px;
-            border-radius: 16px;
+            background: var(--secondary-gradient);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.6rem;
-            box-shadow: var(--shadow-md);
-            transform: rotate(-5deg);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 1.5rem;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-icon i {
+            z-index: 2;
+            text-shadow: none;
+            text-stroke: 0.5px white;
+            -webkit-text-stroke: 0.5px white;
         }
 
         .welcome-icon:hover {
@@ -192,79 +202,63 @@
         }
 
         .welcome-section p {
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+            color: var(--gray-600);
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
             font-weight: 500;
         }
 
         .welcome-stats {
-            display: flex;
-            gap: 25px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
 
         .welcome-stat {
-            background: white;
-            padding: 15px 20px;
-            border-radius: 15px;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: var(--border-radius);
             text-align: center;
-            min-width: 90px;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-primary);
-            transition: all 0.3s ease;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
 
-        .welcome-stat:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-            border: 1px solid transparent;
-            background-clip: padding-box;
-            background: white;
+        .welcome-stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: var(--transition);
         }
 
         .welcome-stat:hover::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(135deg, #2e7d32, #00695c, #0277bd);
-            border-radius: 16px;
-            z-index: -1;
-            animation: gradientBorder 3s ease infinite;
-            background-size: 200% 200%;
+            transform: scaleX(1);
+        }
+
+        .welcome-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .welcome-stat .number {
-            font-size: 1.4rem;
-            font-weight: 800;
-            background: var(--secondary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            transition: all 0.3s ease;
-        }
-
-        .welcome-stat:hover .number {
-            background: linear-gradient(135deg, #2e7d32, #00695c);
-            -webkit-background-clip: text;
-            background-clip: text;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
         }
 
         .welcome-stat .label {
-            font-size: 0.85rem;
+            font-size: 0.875rem;
             color: var(--text-secondary);
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .welcome-stat:hover .label {
-            color: var(--primary);
+            font-weight: 500;
         }
 
         @keyframes gradientBorder {
@@ -272,7 +266,7 @@
                 background-position: 0% 50%;
             }
 
-            50% {
+            .welcome-stat50% {
                 background-position: 100% 50%;
             }
 
@@ -432,32 +426,26 @@
         }
 
         .card-header h2 {
-            background: var(--secondary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 1.5rem;
-            font-weight: 800;
+            font-size: 1.50rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 18px;
-            letter-spacing: -0.3px;
+            gap: 0.75rem;
+            color: var(--gray-800);
+            margin-bottom: 10px;
         }
+
 
         .card-header .icon {
             background: var(--secondary-gradient);
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
             display: flex;
             align-items: center;
-            justify-content: center;
             color: white;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            background: var(--secondary-gradient) !important;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
         }
 
         .card-header .icon:hover {
@@ -468,10 +456,6 @@
             padding: 0 30px 30px;
         }
 
-        .card-header .icon,
-        .welcome-icon {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
 
         /* ======================
         ESTADÍSTICAS
@@ -860,9 +844,6 @@
             color: white !important;
         }
 
-        .service-icon {
-            opacity: 0.9;
-        }
 
         .service-badge-1,
         .service-badge-2,
@@ -1307,24 +1288,6 @@
         .fa-regular,
         .fab,
         .fa-brands {
-            color: inherit !important;
-            font-size: inherit !important;
-            display: inline-block !important;
-            font-style: normal;
-            font-variant: normal;
-            text-rendering: auto;
-            line-height: 1;
-        }
-
-        .fas:not(.card-header .icon i),
-        .fa-solid:not(.card-header .icon i),
-        .far:not(.card-header .icon i),
-        .fa-regular:not(.card-header .icon i),
-        .fab:not(.card-header .icon i),
-        .fa-brands:not(.card-header .icon i) {
-            color: inherit !important;
-            font-size: inherit !important;
-            display: inline-block !important;
             font-style: normal;
             font-variant: normal;
             text-rendering: auto;
@@ -1334,30 +1297,16 @@
         .card-header .icon i,
         .welcome-icon i {
             color: white !important;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
+            font-size: 1.6rem;
+            z-index: 1000;
         }
 
-        .card-header .icon i {
-            color: white !important;
-            font-size: 1.3rem !important;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-        }
 
-        .card-header h2 .icon i {
-            color: white !important;
-            font-size: 1.3rem !important;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-        }
 
-        .welcome-icon i {
-            color: white !important;
-            font-size: 1.5rem !important;
+        .welcome-icon::before,
+        .welcome-icon::after {
+            content: none !important;
+            display: none !important;
         }
 
         .btn i {
@@ -1997,6 +1946,37 @@
         ::-webkit-scrollbar-thumb:hover {
             animation: scrollbar-glow 1.5s infinite;
         }
+
+        /* ======================
+            Nueva clase para contenedores de íconos
+            ====================== */
+        .icon-container {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--secondary-gradient);
+            position: relative;
+            margin-bottom: 15px;
+            z-index: 1;
+        }
+
+
+        .icon-container>i {
+            color: white !important;
+            font-size: 1.3rem;
+            position: relative;
+            z-index: 100;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            /* Para mejor contraste */
+        }
+
+        /* Efecto hover */
+        .icon-container:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
     </style>
 </head>
 
@@ -2007,7 +1987,7 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="welcome-icon ">
+                        <div class="welcome-icon">
                             <!-- <i class="fas fa-user-cog"></i>-->
                             <i class="fas fa-cog"></i>
                         </div>
@@ -2030,9 +2010,9 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('admin.citas.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        Nueva Cita
+                    <a href="#" class="btn btn-primary" onclick="mostrarModalUsuario()">
+                        <i class="fas fa-user-plus"></i>
+                        Crear Usuarios
                     </a>
                     <a href="{{ route('admin.reportes') }}" class="btn btn-success">
                         <i class="fas fa-chart-bar"></i>
@@ -2092,7 +2072,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div class="icon">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-briefcase"></i>
                             </div>
                             Gestión de Horarios
@@ -2268,7 +2248,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div class="icon">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-chart-pie"></i>
                             </div>
                             Rendimiento Mensual
@@ -2308,7 +2288,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div class="icon">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-calendar-day"></i>
                             </div>
                             Últimas Citas
@@ -2414,7 +2394,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div class="icon">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-user-tie"></i>
                             </div>
                             Mi Perfil
@@ -2455,7 +2435,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div class="icon">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-users"></i>
                             </div>
                             Resumen de Usuarios
@@ -2493,7 +2473,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div class="icon">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-award"></i>
                             </div>
                             Servicios Populares
@@ -2528,7 +2508,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
-                            <div class="icon">
+                            <div class="card-header-icon icon-container">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </div>
                             Alertas del Sistema
@@ -2715,6 +2695,72 @@
         </div>
     </div>
 
+    <!-- Modal para crear usuarios -->
+    <div id="usuarioModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
+            <h2 style="color: var(--primary); margin-bottom: 20px;">
+                <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
+            </h2>
+            <form id="usuarioForm">
+                @csrf
+                <div class="form-group">
+                    <label for="usuario_nombre">Nombre Completo:</label>
+                    <input type="text" id="usuario_nombre" name="nombre" required class="form-control"
+                        placeholder="Ej: Juan Pérez">
+                </div>
+
+                <div class="form-group">
+                    <label for="usuario_email">Email:</label>
+                    <input type="email" id="usuario_email" name="email" required class="form-control"
+                        placeholder="Ej: usuario@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="usuario_telefono">Teléfono:</label>
+                    <input type="tel" id="usuario_telefono" name="telefono" class="form-control"
+                        placeholder="Ej: 75855197">
+                </div>
+
+                <div class="form-group">
+                    <label for="usuario_rol">Rol:</label>
+                    <select id="usuario_rol" name="rol" class="form-control" required>
+                        <option value="">Seleccione un rol</option>
+                        <option value="cliente">Cliente</option>
+                        <option value="empleado">Empleado</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="usuario_password">Contraseña:</label>
+                        <input type="password" id="usuario_password" name="password" required class="form-control"
+                            placeholder="Mínimo 8 caracteres">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="usuario_password_confirmation">Confirmar Contraseña:</label>
+                        <input type="password" id="usuario_password_confirmation" name="password_confirmation"
+                            required class="form-control" placeholder="Repite la contraseña">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="usuario_estado">Estado:</label>
+                    <select id="usuario_estado" name="estado" class="form-control">
+                        <option value="1" selected>Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-save"></i> Crear Usuario
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="sparkle"></div>
@@ -2724,7 +2770,7 @@
         <div class="footer-content">
             <div class="footer-brand">
                 <h3><i class="fas fa-car-wash"></i> AutoGest Carwash Berrios</h3>
-                <p class="footer-slogan">✨ "Sistema de Administración Integral" ✨</p>
+                <p class="footer-slogan">✨ "Donde tu auto brilla como nuevo" ✨</p>
             </div>
 
             <div class="footer-info">
@@ -3359,6 +3405,65 @@
                 closeModal('servicioModal');
                 closeModal('horarioModal');
                 closeModal('perfilModal');
+                closeModal('usuarioModal');
+            }
+        });
+
+        // Función para mostrar el modal de usuario
+        function mostrarModalUsuario() {
+            document.getElementById('usuarioModal').style.display = 'flex';
+        }
+
+        // Manejar envío del formulario de usuario
+        document.getElementById('usuarioForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                nombre: document.getElementById('usuario_nombre').value,
+                email: document.getElementById('usuario_email').value,
+                telefono: document.getElementById('usuario_telefono').value,
+                rol: document.getElementById('usuario_rol').value,
+                password: document.getElementById('usuario_password').value,
+                password_confirmation: document.getElementById('usuario_password_confirmation').value,
+                estado: document.getElementById('usuario_estado').value
+            };
+
+            try {
+                const response = await fetch('{{ route('admin.usuarios.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Usuario creado correctamente'
+                    });
+
+                    closeModal('usuarioModal');
+
+                    // Limpiar el formulario
+                    document.getElementById('usuarioForm').reset();
+
+                    // Recargar la página para ver los cambios
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Error al crear el usuario');
+                }
+            } catch (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message
+                });
             }
         });
     </script>

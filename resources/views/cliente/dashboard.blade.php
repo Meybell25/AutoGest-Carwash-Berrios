@@ -27,6 +27,18 @@
             --text-secondary: #666;
             --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
             --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+            --border-radius: 0.75rem;
+            --border-radius-lg: 1rem;
+            --border-radius-xl: 1.5rem;
+
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         html,
@@ -105,13 +117,14 @@
 
         /* Header con bienvenida mejorada */
         .header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            padding: 25px 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid var(--glass-border);
+            background: rgba(228, 228, 228, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            border-radius: var(--border-radius-xl);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
             position: relative;
             overflow: hidden;
         }
@@ -181,20 +194,21 @@
         }
 
         .welcome-stats {
-            display: flex;
-            gap: 20px;
-            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
 
-        /* Reemplaza .welcome-stat con este */
+
         .welcome-stat {
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            padding: 15px;
-            border-radius: 10px;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: var(--border-radius);
             text-align: center;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--gray-100);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
@@ -208,7 +222,7 @@
             height: 3px;
             background: var(--secondary-gradient);
             transform: scaleX(0);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .welcome-stat:hover::before {
@@ -217,13 +231,14 @@
 
         .welcome-stat:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-lg);
         }
 
         .welcome-stat .number {
             font-size: 1.2rem;
             font-weight: 700;
             color: #4facfe;
+            display: block;
         }
 
         .welcome-stat .label {
@@ -231,6 +246,7 @@
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 500;
         }
 
         .header-actions {
@@ -420,7 +436,6 @@
         }
 
         /* Próximas Citas */
-        /* Reemplaza .next-appointment con este */
         .next-appointment {
             background: linear-gradient(135deg, #667eea20, #764ba220);
             padding: 20px;
@@ -720,10 +735,13 @@
             margin-bottom: 5px;
         }
 
-        .profile-info p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 2px;
+        .profile-info-item i {
+            background: var(--secondary-gradient) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            padding: 0 5px;
+            border-radius: 3px;
+            display: inline-block;
         }
 
         .profile-stats {
@@ -1793,10 +1811,21 @@
                             </div>
                             <div class="profile-info">
                                 <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
-                                <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-calendar"></i> Cliente desde:
-                                    {{ $user->created_at->format('M Y') }}</p>
+                                <p>
+                                    <i class="fas fa-envelope"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    {{ $user->email ?? 'No especificado' }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-phone"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    {{ $user->telefono ?? 'No especificado' }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-calendar"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    Cliente desde: {{ $user->created_at->format('M Y') }}
+                                </p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline"
@@ -2246,11 +2275,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                        <tr>
-                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                        </tr>
-                                                                                                                                                    `).join('')}
+                                                                                                                                                                <tr>
+                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                </tr>
+                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>

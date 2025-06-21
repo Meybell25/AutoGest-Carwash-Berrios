@@ -402,18 +402,13 @@
         .btn-outline i,
         .btn-primary i,
         .btn-success i,
-        .btn-warning i,
-        .btn-profile i {
+        .btn-warning i {
             color: inherit !important;
             /* Hereda el color del texto del botón */
             transition: all 0.3s ease;
         }
 
         /* Casos específicos */
-        .btn-profile i {
-            color: white !important;
-            /* Fuerza blanco en botón de perfil */
-        }
 
         .btn-outline i {
             color: var(--primary) !important;
@@ -432,11 +427,6 @@
             display: flex !important;
             align-items: center;
             justify-content: center;
-        }
-
-        /* Íconos en texto normal (como los de perfil) */
-        .profile-summary i:not(.btn i) {
-            color: white !important;
         }
 
 
@@ -782,7 +772,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: white !important;
             font-size: 2rem;
             margin: 0 auto 1rem;
             box-shadow: var(--shadow-lg);
@@ -797,6 +787,7 @@
             background: var(--gradient-primary);
             z-index: -1;
             opacity: 0.3;
+            color: white !important;
             animation: pulse 2s infinite;
         }
 
@@ -811,6 +802,21 @@
             color: var(--gray-600);
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
+        }
+
+        .profile-summary .profile-summary-icon i.fas {
+            color: var(--primary);
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .profile-summary .profile-summary-icon  i.fa-phone {
+            color: var(--primary);
+        }
+
+        .profile-summary .profile-summary-icon i.fa-id-badge {
+            color: var(--primary);
         }
 
         /* Modales */
@@ -1642,12 +1648,14 @@
                             <div class="profile-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <div>
+                            <div class="profile-summary-icon">
                                 <h3>{{ Auth::user()->nombre ?? 'Empleado' }}</h3>
-                                <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-phone"></i> {{ Auth::user()->telefono ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
-                                <p><i class="fas fa-calendar"></i> Miembro desde
+                                <p><i class="fas fa-envelope" style="color: var(--primary);"></i>
+                                    {{ Auth::user()->email ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-phone" style="color: var(--primary);"></i>
+                                    {{ Auth::user()->telefono ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-id-badge" style="color: var(--primary);"></i> Rol: Empleado</p>
+                                <p><i class="fas fa-calendar" style="color: var(--primary);"></i> Miembro desde
                                     {{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
 
