@@ -3001,7 +3001,7 @@
 
         async function actualizarGraficoUsuarios() {
             try {
-                const response = await fetch('{{ route("admin.dashboard.data") }}');
+                const response = await fetch('{{ route('admin.dashboard.data') }}');
                 const data = await response.json();
 
                 // 1. Actualizar gráfico de roles
@@ -3034,11 +3034,15 @@
             }
         }
 
-        // Actualizar cada 30 segundos
-        setInterval(actualizarGraficoUsuarios, 30000);
+        // Actualizar cada 10 segundos
+        setInterval(actualizarGraficoUsuarios, 10000);
 
-        // Ejecutar al cargar la página
-        document.addEventListener('DOMContentLoaded', actualizarGraficoUsuarios);
+        // Actualizar cuando la pestaña vuelve a estar activa
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                actualizarGraficoUsuarios();
+            }
+        });
 
         // Funciones para pestañas
         function openTab(evt, tabName) {
