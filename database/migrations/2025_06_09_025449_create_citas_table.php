@@ -18,6 +18,7 @@ return new class extends Migration
         $table->dateTime('fecha_hora');
         $table->enum('estado', ['pendiente','confirmada','en_proceso','finalizada','cancelada']);
         $table->text('observaciones')->nullable();
+        $table->timestamp('created_at')->useCurrent();
         $table->unique('fecha_hora'); 
     });
     }

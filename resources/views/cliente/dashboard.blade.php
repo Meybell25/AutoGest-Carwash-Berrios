@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es"> 
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard Cliente - Carwash Berríos</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
@@ -17,8 +17,8 @@
 
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-            --success-gradient: linear-gradient(45deg, #43e97b 0%, #38f9d7 100%);
+            --secondary-gradient: linear-gradient(45deg, #4facfe 0%, #1be9f4 100%);
+            --success-gradient: linear-gradient(45deg, #3dd26e 0%, #35ebc9 100%);
             --warning-gradient: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
             --info-gradient: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
             --glass-bg: rgba(255, 255, 255, 0.95);
@@ -58,11 +58,43 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /*background: var(--primary-gradient);*/
             background: linear-gradient(180deg, #bbadfd, #5b21b6, #452383);
             min-height: 100vh;
             color: var(--text-primary);
             line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Partículas flotantes de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(250, 112, 154, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
         }
 
         .dashboard-container {
@@ -1124,15 +1156,19 @@
             font-size: 16px;
         }
 
+        /* Footer */
         .footer {
-            background: var(--glass-bg);
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 25px;
-            margin-top: 30px;
-            box-shadow: var(--shadow-soft);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
+            margin-top: auto;
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
         }
 
         .footer::before {
@@ -1148,6 +1184,7 @@
         .footer-content {
             padding: 40px 30px;
             text-align: center;
+            border-radius: 25px;
         }
 
         .footer-brand {
@@ -1178,7 +1215,7 @@
             justify-content: center;
             align-items: center;
             flex-direction: row;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             gap: 30px;
             margin-bottom: 25px;
         }
@@ -1270,7 +1307,7 @@
             color: var(--text-secondary);
             text-decoration: none;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-soft);
         }
 
         .social-icon:hover {
@@ -1313,19 +1350,6 @@
             opacity: 0.8;
         }
 
-        .footer-info {
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .footer-content {
-            padding: 30px 20px;
-        }
-
-        .footer-brand h3 {
-            font-size: 24px;
-        }
-
         .sparkle {
             position: absolute;
             width: 4px;
@@ -1366,7 +1390,45 @@
                 transform: scale(1);
             }
         }
-        [x-cloak] { display: none !important; }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .footer-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .footer-content {
+                padding: 30px 20px;
+            }
+
+            .footer-brand h3 {
+                font-size: 24px;
+            }
+
+            .social-icons {
+                gap: 12px;
+            }
+
+            .social-icon {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-brand h3 {
+                font-size: 20px;
+            }
+
+            .footer-slogan {
+                font-size: 12px;
+            }
+
+            .info-item {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 
@@ -1378,7 +1440,7 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon">
-                           <i class="fas fa-car"></i>
+                            <i class="fas fa-car"></i>
                         </div>
                         ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
                     </h1>
@@ -1409,10 +1471,10 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('cliente.vehiculos') }}" class="btn btn-primary">
-                        <i class="fas fa-car"></i>
-                        Mis Vehículos
-                    </a>
+                    <button type="button" id="openVehiculoBtn" class="btn btn-primary" onclick="openVehiculoModal()">
+                        <i class="fas fa-plus"></i>
+                        Agregar Vehículo
+                    </button>
                     <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
@@ -1732,7 +1794,9 @@
                             <div class="profile-info">
                                 <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
                                 <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>        
+                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-calendar"></i> Cliente desde:
+                                    {{ $user->created_at->format('M Y') }}</p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline"
@@ -1928,18 +1992,19 @@
                   <label for="modelo">Modelo</label>
                    <input type="text" id="modelo" name="modelo" required>      
                 </div>
-                
 
-             <div class="form-group">
-                    <label for="tipo">Tipo</label>
-                    <select id="tipo" name="tipo" required>
-                        <option value="">Seleccione</option>
-                        <option value="sedan">Sedán</option>
-                        <option value="pickup">Pickup</option>
-                        <option value="camion">Camión</option>
-                        <option value="moto">Moto</option>
-                    </select>
-                </div>
+
+            <div class="mb-4">
+                <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+             <select id="tipo" name="tipo" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                 <option value="">Seleccione</option>
+                 <option value="sedan">Sedán</option>
+                  <option value="pickup">Pickup</option>
+                 <option value="camion">Camión</option>
+                 <option value="moto">Moto</option>
+             </select>
+            </div>
 
 
                 <div class="form-group">
@@ -1952,16 +2017,24 @@
                     <textarea id="descripcion" name="descripcion" rows="3"></textarea>
              </div>
 
-                <div class="form-group">
-                    <label for="placa">Placa</label>
-                    <input type="text" id="placa" name="placa" required>
+                <div class="mb-4">
+                    <label for="placa" class="block text-sm font-medium text-gray-700 mb-1">Placa</label>
+                    <input type="text" id="placa" name="placa" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="mb-4">
+                    <label for="fecha_registro" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Registro</label>
+                    <input type="date" id="fecha_registro" name="fecha_registro" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="closeVehiculoModal()" class="btn btn-outline">
                         Cancelar
                     </button>
-                   <button type="submit" class="btn btn-primary">
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                         Guardar Vehículo
                     </button>
                 </div>
@@ -1970,6 +2043,7 @@
     </div>
 
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="sparkle"></div>
         <div class="sparkle"></div>
@@ -2181,11 +2255,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                <tr>
-                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                </tr>
-                                                                                                                            `).join('')}
+                                                                                                                                                        <tr>
+                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                        </tr>
+                                                                                                                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -2293,7 +2367,7 @@
         });
     </script>
 
-<script>
+    <script>
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -2302,7 +2376,7 @@
             document.getElementById('vehiculoModal').style.display = 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('vehiculoModal');
             const openBtn = document.getElementById('openVehiculoBtn');
             const closeBtn = modal?.querySelector('.close-modal');

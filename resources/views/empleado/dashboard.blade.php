@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard Empleado - Carwash Berríos</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
@@ -65,7 +65,41 @@
             background-size: cover;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
+
+        /* Partículas flotantes de fondo con colores de la paleta del empleado */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(81, 45, 168, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 105, 92, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(13, 71, 161, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+        }
+
 
         /* Contenedor principal ajustado */
         .dashboard-container {
@@ -75,24 +109,43 @@
             min-height: calc(100vh - 200px);
         }
 
-        /* Scrollbar personalizado */
+        /* BARRA DE DESPLAZAMIENTO PERSONALIZADA  */
         ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
         }
 
+        /* FONDO BLANCO (track) */
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
+            background: #ffffff;
             border-radius: 10px;
+            box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
+        /* BARRA DESLIZANTE MORADA (thumb) */
         ::-webkit-scrollbar-thumb {
-            background: var(--primary);
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
             border-radius: 10px;
+            border: 2px solid #ffffff;
+            transition: all 0.3s ease;
         }
 
+        /* Efectos hover/interacción */
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
+            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+            transform: scaleX(1.05);
+        }
+
+        /* Efecto activo (al hacer clic) */
+        ::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        }
+
+        /* Para Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #6d28d9 #ffffff;
         }
 
         /* Header */
@@ -375,7 +428,10 @@
         /* Íconos en cards (títulos) */
         .card-header .icon i {
             color: white !important;
-            /* Fuerza blanco en íconos de títulos */
+            font-size: 1.3rem !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Íconos en texto normal (como los de perfil) */
@@ -986,6 +1042,8 @@
             position: relative;
             overflow: hidden;
             margin-top: auto;
+            border-top-left-radius: var(--border-radius-xl);
+            border-top-right-radius: var(--border-radius-xl);
         }
 
         .footer::before {
@@ -1001,6 +1059,7 @@
         .footer-content {
             padding: 40px 30px;
             text-align: center;
+            border-radius: var(--border-radius-xl);
         }
 
         .footer-brand {
@@ -1094,8 +1153,9 @@
 
         .footer-divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
             margin: 20px 0;
+            opacity: 0.3;
         }
 
         .footer-copyright {
@@ -1147,6 +1207,12 @@
             background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             color: white;
             border-color: #bc1888;
+        }
+
+        .social-icon.twitter:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
         }
 
         .schedule-info {
@@ -1207,25 +1273,41 @@
             }
         }
 
-        /* Ajustes para iconos */
-        .fa-user-tie {
-            color: white !important;
+        /* Contact Button in Footer */
+        .footer-contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            margin: 15px 0;
         }
 
-        .btn-outline i,
-        .btn-primary i,
-        .btn-success i {
-            color: white !important;
+        .footer-contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
         }
 
-        .appointment-actions .btn-outline i {
-            color: var(--primary) !important;
+        .footer-contact-btn i {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
         }
 
-        .appointment-actions .btn-outline:hover i {
-            color: white !important;
-        }
-
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .footer-info {
                 flex-direction: column;
@@ -1239,6 +1321,61 @@
             .footer-brand h3 {
                 font-size: 24px;
             }
+
+            .social-icons {
+                gap: 12px;
+            }
+
+            .social-icon {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-brand h3 {
+                font-size: 20px;
+            }
+
+            .footer-slogan {
+                font-size: 12px;
+            }
+
+            .info-item {
+                font-size: 14px;
+            }
+        }
+
+        @keyframes primaryPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+            }
+        }
+
+        @keyframes accentPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(6, 182, 212, 0);
+            }
+        }
+
+        .pulse-primary {
+            animation: primaryPulse 2s infinite;
+        }
+
+        .pulse-accent {
+            animation: accentPulse 2s infinite;
         }
     </style>
 </head>
@@ -1470,20 +1607,21 @@
                     <div class="card-body">
                         <div class="quick-actions">
                             <button class="quick-action-btn">
-                                <i class="fas fa-plus" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-                                <span>Nueva Cita</span>
+                                <i class="fa-solid fa-eye" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <span>Ver Facturas</span>
                             </button>
                             <button class="quick-action-btn">
-                                <i class="fas fa-car" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-                                <span>Registrar Vehículo</span>
+                                <i class="fa-solid fa-address-book"
+                                    style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <span>Ver Bitacora</span>
                             </button>
                             <button class="quick-action-btn">
-                                <i class="fas fa-file-invoice" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-                                <span>Generar Recibo</span>
+                                <i class="fa-solid fa-receipt" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <span>Generar Pago</span>
                             </button>
                             <button class="quick-action-btn">
-                                <i class="fas fa-question" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-                                <span>Ayuda</span>
+                                <i class="fa-solid fa-coins"style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                <span>Agregar Gasto</span>
                             </button>
                         </div>
                     </div>
@@ -1509,6 +1647,8 @@
                                 <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-phone"></i> {{ Auth::user()->telefono ?? 'No especificado' }}</p>
                                 <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
+                                <p><i class="fas fa-calendar"></i> Miembro desde
+                                    {{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline">

@@ -21,6 +21,7 @@ class Cita extends Model
 
     protected $casts = [
         'fecha_hora' => 'datetime',
+        'created_at' => 'datetime',
     ];
 
     // Estados de las citas

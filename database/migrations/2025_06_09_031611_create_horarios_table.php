@@ -17,6 +17,7 @@ return new class extends Migration
         $table->time('hora_inicio');
         $table->time('hora_fin');
         $table->boolean('activo')->default(1);       // permitir desactivar un bloque
+        $table->timestamps();
     });
     }
 
