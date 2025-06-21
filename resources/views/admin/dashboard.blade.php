@@ -158,34 +158,43 @@
             gap: 25px;
         }
 
+        .welcome-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
         .welcome-section h1 {
-            background: var(--primary-gradient);
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            letter-spacing: -0.5px;
         }
 
         .welcome-icon {
-            width: 55px;
-            height: 55px;
-            border-radius: 16px;
-            font-size: 1.6rem;
-            box-shadow: var(--shadow-md);
-            transform: rotate(-5deg);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--gradient-primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .welcome-icon>i {
-            color: white !important;
-            z-index: 1000;
-            position: relative;
+        .welcome-icon i {
+            z-index: 2;
+            text-shadow: none;
+            text-stroke: 0.5px white;
+            -webkit-text-stroke: 0.5px white;
         }
 
         .welcome-icon:hover {
@@ -193,9 +202,9 @@
         }
 
         .welcome-section p {
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+            color: var(--gray-600);
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
             font-weight: 500;
         }
 
@@ -434,36 +443,25 @@
         }
 
         .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--gray-800);
+        }
+
+
+      .card-header .icon {
             background: var(--secondary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 1.5rem;
-            font-weight: 800;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 18px;
-            letter-spacing: -0.3px;
-        }
-
-        .card-header h2 i {
-            color: white !important;
-            font-size: 1.3rem;
-            z-index: 1000;
-        }
-
-        .card-header .icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: white;
-            font-size: 1.3rem;
-            transition: all 0.3s ease;
-            background: var(--secondary-gradient) !important;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
         }
 
         .card-header .icon:hover {
