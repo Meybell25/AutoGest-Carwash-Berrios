@@ -2814,727 +2814,586 @@
     </footer>
 
     <script>
-        // Configuración global de SweetAlert
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
+     // =============================================
+// CONFIGURACIONES GLOBALES
+// =============================================
 
-        // Inicializar gráficos
-        document.addEventListener('DOMContentLoaded', function() {
-            // Gráfico de ingresos mensuales
-            const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
-            const ingresosChart = new Chart(ingresosCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
-                        'Dic'
-                    ],
-                    datasets: [{
-                        label: 'Ingresos 2023',
-                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800,
-                            2100
-                        ],
-                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
-                        borderColor: 'rgba(39, 174, 96, 1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }]
+// Configuración de SweetAlert
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true
+});
+
+// Variables globales para gráficos
+let usuariosChart, ingresosChart, citasChart, serviciosChart;
+
+// =============================================
+// FUNCIONES DE INICIALIZACIÓN
+// =============================================
+
+function inicializarGraficoUsuarios(data) {
+    const ctx = document.getElementById('usuariosChart').getContext('2d');
+    usuariosChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Clientes', 'Empleados', 'Administradores'],
+            datasets: [{
+                data: [data.clientes, data.empleados, data.administradores],
+                backgroundColor: [
+                    'rgba(39, 174, 96, 0.7)',
+                    'rgba(52, 152, 219, 0.7)',
+                    'rgba(155, 89, 182, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: getCommonChartOptions('bottom')
+    });
+}
+
+function inicializarGraficoIngresos() {
+    const ctx = document.getElementById('ingresosChart').getContext('2d');
+    ingresosChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            datasets: [{
+                label: 'Ingresos 2023',
+                data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
+                backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                borderColor: 'rgba(39, 174, 96, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            ...getCommonChartOptions('top'),
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '$' + value
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: context => '$' + context.raw.toLocaleString()
+                    }
+                }
+            }
+        }
+    });
+}
+
+function inicializarGraficoServicios() {
+    const ctx = document.getElementById('serviciosChart').getContext('2d');
+    serviciosChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
+            datasets: [{
+                data: [35, 25, 15, 15, 10],
+                backgroundColor: [
+                    'rgba(39, 174, 96, 0.7)',
+                    'rgba(52, 152, 219, 0.7)',
+                    'rgba(243, 156, 18, 0.7)',
+                    'rgba(155, 89, 182, 0.7)',
+                    'rgba(231, 76, 60, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: getCommonChartOptions('right')
+    });
+}
+
+function inicializarGraficoCitas() {
+    const ctx = document.getElementById('citasChart').getContext('2d');
+    citasChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            datasets: [
+                {
+                    label: 'Citas Completadas',
+                    data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
+                    backgroundColor: 'rgba(211, 84, 0, 0.7)'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return '$' + context.raw.toLocaleString();
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value;
-                                }
-                            }
-                        }
-                    }
+                {
+                    label: 'Citas Canceladas',
+                    data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
+                    backgroundColor: 'rgba(231, 76, 60, 0.7)'
                 }
-            });
-
-            // Gráfico de citas mensuales
-            const citasCtx = document.getElementById('citasChart').getContext('2d');
-            const citasChart = new Chart(citasCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov',
-                        'Dic'
-                    ],
-                    datasets: [{
-                        label: 'Citas Completadas',
-                        data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                        backgroundColor: 'rgba(211, 84, 0, 0.7)',
-                        borderColor: 'rgba(211, 84, 0, 1)',
-                        borderWidth: 1
-                    }, {
-                        label: 'Citas Canceladas',
-                        data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
-                        }
-                    }
+            ]
+        },
+        options: {
+            ...getCommonChartOptions('top'),
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
                 }
-            });
-
-            // Gráfico de servicios populares
-            const serviciosCtx = document.getElementById('serviciosChart').getContext('2d');
-            const serviciosChart = new Chart(serviciosCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
-                    datasets: [{
-                        data: [35, 25, 15, 15, 10],
-                        backgroundColor: [
-                            'rgba(39, 174, 96, 0.7)',
-                            'rgba(52, 152, 219, 0.7)',
-                            'rgba(243, 156, 18, 0.7)',
-                            'rgba(155, 89, 182, 0.7)',
-                            'rgba(231, 76, 60, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(52, 152, 219, 1)',
-                            'rgba(243, 156, 18, 1)',
-                            'rgba(155, 89, 182, 1)',
-                            'rgba(231, 76, 60, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                        }
-                    }
-                }
-            });
-
-            // Gráfico de distribución de usuarios
-            const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
-            const usuariosChart = new Chart(usuariosCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Clientes', 'Empleados', 'Administradores'],
-                    datasets: [{
-                        data: [
-                            {{ $rolesDistribucion['clientes'] }},
-                            {{ $rolesDistribucion['empleados'] }},
-                            {{ $rolesDistribucion['administradores'] }}
-                        ],
-                        backgroundColor: [
-                            'rgba(39, 174, 96, 0.7)',
-                            'rgba(52, 152, 219, 0.7)',
-                            'rgba(155, 89, 182, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(52, 152, 219, 1)',
-                            'rgba(155, 89, 182, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        });
-
-
-        async function actualizarComponentesUsuario() {
-            try {
-                const response = await fetch('{{ route('admin.dashboard.data') }}');
-                const data = await response.json();
-
-                // 1. Actualizar gráfico de roles
-                if (typeof usuariosChart !== 'undefined') {
-                    usuariosChart.data.datasets[0].data = [
-                        data.rolesDistribucion.clientes,
-                        data.rolesDistribucion.empleados,
-                        data.rolesDistribucion.administradores
-                    ];
-                    usuariosChart.update();
-                }
-
-                // 2. Actualizar welcome stats (header)
-                const welcomeStats = document.querySelectorAll('.welcome-stat');
-                if (welcomeStats.length >= 3) {
-                    welcomeStats[0].querySelector('.number').textContent = data.stats.usuarios_totales;
-                    welcomeStats[1].querySelector('.number').textContent = data.stats.citas_hoy;
-                    welcomeStats[2].querySelector('.number').textContent = `$${data.stats.ingresos_hoy.toFixed(2)}`;
-                }
-
-                // 3. Actualizar card de resumen de usuarios
-                const cardCounters = document.querySelectorAll('.card-body [style*="grid-template-columns"] div');
-                if (cardCounters.length >= 2) {
-                    cardCounters[0].querySelector('div:first-child').textContent = data.stats.usuarios_totales;
-                    cardCounters[1].querySelector('div:first-child').textContent = data.stats.nuevos_clientes_mes;
-                }
-
-                return true;
-            } catch (error) {
-                console.error('Error al actualizar datos:', error);
-                return false;
             }
         }
+    });
+}
 
+function getCommonChartOptions(legendPosition) {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: legendPosition }
+        }
+    };
+}
 
-        // Actualizar cada 10 segundos
-        setInterval(actualizarGraficoUsuarios, 10000);
+// =============================================
+// FUNCIONES DE ACTUALIZACIÓN DE DATOS
+// =============================================
 
-        // Actualizar cuando la pestaña vuelve a estar activa
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                actualizarGraficoUsuarios();
-            }
+async function actualizarDatosDashboard() {
+    try {
+        const response = await fetch('{{ route('admin.dashboard.data') }}');
+        const data = await response.json();
+
+        // Actualizar estadísticas
+        actualizarEstadisticas(data.stats);
+        
+        // Actualizar gráfico de usuarios
+        actualizarGraficoUsuarios(data.rolesDistribucion);
+
+        return true;
+    } catch (error) {
+        console.error('Error al actualizar datos:', error);
+        return false;
+    }
+}
+
+function actualizarEstadisticas(stats) {
+    // Actualizar welcome stats
+    const welcomeStats = document.querySelectorAll('.welcome-stat');
+    if (welcomeStats.length >= 3) {
+        welcomeStats[0].querySelector('.number').textContent = stats.usuarios_totales;
+        welcomeStats[1].querySelector('.number').textContent = stats.citas_hoy;
+        welcomeStats[2].querySelector('.number').textContent = `$${stats.ingresos_hoy.toFixed(2)}`;
+    }
+
+    // Actualizar card de resumen
+    const cardCounters = document.querySelectorAll('.card-body [style*="grid-template-columns"] div');
+    if (cardCounters.length >= 2) {
+        cardCounters[0].querySelector('div:first-child').textContent = stats.usuarios_totales;
+        cardCounters[1].querySelector('div:first-child').textContent = stats.nuevos_clientes_mes;
+    }
+}
+
+function actualizarGraficoUsuarios(data) {
+    if (usuariosChart) {
+        usuariosChart.data.datasets[0].data = [
+            data.clientes,
+            data.empleados,
+            data.administradores
+        ];
+        usuariosChart.update();
+    } else {
+        inicializarGraficoUsuarios(data);
+    }
+}
+
+// =============================================
+// FUNCIONES DE INTERFAZ
+// =============================================
+
+// Funciones para pestañas
+function openTab(evt, tabName) {
+    const tabContents = document.getElementsByClassName('tab-content');
+    const tabButtons = document.getElementsByClassName('tab-button');
+    
+    Array.from(tabContents).forEach(content => content.classList.remove('active'));
+    Array.from(tabButtons).forEach(button => button.classList.remove('active'));
+    
+    document.getElementById(tabName).classList.add('active');
+    evt.currentTarget.classList.add('active');
+}
+
+// Funciones para modales
+function mostrarModal(modalId, title = '', content = '') {
+    if (title) document.getElementById(`${modalId}Title`).innerHTML = title;
+    if (content) document.getElementById(`${modalId}Content`).innerHTML = content;
+    document.getElementById(modalId).style.display = 'flex';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// =============================================
+// FUNCIONES ESPECÍFICAS
+// =============================================
+
+// Gestión de citas
+function verDetalleCita(citaId) {
+    const detalleContent = `
+        <h2 style="color: var(--primary); margin-bottom: 20px;">
+            <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                    <i class="fas fa-user"></i> Información del Cliente
+                </h3>
+                <p><strong>Nombre:</strong> ${citaId.nombre || 'Juan Pérez'}</p>
+                <p><strong>Teléfono:</strong> ${citaId.telefono || '5555-1234'}</p>
+                <p><strong>Email:</strong> ${citaId.email || 'juan@example.com'}</p>
+            </div>
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                    <i class="fas fa-car"></i> Información del Vehículo
+                </h3>
+                <p><strong>Marca/Modelo:</strong> ${citaId.vehiculo || 'Toyota Corolla'}</p>
+                <p><strong>Placa:</strong> ${citaId.placa || 'P123456'}</p>
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                <i class="fas fa-concierge-bell"></i> Servicios
+            </h3>
+            <ul>
+                ${citaId.servicios ? citaId.servicios.map(s => `<li>${s.nombre} - $${s.precio}</li>`).join('') : '<li>Lavado Completo - $25.00</li>'}
+            </ul>
+        </div>
+    `;
+    mostrarModal('detalleCitaModal', '<i class="fas fa-calendar-check"></i> Detalle de Cita', detalleContent);
+}
+
+function editarCita(citaId) {
+    const formContent = `
+        <form id="editarCitaForm">
+            <div class="form-group">
+                <label for="editFecha">Fecha:</label>
+                <input type="date" id="editFecha" class="form-control" value="${new Date().toISOString().split('T')[0]}" required>
+            </div>
+            <div class="form-group">
+                <label for="editHora">Hora:</label>
+                <input type="time" id="editHora" class="form-control" value="10:00" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    `;
+    closeModal('detalleCitaModal');
+    mostrarModal('editarCitaModal', '<i class="fas fa-edit"></i> Editar Cita', formContent);
+}
+
+function cancelarCita(citaId) {
+    Swal.fire({
+        title: '¿Cancelar esta cita?',
+        text: "Esta acción no se puede deshacer",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No, volver'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Toast.fire({
+                icon: 'success',
+                title: 'Cita cancelada correctamente'
+            });
+            actualizarDatosDashboard();
+        }
+    });
+}
+
+// Gestión de servicios
+function nuevoServicio() {
+    const formContent = `
+        <form id="servicioForm">
+            <div class="form-group">
+                <label for="servicioNombre">Nombre:</label>
+                <input type="text" id="servicioNombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="servicioPrecio">Precio:</label>
+                <input type="number" id="servicioPrecio" class="form-control" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Servicio</button>
+        </form>
+    `;
+    mostrarModal('servicioModal', '<i class="fas fa-plus"></i> Nuevo Servicio', formContent);
+}
+
+function editarServicio(servicioId) {
+    const formContent = `
+        <form id="editarServicioForm">
+            <input type="hidden" id="servicioId" value="${servicioId}">
+            <div class="form-group">
+                <label for="editServicioNombre">Nombre:</label>
+                <input type="text" id="editServicioNombre" class="form-control" value="Lavado Premium" required>
+            </div>
+            <div class="form-group">
+                <label for="editServicioPrecio">Precio:</label>
+                <input type="number" id="editServicioPrecio" class="form-control" value="35.00" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Servicio</button>
+        </form>
+    `;
+    mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
+}
+
+// Gestión de horarios
+function mostrarModalHorario() {
+    const formContent = `
+        <form id="horarioForm">
+            <div class="form-group">
+                <label for="horarioDia">Día:</label>
+                <select id="horarioDia" class="form-control" required>
+                    <option value="Lunes">Lunes</option>
+                    <option value="Martes">Martes</option>
+                    <!-- Más días -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="horarioInicio">Hora Inicio:</label>
+                <input type="time" id="horarioInicio" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Horario</button>
+        </form>
+    `;
+    mostrarModal('horarioModal', '<i class="fas fa-plus"></i> Agregar Horario', formContent);
+}
+
+function editarHorario(horarioId) {
+    const formContent = `
+        <form id="editarHorarioForm">
+            <input type="hidden" id="horarioId" value="${horarioId}">
+            <div class="form-group">
+                <label for="editHorarioDia">Día:</label>
+                <select id="editHorarioDia" class="form-control" required>
+                    <option value="Lunes" selected>Lunes</option>
+                    <option value="Martes">Martes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editHorarioInicio">Hora Inicio:</label>
+                <input type="time" id="editHorarioInicio" class="form-control" value="08:00" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Horario</button>
+        </form>
+    `;
+    mostrarModal('horarioModal', '<i class="fas fa-edit"></i> Editar Horario', formContent);
+}
+
+// Gestión de perfil
+function editarPerfil() {
+    const formContent = `
+        <form id="perfilForm">
+            <div class="form-group">
+                <label for="perfilNombre">Nombre:</label>
+                <input type="text" id="perfilNombre" class="form-control" value="{{ Auth::user()->nombre }}" required>
+            </div>
+            <div class="form-group">
+                <label for="perfilTelefono">Teléfono:</label>
+                <input type="tel" id="perfilTelefono" class="form-control" value="{{ Auth::user()->telefono ?? '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    `;
+    mostrarModal('perfilModal', '<i class="fas fa-user-edit"></i> Editar Perfil', formContent);
+}
+
+// =============================================
+// EVENT LISTENERS
+// =============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar gráficos
+    inicializarGraficoIngresos();
+    inicializarGraficoCitas();
+    inicializarGraficoServicios();
+    actualizarDatosDashboard();
+    
+    // Configurar intervalo para actualizaciones (5 segundos)
+    setInterval(actualizarDatosDashboard, 5000);
+    
+    // Actualizar cuando la pestaña vuelve a estar activa
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) actualizarDatosDashboard();
+    });
+
+    // Listeners para botones de pestañas
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            openTab(e, this.getAttribute('data-tab'));
+        });
+    });
+
+    // Listener para cerrar modales al hacer clic fuera
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            ['detalleCita', 'editarCita', 'servicio', 'horario', 'perfil', 'usuario'].forEach(modal => {
+                closeModal(`${modal}Modal`);
+            });
+        }
+    });
+
+    // Listener para botones de cerrar modal
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            closeModal(this.closest('.modal').id);
+        });
+    });
+});
+
+// Formulario de usuario
+document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        nombre: document.getElementById('usuario_nombre').value,
+        email: document.getElementById('usuario_email').value,
+        telefono: document.getElementById('usuario_telefono').value,
+        rol: document.getElementById('usuario_rol').value,
+        password: document.getElementById('usuario_password').value,
+        password_confirmation: document.getElementById('usuario_password_confirmation').value,
+        estado: document.getElementById('usuario_estado').value
+    };
+
+    try {
+        const response = await fetch('{{ route('admin.usuarios.store') }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
         });
 
-        // Funciones para pestañas
-        function openTab(evt, tabName) {
-            const tabContents = document.getElementsByClassName('tab-content');
-            for (let i = 0; i < tabContents.length; i++) {
-                tabContents[i].classList.remove('active');
-            }
+        const data = await response.json();
 
-            const tabButtons = document.getElementsByClassName('tab-button');
-            for (let i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].classList.remove('active');
-            }
-
-            document.getElementById(tabName).classList.add('active');
-            evt.currentTarget.classList.add('active');
+        if (response.ok) {
+            Toast.fire({ icon: 'success', title: 'Usuario creado correctamente' });
+            closeModal('usuarioModal');
+            this.reset();
+            await actualizarDatosDashboard();
+        } else {
+            throw new Error(data.message || 'Error al crear el usuario');
         }
+    } catch (error) {
+        Toast.fire({ icon: 'error', title: error.message });
+    }
+});
 
-        // Funciones para modales
-        function verDetalleCita(citaId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            const detalleContent = `
-                <h2 style="color: var(--primary); margin-bottom: 20px;">
-                    <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
-                </h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-user"></i> Información del Cliente
-                        </h3>
-                        <p><strong>Nombre:</strong> Juan Pérez</p>
-                        <p><strong>Teléfono:</strong> 5555-1234</p>
-                        <p><strong>Email:</strong> juan@example.com</p>
-                        <p><strong>Cliente desde:</strong> Ene 2023</p>
-                    </div>
-                    
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-car"></i> Información del Vehículo
-                        </h3>
-                        <p><strong>Marca/Modelo:</strong> Toyota Corolla</p>
-                        <p><strong>Año:</strong> 2020</p>
-                        <p><strong>Color:</strong> Rojo</p>
-                        <p><strong>Placa:</strong> P123456</p>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-concierge-bell"></i> Servicios Contratados
-                    </h3>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: var(--light);">
-                                <th style="padding: 10px; text-align: left;">Servicio</th>
-                                <th style="padding: 10px; text-align: right;">Precio</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary);">Lavado Completo</td>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary); text-align: right;">$25.00</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary);">Aspirado Interior</td>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary); text-align: right;">$15.00</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; font-weight: bold;">Total</td>
-                                <td style="padding: 10px; font-weight: bold; text-align: right;">$40.00</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-info-circle"></i> Información Adicional
-                    </h3>
-                    <p><strong>Fecha/Hora:</strong> 15 Jun 2023 - 10:00 AM</p>
-                    <p><strong>Estado:</strong> <span class="badge badge-success">Finalizada</span></p>
-                    <p><strong>Empleado asignado:</strong> Carlos López</p>
-                    <p><strong>Observaciones del cliente:</strong> Por favor prestar atención a las manchas en los asientos traseros.</p>
-                    <p><strong>Observaciones del empleado:</strong> Se detectó pequeño rayón en la puerta derecha, cliente fue notificado.</p>
-                </div>
-                
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button class="btn btn-outline" onclick="imprimirRecibo(${citaId})">
-                        <i class="fas fa-print"></i> Imprimir Recibo
-                    </button>
-                    <button class="btn btn-primary" onclick="editarCita(${citaId})">
-                        <i class="fas fa-edit"></i> Editar Cita
-                    </button>
-                </div>
-            `;
+// Formulario de perfil
+document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        nombre: document.getElementById('perfilNombre').value,
+        telefono: document.getElementById('perfilTelefono').value
+    };
 
-            document.getElementById('detalleCitaContent').innerHTML = detalleContent;
-            document.getElementById('detalleCitaModal').style.display = 'flex';
-        }
-
-        function editarCita(citaId) {
-            // Simulación de formulario 
-            const formContent = `
-                <div class="form-group">
-                    <label for="edit_cliente">Cliente:</label>
-                    <select id="edit_cliente" class="form-control" required>
-                        <option value="1" selected>Juan Pérez</option>
-                        <option value="2">María González</option>
-                        <option value="3">Carlos López</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_vehiculo">Vehículo:</label>
-                    <select id="edit_vehiculo" class="form-control" required>
-                        <option value="1" selected>Toyota Corolla (P123456)</option>
-                        <option value="2">Honda Civic (P654321)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_fecha">Fecha:</label>
-                    <input type="date" id="edit_fecha" class="form-control" value="2023-06-15" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_hora">Hora:</label>
-                    <input type="time" id="edit_hora" class="form-control" value="10:00" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Servicios:</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div>
-                            <input type="checkbox" id="serv1" checked>
-                            <label for="serv1">Lavado Completo ($25.00)</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="serv2" checked>
-                            <label for="serv2">Aspirado Interior ($15.00)</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="serv3">
-                            <label for="serv3">Encerado ($20.00)</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_empleado">Empleado Asignado:</label>
-                    <select id="edit_empleado" class="form-control" required>
-                        <option value="1" selected>Carlos López</option>
-                        <option value="2">Ana Martínez</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_estado">Estado:</label>
-                    <select id="edit_estado" class="form-control" required>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="en_proceso">En Proceso</option>
-                        <option value="finalizada" selected>Finalizada</option>
-                        <option value="cancelada">Cancelada</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_observaciones">Observaciones:</label>
-                    <textarea id="edit_observaciones" rows="3" class="form-control">Por favor prestar atención a las manchas en los asientos traseros.</textarea>
-                </div>
-                
-                <button type="button" class="btn btn-success" style="width: 100%;" onclick="guardarCambiosCita(${citaId})">
-                    <i class="fas fa-save"></i> Guardar Cambios
-                </button>
-            `;
-
-            document.getElementById('editarCitaForm').innerHTML = formContent;
-            document.getElementById('detalleCitaModal').style.display = 'none';
-            document.getElementById('editarCitaModal').style.display = 'flex';
-        }
-
-        function cancelarCita(citaId) {
-            Swal.fire({
-                title: '¿Cancelar esta cita?',
-                text: "Esta acción no se puede deshacer",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, cancelar',
-                cancelButtonText: 'No, volver'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Aquí iría la petición AJAX para cancelar la cita
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Cita cancelada correctamente'
-                    });
-
-                    // Simulación de recarga de datos
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                }
-            });
-        }
-
-        function guardarCambiosCita(citaId) {
-            // Aquí iría la petición AJAX para guardar los cambios
-            Toast.fire({
-                icon: 'success',
-                title: 'Cambios guardados correctamente'
-            });
-
-            closeModal('editarCitaModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                verDetalleCita(citaId);
-            }, 500);
-        }
-
-        function imprimirRecibo(citaId) {
-            // Aquí iría la lógica para imprimir el recibo
-            window.open(`/admin/citas/${citaId}/recibo`, '_blank');
-        }
-
-        function nuevoServicio() {
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Nuevo Servicio';
-            document.getElementById('servicio_id').value = '';
-            document.getElementById('servicio_nombre').value = '';
-            document.getElementById('servicio_descripcion').value = '';
-            document.getElementById('servicio_precio').value = '';
-            document.getElementById('servicio_duracion').value = '';
-            document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'flex';
-        }
-
-        function editarServicio(servicioId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
-            document.getElementById('servicio_id').value = servicioId;
-            document.getElementById('servicio_nombre').value = 'Lavado Completo';
-            document.getElementById('servicio_descripcion').value =
-                'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
-            document.getElementById('servicio_precio').value = '25.00';
-            document.getElementById('servicio_duracion').value = '30';
-            document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'flex';
-        }
-
-        function mostrarModalHorario() {
-            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Agregar Horario';
-            document.getElementById('horario_id').value = '';
-            document.getElementById('horario_dia').value = '';
-            document.getElementById('horario_inicio').value = '';
-            document.getElementById('horario_fin').value = '';
-            document.getElementById('horario_activo').value = '1';
-            document.getElementById('horarioModal').style.display = 'flex';
-        }
-
-        function editarHorario(diaSemana) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-
-            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Horario';
-            document.getElementById('horario_id').value = diaSemana;
-            document.getElementById('horario_dia').value = diaSemana;
-            document.getElementById('horario_inicio').value = '07:00';
-            document.getElementById('horario_fin').value = '18:00';
-            document.getElementById('horario_activo').value = '1';
-            document.getElementById('horarioModal').style.display = 'flex';
-        }
-
-        function activarHorario(diaSemana) {
-            // Aquí iría la petición AJAX para activar el horario
-            Toast.fire({
-                icon: 'success',
-                title: 'Horario activado correctamente'
-            });
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        }
-
-        function desactivarHorario(diaSemana) {
-            // Aquí iría la petición AJAX para desactivar el horario
-            Toast.fire({
-                icon: 'success',
-                title: 'Horario desactivado correctamente'
-            });
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        }
-
-        // Función para abrir el modal de edición de perfil
-        function editarPerfil() {
-            document.getElementById('perfil_nombre').value = '{{ Auth::user()->nombre }}';
-            document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? '' }}';
-            document.getElementById('perfilModal').style.display = 'flex';
-        }
-
-        // Manejar envío del formulario de perfil
-        document.getElementById('perfilForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-
-            try {
-                const response = await fetch('{{ route('perfil.update-ajax') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        nombre: document.getElementById('perfil_nombre').value,
-                        telefono: document.getElementById('perfil_telefono').value
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Actualizar la UI
-                    document.querySelector('.profile-name').textContent = data.user.nombre;
-                    if (data.user.telefono) {
-                        document.querySelector('.profile-info-item:nth-child(2) span').textContent = data.user
-                            .telefono;
-                    }
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: data.message
-                    });
-
-                    closeModal('perfilModal');
-                } else {
-                    throw new Error(data.message);
-                }
-            } catch (error) {
-                Toast.fire({
-                    icon: 'error',
-                    title: error.message || 'Error al actualizar el perfil'
-                });
-            }
+    try {
+        const response = await fetch('{{ route('perfil.update') }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
         });
 
-        // Manejar envío del formulario de horario
-        document.getElementById('horarioForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        const data = await response.json();
 
-            // Aquí iría la petición AJAX para guardar el horario
-            const isNew = document.getElementById('horario_id').value === '';
-
-            Toast.fire({
-                icon: 'success',
-                title: `Horario ${isNew ? 'creado' : 'actualizado'} correctamente`
-            });
-
-            closeModal('horarioModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Manejar envío del formulario de servicio
-        document.getElementById('servicioForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Aquí iría la petición AJAX para guardar el servicio
-            const isNew = document.getElementById('servicio_id').value === '';
-
-            Toast.fire({
-                icon: 'success',
-                title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
-            });
-
-            closeModal('servicioModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Manejar envío del formulario de perfil
-        document.getElementById('perfilForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Aquí iría la petición AJAX para guardar el perfil
-            Toast.fire({
-                icon: 'success',
-                title: 'Perfil actualizado correctamente'
-            });
-
+        if (response.ok) {
+            Toast.fire({ icon: 'success', title: 'Perfil actualizado correctamente' });
             closeModal('perfilModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Función para cerrar modales
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+            await actualizarDatosDashboard();
+        } else {
+            throw new Error(data.message || 'Error al actualizar el perfil');
         }
+    } catch (error) {
+        Toast.fire({ icon: 'error', title: error.message });
+    }
+});
 
-        // Cerrar modales al hacer clic fuera
-        window.addEventListener('click', function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal('detalleCitaModal');
-                closeModal('editarCitaModal');
-                closeModal('servicioModal');
-                closeModal('horarioModal');
-                closeModal('perfilModal');
-                closeModal('usuarioModal');
-            }
+// Formulario de servicio
+document.getElementById('servicioForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        nombre: document.getElementById('servicioNombre').value,
+        precio: document.getElementById('servicioPrecio').value
+    };
+
+    try {
+        const response = await fetch('{{ route('admin.servicios.store') }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
         });
 
-        // Función para mostrar el modal de usuario
-        function mostrarModalUsuario() {
-            document.getElementById('usuarioModal').style.display = 'flex';
+        const data = await response.json();
+
+        if (response.ok) {
+            Toast.fire({ icon: 'success', title: 'Servicio creado correctamente' });
+            closeModal('servicioModal');
+            await actualizarDatosDashboard();
+        } else {
+            throw new Error(data.message || 'Error al crear el servicio');
         }
+    } catch (error) {
+        Toast.fire({ icon: 'error', title: error.message });
+    }
+});
 
-        // Manejar envío del formulario de usuario
-        document.getElementById('usuarioForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+// Asignación de eventos a botones dinámicos
+document.addEventListener('click', function(e) {
+    // Botones de ver detalle de cita
+    if (e.target.closest('.btn-view')) {
+        const citaId = e.target.closest('tr').getAttribute('data-id');
+        verDetalleCita(citaId);
+    }
+    
+    // Botones de editar cita
+    if (e.target.closest('.btn-edit')) {
+        const citaId = e.target.closest('tr').getAttribute('data-id');
+        editarCita(citaId);
+    }
+    
+    // Botones de cancelar cita
+    if (e.target.closest('.btn-delete')) {
+        const citaId = e.target.closest('tr').getAttribute('data-id');
+        cancelarCita(citaId);
+    }
+    
+    // Botones de editar servicio
+    if (e.target.closest('.btn-edit-servicio')) {
+        const servicioId = e.target.closest('.service-history-item').getAttribute('data-id');
+        editarServicio(servicioId);
+    }
+});
 
-            const formData = {
-                nombre: document.getElementById('usuario_nombre').value,
-                email: document.getElementById('usuario_email').value,
-                telefono: document.getElementById('usuario_telefono').value,
-                rol: document.getElementById('usuario_rol').value,
-                password: document.getElementById('usuario_password').value,
-                password_confirmation: document.getElementById('usuario_password_confirmation').value,
-                estado: document.getElementById('usuario_estado').value
-            };
+// Botón para mostrar modal de usuario
+document.getElementById('btnCrearUsuario')?.addEventListener('click', mostrarModalUsuario);
 
-            try {
-                const response = await fetch('{{ route('admin.usuarios.store') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
+// Botón para mostrar modal de nuevo servicio
+document.getElementById('btnNuevoServicio')?.addEventListener('click', nuevoServicio);
 
-                const data = await response.json();
+// Botón para mostrar modal de horario
+document.getElementById('btnAgregarHorario')?.addEventListener('click', mostrarModalHorario);
 
-                if (response.ok) {
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Usuario creado correctamente'
-                    });
-
-                    closeModal('usuarioModal');
-                    document.getElementById('usuarioForm').reset();
-
-                    // Actualizar solo los componentes necesarios
-                    const success = await actualizarComponentesUsuario();
-
-                    if (!success) {
-                        Toast.fire({
-                            icon: 'warning',
-                            title: 'Usuario creado pero no se pudieron actualizar todos los componentes'
-                        });
-                    }
-                } else {
-                    throw new Error(data.message || 'Error al crear el usuario');
-                }
-            } catch (error) {
-                Toast.fire({
-                    icon: 'error',
-                    title: error.message
-                });
-            }
-        });
+// Botón para editar perfil
+document.getElementById('btnEditarPerfil')?.addEventListener('click', editarPerfil);
     </script>
 </body>
 
