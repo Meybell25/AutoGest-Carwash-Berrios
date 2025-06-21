@@ -2011,10 +2011,10 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="#" class="btn btn-primary" onclick="mostrarModalUsuario()">
+                    <button type="button" class="btn btn-primary" onclick="mostrarModalUsuario()">
                         <i class="fas fa-user-plus"></i>
                         Crear Usuarios
-                    </a>
+                    </button>
                     <a href="{{ route('admin.reportes') }}" class="btn btn-success">
                         <i class="fas fa-chart-bar"></i>
                         Reportes
@@ -3046,6 +3046,10 @@
             document.getElementById(modalId).style.display = 'flex';
         }
 
+        function mostrarModalUsuario() {
+            document.getElementById('usuarioModal').style.display = 'flex';
+        }
+
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
@@ -3296,7 +3300,7 @@
         });
 
         // Formulario de usuario
-        document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
+        document.getElementById('usuarioForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const formData = {
@@ -3306,15 +3310,15 @@
                 rol: document.getElementById('usuario_rol').value,
                 password: document.getElementById('usuario_password').value,
                 password_confirmation: document.getElementById('usuario_password_confirmation').value,
-                estado: document.getElementById('usuario_estado').value
+                estado: document.getElementById('usuario_estado').value === '1'
             };
 
             try {
                 const response = await fetch('{{ route('admin.usuarios.store') }}', {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify(formData)
                 });
@@ -3322,20 +3326,21 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    Toast.fire({
+                    Swal.fire({
                         icon: 'success',
-                        title: 'Usuario creado correctamente'
+                        title: 'Usuario creado',
+                        text: 'El usuario se ha creado correctamente'
                     });
                     closeModal('usuarioModal');
-                    this.reset();
-                    await actualizarDatosDashboard();
+                    actualizarDatosDashboard();
                 } else {
                     throw new Error(data.message || 'Error al crear el usuario');
                 }
             } catch (error) {
-                Toast.fire({
+                Swal.fire({
                     icon: 'error',
-                    title: error.message
+                    title: 'Error',
+                    text: error.message
                 });
             }
         });
