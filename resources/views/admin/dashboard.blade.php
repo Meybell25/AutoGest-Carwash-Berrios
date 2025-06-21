@@ -1975,6 +1975,7 @@
             justify-content: center;
             background: var(--secondary-gradient);
             position: relative;
+            margin-bottom: 15px;
             z-index: 1;
         }
 
