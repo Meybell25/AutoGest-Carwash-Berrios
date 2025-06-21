@@ -176,8 +176,8 @@
             background-clip: text;
         }
 
-        .welcome-icon {
-            background: var(--gradient-primary);
+         .welcome-icon {
+            background: var(--secondary-gradient);
             width: 50px;
             height: 50px;
             border-radius: 12px;
@@ -193,7 +193,7 @@
         .welcome-icon i {
             z-index: 2;
             text-shadow: none;
-            text-stroke: 0.5px white;
+            text-stroke: 0.5px white ;
             -webkit-text-stroke: 0.5px white;
         }
 
@@ -2002,7 +2002,7 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="welcome-icon icon-container">
+                        <div class="welcome-icon">
                             <!-- <i class="fas fa-user-cog"></i>-->
                             <i class="fas fa-cog"></i>
                         </div>
