@@ -1305,9 +1305,6 @@
         .fa-regular,
         .fab,
         .fa-brands {
-            color: inherit !important;
-            font-size: inherit !important;
-            display: inline-block !important;
             font-style: normal;
             font-variant: normal;
             text-rendering: auto;
@@ -1977,19 +1974,24 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.3rem;
-            transition: all 0.3s ease;
-            background: var(--secondary-gradient) !important;
+            background: var(--secondary-gradient);
+            position: relative;
+            z-index: 1;
         }
 
+
+        .icon-container>i {
+            color: white !important;
+            font-size: 1.3rem;
+            position: relative;
+            z-index: 100;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            /* Para mejor contraste */
+        }
+
+        /* Efecto hover */
         .icon-container:hover {
             transform: scale(1.1) rotate(5deg);
-        }
-
-        /* Asegurarnos que los íconos dentro sean blancos */
-        .icon-container i {
-            color: white !important;
         }
     </style>
 </head>
