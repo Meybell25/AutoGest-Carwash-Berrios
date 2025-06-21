@@ -555,40 +555,7 @@
             color: white;
             box-shadow: var(--shadow-sm);
         }
-/*******************prueba***********************/
-        .icon {
-            position: relative;
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            background: var(--secondary-gradient) !important;
-            overflow: visible !important;
-        }
-        .icon,
-.icon i,
-.welcome-icon,
-.welcome-icon i {
-    animation: none !important;
-}
-        .icon i {
-            position: relative;
-            z-index: 10;
-            color: white !important;
-            font-size: 1.3rem !important;
-        }
-        .icon::before,
-        .icon::after {
-            display: none !important;
-        }
 
-
-/*******************88fin de prueba ************************88888*/
         .icon-primary {
             background: var(--primary-gradient);
         }
@@ -2008,10 +1975,26 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="welcome-icon ">
+                        <span class="icon-fijo"
+                            style="
+    display: inline-flex;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #00695c, #0277bd);
+    color: white;
+    font-size: 1.3rem;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+">
                             <!-- <i class="fas fa-user-cog"></i>-->
-                            <i class="fas fa-cog"></i>
-                        </div>
+                            <i class="fas fa-cog"
+                                style="
+        color: white !important;
+        font-size: 1.3rem !important;
+    "></i>
+                        </span>
                         Panel de Administración
                     </h1>
                     <p>Gestiona todos los aspectos de tu negocio de lavado</p>
