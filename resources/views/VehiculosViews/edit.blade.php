@@ -15,7 +15,7 @@
             <h5 class="mb-0">Editar Vehículo</h5>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ route('vehiculos.update', $vehiculo) }}">
+            <form id="vehiculoEditForm" method="POST" action="{{ route('vehiculos.update', $vehiculo) }}">
                 @csrf
                 @method('PUT')
                 <div class="mb-3">
@@ -28,7 +28,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="tipo" class="form-label">Tipo</label>
-                    <select name="tipo" id="tipo" class="form-select">
+                    <select name="tipo" id="tipo" class="form-control">
                         <option value="">Seleccione un tipo</option>
                         @foreach(App\Models\Vehiculo::getTipos() as $key => $label)
                             <option value="{{ $key }}" {{ old('tipo', $vehiculo->tipo) === $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -47,12 +47,39 @@
                     <label for="placa" class="form-label">Placa</label>
                     <input type="text" name="placa" id="placa" class="form-control" value="{{ old('placa', $vehiculo->placa) }}" required>
                 </div>
-                <div class="mb-3">
-                    <label for="fecha_registro" class="form-label">Fecha de Registro</label>
-                    <input type="date" name="fecha_registro" id="fecha_registro" class="form-control" value="{{ old('fecha_registro', optional($vehiculo->fecha_registro)->format('Y-m-d')) }}">
-                </div>
                 <button type="submit" class="btn btn-primary">Actualizar</button>
             </form>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('vehiculoEditForm')?.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const formData = new FormData(this);
+        try {
+            const resp = await fetch(this.action, {
+                method: 'POST',
+                headers: {'X-Requested-With':'XMLHttpRequest'},
+                body: formData
+            });
+            const data = await resp.json();
+            if(!resp.ok) throw new Error(data.message || 'Error');
+
+            localStorage.setItem('vehiculoActualizado', Date.now());
+            swalWithBootstrapButtons.fire({
+                title: '¡Éxito!',
+                text: 'Vehículo actualizado correctamente',
+                icon: 'success'
+            }).then(()=> window.location.href = '{{ route('vehiculos.index') }}');
+        } catch(error){
+            swalWithBootstrapButtons.fire({
+                title: 'Error',
+                text: error.message || 'Error al actualizar el vehículo',
+                icon: 'error'
+            });
+        }
+    });
+</script>
+@endpush
