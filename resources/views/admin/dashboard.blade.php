@@ -1986,6 +1986,7 @@
             font-size: 1.3rem;
             position: relative;
             z-index: 100;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
             /* Para mejor contraste */
         }
 
