@@ -10,11 +10,15 @@ use App\Models\Servicio;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 
 class AdminController extends Controller
 {
     public function dashboard(): View
     {
+        $mesActual = now()->month;
+        $anoActual = now()->year;
+
         $stats = [
             'total_usuarios' => Usuario::count(),
             'total_clientes' => Usuario::where('rol', 'cliente')->count(),
@@ -24,16 +28,12 @@ class AdminController extends Controller
             'total_vehiculos' => Vehiculo::count(),
             'total_servicios' => Servicio::where('activo', true)->count(),
             'usuarios_totales' => Usuario::count(),
+            'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')->whereMonth('created_at', $mesActual)->whereYear('created_at', $anoActual)->count(),
             'citas_hoy' => Cita::whereDate('created_at', today())->count(),
-            'ingresos_hoy' => Cita::whereDate('created_at', today())
-                ->with('servicios')
-                ->get()
-                ->sum(function ($cita) {
+            'ingresos_hoy' => Cita::whereDate('created_at', today())->with('servicios')
+                ->get()->sum(function ($cita) {
                     return $cita->servicios->sum('precio');
                 }),
-            'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')
-                ->whereMonth('created_at', now()->month)
-                ->count(),
             'citas_canceladas_mes' => Cita::where('estado', 'cancelada')
                 ->whereMonth('created_at', now()->month)
                 ->count()
@@ -54,6 +54,12 @@ class AdminController extends Controller
             ->orderBy('citas_count', 'desc')
             ->limit(3)
             ->get();
+
+        $rolesDistribucion = [
+            'clientes' => Usuario::where('rol', 'cliente')->count(),
+            'empleados' => Usuario::where('rol', 'empleado')->count(),
+            'administradores' => Usuario::where('rol', 'admin')->count()
+        ];
 
         $alertas = [
             (object)[
@@ -79,7 +85,8 @@ class AdminController extends Controller
             'stats',
             'ultimas_citas',
             'servicios_populares',
-            'alertas'
+            'alertas',
+            'rolesDistribucion'
         ));
     }
 
@@ -124,6 +131,35 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    public function getDashboardData()
+    {
+        return Cache::remember('dashboard_stats', now()->addMinutes(5), function () {
+            $mesActual = now()->month;
+            $anoActual = now()->year;
+
+            return [
+                'stats' => [
+                    'usuarios_totales' => Usuario::count(),
+                    'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')
+                        ->whereMonth('created_at', $mesActual)
+                        ->whereYear('created_at', $anoActual)
+                        ->count(),
+                    'citas_hoy' => Cita::whereDate('created_at', today())->count(),
+                    'ingresos_hoy' => Cita::whereDate('created_at', today())
+                        ->with('servicios')
+                        ->get()
+                        ->sum(fn($cita) => $cita->servicios->sum('precio'))
+                ],
+                'rolesDistribucion' => [
+                    'clientes' => Usuario::where('rol', 'cliente')->count(),
+                    'empleados' => Usuario::where('rol', 'empleado')->count(),
+                    'administradores' => Usuario::where('rol', 'admin')->count()
+                ]
+            ];
+        });
+    }
+
 
     public function createCita(): View
     {

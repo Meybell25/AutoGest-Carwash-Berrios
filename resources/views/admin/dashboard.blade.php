@@ -2451,13 +2451,15 @@
                             <div style="text-align: center;">
                                 <div style="font-size: 2rem; font-weight: bold; color: var(--success);">
                                     {{ $stats['nuevos_clientes_mes'] ?? 0 }}</div>
-                                <div style="font-size: 0.9rem; color: var(--text-secondary);">Nuevos (Mes)</div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">Nuevos
+                                    ({{ now()->translatedFormat('F') }})</div>
                             </div>
                         </div>
 
                         <div style="margin-bottom: 15px;">
                             <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--text-primary);">
-                                Distribución por Rol</h3>
+                                Distribución por Rol
+                            </h3>
                             <div class="chart-container" style="height: 200px;">
                                 <canvas id="usuariosChart"></canvas>
                             </div>
@@ -2955,7 +2957,11 @@
                 data: {
                     labels: ['Clientes', 'Empleados', 'Administradores'],
                     datasets: [{
-                        data: [85, 10, 5],
+                        data: [
+                            {{ $rolesDistribucion['clientes'] }},
+                            {{ $rolesDistribucion['empleados'] }},
+                            {{ $rolesDistribucion['administradores'] }}
+                        ],
                         backgroundColor: [
                             'rgba(39, 174, 96, 0.7)',
                             'rgba(52, 152, 219, 0.7)',
@@ -2975,11 +2981,64 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
                         }
                     }
                 }
             });
         });
+
+
+        async function actualizarGraficoUsuarios() {
+            try {
+                const response = await fetch('{{ route("admin.dashboard.data") }}');
+                const data = await response.json();
+
+                // 1. Actualizar gráfico de roles
+                if (typeof usuariosChart !== 'undefined') {
+                    usuariosChart.data.datasets[0].data = [
+                        data.rolesDistribucion.clientes,
+                        data.rolesDistribucion.empleados,
+                        data.rolesDistribucion.administradores
+                    ];
+                    usuariosChart.update();
+                }
+
+                // 2. Actualizar welcome stats (header)
+                const welcomeStats = document.querySelectorAll('.welcome-stat');
+                if (welcomeStats.length >= 3) {
+                    welcomeStats[0].querySelector('.number').textContent = data.stats.usuarios_totales;
+                    welcomeStats[1].querySelector('.number').textContent = data.stats.citas_hoy;
+                    welcomeStats[2].querySelector('.number').textContent = `$${data.stats.ingresos_hoy.toFixed(2)}`;
+                }
+
+                // 3. Actualizar card de resumen de usuarios
+                const cardCounters = document.querySelectorAll('.card-body [style*="grid-template-columns"] div');
+                if (cardCounters.length >= 2) {
+                    cardCounters[0].querySelector('div:first-child').textContent = data.stats.usuarios_totales;
+                    cardCounters[1].querySelector('div:first-child').textContent = data.stats.nuevos_clientes_mes;
+                }
+
+            } catch (error) {
+                console.error('Error al actualizar datos:', error);
+            }
+        }
+
+        // Actualizar cada 30 segundos
+        setInterval(actualizarGraficoUsuarios, 30000);
+
+        // Ejecutar al cargar la página
+        document.addEventListener('DOMContentLoaded', actualizarGraficoUsuarios);
 
         // Funciones para pestañas
         function openTab(evt, tabName) {
@@ -3081,7 +3140,7 @@
         }
 
         function editarCita(citaId) {
-            // Simulación de formulario - en una aplicación real harías una petición AJAX
+            // Simulación de formulario 
             const formContent = `
                 <div class="form-group">
                     <label for="edit_cliente">Cliente:</label>
@@ -3451,6 +3510,8 @@
 
                     // Limpiar el formulario
                     document.getElementById('usuarioForm').reset();
+
+                    actualizarGraficoUsuarios();
 
                     // Recargar la página para ver los cambios
                     setTimeout(() => {

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Cache;
 
 class AuthController extends Controller
 {
@@ -63,6 +64,8 @@ class AuthController extends Controller
     /**
      * Procesar registro
      */
+
+
     public function register(Request $request): RedirectResponse
     {
         $request->validate([
@@ -89,8 +92,10 @@ class AuthController extends Controller
             'estado' => true,
         ]);
 
-        event(new Registered($user));
+        // Limpiar caché de estadísticas
+        Cache::forget('dashboard_stats');
 
+        event(new Registered($user));
         Auth::login($user);
 
         return redirect()->route('cliente.dashboard')
