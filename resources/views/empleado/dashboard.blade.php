@@ -772,7 +772,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: white !important;
             font-size: 2rem;
             margin: 0 auto 1rem;
             box-shadow: var(--shadow-lg);
@@ -787,6 +787,7 @@
             background: var(--gradient-primary);
             z-index: -1;
             opacity: 0.3;
+            color: white !important;
             animation: pulse 2s infinite;
         }
 
@@ -803,18 +804,18 @@
             font-size: 0.9rem;
         }
 
-        .profile-summary i.fas {
+        .profile-summary .profile-summary-icon i.fas {
             color: var(--primary);
             margin-right: 8px;
             width: 20px;
             text-align: center;
         }
 
-        .profile-summary i.fa-phone {
+        .profile-summary .profile-summary-icon  i.fa-phone {
             color: var(--primary);
         }
 
-        .profile-summary i.fa-id-badge {
+        .profile-summary .profile-summary-icon i.fa-id-badge {
             color: var(--primary);
         }
 
@@ -1647,7 +1648,7 @@
                             <div class="profile-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <div>
+                            <div class="profile-summary-icon">
                                 <h3>{{ Auth::user()->nombre ?? 'Empleado' }}</h3>
                                 <p><i class="fas fa-envelope" style="color: var(--primary);"></i>
                                     {{ Auth::user()->email ?? 'No especificado' }}</p>
