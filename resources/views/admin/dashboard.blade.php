@@ -989,6 +989,68 @@
         }
 
         /* ======================
+        DISENO DE MODAL USUARIO FORM
+        ====================== */
+        /* Ajustes para el modal de usuario */
+        #usuarioModal .modal-content {
+            max-width: 600px;
+            /* Aumentamos el ancho */
+            width: 90%;
+            max-height: 90vh;
+            /* Limitamos la altura */
+            overflow-y: auto;
+            /* Habilitamos scroll si es necesario */
+        }
+
+        /* Ajustes para el formulario */
+        #usuarioForm {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Campos que deben ocupar ambas columnas */
+        #usuarioForm .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        /* Contenedor de contraseña */
+        .password-container {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Barra de fortaleza de contraseña */
+        .password-strength {
+            grid-column: span 2;
+        }
+
+        /* Botón de submit */
+        #usuarioForm button[type="submit"] {
+            grid-column: span 2;
+        }
+
+        /* Ajustes para móviles */
+        @media (max-width: 768px) {
+            #usuarioForm {
+                grid-template-columns: 1fr;
+            }
+
+            #usuarioForm .form-group.full-width,
+            .password-container,
+            .password-strength,
+            #usuarioForm button[type="submit"] {
+                grid-column: span 1;
+            }
+
+            .password-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ======================
         FOOTER
         ====================== */
         .footer {
@@ -2700,14 +2762,15 @@
 
     <!-- Modal para crear usuarios -->
     <div id="usuarioModal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-content">
             <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
             <h2 style="color: var(--primary); margin-bottom: 20px;">
                 <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
             </h2>
             <form id="usuarioForm">
                 @csrf
-                <div class="form-group">
+                <!-- Nombre (ocupa ancho completo) -->
+                <div class="form-group full-width">
                     <label for="usuario_nombre">Nombre Completo:</label>
                     <input type="text" id="usuario_nombre" name="nombre" class="form-control"
                         placeholder="Ej: Juan Pérez" required>
@@ -2716,6 +2779,7 @@
                     </div>
                 </div>
 
+                <!-- Email y Teléfono en misma fila -->
                 <div class="form-group">
                     <label for="usuario_email">Email:</label>
                     <input type="email" id="usuario_email" name="email" class="form-control"
@@ -2737,6 +2801,7 @@
                     </div>
                 </div>
 
+                <!-- Rol y Estado en misma fila -->
                 <div class="form-group">
                     <label for="usuario_rol">Rol:</label>
                     <select id="usuario_rol" name="rol" class="form-control" required>
@@ -2750,7 +2815,16 @@
                     </div>
                 </div>
 
-                <div class="form-grid">
+                <div class="form-group">
+                    <label for="usuario_estado">Estado:</label>
+                    <select id="usuario_estado" name="estado" class="form-control">
+                        <option value="1" selected>Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+
+                <!-- Contraseñas (ocupan ancho completo pero en 2 columnas) -->
+                <div class="password-container">
                     <div class="form-group">
                         <label for="usuario_password">Contraseña:</label>
                         <div class="input-group">
@@ -2766,16 +2840,6 @@
                         </div>
                         <div class="form-text">
                             <small>Mínimo 8 caracteres, incluye mayúsculas, minúsculas y números</small>
-                        </div>
-
-                        <div class="password-strength mt-2">
-                            <div class="progress" style="height: 5px;">
-                                <div class="progress-bar" id="usuario_password-strength-bar" role="progressbar"
-                                    style="width: 0%"></div>
-                            </div>
-                            <small class="text-muted" id="usuario_password-strength-text">
-                                Seguridad de la contraseña
-                            </small>
                         </div>
                     </div>
 
@@ -2795,15 +2859,19 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="usuario_estado">Estado:</label>
-                    <select id="usuario_estado" name="estado" class="form-control">
-                        <option value="1" selected>Activo</option>
-                        <option value="0">Inactivo</option>
-                    </select>
+                <!-- Barra de fortaleza (ancho completo) -->
+                <div class="password-strength mt-2">
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar" id="usuario_password-strength-bar" role="progressbar"
+                            style="width: 0%"></div>
+                    </div>
+                    <small class="text-muted" id="usuario_password-strength-text">
+                        Seguridad de la contraseña
+                    </small>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <!-- Botón de submit (ancho completo) -->
+                <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Crear Usuario
                 </button>
             </form>
