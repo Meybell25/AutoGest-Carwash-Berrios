@@ -2028,8 +2028,10 @@
             <div class="main-section">
                 <div
                     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-                    <div class="admin-stat-card stat-card-primary">              
+                    <div class="admin-stat-card stat-card-primary">
+                        <div class="stat-icon icon-primary">
                             <i class="fas fa-calendar-check"></i>
+                        </div>
                         <div class="stat-value">{{ $stats['citas_hoy'] ?? 0 }}</div>
                         <div class="stat-label">Citas Hoy</div>
                     </div>
@@ -2060,11 +2062,13 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>
+                            <i class="fas fa-briefcase"></i>
                             <div class="icon">
                                 <i class="fas fa-briefcase"></i>
                             </div>
                             Gestión de Horarios
                         </h2>
+                        <i class="fas fa-briefcase"></i>
                     </div>
                     <div class="card-body">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
