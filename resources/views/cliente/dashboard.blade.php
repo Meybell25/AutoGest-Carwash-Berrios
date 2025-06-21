@@ -736,7 +736,7 @@
         }
 
         .profile-info p {
-            color: var(--text-secondary);
+            color: var(--secondary-gradient);
             font-size: 0.9rem;
             margin-bottom: 2px;
         }
