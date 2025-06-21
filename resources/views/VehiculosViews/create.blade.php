@@ -15,7 +15,7 @@
             <h5 class="mb-0">Registrar Vehículo</h5>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ route('vehiculos.store') }}">
+             <form id="vehiculoCreateForm" method="POST" action="{{ route('vehiculos.store') }}">
                 @csrf
                 <div class="mb-3">
                     <label for="marca" class="form-label">Marca</label>
@@ -51,3 +51,34 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('vehiculoCreateForm')?.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const formData = new FormData(this);
+        try {
+            const resp = await fetch(this.action, {
+                method: 'POST',
+                headers: {'X-Requested-With':'XMLHttpRequest'},
+                body: formData
+            });
+            const data = await resp.json();
+            if(!resp.ok) throw new Error(data.message || 'Error');
+
+            localStorage.setItem('vehiculoActualizado', Date.now());
+            swalWithBootstrapButtons.fire({
+                title: '¡Éxito!',
+                text: 'Vehículo creado correctamente',
+                icon: 'success'
+            }).then(()=> window.location.href = '{{ route('vehiculos.index') }}');
+        } catch(error){
+            swalWithBootstrapButtons.fire({
+                title: 'Error',
+                text: error.message || 'Error al crear el vehículo',
+                icon: 'error'
+            });
+        }
+    });
+</script>
+@endpush

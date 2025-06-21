@@ -1525,7 +1525,7 @@
                             Próximas Citas
                         </h2>
                     </div>
-                    <div class="card-body">
+                     <div class="card-body" >
                         @if (isset($mis_citas) && count($mis_citas) > 0)
                             <!-- Próxima cita destacada -->
                             @php $nextAppointment = $mis_citas->first(); @endphp
@@ -1904,7 +1904,7 @@
                             Mis Vehículos
                         </h2>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" id="misVehiculosContainer">
                         @if (isset($mis_vehiculos) && count($mis_vehiculos) > 0)
                             @foreach ($mis_vehiculos as $vehiculo)
                                 <div class="service-history-item" style="margin-bottom: 15px;">
@@ -2009,7 +2009,7 @@
                 <i class="fas fa-car"></i> Nuevo Vehículo
             </h2>
 
-            <form action="{{ route('vehiculos.store') }}" method="POST">
+             <form id="vehiculoForm" action="{{ route('vehiculos.store') }}" method="POST">
                 @csrf
 
                 <div class="form-group">
@@ -2411,6 +2411,93 @@
             });
         });
     </script>
+
+
+ @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('vehiculoForm');
+            form?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                try {
+                    const resp = await fetch(form.action, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok) throw new Error(data.message || 'Error');
+
+                    localStorage.setItem('vehiculoActualizado', Date.now());
+                    form.reset();
+                    closeVehiculoModal();
+                    await actualizarMisVehiculos();
+                    swalWithBootstrapButtons.fire({
+                        title: '¡Éxito!',
+                        text: 'Vehículo guardado correctamente',
+                        icon: 'success'
+                    });
+                } catch (error) {
+                    swalWithBootstrapButtons.fire({
+                        title: 'Error',
+                        text: error.message || 'Error al guardar el vehículo',
+                        icon: 'error'
+                    });
+                }
+            });
+
+            window.addEventListener('storage', function(e){
+                if(e.key === 'vehiculoActualizado'){ actualizarMisVehiculos(); }
+            });
+        });
+
+        async function actualizarMisVehiculos() {
+            try {
+                const response = await fetch('{{ route('cliente.mis-vehiculos-ajax') }}');
+                const data = await response.json();
+                const container = document.getElementById('misVehiculosContainer');
+                if (!container) return;
+
+                if (data.vehiculos.length > 0) {
+                    container.innerHTML = '';
+                    data.vehiculos.forEach(v => {
+                        let icon = 'car';
+                        if (v.tipo === 'pickup') icon = 'truck-pickup';
+                        else if (v.tipo === 'camion') icon = 'truck';
+                        else if (v.tipo === 'moto') icon = 'motorcycle';
+
+                        container.innerHTML += `
+                            <div class="service-history-item" style="margin-bottom: 15px;">
+                                <div class="service-icon" style="background: var(--secondary-gradient);">
+                                    <i class="fas fa-${icon}"></i>
+                                </div>
+                                <div class="service-details">
+                                    <h4>${v.marca ?? ''} ${v.modelo ?? ''}</h4>
+                                    <p><i class="fas fa-palette"></i> ${v.color ?? ''}</p>
+                                    <p><i class="fas fa-id-card"></i> ${v.placa}</p>
+                                </div>
+                                <a href='{{ route('cliente.citas') }}' class="btn btn-sm btn-primary">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </a>
+                            </div>`;
+                    });
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-car"></i>
+                            <h3>No tienes vehículos registrados</h3>
+                            <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
+                        </div>`;
+                }
+            } catch (err) {
+                console.error('Error al actualizar vehiculos', err);
+            }
+        }
+    </script>
+    @endpush
+
+
 
     <style>
         /* Efecto ripple para botones */

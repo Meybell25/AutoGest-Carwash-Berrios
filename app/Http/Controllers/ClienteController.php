@@ -22,7 +22,10 @@ public function dashboard(): View
     }
 
     try {
-        $vehiculos = $user->vehiculos()->get();
+          $vehiculos = $user->vehiculos()
+            ->withCount('citas')
+            ->orderByDesc('citas_count')
+            ->get();
         $citas = $user->citas()->with(['vehiculo', 'servicios'])->get();
         
         // Cambia 'leida' por 'leido' para coincidir con la base de datos
@@ -86,9 +89,13 @@ public function dashboard(): View
         return view('cliente.citas', compact('citas'));
     }
 
-     public function misVehiculosAjax()
+      public function misVehiculosAjax()
     {
-        $vehiculos = Auth::user()->vehiculos()->take(3)->get();
+        $vehiculos = Auth::user()->vehiculos()
+            ->withCount('citas')
+            ->orderByDesc('citas_count')
+            ->take(3)
+            ->get();
 
         return response()->json(['vehiculos' => $vehiculos]);
     }

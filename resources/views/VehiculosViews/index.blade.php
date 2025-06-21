@@ -44,7 +44,7 @@
                             <td class="text-end">
                                 @if(auth()->user()->rol === 'admin' || (auth()->user()->rol === 'cliente' && $vehiculo->usuario_id === auth()->id()))
                                     <a href="{{ route('vehiculos.edit', $vehiculo) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-                                    <form action="{{ route('vehiculos.destroy', $vehiculo) }}" method="POST" class="d-inline-block" onsubmit="return confirm('¿Eliminar este vehículo?');">
+                                   <form action="{{ route('vehiculos.destroy', $vehiculo) }}" method="POST" class="d-inline-block vehiculo-delete-form" onsubmit="return confirm('¿Eliminar este vehículo?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
@@ -62,3 +62,40 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.vehiculo-delete-form').forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                if (!confirm('¿Eliminar este vehículo?')) return;
+                const formData = new FormData(this);
+                try {
+                    const resp = await fetch(this.action, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok) throw new Error(data.message || 'Error');
+
+                    localStorage.setItem('vehiculoActualizado', Date.now());
+                    this.closest('tr').remove();
+                    swalWithBootstrapButtons.fire({
+                        title: '¡Éxito!',
+                        text: 'Vehículo eliminado correctamente',
+                        icon: 'success'
+                    });
+                } catch (error) {
+                    swalWithBootstrapButtons.fire({
+                        title: 'Error',
+                        text: error.message || 'Error al eliminar el vehículo',
+                        icon: 'error'
+                    });
+                }
+            });
+        });
+    });
+</script>
+@endpush

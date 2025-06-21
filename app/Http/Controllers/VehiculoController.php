@@ -31,7 +31,7 @@ class VehiculoController extends Controller
     }
 
    
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'marca' => 'nullable|string',
@@ -45,7 +45,11 @@ class VehiculoController extends Controller
         $validated['usuario_id'] = Auth::id();
         $validated['fecha_registro'] = now();
 
-        Vehiculo::create($validated);
+        $vehiculo = Vehiculo::create($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'vehiculo' => $vehiculo]);
+        }
 
         return redirect()->back()->with('success', 'Vehículo creado correctamente');
     }
@@ -61,7 +65,7 @@ class VehiculoController extends Controller
     }
 
  
-    public function update(Request $request, Vehiculo $vehiculo): RedirectResponse
+     public function update(Request $request, Vehiculo $vehiculo)
     {
         if (Auth::user()->rol === 'cliente' && $vehiculo->usuario_id !== Auth::id()) {
             abort(403);
@@ -82,11 +86,15 @@ class VehiculoController extends Controller
 
         $vehiculo->update($validated);
 
-             return redirect()->back()->with('success', 'Vehículo actualizado correctamente');
+             if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Vehículo actualizado correctamente');
     }
 
 
-    public function destroy(Vehiculo $vehiculo): RedirectResponse
+    public function destroy(Vehiculo $vehiculo)
     {
         $user = Auth::user();
 
@@ -100,6 +108,10 @@ class VehiculoController extends Controller
 
         $vehiculo->delete();
 
-         return redirect()->back()->with('success', 'Vehículo eliminado correctamente');
+       if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Vehículo eliminado correctamente');
     }
 }
