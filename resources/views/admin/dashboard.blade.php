@@ -1975,7 +1975,7 @@
             <div class="header-content">
                 <div class="welcome-section">
                     <h1>
-                        <div class="welcome-icon icon-container">
+                        <div class="icon-container">
                             <!-- <i class="fas fa-user-cog"></i>-->
                             <i class="fas fa-cog"></i>
                         </div>
