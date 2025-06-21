@@ -449,6 +449,7 @@
             align-items: center;
             gap: 0.75rem;
             color: var(--gray-800);
+            margin-bottom: 10px;
         }
 
 
