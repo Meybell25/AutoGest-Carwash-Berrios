@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use App\Events\UsuarioCreado;
 
 class AdminController extends Controller
 {
@@ -118,6 +119,8 @@ class AdminController extends Controller
                 'password' => Hash::make($validated['password']),
                 'estado' => $validated['estado']
             ]);
+
+            event(new UsuarioCreado($usuario));
 
             return response()->json([
                 'success' => true,

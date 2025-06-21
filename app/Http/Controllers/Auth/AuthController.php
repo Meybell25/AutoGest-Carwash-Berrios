@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Cache;
+use App\Events\UsuarioCreado;
 
 class AuthController extends Controller
 {
@@ -96,6 +97,7 @@ class AuthController extends Controller
         Cache::forget('dashboard_stats');
 
         event(new Registered($user));
+        event(new UsuarioCreado($user));
         Auth::login($user);
 
         return redirect()->route('cliente.dashboard')

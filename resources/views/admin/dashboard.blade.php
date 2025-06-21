@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+    <script src="{{ mix('js/app.js') }}"></script>
     <style>
         /* ======================
         ESTILOS GENERALES
@@ -3531,6 +3533,21 @@
                 });
             }
         });
+
+        window.Echo.channel('usuarios')
+            .listen('UsuarioCreado', (data) => {
+                console.log('Evento recibido:', data);
+                actualizarGraficoUsuarios();
+
+                Toast.fire({
+                    icon: 'success',
+                    title: `Nuevo ${data.usuario.rol}: ${data.usuario.nombre}`,
+                    timer: 5000
+                });
+            })
+            .error((error) => {
+                console.error('Error en Pusher:', error);
+            });
     </script>
 </body>
 
