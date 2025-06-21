@@ -27,6 +27,18 @@
             --text-secondary: #666;
             --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
             --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+            --border-radius: 0.75rem;
+            --border-radius-lg: 1rem;
+            --border-radius-xl: 1.5rem;
+
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         html,
@@ -181,20 +193,21 @@
         }
 
         .welcome-stats {
-            display: flex;
-            gap: 20px;
-            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
 
-        /* Reemplaza .welcome-stat con este */
+    
         .welcome-stat {
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            padding: 15px;
-            border-radius: 10px;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: var(--border-radius);
             text-align: center;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--gray-100);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
@@ -208,7 +221,7 @@
             height: 3px;
             background: var(--secondary-gradient);
             transform: scaleX(0);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .welcome-stat:hover::before {
@@ -217,13 +230,14 @@
 
         .welcome-stat:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-lg);
         }
 
         .welcome-stat .number {
             font-size: 1.2rem;
             font-weight: 700;
             color: #4facfe;
+            display: block;
         }
 
         .welcome-stat .label {
@@ -231,6 +245,7 @@
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 500;
         }
 
         .header-actions {
