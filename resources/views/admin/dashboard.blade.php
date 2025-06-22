@@ -1823,9 +1823,7 @@
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             }
         }
-        }
-
-
+    
 
         @media (max-width: 576px) {
             .dashboard-container {
