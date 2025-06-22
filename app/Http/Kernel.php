@@ -32,6 +32,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+             \App\Http\Middleware\BitacoraMiddleware::class,
         ],
 
         'api' => [
@@ -61,5 +62,6 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'empleado' => \App\Http\Middleware\EmpleadoMiddleware::class,
         'cliente' => \App\Http\Middleware\ClienteMiddleware::class,
+        'bitacora' => \App\Http\Middleware\BitacoraMiddleware::class,
     ];
 }

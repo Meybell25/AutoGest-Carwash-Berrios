@@ -46,6 +46,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
+            \App\Models\Bitacora::login($user->id, $request->ip());
 
             if (!$user->estado) {
                 Auth::logout();
@@ -109,6 +110,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request): RedirectResponse
     {
+        \App\Models\Bitacora::logout(Auth::id(), $request->ip());
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

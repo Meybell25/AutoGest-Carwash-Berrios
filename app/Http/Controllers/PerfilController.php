@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Bitacora;
 use Illuminate\Support\Facades\Validator;
 
 class PerfilController extends Controller
@@ -29,6 +30,7 @@ class PerfilController extends Controller
             'nombre' => $request->nombre,
             'telefono' => $request->telefono,
         ]);
+         Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_PERFIL, null, $request->ip(), $request->path());
 
         return back()->with('success', 'Perfil actualizado correctamente');
     }
@@ -45,6 +47,7 @@ class PerfilController extends Controller
         ]);
 
         Auth::user()->update(['email' => $request->email]);
+        Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_EMAIL, null, $request->ip(), $request->path());
 
         return back()->with('success', 'Email actualizado correctamente');
     }
@@ -60,6 +63,7 @@ class PerfilController extends Controller
     ]);
 
     Auth::user()->update(['password' => Hash::make($request->password)]);
+     Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_PASSWORD, null, $request->ip(), $request->path());
 
     return back()->with('success', 'Contraseña actualizada correctamente');
 }
@@ -73,6 +77,7 @@ class PerfilController extends Controller
         try {
             $user = Auth::user();
             $user->update($validated);
+              Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_PERFIL, null, $request->ip(), $request->path());
 
             return response()->json([
                 'success' => true,

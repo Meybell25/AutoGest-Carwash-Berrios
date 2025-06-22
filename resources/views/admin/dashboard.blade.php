@@ -2226,6 +2226,10 @@
                         <i class="fas fa-chart-bar"></i>
                         Reportes
                     </a>
+                     <a href="{{ route('admin.bitacora.index') }}" class="btn btn-success">
+                        <i class="fas fa-chart-bar"></i>
+                        Bitácora
+                    </a>
                     <a href="{{ route('configuracion.index') }}" class="btn btn-info">
                         <i class="fas fa-cog"></i>
                         Configuración

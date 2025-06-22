@@ -7,6 +7,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ServicioController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -68,6 +69,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
     Route::post('/usuarios', [AdminController::class, 'storeUsuario'])->name('usuarios.store');
+     Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
     
     // Ruta para datos del dashboard (AJAX)
     Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
