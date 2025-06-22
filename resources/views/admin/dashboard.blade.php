@@ -2321,6 +2321,141 @@
                     </div>
                 </div>
 
+                <!-- Contenedor para Días No Laborables -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="card-header-icon icon-container">
+                                <i class="fas fa-calendar-times"></i>
+                            </div>
+                            Días No Laborables
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary);">Días festivos y feriados</h3>
+                            <button class="btn btn-primary" onclick="mostrarModalDiaNoLaborable()">
+                                <i class="fas fa-plus"></i> Agregar Día
+                            </button>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Motivo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Ejemplo de fila -->
+                                    <tr>
+                                        <td data-label="Fecha">25/12/2025</td>
+                                        <td data-label="Motivo">Navidad</td>
+                                        <td data-label="Acciones">
+                                            <div class="table-actions">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarDiaNoLaborable(1)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="table-btn btn-delete" title="Eliminar"
+                                                    onclick="eliminarDiaNoLaborable(1)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Fin ejemplo -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenedor para Gestión de Gastos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="card-header-icon icon-container">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            Gestión de Gastos
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary);">Registro de gastos operativos</h3>
+                            <button class="btn btn-primary" onclick="mostrarModalGasto()">
+                                <i class="fas fa-plus"></i> Registrar Gasto
+                            </button>
+                        </div>
+
+                        <div class="search-filter-container">
+                            <div class="search-box">
+                                <input type="text" placeholder="Buscar gastos..." class="form-control">
+                            </div>
+                            <div class="filter-select">
+                                <select class="form-control">
+                                    <option value="">Todos los tipos</option>
+                                    <option value="stock">Stock</option>
+                                    <option value="sueldos">Sueldos</option>
+                                    <option value="personal">Personal</option>
+                                    <option value="mantenimiento">Mantenimiento</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Detalle</th>
+                                        <th>Monto</th>
+                                        <th>Registrado por</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Ejemplo de fila -->
+                                    <tr>
+                                        <td data-label="Fecha">15/06/2025</td>
+                                        <td data-label="Tipo">Stock</td>
+                                        <td data-label="Detalle">Compra de shampoo y ceras</td>
+                                        <td data-label="Monto">$125.50</td>
+                                        <td data-label="Registrado por">Admin</td>
+                                        <td data-label="Acciones">
+                                            <div class="table-actions">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarGasto(1)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="table-btn btn-delete" title="Eliminar"
+                                                    onclick="eliminarGasto(1)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Fin ejemplo -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pagination">
+                            <a href="#" class="page-link">&laquo;</a>
+                            <a href="#" class="page-link active">1</a>
+                            <a href="#" class="page-link">2</a>
+                            <a href="#" class="page-link">3</a>
+                            <a href="#" class="page-link">&raquo;</a>
+                        </div>
+                    </div>
+                </div>
+
+
                 <!-- Gráficos -->
                 <div class="card">
                     <div class="card-header">
@@ -2738,6 +2873,80 @@
 
                         <button type="submit" class="btn btn-primary" style="width: 100%;">
                             <i class="fas fa-save"></i> Guardar Horario
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal para Días No Laborables -->
+            <div id="diaNoLaborableModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('diaNoLaborableModal')">&times;</span>
+                    <h2 id="diaNoLaborableModalTitle">
+                        <i class="fas fa-calendar-times"></i> Agregar Día No Laborable
+                    </h2>
+                    <form id="diaNoLaborableForm">
+                        <div class="form-group">
+                            <label for="diaNoLaborableFecha">Fecha:</label>
+                            <input type="date" id="diaNoLaborableFecha" name="fecha" required
+                                class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="diaNoLaborableMotivo">Motivo (opcional):</label>
+                            <input type="text" id="diaNoLaborableMotivo" name="motivo" class="form-control"
+                                placeholder="Ej: Feriado nacional">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal para Gastos -->
+            <div id="gastoModal" class="modal">
+                <div class="modal-content" style="max-width: 600px;">
+                    <span class="close-modal" onclick="closeModal('gastoModal')">&times;</span>
+                    <h2 id="gastoModalTitle">
+                        <i class="fas fa-money-bill-wave"></i> Registrar Gasto
+                    </h2>
+                    <form id="gastoForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="gastoTipo">Tipo:</label>
+                                <select id="gastoTipo" name="tipo" class="form-control" required>
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="stock">Stock</option>
+                                    <option value="sueldos">Sueldos</option>
+                                    <option value="personal">Personal</option>
+                                    <option value="mantenimiento">Mantenimiento</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gastoMonto">Monto ($):</label>
+                                <input type="number" step="0.01" id="gastoMonto" name="monto" required
+                                    class="form-control" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gastoDetalle">Detalle:</label>
+                            <textarea id="gastoDetalle" name="detalle" rows="3" required class="form-control"
+                                placeholder="Descripción del gasto..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gastoFecha">Fecha:</label>
+                            <input type="date" id="gastoFecha" name="fecha" class="form-control"
+                                value="{{ date('Y-m-d') }}">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i> Registrar Gasto
                         </button>
                     </form>
                 </div>
