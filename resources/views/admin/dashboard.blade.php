@@ -3512,23 +3512,8 @@
                 _token: '{{ csrf_token() }}'
             };
 
-            const password = document.getElementById('perfil_password').value;
-            const passwordConfirmation = document.getElementById('perfil_password_confirmation').value;
-
-            if (password) {
-                if (password !== passwordConfirmation) {
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Las contraseñas no coinciden'
-                    });
-                    return;
-                }
-                formData.password = password;
-                formData.password_confirmation = passwordConfirmation;
-            }
-
             try {
-                const response = await fetch('{{ route('admin.perfil.update') }}', {
+                const response = await fetch('{{ route('perfil.update-ajax') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3545,9 +3530,60 @@
                         title: 'Perfil actualizado correctamente'
                     });
                     closeModal('perfilModal');
-                    // Actualizar la UI si es necesario
                 } else {
                     throw new Error(data.message || 'Error al actualizar el perfil');
+                }
+            } catch (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message
+                });
+            }
+        });
+
+        // Formulario de usuario
+        document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                nombre: document.getElementById('nombre').value,
+                email: document.getElementById('email').value,
+                telefono: document.getElementById('telefono').value,
+                rol: document.getElementById('rol').value,
+                password: document.getElementById('password').value,
+                password_confirmation: document.getElementById('password_confirmation').value,
+                estado: document.getElementById('estado').value,
+                _token: '{{ csrf_token() }}'
+            };
+
+            try {
+                const response = await fetch('{{ route('admin.usuarios.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Usuario creado correctamente'
+                    });
+                    closeModal('usuarioModal');
+                    await actualizarDatosDashboard();
+                } else {
+                    let errorMessage = 'Error al crear el usuario';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).join('\n');
+                    } else if (data.message) {
+                        errorMessage = data.message;
+                    }
+                    throw new Error(errorMessage);
                 }
             } catch (error) {
                 Toast.fire({
@@ -3571,7 +3607,8 @@
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(formData)
                 });
