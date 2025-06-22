@@ -862,635 +862,636 @@
         </div>
     </div>
 
-    <script>
-        // Variables globales
-        let allUsersData = @json($usuarios->items());
-        let filteredUsers = [];
+  <script>
+    // =============================================
+    // VARIABLES GLOBALES
+    // =============================================
+    let allUsersData = @json($usuarios->items());
+    let filteredUsers = [];
+    let currentUser = {
+        id: {{ Auth::id() }},
+        rol: '{{ Auth::user()->rol ?? '' }}'
+    };
 
-        // Función para mostrar el modal de usuario
-        function mostrarModalUsuario(usuarioId = null) {
-            const modal = document.getElementById('usuarioModal');
-            const form = document.getElementById('usuarioForm');
-            const title = document.getElementById('modalTitleText');
-            const rolField = document.getElementById('rol');
-            const emailField = document.getElementById('email');
+    // =============================================
+    // FUNCIONES DE UTILIDAD
+    // =============================================
 
-            // Resetear el formulario
-            form.reset();
-            document.getElementById('usuario_id').value = '';
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
 
-            if (usuarioId) {
-                // Modo edición
-                title.textContent = 'Editar Usuario';
-                rolField.disabled = true;
-                emailField.disabled = true;
-                document.getElementById('passwordFields').style.display = 'none';
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const eyeIcon = document.getElementById(`${inputId}Eye`);
+        if (input.type === 'password') {
+            input.type = 'text';
+            eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
 
-                // Buscar el usuario en los datos cargados
-                const usuario = allUsersData.find(u => u.id == usuarioId);
+    // =============================================
+    // FUNCIONES DE GESTIÓN DE USUARIOS
+    // =============================================
 
-                if (usuario) {
-                    document.getElementById('usuario_id').value = usuario.id;
-                    document.getElementById('nombre').value = usuario.nombre;
-                    document.getElementById('email').value = usuario.email;
-                    document.getElementById('telefono').value = usuario.telefono || '';
-                    rolField.value = usuario.rol;
-                    document.getElementById('estado').value = usuario.estado ? '1' : '0';
+    function mostrarModalUsuario(usuarioId = null) {
+        const modal = document.getElementById('usuarioModal');
+        const form = document.getElementById('usuarioForm');
+        const title = document.getElementById('modalTitleText');
+        const rolField = document.getElementById('rol');
+        const emailField = document.getElementById('email');
 
-                    // No cargamos la contraseña por seguridad
-                    document.getElementById('password').required = false;
-                    document.getElementById('password_confirmation').required = false;
-                } else {
-                    // Si no está en los datos cargados, hacer petición al servidor
-                    fetch(`/admin/usuarios/${usuarioId}/edit`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Usuario no encontrado');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            document.getElementById('usuario_id').value = data.id;
-                            document.getElementById('nombre').value = data.nombre;
-                            document.getElementById('email').value = data.email;
-                            document.getElementById('telefono').value = data.telefono || '';
-                            document.getElementById('rol').value = data.rol;
-                            document.getElementById('estado').value = data.estado ? '1' : '0';
+        form.reset();
+        document.getElementById('usuario_id').value = '';
 
-                            // Deshabilitar campos sensibles
-                            rolField.disabled = true;
-                            emailField.disabled = true;
+        if (usuarioId) {
+            // Modo edición
+            title.textContent = 'Editar Usuario';
+            rolField.disabled = emailField.disabled = true;
+            document.getElementById('passwordFields').style.display = 'none';
 
-                            // No cargamos la contraseña por seguridad
-                            document.getElementById('password').required = false;
-                            document.getElementById('password_confirmation').required = false;
-                        })
-                        .catch(error => {
-                            console.error('Error al cargar usuario:', error);
-                            Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
-                            closeModal('usuarioModal');
-                        });
-                }
+            const usuario = allUsersData.find(u => u.id == usuarioId);
+            if (usuario) {
+                fillUserForm(usuario);
             } else {
-                // Modo creación
-                title.textContent = 'Crear Nuevo Usuario';
-                rolField.disabled = false;
-                emailField.disabled = false;
-                rolField.value = 'cliente'; // Valor por defecto
-                document.getElementById('password').required = true;
-                document.getElementById('password_confirmation').required = true;
-                document.getElementById('passwordFields').style.display = 'block';
+                fetchUserData(usuarioId);
             }
-
-            modal.style.display = 'flex';
+        } else {
+            // Modo creación
+            title.textContent = 'Crear Nuevo Usuario';
+            rolField.disabled = emailField.disabled = false;
+            rolField.value = 'cliente';
+            document.getElementById('passwordFields').style.display = 'block';
+            document.getElementById('password').required = true;
+            document.getElementById('password_confirmation').required = true;
         }
 
-        // Función para editar usuario
-        function editarUsuario(usuarioId) {
-            mostrarModalUsuario(usuarioId);
-        }
+        modal.style.display = 'flex';
+    }
 
-        // Función para confirmar eliminación
-        function confirmarEliminar(usuarioId) {
-            Swal.fire({
-                title: '¿Eliminar este usuario?',
-                html: `<p>Esta acción solo es posible si:</p>
-               <ul>
-                 <li>El usuario está inactivo</li>
-                 <li>No tiene citas pendientes</li>
-               </ul>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Verificar y eliminar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/admin/usuarios/${usuarioId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                id: usuarioId
-                            }) // Envía el ID en el cuerpo
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(err => {
-                                    throw err;
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire('¡Eliminado!', data.message, 'success');
-                                location.reload();
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
-                            }
-                        })
-                        .catch(error => {
-                            Swal.fire('Error', error.message || 'Error al eliminar', 'error');
-                        });
-                }
+    function fillUserForm(usuario) {
+        document.getElementById('usuario_id').value = usuario.id;
+        document.getElementById('nombre').value = usuario.nombre;
+        document.getElementById('email').value = usuario.email;
+        document.getElementById('telefono').value = usuario.telefono || '';
+        document.getElementById('rol').value = usuario.rol;
+        document.getElementById('estado').value = usuario.estado ? '1' : '0';
+        document.getElementById('password').required = false;
+        document.getElementById('password_confirmation').required = false;
+    }
+
+    function fetchUserData(usuarioId) {
+        fetch(`/admin/usuarios/${usuarioId}/edit`)
+            .then(response => {
+                if (!response.ok) throw new Error('Usuario no encontrado');
+                return response.json();
+            })
+            .then(data => {
+                fillUserForm(data);
+            })
+            .catch(error => {
+                console.error('Error al cargar usuario:', error);
+                Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
+                closeModal('usuarioModal');
             });
+    }
+
+    function editarUsuario(usuarioId) {
+        const usuario = allUsersData.find(u => u.id == usuarioId);
+        if (usuario?.rol === 'admin') {
+            showRestrictedActionWarning('editar');
+            return;
+        }
+        mostrarModalUsuario(usuarioId);
+    }
+
+    function confirmarEliminar(usuarioId) {
+        const usuario = allUsersData.find(u => u.id == usuarioId);
+        if (usuario?.rol === 'admin') {
+            showRestrictedActionWarning('eliminar');
+            return;
         }
 
-        // Función para alternar visibilidad de contraseña
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            const eyeIcon = document.getElementById(`${inputId}Eye`);
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            }
-        }
-
-        // Función para cerrar modal
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Función para exportar a Excel
-        async function exportToExcel() {
-            try {
-                // Obtener TODOS los usuarios del servidor
-                const response = await fetch('/admin/usuarios/all?export=true');
-                const allUsers = await response.json();
-
-                const excelData = allUsers.map(user => ({
-                    'ID': user.id,
-                    'Nombre': user.nombre,
-                    'Email': user.email,
-                    'Teléfono': user.telefono || 'N/A',
-                    'Rol': user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' :
-                        'Cliente'),
-                    'Estado': user.estado ? 'Activo' : 'Inactivo',
-                    'Registro': new Date(user.created_at).toLocaleDateString()
-                }));
-
-                const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.json_to_sheet(excelData);
-                XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
-                XLSX.writeFile(wb, `usuarios_${new Date().toISOString().slice(0,10)}.xlsx`);
-            } catch (error) {
-                console.error('Error al exportar:', error);
-                Swal.fire('Error', 'No se pudo generar el archivo Excel', 'error');
-            }
-        }
-
-        // Función para exportar a PDF
-        async function exportToPDF() {
-            try {
-                const response = await fetch('/admin/usuarios/all?export=true');
-                const allUsers = await response.json();
-
-                const pdfData = allUsers.map(user => [
-                    user.id,
-                    user.nombre,
-                    user.email,
-                    user.telefono || 'N/A',
-                    user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' : 'Cliente'),
-                    user.estado ? 'Activo' : 'Inactivo',
-                    new Date(user.created_at).toLocaleDateString()
-                ]);
-
-                const {
-                    jsPDF
-                } = window.jspdf;
-                const doc = new jsPDF();
-
-                doc.setFontSize(18);
-                doc.text('Listado Completo de Usuarios', 14, 15);
-                doc.setFontSize(12);
-                doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 22);
-
-                doc.autoTable({
-                    head: [
-                        ['ID', 'Nombre', 'Email', 'Teléfono', 'Rol', 'Estado', 'Registro']
-                    ],
-                    body: pdfData,
-                    startY: 30,
-                    styles: {
-                        fontSize: 8,
-                        cellPadding: 2
-                    }
-                });
-
-                doc.save(`usuarios_completo_${new Date().toISOString().slice(0,10)}.pdf`);
-            } catch (error) {
-                console.error('Error al exportar:', error);
-                Swal.fire('Error', 'No se pudo generar el archivo PDF', 'error');
-            }
-        }
-
-        function updateSelectedCount() {
-            const checkboxes = document.querySelectorAll('.user-checkbox:checked');
-            const bulkActions = document.getElementById('bulkActions');
-            const selectedCount = document.getElementById('selectedCount');
-
-            selectedCount.textContent = `${checkboxes.length} seleccionados`;
-
-            if (checkboxes.length > 0) {
-                bulkActions.style.display = 'flex';
-            } else {
-                bulkActions.style.display = 'none';
-            }
-        }
-
-        function applyBulkAction() {
-            const action = document.getElementById('bulkActionSelect').value;
-            const checkboxes = document.querySelectorAll('.user-checkbox:checked');
-            const userIds = Array.from(checkboxes).map(cb => cb.value);
-
-            if (!action || userIds.length === 0) {
-                Swal.fire('Error', 'Selecciona una acción y al menos un usuario', 'error');
-                return;
-            }
-
-            let endpoint, method, successMessage;
-
-            switch (action) {
-                case 'activate':
-                    endpoint = '/admin/usuarios/bulk-activate';
-                    method = 'POST';
-                    successMessage = 'Usuarios activados correctamente';
-                    break;
-                case 'deactivate':
-                    endpoint = '/admin/usuarios/bulk-deactivate';
-                    method = 'POST';
-                    successMessage = 'Usuarios desactivados correctamente';
-                    break;
-                case 'delete':
-                    endpoint = '/admin/usuarios/bulk-delete';
-                    method = 'DELETE';
-                    successMessage = 'Usuarios eliminados correctamente';
-                    break;
-                default:
-                    return;
-            }
-
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: `Esta acción afectará a ${userIds.length} usuarios`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, continuar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(endpoint, {
-                            method: method,
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                ids: userIds
-                            })
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Error al procesar la acción');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            Swal.fire('Éxito', successMessage, 'success').then(() => {
-                                location.reload();
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Error', 'Ocurrió un error al procesar la acción', 'error');
-                        });
-                }
-            });
-        }
-
-        // Filtrar tabla (ahora funciona con todos los registros)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cargar todos los usuarios (si hay paginación)
-            if (window.location.pathname.includes('/admin/usuarios')) {
-                fetchAllUsers();
-            }
-
-            const searchInput = document.getElementById('searchInput');
-            const roleFilter = document.getElementById('roleFilter');
-            const statusFilter = document.getElementById('statusFilter');
-
-            function filterTable() {
-                const searchValue = searchInput.value.toLowerCase();
-                const roleValue = roleFilter.value;
-                const statusValue = statusFilter.value;
-
-                filteredUsers = allUsersData.filter(user => {
-                    const nameMatch = user.nombre.toLowerCase().includes(searchValue);
-                    const emailMatch = user.email.toLowerCase().includes(searchValue);
-                    const roleMatch = roleValue === '' || user.rol === roleValue;
-                    const statusMatch = statusValue === '' ||
-                        (statusValue === '1' && user.estado) ||
-                        (statusValue === '0' && !user.estado);
-
-                    return (nameMatch || emailMatch) && roleMatch && statusMatch;
-                });
-
-                // Actualizar la tabla con los resultados filtrados
-                updateTableWithFilteredResults();
-            }
-
-            function updateTableWithFilteredResults() {
-                const tbody = document.querySelector('#usersTable tbody');
-                tbody.innerHTML = '';
-
-                const usersToShow = filteredUsers.length > 0 ? filteredUsers : allUsersData;
-
-                usersToShow.forEach(user => {
-                    const row = document.createElement('tr');
-
-                    row.innerHTML = `
-                        <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="updateSelectedCount()"></td>
-                        <td data-label="ID">${user.id}</td>
-                        <td data-label="Nombre">${user.nombre}</td>
-                        <td data-label="Email">${user.email}</td>
-                        <td data-label="Teléfono">${user.telefono || 'N/A'}</td>
-                        <td data-label="Rol">
-                            ${user.rol == 'admin' ? 
-                                '<span class="badge badge-danger">Administrador</span>' : 
-                                user.rol == 'empleado' ? 
-                                '<span class="badge badge-info">Empleado</span>' : 
-                                '<span class="badge badge-primary">Cliente</span>'}
-                        </td>
-                        <td data-label="Estado">
-                            ${user.estado ? 
-                                '<span class="badge badge-success">Activo</span>' : 
-                                '<span class="badge badge-warning">Inactivo</span>'}
-                        </td>
-                        <td data-label="Registro">${new Date(user.created_at).toLocaleDateString()}</td>
-                        <td data-label="Acciones">
-                            <div class="table-actions">
-                                <button class="action-btn btn-edit" title="Editar" onclick="editarUsuario(${user.id})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                ${user.rol != 'admin' ? `
-                                                                                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                <i class="fas fa-trash"></i>
-                                                                                                            </button>` : ''}
-                            </div>
-                        </td>
-                    `;
-
-                    tbody.appendChild(row);
-                });
-
-                // Actualizar contador de selección
-                updateSelectedCount();
-            }
-
-            async function fetchAllUsers() {
-                try {
-                    const response = await fetch('/admin/usuarios/all');
-                    if (!response.ok) throw new Error('Error al cargar usuarios');
-                    allUsersData = await response.json();
-                    updateTableWithFilteredResults();
-                } catch (error) {
-                    console.error('Error:', error);
-                    allUsersData = @json($usuarios->items());
-                }
-            }
-
-            searchInput.addEventListener('keyup', filterTable);
-            roleFilter.addEventListener('change', filterTable);
-            statusFilter.addEventListener('change', filterTable);
-
-            // Manejar el envío del formulario de usuario
-            const usuarioForm = document.getElementById('usuarioForm');
-            if (usuarioForm) {
-                usuarioForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    // Habilitar campos deshabilitados temporalmente para el envío
-                    const disabledFields = usuarioForm.querySelectorAll('[disabled]');
-                    disabledFields.forEach(field => {
-                        field.disabled = false;
-                    });
-
-                    const formData = new FormData(usuarioForm);
-                    const usuarioId = formData.get('id');
-                    const method = usuarioId ? 'PUT' : 'POST';
-                    const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
-
-                    fetch(url, {
-                            method: method,
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                            },
-                            body: formData
-                        })
-                        .then(response => {
-                            disabledFields.forEach(field => {
-                                field.disabled = true;
-                            });
-                            if (!response.ok) {
-                                return response.json().then(err => {
-                                    throw err;
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            Swal.fire(
-                                '¡Éxito!',
-                                usuarioId ? 'Usuario actualizado correctamente' :
-                                'Usuario creado correctamente',
-                                'success'
-                            ).then(() => {
-                                closeModal('usuarioModal');
-                                location.reload();
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            let errorMessage = 'Ocurrió un error al procesar la solicitud';
-
-                            if (error.errors) {
-                                errorMessage = Object.values(error.errors).join('\n');
-                            } else if (error.message) {
-                                errorMessage = error.message;
-                            }
-
-                            Swal.fire(
-                                'Error',
-                                errorMessage,
-                                'error'
-                            );
-                        });
-                });
+        Swal.fire({
+            title: '¿Eliminar este usuario?',
+            html: `<p>Esta acción solo es posible si:</p>
+                   <ul>
+                     <li>El usuario está inactivo</li>
+                     <li>No tiene citas pendientes</li>
+                   </ul>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Verificar y eliminar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteUser(usuarioId);
             }
         });
+    }
 
+    function showRestrictedActionWarning(action) {
+        Swal.fire({
+            title: 'Acción restringida',
+            text: `No puedes ${action} cuentas de administrador`,
+            icon: 'warning'
+        });
+    }
 
-        //===============================
-        //CODIGO PARA MODAL MOSTRAR INFORMACION DE UUSARIO
-        //===============================
-        // Función para mostrar los registros del usuario
-        function mostrarRegistrosUsuario(usuarioId) {
-            const modal = document.getElementById('registrosModal');
-            const usuario = allUsersData.find(u => u.id == usuarioId);
-
-            if (!usuario) {
-                Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
-                return;
+    function deleteUser(usuarioId) {
+        fetch(`/admin/usuarios/${usuarioId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
+        })
+        .then(handleResponse)
+        .then(data => {
+            if (data.success) {
+                Swal.fire('¡Eliminado!', data.message, 'success');
+                location.reload();
+            }
+        })
+        .catch(handleError);
+    }
 
-            // Actualizar título del modal
-            document.getElementById('modalRegistrosText').textContent = `Registros de ${usuario.nombre}`;
+    // =============================================
+    // FUNCIONES DE TABLA Y FILTRADO
+    // =============================================
 
-            // Mostrar loading
-            Swal.fire({
-                title: 'Cargando información',
-                html: 'Obteniendo vehículos y citas del usuario...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Hacer petición para obtener los datos completos del usuario
-            fetch(`/admin/usuarios/${usuarioId}/registros`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error al cargar registros');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    Swal.close();
-
-                    // Mostrar vehículos
-                    mostrarVehiculos(data.vehiculos);
-
-                    // Mostrar citas
-                    mostrarCitas(data.citas);
-
-                    // Mostrar modal
-                    modal.style.display = 'flex';
-
-                    // Activar pestaña de vehículos por defecto
-                    switchTab('vehiculos');
-                })
-                .catch(error => {
-                    Swal.fire('Error', 'No se pudieron cargar los registros del usuario', 'error');
-                    console.error('Error:', error);
-                });
+    async function fetchAllUsers() {
+        try {
+            const response = await fetch('/admin/usuarios/all');
+            if (!response.ok) throw new Error('Error al cargar usuarios');
+            allUsersData = await response.json();
+            updateTableWithFilteredResults();
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudieron cargar los usuarios', 'error');
         }
+    }
 
-        // Función para mostrar vehículos en la tabla
-        function mostrarVehiculos(vehiculos) {
-            const vehiculosBody = document.getElementById('vehiculosBody');
-            const vehiculosTable = document.getElementById('vehiculosTable');
-            const vehiculosEmpty = document.getElementById('vehiculosEmpty');
+    function filterTable() {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const roleValue = document.getElementById('roleFilter').value;
+        const statusValue = document.getElementById('statusFilter').value;
 
-            vehiculosBody.innerHTML = '';
+        filteredUsers = allUsersData.filter(user => {
+            const nameMatch = user.nombre.toLowerCase().includes(searchValue);
+            const emailMatch = user.email.toLowerCase().includes(searchValue);
+            const roleMatch = roleValue === '' || user.rol === roleValue;
+            const statusMatch = statusValue === '' ||
+                (statusValue === '1' && user.estado) ||
+                (statusValue === '0' && !user.estado);
 
-            if (vehiculos.length === 0) {
-                vehiculosTable.style.display = 'none';
-                vehiculosEmpty.style.display = 'block';
-                return;
-            }
+            return (nameMatch || emailMatch) && roleMatch && statusMatch;
+        });
 
-            vehiculosEmpty.style.display = 'none';
-            vehiculosTable.style.display = 'table';
+        updateTableWithFilteredResults();
+    }
 
-            vehiculos.forEach(vehiculo => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-            <td>${vehiculo.placa || 'N/A'}</td>
-            <td>${vehiculo.marca || 'N/A'}</td>
-            <td>${vehiculo.modelo || 'N/A'}</td>
-            <td>${vehiculo.anio || 'N/A'}</td>
-            <td>${vehiculo.tipo || 'N/A'}</td>
-            <td>${vehiculo.color || 'N/A'}</td>
-        `;
-                vehiculosBody.appendChild(row);
-            });
-        }
+    function updateTableWithFilteredResults() {
+        const tbody = document.querySelector('#usersTable tbody');
+        tbody.innerHTML = '';
 
-        // Función para mostrar citas en la tabla
-        function mostrarCitas(citas) {
-            const citasBody = document.getElementById('citasBody');
-            const citasTable = document.getElementById('citasTable');
-            const citasEmpty = document.getElementById('citasEmpty');
+        const usersToShow = filteredUsers.length > 0 ? filteredUsers : allUsersData;
+        usersToShow.forEach(user => tbody.appendChild(createUserRow(user)));
 
-            citasBody.innerHTML = '';
+        updateSelectedCount();
+    }
 
-            if (citas.length === 0) {
-                citasTable.style.display = 'none';
-                citasEmpty.style.display = 'block';
-                return;
-            }
-
-            citasEmpty.style.display = 'none';
-            citasTable.style.display = 'table';
-
-            citas.forEach(cita => {
-                const servicios = cita.servicios.map(s => s.nombre).join(', ');
-                const total = cita.servicios.reduce((sum, s) => sum + s.precio, 0);
-
-                const row = document.createElement('tr');
-                row.innerHTML = `
-            <td>${cita.id}</td>
-            <td>${new Date(cita.fecha_hora).toLocaleDateString()}</td>
-            <td>${new Date(cita.fecha_hora).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-            <td>
-                ${cita.estado === 'pendiente' ? 
-                    '<span class="badge badge-warning">Pendiente</span>' : 
-                 cita.estado === 'completada' ? 
-                    '<span class="badge badge-success">Completada</span>' : 
-                    '<span class="badge badge-danger">Cancelada</span>'}
+    function createUserRow(user) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="updateSelectedCount()"></td>
+            <td data-label="ID">${user.id}</td>
+            <td data-label="Nombre">${user.nombre}</td>
+            <td data-label="Email">${user.email}</td>
+            <td data-label="Teléfono">${user.telefono || 'N/A'}</td>
+            <td data-label="Rol">
+                ${getRoleBadge(user.rol)}
             </td>
-            <td>${servicios}</td>
-            <td>$${total.toFixed(2)}</td>
+            <td data-label="Estado">
+                ${user.estado ? 
+                    '<span class="badge badge-success">Activo</span>' : 
+                    '<span class="badge badge-warning">Inactivo</span>'}
+            </td>
+            <td data-label="Registro">${new Date(user.created_at).toLocaleDateString()}</td>
+            <td data-label="Acciones">
+                <div class="table-actions">
+                    <button class="action-btn btn-edit" title="Editar" onclick="editarUsuario(${user.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    ${user.rol != 'admin' ? `
+                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>` : ''}
+                    <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
+                        <i class="fas fa-car"></i>
+                    </button>
+                </div>
+            </td>
         `;
-                citasBody.appendChild(row);
-            });
+        return row;
+    }
+
+    function getRoleBadge(rol) {
+        const badges = {
+            'admin': 'badge-danger',
+            'empleado': 'badge-info',
+            'cliente': 'badge-primary'
+        };
+        const text = {
+            'admin': 'Administrador',
+            'empleado': 'Empleado',
+            'cliente': 'Cliente'
+        };
+        return `<span class="badge ${badges[rol]}">${text[rol]}</span>`;
+    }
+
+    // =============================================
+    // FUNCIONES DE SELECCIÓN MASIVA
+    // =============================================
+
+    function updateSelectedCount() {
+        const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+
+        selectedCount.textContent = `${checkboxes.length} seleccionados`;
+        bulkActions.style.display = checkboxes.length > 0 ? 'flex' : 'none';
+    }
+
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        checkboxes.forEach(checkbox => checkbox.checked = selectAll.checked);
+        updateSelectedCount();
+    }
+
+    function applyBulkAction() {
+        const action = document.getElementById('bulkActionSelect').value;
+        const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+        const userIds = Array.from(checkboxes).map(cb => cb.value);
+
+        if (!action || userIds.length === 0) {
+            Swal.fire('Error', 'Selecciona una acción y al menos un usuario', 'error');
+            return;
         }
 
-        // Función para cambiar entre pestañas
-        function switchTab(tabName) {
-            // Ocultar todos los contenidos
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
-            });
-
-            // Desactivar todos los botones de pestaña
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.style.borderBottom = 'none';
-                btn.style.color = 'var(--text-secondary)';
-            });
-
-            // Mostrar el contenido seleccionado y activar el botón
-            if (tabName === 'vehiculos') {
-                document.getElementById('vehiculosContent').style.display = 'block';
-                document.getElementById('vehiculosTab').style.borderBottom = '2px solid var(--primary)';
-                document.getElementById('vehiculosTab').style.color = 'var(--text-primary)';
-            } else {
-                document.getElementById('citasContent').style.display = 'block';
-                document.getElementById('citasTab').style.borderBottom = '2px solid var(--primary)';
-                document.getElementById('citasTab').style.color = 'var(--text-primary)';
+        const actions = {
+            'activate': { 
+                endpoint: '/admin/usuarios/bulk-activate', 
+                method: 'POST',
+                message: 'Usuarios activados correctamente'
+            },
+            'deactivate': { 
+                endpoint: '/admin/usuarios/bulk-deactivate', 
+                method: 'POST',
+                message: 'Usuarios desactivados correctamente'
+            },
+            'delete': { 
+                endpoint: '/admin/usuarios/bulk-delete', 
+                method: 'DELETE',
+                message: 'Usuarios eliminados correctamente'
             }
+        };
+
+        if (!actions[action]) return;
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: `Esta acción afectará a ${userIds.length} usuarios`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, continuar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                executeBulkAction(actions[action], userIds);
+            }
+        });
+    }
+
+    function executeBulkAction(actionConfig, userIds) {
+        fetch(actionConfig.endpoint, {
+            method: actionConfig.method,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ ids: userIds })
+        })
+        .then(handleResponse)
+        .then(() => {
+            Swal.fire('Éxito', actionConfig.message, 'success');
+            location.reload();
+        })
+        .catch(handleError);
+    }
+
+    // =============================================
+    // FUNCIONES DE EXPORTACIÓN
+    // =============================================
+
+    async function exportToExcel() {
+        try {
+            const response = await fetch('/admin/usuarios/all?export=true');
+            if (!response.ok) throw new Error('Error al obtener datos');
+            const allUsers = await response.json();
+
+            const excelData = allUsers.map(user => ({
+                'ID': user.id,
+                'Nombre': user.nombre,
+                'Email': user.email,
+                'Teléfono': user.telefono || 'N/A',
+                'Rol': getRoleText(user.rol),
+                'Estado': user.estado ? 'Activo' : 'Inactivo',
+                'Registro': new Date(user.created_at).toLocaleDateString()
+            }));
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(excelData);
+            XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
+            XLSX.writeFile(wb, `usuarios_${new Date().toISOString().slice(0,10)}.xlsx`);
+        } catch (error) {
+            handleError(error, 'No se pudo generar el archivo Excel');
         }
-    </script>
+    }
+
+    async function exportToPDF() {
+        try {
+            const response = await fetch('/admin/usuarios/all?export=true');
+            if (!response.ok) throw new Error('Error al obtener datos');
+            const allUsers = await response.json();
+
+            const pdfData = allUsers.map(user => [
+                user.id,
+                user.nombre,
+                user.email,
+                user.telefono || 'N/A',
+                getRoleText(user.rol),
+                user.estado ? 'Activo' : 'Inactivo',
+                new Date(user.created_at).toLocaleDateString()
+            ]);
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.text('Listado Completo de Usuarios', 14, 15);
+            doc.setFontSize(12);
+            doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 22);
+
+            doc.autoTable({
+                head: [['ID', 'Nombre', 'Email', 'Teléfono', 'Rol', 'Estado', 'Registro']],
+                body: pdfData,
+                startY: 30,
+                styles: { fontSize: 8, cellPadding: 2 }
+            });
+
+            doc.save(`usuarios_completo_${new Date().toISOString().slice(0,10)}.pdf`);
+        } catch (error) {
+            handleError(error, 'No se pudo generar el archivo PDF');
+        }
+    }
+
+    function getRoleText(rol) {
+        return rol === 'admin' ? 'Administrador' : 
+               rol === 'empleado' ? 'Empleado' : 'Cliente';
+    }
+
+    // =============================================
+    // FUNCIONES DE REGISTROS DE USUARIO
+    // =============================================
+
+    function mostrarRegistrosUsuario(usuarioId) {
+        const modal = document.getElementById('registrosModal');
+        const usuario = allUsersData.find(u => u.id == usuarioId);
+
+        if (!usuario) {
+            showError('No se pudo cargar la información del usuario');
+            return;
+        }
+
+        if ((currentUser.rol === 'empleado' && usuario.rol === 'admin') || 
+            (currentUser.rol === 'admin' && usuario.rol === 'admin' && usuario.id !== currentUser.id)) {
+            showRestrictedActionWarning('ver esta información');
+            return;
+        }
+
+        document.getElementById('modalRegistrosText').textContent = `Registros de ${usuario.nombre}`;
+
+        showLoading('Obteniendo vehículos y citas del usuario...');
+
+        fetch(`/admin/usuarios/${usuarioId}/registros`)
+            .then(handleResponse)
+            .then(data => {
+                Swal.close();
+                mostrarVehiculos(data.vehiculos);
+                mostrarCitas(data.citas);
+                modal.style.display = 'flex';
+                switchTab('vehiculos');
+            })
+            .catch(error => {
+                handleError(error, 'No se pudieron cargar los registros del usuario');
+            });
+    }
+
+    function mostrarVehiculos(vehiculos) {
+        const vehiculosBody = document.getElementById('vehiculosBody');
+        const vehiculosTable = document.getElementById('vehiculosTable');
+        const vehiculosEmpty = document.getElementById('vehiculosEmpty');
+
+        vehiculosBody.innerHTML = '';
+        
+        if (vehiculos.length === 0) {
+            vehiculosTable.style.display = 'none';
+            vehiculosEmpty.style.display = 'block';
+            return;
+        }
+
+        vehiculosEmpty.style.display = 'none';
+        vehiculosTable.style.display = 'table';
+
+        vehiculos.forEach(vehiculo => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${vehiculo.placa || 'N/A'}</td>
+                <td>${vehiculo.marca || 'N/A'}</td>
+                <td>${vehiculo.modelo || 'N/A'}</td>
+                <td>${vehiculo.anio || 'N/A'}</td>
+                <td>${vehiculo.tipo || 'N/A'}</td>
+                <td>${vehiculo.color || 'N/A'}</td>
+            `;
+            vehiculosBody.appendChild(row);
+        });
+    }
+
+    function mostrarCitas(citas) {
+        const citasBody = document.getElementById('citasBody');
+        const citasTable = document.getElementById('citasTable');
+        const citasEmpty = document.getElementById('citasEmpty');
+
+        citasBody.innerHTML = '';
+        
+        if (citas.length === 0) {
+            citasTable.style.display = 'none';
+            citasEmpty.style.display = 'block';
+            return;
+        }
+
+        citasEmpty.style.display = 'none';
+        citasTable.style.display = 'table';
+
+        citas.forEach(cita => {
+            const servicios = cita.servicios.map(s => s.nombre).join(', ');
+            const total = cita.servicios.reduce((sum, s) => sum + s.precio, 0);
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${cita.id}</td>
+                <td>${new Date(cita.fecha_hora).toLocaleDateString()}</td>
+                <td>${new Date(cita.fecha_hora).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                <td>
+                    ${getStatusBadge(cita.estado)}
+                </td>
+                <td>${servicios}</td>
+                <td>$${total.toFixed(2)}</td>
+            `;
+            citasBody.appendChild(row);
+        });
+    }
+
+    function getStatusBadge(estado) {
+        const badges = {
+            'pendiente': ['badge-warning', 'Pendiente'],
+            'completada': ['badge-success', 'Completada'],
+            'cancelada': ['badge-danger', 'Cancelada']
+        };
+        const [badgeClass, text] = badges[estado] || ['badge-secondary', 'Desconocido'];
+        return `<span class="badge ${badgeClass}">${text}</span>`;
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+        });
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.style.borderBottom = 'none';
+            btn.style.color = 'var(--text-secondary)';
+        });
+
+        const contentId = `${tabName}Content`;
+        const tabId = `${tabName}Tab`;
+        
+        document.getElementById(contentId).style.display = 'block';
+        document.getElementById(tabId).style.borderBottom = '2px solid var(--primary)';
+        document.getElementById(tabId).style.color = 'var(--text-primary)';
+    }
+
+    // =============================================
+    // MANEJO DE FORMULARIO
+    // =============================================
+
+    function handleUsuarioFormSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const disabledFields = form.querySelectorAll('[disabled]');
+        disabledFields.forEach(field => field.disabled = false);
+
+        const formData = new FormData(form);
+        const usuarioId = formData.get('id');
+        const method = usuarioId ? 'PUT' : 'POST';
+        const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: formData
+        })
+        .then(response => {
+            disabledFields.forEach(field => field.disabled = true);
+            if (!response.ok) return response.json().then(err => { throw err; });
+            return response.json();
+        })
+        .then(data => {
+            showSuccess(usuarioId ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente');
+            closeModal('usuarioModal');
+            location.reload();
+        })
+        .catch(error => {
+            handleFormError(error);
+        });
+    }
+
+    // =============================================
+    // FUNCIONES DE MANEJO DE RESPUESTAS
+    // =============================================
+
+    function handleResponse(response) {
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        return response.json();
+    }
+
+    function handleError(error, customMessage = '') {
+        console.error('Error:', error);
+        const message = customMessage || error.message || 'Ocurrió un error';
+        Swal.fire('Error', message, 'error');
+    }
+
+    function handleFormError(error) {
+        console.error('Error:', error);
+        let errorMessage = 'Ocurrió un error al procesar la solicitud';
+        if (error.errors) errorMessage = Object.values(error.errors).join('\n');
+        else if (error.message) errorMessage = error.message;
+        Swal.fire('Error', errorMessage, 'error');
+    }
+
+    function showLoading(message = 'Cargando...') {
+        Swal.fire({
+            title: 'Cargando información',
+            html: message,
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+    }
+
+    function showSuccess(message) {
+        Swal.fire('¡Éxito!', message, 'success');
+    }
+
+    function showError(message) {
+        Swal.fire('Error', message, 'error');
+    }
+
+    // =============================================
+    // INICIALIZACIÓN
+    // =============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cargar datos iniciales
+        fetchAllUsers();
+
+        // Configurar eventos de filtrado
+        document.getElementById('searchInput').addEventListener('keyup', filterTable);
+        document.getElementById('roleFilter').addEventListener('change', filterTable);
+        document.getElementById('statusFilter').addEventListener('change', filterTable);
+
+        // Configurar evento del formulario
+        const usuarioForm = document.getElementById('usuarioForm');
+        if (usuarioForm) {
+            usuarioForm.addEventListener('submit', handleUsuarioFormSubmit);
+        }
+    });
+</script>
 </body>
 
 </html>

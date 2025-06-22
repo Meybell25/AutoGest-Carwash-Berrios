@@ -63,42 +63,52 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rutas de Admin
-Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Rutas principales
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
-    Route::post('/usuarios', [AdminController::class, 'storeUsuario'])->name('usuarios.store');
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        // Rutas principales
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        
+        // Ruta para datos del dashboard (AJAX)
+        Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
 
-    // Ruta para datos del dashboard (AJAX)
-    Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
+        // Rutas de usuarios
+        Route::prefix('usuarios')->name('usuarios.')->group(function () {
+            Route::get('/', [AdminController::class, 'usuarios'])->name('index');
+            Route::post('/', [AdminController::class, 'storeUsuario'])->name('store');
+            Route::get('/all', [AdminController::class, 'getAllUsers'])->name('all');
+            Route::put('/{usuario}', [AdminController::class, 'update'])->name('update');
+            Route::delete('/{usuario}', [AdminController::class, 'destroy'])->name('destroy');
+            Route::get('/{usuario}/registros', [AdminController::class, 'getUserRecords'])->name('registros');
 
-    // Ruta para datos de ver todos los usuarios 
-    Route::get('/admin/usuarios/all', [AdminController::class, 'getAllUsers'])->name('admin.usuarios.all');
-    Route::post('/admin/usuarios/bulk-activate', [AdminController::class, 'bulkActivate']);
-    Route::post('/admin/usuarios/bulk-deactivate', [AdminController::class, 'bulkDeactivate']);
-    Route::delete('/admin/usuarios/bulk-delete', [AdminController::class, 'bulkDelete']);
-    Route::get('/admin/usuarios/{usuario}/registros', [AdminController::class, 'getUserRecords'])->name('admin.usuarios.registros');
+            // Rutas para acciones masivas
+            Route::post('/bulk-activate', [AdminController::class, 'bulkActivate'])->name('bulk-activate');
+            Route::post('/bulk-deactivate', [AdminController::class, 'bulkDeactivate'])->name('bulk-deactivate');
+            Route::delete('/bulk-delete', [AdminController::class, 'bulkDelete'])->name('bulk-delete');
+        });
 
-    // Rutas de citas
-    Route::prefix('citas')->name('citas.')->group(function () {
-        Route::get('/create', [AdminController::class, 'createCita'])->name('create');
-        Route::post('/', [AdminController::class, 'storeCita'])->name('store');
+        // Rutas de citas
+        Route::prefix('citas')->name('citas.')->group(function () {
+            Route::get('/create', [AdminController::class, 'createCita'])->name('create');
+            Route::post('/', [AdminController::class, 'storeCita'])->name('store');
+        });
+
+        // Rutas de reportes
+        Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
+
+        // Rutas de servicios
+        Route::prefix('servicios')->name('servicios.')->group(function () {
+            Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
+            Route::get('/crear', [ServicioController::class, 'create'])->name('create');
+            Route::post('/', [ServicioController::class, 'store'])->name('store');
+            Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
+            Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
+        });
     });
 
-    // Rutas de reportes
-    Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
-
-    // Rutas de servicios
-    Route::prefix('servicios')->name('servicios.')->group(function () {
-        Route::get('/', [ServicioController::class, 'adminIndex'])->name('index'); // Cambiado de admin.index a index
-        Route::get('/crear', [ServicioController::class, 'create'])->name('create');
-        Route::post('/', [ServicioController::class, 'store'])->name('store');
-        Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
-        Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
-    });
-});
-
+    
 // Rutas de Empleado
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])->prefix('empleado')->name('empleado.')->group(function () {
     Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');

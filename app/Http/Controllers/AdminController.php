@@ -304,10 +304,15 @@ class AdminController extends Controller
             $query->with(['vehiculos', 'citas']);
         }
 
-        return response()->json(
-            $query->get()
-                ->makeHidden(['password', 'remember_token'])
-        );
+        // Solo cargar relaciones si es para exportación
+        if ($request->has('export')) {
+            return $query->get()
+                ->makeHidden(['password', 'remember_token']);
+        }
+
+        // Para la tabla, no cargar relaciones para mejor performance
+        return $query->get()
+            ->makeHidden(['password', 'remember_token']);
     }
 
     // Acciones masivas
@@ -418,20 +423,20 @@ class AdminController extends Controller
             ], 403);
         }
 
-        // Validación 3: Inactivo por al menos 3 meses
+        // Validación 3: No tener citas pendientes
+        if ($usuario->citas()->whereIn('estado', ['pendiente', 'en_proceso'])->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se puede eliminar el usuario porque tiene citas pendientes o en proceso'
+            ], 403);
+        }
+
+        // Validación 4: Inactivo por al menos 3 meses
         $fechaLimite = now()->subMonths(3);
         if ($usuario->updated_at > $fechaLimite) {
             return response()->json([
                 'success' => false,
                 'message' => 'El usuario debe estar inactivo por al menos 3 meses para ser eliminado'
-            ], 403);
-        }
-
-        // Validación 4: No tener citas pendientes 
-        if ($request->estado == false && $usuario->citas()->whereIn('estado', ['pendiente', 'en_proceso'])->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se puede desactivar el usuario porque tiene citas pendientes o en proceso'
             ], 403);
         }
 
@@ -450,7 +455,6 @@ class AdminController extends Controller
             'message' => 'Usuario eliminado correctamente'
         ]);
     }
-
     /**
      * Obtiene los registros (vehículos y citas) de un usuario
      */
