@@ -117,7 +117,7 @@
 
         /* Header con bienvenida mejorada */
         .header {
-            background: rgba(240, 239, 239, 0.95);
+            background: rgba(245, 245, 245, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -250,7 +250,6 @@
         }
 
         .header-actions {
-            background-color: white !important;
             padding: 12px;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-sm);
