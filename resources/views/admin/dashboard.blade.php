@@ -956,12 +956,15 @@
         }
 
         .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            z-index: 1000;
+            /* Asegura que esté por encima de todo */
             color: var(--primary);
-            float: right;
-            font-size: 30px;
-            font-weight: bold;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
 
         .close-modal:hover {
@@ -1805,6 +1808,21 @@
             #usuarioForm {
                 min-height: min-content;
             }
+
+            .close-modal {
+                top: 10px;
+                right: 15px;
+                font-size: 24px;
+                background: rgba(255, 255, 255, 0.9);
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            }
+        }
         }
 
 
@@ -1990,6 +2008,12 @@
 
             #usuarioModal .password-requirements {
                 columns: 1;
+            }
+
+            .close-modal {
+                top: 8px;
+                right: 12px;
+                font-size: 22px;
             }
         }
 
@@ -3169,13 +3193,16 @@
 
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal">
-        <div class="modal-content" style="max-width: 600px; width: 90%; max-height: 90vh;">
-            <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
-            <h2
-                style="color: var(--primary); margin-bottom: 20px; position: sticky; top: 0; background: white; padding: 10px 0; z-index: 10;">
+        <div class="modal-content" style="max-width: 600px; width: 90%; max-height: 90vh; position: relative;">
+            <!-- Añadido position:relative -->
+            <span class="close-modal" onclick="closeModal('usuarioModal')"
+                style="position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer;">
+                &times;
+            </span>
+            <h2 style="margin-top: 10px; padding-right: 30px;"> <!-- Añadido padding para no solapar con la X -->
                 <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
             </h2>
-            <div style="overflow-y: auto; max-height: calc(90vh - 100px);">
+            <div style="overflow-y: auto; max-height: calc(90vh - 100px); padding: 0 5px;">
                 <form id="usuarioForm">
                     @csrf
                     <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
