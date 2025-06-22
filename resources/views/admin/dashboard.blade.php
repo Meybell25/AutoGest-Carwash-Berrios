@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* ======================
         ESTILOS GENERALES
@@ -988,216 +989,40 @@
             outline: none;
         }
 
-        /* ======================
-   DISEÑO DE MODAL USUARIO FORM
-   ====================== */
-        /* Contenedor principal del modal */
-        #usuarioModal .modal-content {
-            max-width: 600px;
-            width: 90%;
-            padding: 25px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        /* Estructura del formulario */
-        #usuarioForm {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        /* Grupos de formulario */
-        .form-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        /* Elementos de ancho completo */
-        .full-width,
-        .password-container,
-        .password-strength,
-        button[type="submit"] {
-            grid-column: span 2;
-        }
-
-        /* Contenedor para campos de contraseña */
-        .password-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        /* Indicador de fortaleza de contraseña */
-        .password-strength-indicator {
-            margin-top: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-align: center;
-            padding: 6px;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        /* Estados de fortaleza */
-        .strength-weak {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-
-        .strength-medium {
-            background-color: #fff8e1;
-            color: #f57f17;
-        }
-
-        .strength-strong {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        /* Inputs con iconos */
-        .input-with-icon input {
-            padding-right: 40px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
+        /* Estilos para el formulario de usuario en el modal */
+        .password-toggle {
             color: var(--text-secondary);
-            cursor: pointer;
-            padding: 5px;
+            transition: all 0.2s ease;
         }
 
-        /* Botón de enviar */
-        #usuarioForm button[type="submit"] {
-            margin-top: 10px;
-            padding: 12px;
-            font-size: 1rem;
+        .password-toggle:hover {
+            color: var(--primary);
         }
 
-        /* Texto de ayuda */
-        .form-text {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 5px;
-        }
-
-        /* Estilos para la validación de contraseña */
-        /* Estilos para la validación de contraseña */
         .password-requirements {
             margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
         }
 
         .password-requirements li {
             transition: color 0.3s ease;
         }
 
-        .password-strength {
-            margin-top: 0.5rem;
-        }
-
-        .progress {
-            background-color: #e9ecef;
-            border-radius: 0.25rem;
-            overflow: hidden;
-            height: 5px;
-        }
-
-        .progress-bar {
-            height: 100%;
-            transition: width 0.3s ease, background-color 0.3s ease;
-        }
-
-        .bg-danger {
-            background-color: #dc3545;
-        }
-
-        .bg-warning {
-            background-color: #ffc107;
-        }
-
-        .bg-success {
-            background-color: #28a745;
-        }
-
-        .text-danger {
-            color: #dc3545;
-        }
-
-        .text-warning {
-            color: #ffc107;
-        }
-
-        .text-success {
-            color: #28a745;
-        }
-
         .text-green-500 {
             color: #10b981;
         }
 
-        .min-h-[20px] {
-            min-height: 20px;
+        .text-red-500 {
+            color: #ef4444;
         }
 
-        .input-with-icon {
-            position: relative;
-        }
-
-        .input-with-icon input {
-            padding-right: 40px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .toggle-password:hover {
-            color: var(--primary);
-        }
-
-        .text-muted {
-            color: #6c757d;
+        /* Estilos para el spinner */
+        .fa-spinner.fa-spin {
+            margin-right: 8px;
         }
 
 
-        /* ======================
-   RESPONSIVE DESIGN
-   ====================== */
-        @media (max-width: 768px) {
-            #usuarioForm {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .full-width,
-            .password-container,
-            .password-strength,
-            button[type="submit"] {
-                grid-column: span 1;
-            }
-
-            .password-container {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            #usuarioModal .modal-content {
-                padding: 20px;
-            }
-        }
 
         /* ======================
         FOOTER
@@ -2636,7 +2461,7 @@
                             </div>
 
                             <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
-                                onclick="editarPerfil()">
+                                onclick="mostrarModal('perfilModal')">
                                 <i class="fas fa-edit"></i> Editar Perfil
                             </button>
                         </div>
@@ -2911,113 +2736,93 @@
 
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 600px;">
             <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
             <h2 style="color: var(--primary); margin-bottom: 20px;">
                 <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
             </h2>
             <form id="usuarioForm">
                 @csrf
-                <!-- Nombre -->
-                <div class="form-group">
-                    <label for="usuario_nombre">Nombre Completo</label>
-                    <input type="text" id="usuario_nombre" name="nombre" class="form-control"
-                        placeholder="Ej: Juan Pérez" required>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo:</label>
+                        <input type="text" id="nombre" name="nombre" required class="form-control"
+                            placeholder="Nombre del usuario">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico:</label>
+                        <input type="email" id="email" name="email" required class="form-control"
+                            placeholder="ejemplo@correo.com">
+                    </div>
                 </div>
 
-                <!-- Email -->
-                <div class="form-group">
-                    <label for="usuario_email">Email</label>
-                    <input type="email" id="usuario_email" name="email" class="form-control"
-                        placeholder="Ej: usuario@example.com" required>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="tel" id="telefono" name="telefono" class="form-control"
+                            placeholder="12345678" pattern="[0-9]{8}" maxlength="8"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    </div>
+                    <div class="form-group">
+                        <label for="rol">Rol:</label>
+                        <select id="rol" name="rol" class="form-control" required>
+                            <option value="cliente">Cliente</option>
+                            <option value="empleado">Empleado</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Teléfono -->
-                <div class="form-group">
-                    <label for="usuario_telefono">Teléfono</label>
-                    <input type="tel" id="usuario_telefono" name="telefono" class="form-control"
-                        placeholder="Ej: +503 1234-5678">
-                    <small class="form-text text-muted">Opcional - Formato: +código país número</small>
-                </div>
-
-                <!-- Rol y Estado en misma fila -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="usuario_rol">Rol</label>
-                            <select id="usuario_rol" name="rol" class="form-control" required>
-                                <option value="">Seleccione un rol</option>
-                                <option value="cliente">Cliente</option>
-                                <option value="empleado">Empleado</option>
-                                <option value="admin">Administrador</option>
-                            </select>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="password">Contraseña:</label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" required class="form-control"
+                                placeholder="Mínimo 8 caracteres">
+                            <button type="button" class="password-toggle"
+                                onclick="togglePassword('password', 'eyeIconPass')"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                                <i id="eyeIconPass" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-requirements text-xs text-gray-500 mt-1">
+                            <ul class="list-disc pl-5">
+                                <li id="req-length" class="text-gray-400">Mínimo 8 caracteres</li>
+                                <li id="req-uppercase" class="text-gray-400">1 letra mayúscula</li>
+                                <li id="req-lowercase" class="text-gray-400">1 letra minúscula</li>
+                                <li id="req-number" class="text-gray-400">1 número</li>
+                            </ul>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="usuario_estado">Estado</label>
-                            <select id="usuario_estado" name="estado" class="form-control">
-                                <option value="1" selected>Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
+                    <div class="form-group">
+                        <label for="password_confirmation">Confirmar Contraseña:</label>
+                        <div class="relative">
+                            <input type="password" id="password_confirmation" name="password_confirmation" required
+                                class="form-control" placeholder="Confirma tu contraseña">
+                            <button type="button" class="password-toggle"
+                                onclick="togglePassword('password_confirmation', 'eyeIconConfirm')"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                                <i id="eyeIconConfirm" class="fas fa-eye"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Campo Contraseña -->
-                <div class="form-group full-width">
-                    <label for="usuario_password">Contraseña</label>
-                    <div class="input-with-icon">
-                        <input type="password" id="usuario_password" name="password" class="form-control"
-                            placeholder="Mínimo 8 caracteres" required>
-                        <button type="button" class="toggle-password"
-                            onclick="togglePassword('usuario_password', 'usuario_password_icon')">
-                            <i class="fas fa-eye" id="usuario_password_icon"></i>
-                        </button>
-                    </div>
-
-                    <div class="password-requirements text-xs text-gray-500 mt-1">
-                        <ul class="list-disc pl-5">
-                            <li id="req-length" class="text-gray-400">Mínimo 8 caracteres</li>
-                            <li id="req-uppercase" class="text-gray-400">1 letra mayúscula</li>
-                            <li id="req-lowercase" class="text-gray-400">1 letra minúscula</li>
-                            <li id="req-number" class="text-gray-400">1 número</li>
-                        </ul>
-                    </div>
-
-                    <div class="password-strength mt-2">
-                        <div class="progress" style="height: 5px;">
-                            <div class="progress-bar" id="usuario_password-strength-bar" role="progressbar"
-                                style="width: 0%"></div>
-                        </div>
-                        <small class="text-muted" id="usuario_password-strength-text">Seguridad de la
-                            contraseña</small>
-                    </div>
+                <div class="form-group">
+                    <label for="estado">Estado:</label>
+                    <select id="estado" name="estado" class="form-control">
+                        <option value="1" selected>Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
                 </div>
 
-                <!-- Campo Confirmar Contraseña -->
-                <div class="form-group full-width">
-                    <label for="usuario_password_confirmation">Confirmar Contraseña</label>
-                    <div class="input-with-icon">
-                        <input type="password" id="usuario_password_confirmation" name="password_confirmation"
-                            class="form-control" placeholder="Confirma tu contraseña" required>
-                        <button type="button" class="toggle-password"
-                            onclick="togglePassword('usuario_password_confirmation', 'usuario_password_confirmation_icon')">
-                            <i class="fas fa-eye" id="usuario_password_confirmation_icon"></i>
-                        </button>
-                    </div>
-                    <div class="min-h-[20px]">
-                        <p id="password-match-error" class="text-red-500 text-sm mt-1 hidden">
-                            Las contraseñas no coinciden
-                        </p>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block mt-4">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
                     <i class="fas fa-save"></i> Crear Usuario
                 </button>
             </form>
         </div>
     </div>
+
 
     <!-- Footer -->
     <footer class="footer">
@@ -3085,6 +2890,90 @@
 
         // Variables globales para gráficos
         let usuariosChart, ingresosChart, citasChart, serviciosChart;
+
+        // =============================================
+        // FUNCIONES DE USUARIO Y VALIDACIÓN
+        // =============================================
+
+        function mostrarModalUsuario() {
+            // Limpiar el formulario antes de mostrarlo
+            document.getElementById('usuarioForm').reset();
+
+            // Mostrar el modal
+            document.getElementById('usuarioModal').style.display = 'flex';
+
+            // Resetear estilos de validación
+            document.querySelectorAll('#usuarioForm input, #usuarioForm select').forEach(el => {
+                el.classList.remove('border-red-500');
+            });
+
+            // Actualizar los indicadores de contraseña
+            document.getElementById('req-length').className = 'text-gray-400';
+            document.getElementById('req-uppercase').className = 'text-gray-400';
+            document.getElementById('req-lowercase').className = 'text-gray-400';
+            document.getElementById('req-number').className = 'text-gray-400';
+        }
+
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+            const confirmField = document.getElementById('password_confirmation');
+
+            if (confirmPassword.length > 0 && password !== confirmPassword) {
+                confirmField.classList.add('border-red-500');
+                // Mostrar mensaje de error
+                let errorMsg = confirmField.nextElementSibling;
+                if (!errorMsg || !errorMsg.classList.contains('text-red-500')) {
+                    errorMsg = document.createElement('div');
+                    errorMsg.className = 'text-red-500 text-sm mt-1';
+                    confirmField.parentNode.insertBefore(errorMsg, confirmField.nextSibling);
+                }
+                errorMsg.textContent = 'Las contraseñas no coinciden';
+            } else {
+                confirmField.classList.remove('border-red-500');
+                // Eliminar mensaje de error si existe
+                const errorMsg = confirmField.nextElementSibling;
+                if (errorMsg && errorMsg.classList.contains('text-red-500')) {
+                    errorMsg.remove();
+                }
+            }
+        }
+
+        function initUsuarioFormValidation() {
+            const passwordField = document.getElementById('password');
+            const confirmPasswordField = document.getElementById('password_confirmation');
+
+            if (passwordField) {
+                passwordField.addEventListener('input', function() {
+                    const password = this.value;
+
+                    // Validar requisitos
+                    const hasMinLength = password.length >= 8;
+                    const hasUpperCase = /[A-Z]/.test(password);
+                    const hasLowerCase = /[a-z]/.test(password);
+                    const hasNumber = /\d/.test(password);
+
+                    // Actualizar lista de requisitos
+                    document.getElementById('req-length').className = hasMinLength ? 'text-green-500' :
+                        'text-gray-400';
+                    document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' :
+                        'text-gray-400';
+                    document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' :
+                        'text-gray-400';
+                    document.getElementById('req-number').className = hasNumber ? 'text-green-500' :
+                    'text-gray-400';
+
+                    // Validar coincidencia si hay confirmación
+                    if (confirmPasswordField && confirmPasswordField.value) {
+                        validatePasswordMatch();
+                    }
+                });
+            }
+
+            if (confirmPasswordField) {
+                confirmPasswordField.addEventListener('input', validatePasswordMatch);
+            }
+        }
 
         // =============================================
         // FUNCIONES DE INICIALIZACIÓN
@@ -3514,9 +3403,7 @@
             if (document.getElementById('serviciosChart')) {
                 inicializarGraficoServicios();
             }
-            if (document.getElementById('usuarioForm')) {
-                initUsuarioFormValidation();
-            }
+            if (document.getElementById('usuarioForm')) initUsuarioFormValidation();
 
             actualizarDatosDashboard();
 
@@ -3560,385 +3447,6 @@
             });
         });
 
-        // =============================================
-        // FORMULARIO DE CREACION DE USUARIOS DESDE ADMIN
-        // =============================================
-
-        // Función para mostrar/ocultar contraseñas
-        function togglePassword(fieldId, iconId) {
-            const field = document.getElementById(fieldId);
-            const icon = document.getElementById(iconId);
-
-            if (field.type === 'password') {
-                field.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                field.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        // Función para inicializar validaciones del formulario de usuario
-        function initUsuarioFormValidation() {
-            // Función para inicializar los campos de contraseña
-            function initPasswordFields() {
-                // Resetear todos los estados al abrir el modal
-                document.getElementById('usuario_password-strength-bar').style.width = '0%';
-                document.getElementById('usuario_password-strength-text').textContent = 'Seguridad de la contraseña';
-                document.getElementById('usuario_password-strength-text').className = 'text-muted';
-
-                // Resetear requisitos
-                document.querySelectorAll('.password-requirements li').forEach(li => {
-                    li.className = 'text-gray-400';
-                });
-
-                // Ocultar mensaje de error
-                document.getElementById('password-match-error').classList.add('hidden');
-            }
-
-            // Validación de nombre (solo letras y espacios)
-            document.getElementById('usuario_nombre').addEventListener('input', function() {
-                const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-                if (!regex.test(this.value)) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.innerHTML = '<strong>Por favor ingresa solo letras y espacios</strong>';
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-
-            // Validación de email
-            document.getElementById('usuario_email').addEventListener('input', function() {
-                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!regex.test(this.value)) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.innerHTML =
-                        '<strong>Por favor ingresa un correo electrónico válido</strong>';
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-
-            // Validación de teléfono
-            document.getElementById('usuario_telefono').addEventListener('input', function() {
-                const regex = /^\+?[\d\s\-]+$/;
-                if (this.value && !regex.test(this.value)) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.innerHTML =
-                        '<strong>Por favor ingresa un número de teléfono válido</strong>';
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-
-            // Validación de rol
-            document.getElementById('usuario_rol').addEventListener('change', function() {
-                if (!this.value) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.innerHTML =
-                        '<strong>Por favor selecciona un rol para el usuario</strong>';
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-
-            // Validación en tiempo real de la contraseña principal
-            document.getElementById('usuario_password')?.addEventListener('input', function() {
-                const password = this.value;
-                const confirmPassword = document.getElementById('usuario_password_confirmation').value;
-
-                // Validar requisitos
-                const hasMinLength = password.length >= 8;
-                const hasUpperCase = /[A-Z]/.test(password);
-                const hasLowerCase = /[a-z]/.test(password);
-                const hasNumber = /\d/.test(password);
-
-                // Actualizar lista de requisitos solo si hay contenido
-                if (password.length > 0) {
-                    document.getElementById('req-length').className = hasMinLength ? 'text-green-500' :
-                        'text-gray-400';
-                    document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' :
-                        'text-gray-400';
-                    document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' :
-                        'text-gray-400';
-                    document.getElementById('req-number').className = hasNumber ? 'text-green-500' :
-                    'text-gray-400';
-                } else {
-                    // Resetear requisitos si está vacío
-                    document.querySelectorAll('.password-requirements li').forEach(li => {
-                        li.className = 'text-gray-400';
-                    });
-                }
-
-                // Calcular fortaleza solo si hay contenido
-                if (password.length > 0) {
-                    const strength = calculatePasswordStrength(password);
-                    const strengthBar = document.getElementById('usuario_password-strength-bar');
-                    const strengthText = document.getElementById('usuario_password-strength-text');
-
-                    strengthBar.style.width = strength.percentage + '%';
-                    strengthBar.className = 'progress-bar ' + strength.class;
-                    strengthText.textContent = strength.text;
-                    strengthText.className = strength.textClass;
-                } else {
-                    // Resetear si está vacío
-                    document.getElementById('usuario_password-strength-bar').style.width = '0%';
-                    document.getElementById('usuario_password-strength-text').textContent =
-                        'Seguridad de la contraseña';
-                    document.getElementById('usuario_password-strength-text').className = 'text-muted';
-                }
-
-                // Validar coincidencia si hay confirmación
-                if (confirmPassword.length > 0) {
-                    validateUsuarioPasswordMatch();
-                }
-            });
-
-            // Validación en tiempo real de confirmación de contraseña
-            document.getElementById('usuario_password_confirmation')?.addEventListener('input', function() {
-                // Validar coincidencia inmediatamente
-                validateUsuarioPasswordMatch();
-            });
-
-            // Función para validar coincidencia de contraseñas
-            function validateUsuarioPasswordMatch() {
-                const password = document.getElementById('usuario_password').value;
-                const confirmPassword = document.getElementById('usuario_password_confirmation').value;
-                const errorMsg = document.getElementById('password-match-error');
-
-                // Solo mostrar error si ambos campos tienen contenido
-                if (password.length > 0 && confirmPassword.length > 0) {
-                    if (password !== confirmPassword) {
-                        errorMsg.classList.remove('hidden');
-                        errorMsg.textContent = 'Las contraseñas no coinciden';
-                        document.getElementById('usuario_password_confirmation').classList.add('is-invalid');
-                    } else {
-                        errorMsg.classList.add('hidden');
-                        document.getElementById('usuario_password_confirmation').classList.remove('is-invalid');
-                    }
-                } else if (confirmPassword.length === 0) {
-                    // Si el campo de confirmación está vacío, ocultar error
-                    errorMsg.classList.add('hidden');
-                    document.getElementById('usuario_password_confirmation').classList.remove('is-invalid');
-                }
-            }
-
-            // Función para calcular fortaleza de contraseña
-            function calculatePasswordStrength(password) {
-                let strength = 0;
-                if (password.length >= 8) strength++;
-                if (/[A-Z]/.test(password)) strength++;
-                if (/[a-z]/.test(password)) strength++;
-                if (/\d/.test(password)) strength++;
-                if (/[^A-Za-z0-9]/.test(password)) strength++;
-
-                const percentage = (strength / 5) * 100;
-
-                if (strength <= 1) return {
-                    percentage,
-                    class: 'bg-danger',
-                    text: 'Muy débil',
-                    textClass: 'text-danger'
-                };
-                if (strength <= 3) return {
-                    percentage,
-                    class: 'bg-warning',
-                    text: 'Moderada',
-                    textClass: 'text-warning'
-                };
-                return {
-                    percentage,
-                    class: 'bg-success',
-                    text: 'Fuerte',
-                    textClass: 'text-success'
-                };
-            }
-
-            // Validación antes de enviar el formulario
-            document.getElementById('usuarioForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                let isValid = true;
-                const fieldsToValidate = [
-                    'usuario_nombre',
-                    'usuario_email',
-                    'usuario_rol',
-                    'usuario_password',
-                    'usuario_password_confirmation'
-                ];
-
-                // Validar campos obligatorios
-                fieldsToValidate.forEach(fieldId => {
-                    const field = document.getElementById(fieldId);
-                    if (!field.value) {
-                        field.classList.add('is-invalid');
-                        isValid = false;
-                    }
-                });
-
-                // Validar teléfono si tiene valor
-                const telefono = document.getElementById('usuario_telefono');
-                if (telefono.value && !/^\+?[\d\s\-]+$/.test(telefono.value)) {
-                    telefono.classList.add('is-invalid');
-                    isValid = false;
-                }
-
-                // Validar contraseña cumple requisitos
-                const password = document.getElementById('usuario_password');
-                if (password.value.length < 8 || !/[A-Z]/.test(password.value) ||
-                    !/[a-z]/.test(password.value) || !/\d/.test(password.value)) {
-                    password.classList.add('is-invalid');
-                    isValid = false;
-                }
-
-                // Validar confirmación de contraseña
-                const passwordConfirm = document.getElementById('usuario_password_confirmation');
-                if (password.value !== passwordConfirm.value) {
-                    passwordConfirm.classList.add('is-invalid');
-                    document.getElementById('password-match-error').classList.remove('hidden');
-                    isValid = false;
-                }
-
-                if (!isValid) {
-                    Swal.fire({
-                        title: 'Error en el formulario',
-                        html: 'Por favor completa correctamente todos los campos requeridos.',
-                        icon: 'error',
-                        confirmButtonText: 'Entendido'
-                    });
-                    return;
-                }
-
-                // Si todo está bien, proceder con el envío
-                crearUsuario();
-            });
-
-            // Inicializar campos de contraseña al cargar
-            initPasswordFields();
-        }
-
-        // Función para resetear el formulario de usuario al cerrar
-        function resetUsuarioForm() {
-            const form = document.getElementById('usuarioForm');
-            if (form) {
-                form.reset();
-
-                // Resetear indicadores de validación
-                const fields = form.querySelectorAll('.is-invalid, .is-valid');
-                fields.forEach(field => {
-                    field.classList.remove('is-invalid', 'is-valid');
-                });
-
-                // Resetear indicador de fortaleza
-                document.getElementById('usuario_password-strength-bar').style.width = '0%';
-                document.getElementById('usuario_password-strength-text').textContent = 'Seguridad de la contraseña';
-                document.getElementById('usuario_password-strength-text').className = 'text-muted';
-
-                // Resetear requisitos
-                document.querySelectorAll('.password-requirements li').forEach(li => {
-                    li.className = 'text-gray-400';
-                });
-
-                // Ocultar mensaje de error
-                document.getElementById('password-match-error').classList.add('hidden');
-            }
-        }
-
-        // Modificar la función closeModal para resetear el formulario
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-
-            if (modalId === 'usuarioModal') {
-                resetUsuarioForm();
-            }
-        }
-
-        // Función para crear usuario via AJAX
-        async function crearUsuario() {
-            const form = document.getElementById('usuarioForm');
-            const submitButton = form.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.innerHTML;
-
-            // Mostrar estado de carga
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando usuario...';
-
-            const formData = {
-                nombre: document.getElementById('usuario_nombre').value,
-                email: document.getElementById('usuario_email').value,
-                telefono: document.getElementById('usuario_telefono').value,
-                rol: document.getElementById('usuario_rol').value,
-                password: document.getElementById('usuario_password').value,
-                password_confirmation: document.getElementById('usuario_password_confirmation').value,
-                estado: document.getElementById('usuario_estado').value === '1'
-            };
-
-            try {
-                const response = await fetch('{{ route('admin.usuarios.store') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Usuario creado!',
-                        text: 'El usuario ha sido registrado correctamente.',
-                        confirmButtonText: 'Aceptar'
-                    }).then(() => {
-                        closeModal('usuarioModal');
-                        actualizarDatosDashboard();
-                    });
-                } else {
-                    let errorMessage = 'No se pudo crear el usuario.';
-                    if (data.errors) {
-                        errorMessage += '<br><br>' + Object.values(data.errors).join('<br>');
-                    } else if (data.message) {
-                        errorMessage += '<br><br>' + data.message;
-                    }
-
-                    throw new Error(errorMessage);
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    html: error.message,
-                    confirmButtonText: 'Entendido'
-                });
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
-            }
-        }
-
-        // Función para mostrar el modal de usuario
-        function mostrarModalUsuario() {
-            // Resetear el formulario primero
-            resetUsuarioForm();
-
-            // Mostrar el modal
-            document.getElementById('usuarioModal').style.display = 'flex';
-
-            // Inicializar validaciones después de mostrar el modal
-            initUsuarioFormValidation();
-        }
-
-        // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
-            // Solo inicializar si existe el modal
-            if (document.getElementById('usuarioModal')) {
-                initUsuarioFormValidation();
-            }
-        });
 
         // Formulario de perfil
         document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
@@ -4044,9 +3552,6 @@
                 editarServicio(servicioId);
             }
         });
-
-        // Botón para mostrar modal de usuario
-        document.getElementById('btnCrearUsuario')?.addEventListener('click', mostrarModalUsuario);
 
         // Botón para mostrar modal de nuevo servicio
         document.getElementById('btnNuevoServicio')?.addEventListener('click', nuevoServicio);
