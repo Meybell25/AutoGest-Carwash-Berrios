@@ -278,12 +278,11 @@
         }
 
         .header-actions {
-            background-color: white;
-            padding: 12px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-sm);
-            margin-top: 15px;
-            /* Espacio adicional */
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         /* ======================
@@ -1591,16 +1590,15 @@
             }
 
             .header-actions {
+                gap: 15px;
                 justify-content: center;
-                width: 100%;
             }
 
             .header-actions .btn {
-                flex: 1 1 160px;
-                /* Mínimo 160px, pero puede crecer */
-                min-width: 160px;
-                white-space: nowrap;
-                text-align: center;
+                padding: 12px 15px;
+                font-size: 0.9rem;
+                min-width: auto;
+                flex: 1 1 auto;
             }
 
             .card-header,
@@ -1823,6 +1821,21 @@
                 border-radius: 50%;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             }
+
+            .header-actions {
+                gap: 12px;
+                justify-content: space-between;
+            }
+
+            .header-actions .btn {
+                flex: 1 1 calc(50% - 6px);
+                min-width: calc(50% - 6px);
+                margin-bottom: 0;
+            }
+
+            .header-actions .btn i {
+                margin-right: 5px;
+            }
         }
 
 
@@ -1975,13 +1988,20 @@
                 padding: 12px 35px 12px 12px;
             }
 
+            .header-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
             .header-actions .btn {
+                width: 100%;
                 flex: 1 1 100%;
                 min-width: 100%;
+                margin-bottom: 0;
             }
 
             .header-actions .btn i {
-                margin-right: 5px;
+                margin-right: 8px;
             }
 
             #usuarioModal {

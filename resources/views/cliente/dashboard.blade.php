@@ -250,10 +250,12 @@
         }
 
         .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
+            background-color: white !important;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-top: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         .btn {
@@ -984,8 +986,10 @@
                 margin-bottom: 10px;
             }
 
-            .header-actions {
-                grid-template-columns: 1fr 1fr;
+              .header-actions {
+                padding: 10px;
+                background-color: white !important;
+                grid-gap: 8px;
             }
 
             .service-history-item {
@@ -2411,11 +2415,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                            `).join('')}
+                                                                                                                                                                                                                    <tr>
+                                                                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                                                                                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                    </tr>
+                                                                                                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
