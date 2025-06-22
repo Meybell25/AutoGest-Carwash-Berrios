@@ -962,6 +962,10 @@
             margin-bottom: 20px;
         }
 
+        .form-group .relative {
+            position: relative;
+        }
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
@@ -990,19 +994,57 @@
         }
 
         /* Estilos para el formulario de usuario en el modal */
+
+        .password-input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Estilo para el input de contraseña */
+        .password-input {
+            padding-right: 40px;
+        }
+
         .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
             color: var(--text-secondary);
             transition: all 0.2s ease;
+            z-index: 10;
+            padding: 5px;
+            font-size: 1rem;
         }
 
         .password-toggle:hover {
             color: var(--primary);
         }
 
+        /* Asegurar que el input tenga espacio para el botón */
+        #password,
+        #password_confirmation {
+            padding-right: 35px !important;
+        }
+
+        /* Estilo para los iconos dentro del botón */
+        .password-toggle i {
+            font-size: 1rem;
+        }
+
+        /* Estilo para los mensajes de validación */
         .password-requirements {
             margin-top: 0.5rem;
             font-size: 0.8rem;
             color: var(--text-secondary);
+        }
+
+        .password-requirements ul {
+            margin: 0;
+            padding-left: 1.5rem;
         }
 
         .password-requirements li {
@@ -1021,8 +1063,6 @@
         .fa-spinner.fa-spin {
             margin-right: 8px;
         }
-
-
 
         /* ======================
         FOOTER
@@ -2780,8 +2820,7 @@
                             <input type="password" id="password" name="password" required class="form-control"
                                 placeholder="Mínimo 8 caracteres">
                             <button type="button" class="password-toggle"
-                                onclick="togglePassword('password', 'eyeIconPass')"
-                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                                onclick="togglePassword('password', 'eyeIconPass')">
                                 <i id="eyeIconPass" class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -2800,8 +2839,7 @@
                             <input type="password" id="password_confirmation" name="password_confirmation" required
                                 class="form-control" placeholder="Confirma tu contraseña">
                             <button type="button" class="password-toggle"
-                                onclick="togglePassword('password_confirmation', 'eyeIconConfirm')"
-                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                                onclick="togglePassword('password_confirmation', 'eyeIconConfirm')">
                                 <i id="eyeIconConfirm" class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -2961,7 +2999,7 @@
                     document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' :
                         'text-gray-400';
                     document.getElementById('req-number').className = hasNumber ? 'text-green-500' :
-                    'text-gray-400';
+                        'text-gray-400';
 
                     // Validar coincidencia si hay confirmación
                     if (confirmPasswordField && confirmPasswordField.value) {
