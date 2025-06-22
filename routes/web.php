@@ -51,9 +51,9 @@ Route::middleware('auth')->group(function () {
                 return redirect('/');
         }
     })->name('dashboard');
-    
+
     Route::resource('vehiculos', VehiculoController::class);
-    
+
     // Nuevas rutas para Servicios
     Route::prefix('servicios')->name('servicios.')->group(function () {
         Route::get('/', [ServicioController::class, 'index'])->name('index');
@@ -68,19 +68,25 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
     Route::post('/usuarios', [AdminController::class, 'storeUsuario'])->name('usuarios.store');
-    
+
     // Ruta para datos del dashboard (AJAX)
     Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
-    
+
+    // Ruta para datos de ver todos los usuarios 
+    Route::get('/admin/usuarios/all', [AdminController::class, 'getAllUsers']);
+    Route::post('/admin/usuarios/bulk-activate', [AdminController::class, 'bulkActivate']);
+    Route::post('/admin/usuarios/bulk-deactivate', [AdminController::class, 'bulkDeactivate']);
+    Route::delete('/admin/usuarios/bulk-delete', [AdminController::class, 'bulkDelete']);
+
     // Rutas de citas
     Route::prefix('citas')->name('citas.')->group(function () {
         Route::get('/create', [AdminController::class, 'createCita'])->name('create');
         Route::post('/', [AdminController::class, 'storeCita'])->name('store');
     });
-    
+
     // Rutas de reportes
     Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
-    
+
     // Rutas de servicios
     Route::prefix('servicios')->name('servicios.')->group(function () {
         Route::get('/', [ServicioController::class, 'adminIndex'])->name('index'); // Cambiado de admin.index a index

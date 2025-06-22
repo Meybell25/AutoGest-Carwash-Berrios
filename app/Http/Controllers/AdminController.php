@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -19,7 +20,7 @@ class AdminController extends Controller
     public function dashboard(): View
     {
         $stats = $this->getDashboardStats();
-        
+
         $ultimas_citas = Cita::with(['usuario', 'vehiculo', 'servicios'])
             ->latest()
             ->take(5)
@@ -221,74 +222,154 @@ class AdminController extends Controller
     }
 
     /**
- * Actualiza el perfil del administrador
- */
-public function updateProfile(Request $request)
-{
-    $user = auth()->user();
-    
-    $validated = $request->validate([
-        'nombre' => 'required|string|max:255',
-        'telefono' => 'nullable|string|max:20',
-        'password' => 'nullable|string|min:8|confirmed'
-    ]);
-    
-    try {
-        $user->nombre = $validated['nombre'];
-        $user->telefono = $validated['telefono'];
-        
-        if (!empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
-        }
-        
-        $user->save();
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Perfil actualizado correctamente'
+     * Actualiza el perfil del administrador
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:8|confirmed'
         ]);
-    } catch (\Exception $e) {
+
+        try {
+            $user->nombre = $validated['nombre'];
+            $user->telefono = $validated['telefono'];
+
+            if (!empty($validated['password'])) {
+                $user->password = Hash::make($validated['password']);
+            }
+
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perfil actualizado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el perfil: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Almacena un nuevo usuario desde el panel de administración
+     */
+    public function storeUser(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:usuarios',
+            'telefono' => 'nullable|string|max:20',
+            'rol' => 'required|in:cliente,empleado,admin',
+            'password' => 'required|string|min:8|confirmed',
+            'estado' => 'required|boolean'
+        ]);
+
+        try {
+            $user = Usuario::create([
+                'nombre' => $validated['nombre'],
+                'email' => $validated['email'],
+                'telefono' => $validated['telefono'],
+                'rol' => $validated['rol'],
+                'password' => Hash::make($validated['password']),
+                'estado' => $validated['estado']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario creado correctamente',
+                'user' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear usuario: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Obtener todos los usuarios para filtrado
+    public function getAllUsers()
+    {
+        return response()->json(Usuario::all());
+    }
+
+    // Acciones masivas
+    public function bulkActivate(Request $request)
+    {
+        $ids = $request->input('ids');
+        Usuario::whereIn('id', $ids)->update(['estado' => true]);
+        return response()->json(['success' => true]);
+    }
+
+    public function bulkDeactivate(Request $request)
+    {
+        $ids = $request->input('ids');
+        Usuario::whereIn('id', $ids)->update(['estado' => false]);
+        return response()->json(['success' => true]);
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids');
+        Usuario::whereIn('id', $ids)->where('rol', '!=', 'admin')->delete();
+        return response()->json(['success' => true]);
+    }
+
+ public function update(Request $request, $id)
+{
+    $usuario = Usuario::findOrFail($id);
+
+    // Validar que no se modifiquen rol o email
+    if ($request->has('rol') && $request->rol !== $usuario->rol) {
         return response()->json([
             'success' => false,
-            'message' => 'Error al actualizar el perfil: ' . $e->getMessage()
-        ], 500);
+            'message' => 'No se permite modificar el rol de un usuario existente'
+        ], 403);
     }
-}
 
-/**
- * Almacena un nuevo usuario desde el panel de administración
- */
-public function storeUser(Request $request)
-{
+    if ($request->has('email') && $request->email !== $usuario->email) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se permite modificar el correo electrónico'
+        ], 403);
+    }
+
     $validated = $request->validate([
         'nombre' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:usuarios',
         'telefono' => 'nullable|string|max:20',
-        'rol' => 'required|in:cliente,empleado,admin',
-        'password' => 'required|string|min:8|confirmed',
         'estado' => 'required|boolean'
     ]);
-    
-    try {
-        $user = Usuario::create([
-            'nombre' => $validated['nombre'],
-            'email' => $validated['email'],
-            'telefono' => $validated['telefono'],
-            'rol' => $validated['rol'],
-            'password' => Hash::make($validated['password']),
-            'estado' => $validated['estado']
-        ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuario creado correctamente',
-            'user' => $user
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al crear usuario: ' . $e->getMessage()
-        ], 500);
+
+    // Auditoría (logs)
+    Log::channel('admin_actions')->info("Usuario actualizado", [
+        'admin_id' => auth()->id(),
+        'user_id' => $usuario->id,
+        'changes' => $validated,
+        'ip' => request()->ip(),
+        'fecha' => now()
+    ]);
+
+    // Guardar cambios
+    $usuario->update($validated);
+
+    // Notificación solo si cambió el estado (usando tu modelo existente)
+    if ($usuario->wasChanged('estado')) {
+        \App\Models\Notificacion::crear(
+            $usuario->id,
+            'Tu estado de cuenta ha sido actualizado a: ' . ($usuario->estado ? 'ACTIVO' : 'INACTIVO'),
+            \App\Models\Notificacion::CANAL_SISTEMA
+        );
     }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Usuario actualizado correctamente'
+    ]);
 }
 }

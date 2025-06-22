@@ -278,6 +278,8 @@
         }
 
         .header-actions {
+            background: transparent;
+            border: none;
             display: flex;
             gap: 12px;
             align-items: center;
