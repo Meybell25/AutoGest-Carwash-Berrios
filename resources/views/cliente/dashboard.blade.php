@@ -202,12 +202,12 @@
 
 
         .welcome-stat {
-            background: var(--white);
+            background: white !important;
             padding: 1rem;
             border-radius: var(--border-radius);
             text-align: center;
             box-shadow: var(--shadow-sm);
-            border: 1px solid var(--gray-100);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
@@ -249,7 +249,7 @@
             font-weight: 500;
         }
 
-        .header .header-actions {
+        .header-actions {
             background-color: white !important;
             padding: 12px;
             border-radius: var(--border-radius);
@@ -987,9 +987,7 @@
             }
 
             .header-actions {
-                padding: 10px;
-                background-color: white !important;
-                grid-gap: 8px;
+                grid-template-columns: 1fr 1fr;
             }
 
             .service-history-item {
