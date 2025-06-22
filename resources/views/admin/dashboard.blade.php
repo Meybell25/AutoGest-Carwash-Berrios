@@ -1607,10 +1607,8 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
-        }
 
-        /* Mejoras para cards */
-        @media (max-width: 992px) {
+            /* Mejoras para cards */
             .card {
                 border-radius: 18px;
             }
@@ -1732,9 +1730,6 @@
                 margin-right: 0;
                 align-self: center;
             }
-        }
-
-        @media (max-width: 768px) {
 
             /* Mejoras para días no laborables */
             #diasNoLaborablesTable td[data-label="Motivo"] {
@@ -1755,9 +1750,7 @@
                 white-space: normal;
                 word-break: break-word;
             }
-        }
 
-        @media (max-width: 768px) {
             .admin-table {
                 font-size: 0.85rem;
             }
@@ -1766,6 +1759,29 @@
                 width: 40%;
                 padding-right: 8px;
                 font-size: 0.8rem;
+            }
+
+            .card-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .card-header-actions h3 {
+                margin-bottom: 0;
+                white-space: normal;
+                word-break: break-word;
+                width: 100%;
+            }
+
+            .card-header-actions .btn {
+                align-self: flex-end;
+            }
+
+            #usuarioModal .modal-content {
+                width: 90%;
+                margin: 5% auto;
+                padding: 20px;
             }
         }
 
@@ -1884,9 +1900,6 @@
                 margin-bottom: 10px;
                 align-self: flex-start;
             }
-        }
-
-        @media (max-width: 576px) {
 
             /* Ajustes para móviles pequeños */
             #diasNoLaborablesTable td,
@@ -1904,6 +1917,23 @@
                 width: 28px;
                 height: 28px;
                 font-size: 0.8rem;
+            }
+
+            #usuarioForm .form-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px;
+            }
+
+            #usuarioForm .password-input-container {
+                position: relative;
+            }
+
+            #usuarioForm .password-toggle {
+                right: 10px;
+            }
+
+            #usuarioForm .form-control {
+                padding: 12px 35px 12px 12px;
             }
         }
 
@@ -1951,16 +1981,27 @@
             .empty-state h3 {
                 font-size: 1.1rem;
             }
-        }
 
-        /* Mejora para evitar desbordamiento en móviles */
-        @media (max-width: 480px) {
             body {
                 word-break: break-word;
             }
 
             .info-item:last-child {
                 white-space: normal !important;
+            }
+
+            .card-header-actions .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .password-requirements ul {
+                padding-left: 1.2rem;
+                font-size: 0.75rem;
+            }
+
+            .password-requirements li {
+                margin-bottom: 5px;
             }
         }
 
@@ -2413,8 +2454,10 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <h3 style="color: var(--text-primary);">Días festivos y feriados</h3>
+                        <div class="card-header-actions"
+                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Días festivos y feriados
+                            </h3>
                             <button class="btn btn-primary" onclick="mostrarModalDiaNoLaborable()">
                                 <i class="fas fa-plus"></i> Agregar Día
                             </button>
@@ -3066,14 +3109,14 @@
 
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 600px; width: 90%;">
             <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
             <h2 style="color: var(--primary); margin-bottom: 20px;">
                 <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
             </h2>
             <form id="usuarioForm">
                 @csrf
-                <div class="form-grid">
+                <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
                     <div class="form-group">
                         <label for="nombre">Nombre Completo:</label>
                         <input type="text" id="nombre" name="nombre" required class="form-control"
@@ -3108,14 +3151,15 @@
                         <label for="password">Contraseña:</label>
                         <div class="password-input-container">
                             <input type="password" id="password" name="password" required
-                                class="form-control password-input" placeholder="Mínimo 8 caracteres">
+                                class="form-control password-input" placeholder="Mínimo 8 caracteres"
+                                style="padding-right: 40px;">
                             <button type="button" class="password-toggle"
-                                onclick="togglePassword('password', 'eyeIconPass')">
+                                onclick="togglePassword('password', 'eyeIconPass')" style="right: 12px;">
                                 <i id="eyeIconPass" class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="password-requirements">
-                            <ul>
+                        <div class="password-requirements" style="margin-top: 10px;">
+                            <ul style="columns: 2; column-gap: 20px;">
                                 <li id="req-length">Mínimo 8 caracteres</li>
                                 <li id="req-uppercase">1 letra mayúscula</li>
                                 <li id="req-lowercase">1 letra minúscula</li>
