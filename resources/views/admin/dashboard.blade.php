@@ -1609,6 +1609,18 @@
             }
         }
 
+        /* Mejoras para cards */
+        @media (max-width: 992px) {
+            .card {
+                border-radius: 18px;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 15px 20px;
+            }
+        }
+
         @media (max-width: 768px) {
             .welcome-section h1 {
                 font-size: 1.8rem;
@@ -1721,6 +1733,43 @@
                 align-self: center;
             }
         }
+
+        @media (max-width: 768px) {
+
+            /* Mejoras para días no laborables */
+            #diasNoLaborablesTable td[data-label="Motivo"] {
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            /* Mejoras para gestión de gastos */
+            .search-filter-container {
+                flex-direction: column;
+            }
+
+            #gastosTable td {
+                padding-left: 45% !important;
+            }
+
+            #gastosTable td[data-label="Detalle"] {
+                white-space: normal;
+                word-break: break-word;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-table {
+                font-size: 0.85rem;
+            }
+
+            .admin-table td:before {
+                width: 40%;
+                padding-right: 8px;
+                font-size: 0.8rem;
+            }
+        }
+
+
 
         @media (max-width: 576px) {
             .dashboard-container {
@@ -1837,6 +1886,27 @@
             }
         }
 
+        @media (max-width: 576px) {
+
+            /* Ajustes para móviles pequeños */
+            #diasNoLaborablesTable td,
+            #gastosTable td {
+                padding: 8px 5px;
+                font-size: 0.85rem;
+            }
+
+            .table-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .table-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+        }
+
         @media (max-width: 480px) {
             .welcome-section h1 {
                 font-size: 1.4rem;
@@ -1880,6 +1950,17 @@
 
             .empty-state h3 {
                 font-size: 1.1rem;
+            }
+        }
+
+        /* Mejora para evitar desbordamiento en móviles */
+        @media (max-width: 480px) {
+            body {
+                word-break: break-word;
+            }
+
+            .info-item:last-child {
+                white-space: normal !important;
             }
         }
 
