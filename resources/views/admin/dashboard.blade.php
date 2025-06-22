@@ -3301,10 +3301,6 @@
             document.getElementById(modalId).style.display = 'flex';
         }
 
-        function mostrarModalUsuario() {
-            document.getElementById('usuarioModal').style.display = 'flex';
-        }
-
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
@@ -3523,6 +3519,13 @@
             }
 
             actualizarDatosDashboard();
+
+            // Inicializar validaciones del formulario de usuario
+            initUsuarioFormValidation();
+
+            // Asignar el evento al botón de crear usuario
+            document.querySelector('.btn-primary[onclick="mostrarModalUsuario()"]').addEventListener('click',
+                mostrarModalUsuario);
 
             // Configurar intervalo para actualizaciones (5 segundos)
             setInterval(actualizarDatosDashboard, 5000);
@@ -3919,7 +3922,20 @@
 
         // Modificar la función para mostrar el modal de usuario
         function mostrarModalUsuario() {
-            initPasswordFields(); // Inicializar estados de contraseña
+            // Inicializar estados de contraseña
+            document.getElementById('usuario_password-strength-bar').style.width = '0%';
+            document.getElementById('usuario_password-strength-text').textContent = 'Seguridad de la contraseña';
+            document.getElementById('usuario_password-strength-text').className = 'text-muted';
+
+            // Resetear requisitos
+            document.querySelectorAll('.password-requirements li').forEach(li => {
+                li.className = 'text-gray-400';
+            });
+
+            // Ocultar mensaje de error
+            document.getElementById('password-match-error').classList.add('hidden');
+
+            // Mostrar el modal
             document.getElementById('usuarioModal').style.display = 'flex';
         }
 
