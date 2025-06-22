@@ -874,29 +874,10 @@
     };
 
     // =============================================
-    // FUNCIONES DE UTILIDAD
+    // FUNCIONES PRINCIPALES
     // =============================================
 
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
-
-    function togglePassword(inputId) {
-        const input = document.getElementById(inputId);
-        const eyeIcon = document.getElementById(`${inputId}Eye`);
-        if (input.type === 'password') {
-            input.type = 'text';
-            eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-        } else {
-            input.type = 'password';
-            eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-        }
-    }
-
-    // =============================================
-    // FUNCIONES DE GESTIÓN DE USUARIOS
-    // =============================================
-
+    // Función para mostrar el modal de usuario (COMPLETAMENTE ORIGINAL)
     function mostrarModalUsuario(usuarioId = null) {
         const modal = document.getElementById('usuarioModal');
         const form = document.getElementById('usuarioForm');
@@ -904,74 +885,102 @@
         const rolField = document.getElementById('rol');
         const emailField = document.getElementById('email');
 
+        // Resetear el formulario
         form.reset();
         document.getElementById('usuario_id').value = '';
 
         if (usuarioId) {
-            // Modo edición
+            // Modo edición (MANTENIDO EXACTAMENTE IGUAL)
             title.textContent = 'Editar Usuario';
-            rolField.disabled = emailField.disabled = true;
+            rolField.disabled = true;
+            emailField.disabled = true;
             document.getElementById('passwordFields').style.display = 'none';
 
+            // Buscar el usuario en los datos cargados
             const usuario = allUsersData.find(u => u.id == usuarioId);
+
             if (usuario) {
-                fillUserForm(usuario);
+                document.getElementById('usuario_id').value = usuario.id;
+                document.getElementById('nombre').value = usuario.nombre;
+                document.getElementById('email').value = usuario.email;
+                document.getElementById('telefono').value = usuario.telefono || '';
+                rolField.value = usuario.rol;
+                document.getElementById('estado').value = usuario.estado ? '1' : '0';
+
+                // No cargamos la contraseña por seguridad
+                document.getElementById('password').required = false;
+                document.getElementById('password_confirmation').required = false;
             } else {
-                fetchUserData(usuarioId);
+                // Si no está en los datos cargados, hacer petición al servidor (CÓDIGO ORIGINAL PRESERVADO)
+                fetch(`/admin/usuarios/${usuarioId}/edit`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Usuario no encontrado');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById('usuario_id').value = data.id;
+                        document.getElementById('nombre').value = data.nombre;
+                        document.getElementById('email').value = data.email;
+                        document.getElementById('telefono').value = data.telefono || '';
+                        document.getElementById('rol').value = data.rol;
+                        document.getElementById('estado').value = data.estado ? '1' : '0';
+
+                        // Deshabilitar campos sensibles
+                        rolField.disabled = true;
+                        emailField.disabled = true;
+
+                        // No cargamos la contraseña por seguridad
+                        document.getElementById('password').required = false;
+                        document.getElementById('password_confirmation').required = false;
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar usuario:', error);
+                        Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
+                        closeModal('usuarioModal');
+                    });
             }
         } else {
-            // Modo creación
+            // Modo creación (MANTENIDO EXACTAMENTE IGUAL)
             title.textContent = 'Crear Nuevo Usuario';
-            rolField.disabled = emailField.disabled = false;
-            rolField.value = 'cliente';
-            document.getElementById('passwordFields').style.display = 'block';
+            rolField.disabled = false;
+            emailField.disabled = false;
+            rolField.value = 'cliente'; // Valor por defecto
             document.getElementById('password').required = true;
             document.getElementById('password_confirmation').required = true;
+            document.getElementById('passwordFields').style.display = 'block';
         }
 
         modal.style.display = 'flex';
     }
 
-    function fillUserForm(usuario) {
-        document.getElementById('usuario_id').value = usuario.id;
-        document.getElementById('nombre').value = usuario.nombre;
-        document.getElementById('email').value = usuario.email;
-        document.getElementById('telefono').value = usuario.telefono || '';
-        document.getElementById('rol').value = usuario.rol;
-        document.getElementById('estado').value = usuario.estado ? '1' : '0';
-        document.getElementById('password').required = false;
-        document.getElementById('password_confirmation').required = false;
-    }
-
-    function fetchUserData(usuarioId) {
-        fetch(`/admin/usuarios/${usuarioId}/edit`)
-            .then(response => {
-                if (!response.ok) throw new Error('Usuario no encontrado');
-                return response.json();
-            })
-            .then(data => {
-                fillUserForm(data);
-            })
-            .catch(error => {
-                console.error('Error al cargar usuario:', error);
-                Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
-                closeModal('usuarioModal');
-            });
-    }
-
+    // Función para editar usuario (ORIGINAL SIN MODIFICACIONES)
     function editarUsuario(usuarioId) {
         const usuario = allUsersData.find(u => u.id == usuarioId);
-        if (usuario?.rol === 'admin') {
-            showRestrictedActionWarning('editar');
+
+        if (usuario && usuario.rol === 'admin') {
+            Swal.fire({
+                title: 'Acción restringida',
+                text: 'No puedes editar la información de un administrador desde esta interfaz',
+                icon: 'warning'
+            });
             return;
         }
+
         mostrarModalUsuario(usuarioId);
     }
 
+    // Función para confirmar eliminación (ORIGINAL SIN CAMBIOS)
     function confirmarEliminar(usuarioId) {
         const usuario = allUsersData.find(u => u.id == usuarioId);
-        if (usuario?.rol === 'admin') {
-            showRestrictedActionWarning('eliminar');
+
+        if (usuario && usuario.rol === 'admin') {
+            Swal.fire({
+                title: 'Acción restringida',
+                text: 'No puedes eliminar cuentas de administrador',
+                icon: 'warning'
+            });
             return;
         }
 
@@ -987,221 +996,65 @@
             confirmButtonText: 'Verificar y eliminar'
         }).then((result) => {
             if (result.isConfirmed) {
-                deleteUser(usuarioId);
+                fetch(`/admin/usuarios/${usuarioId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => {
+                                throw err;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('¡Eliminado!', data.message, 'success');
+                            location.reload();
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al eliminar:', error);
+                        Swal.fire('Error', error.message || 'Error al eliminar', 'error');
+                    });
             }
         });
     }
 
-    function showRestrictedActionWarning(action) {
-        Swal.fire({
-            title: 'Acción restringida',
-            text: `No puedes ${action} cuentas de administrador`,
-            icon: 'warning'
-        });
-    }
+    // Función para alternar visibilidad de contraseña (ORIGINAL)
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const eyeIcon = document.getElementById(`${inputId}Eye`);
 
-    function deleteUser(usuarioId) {
-        fetch(`/admin/usuarios/${usuarioId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        })
-        .then(handleResponse)
-        .then(data => {
-            if (data.success) {
-                Swal.fire('¡Eliminado!', data.message, 'success');
-                location.reload();
-            }
-        })
-        .catch(handleError);
-    }
-
-    // =============================================
-    // FUNCIONES DE TABLA Y FILTRADO
-    // =============================================
-
-    async function fetchAllUsers() {
-        try {
-            const response = await fetch('/admin/usuarios/all');
-            if (!response.ok) throw new Error('Error al cargar usuarios');
-            allUsersData = await response.json();
-            updateTableWithFilteredResults();
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire('Error', 'No se pudieron cargar los usuarios', 'error');
+        if (input.type === 'password') {
+            input.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
         }
     }
 
-    function filterTable() {
-        const searchValue = document.getElementById('searchInput').value.toLowerCase();
-        const roleValue = document.getElementById('roleFilter').value;
-        const statusValue = document.getElementById('statusFilter').value;
-
-        filteredUsers = allUsersData.filter(user => {
-            const nameMatch = user.nombre.toLowerCase().includes(searchValue);
-            const emailMatch = user.email.toLowerCase().includes(searchValue);
-            const roleMatch = roleValue === '' || user.rol === roleValue;
-            const statusMatch = statusValue === '' ||
-                (statusValue === '1' && user.estado) ||
-                (statusValue === '0' && !user.estado);
-
-            return (nameMatch || emailMatch) && roleMatch && statusMatch;
-        });
-
-        updateTableWithFilteredResults();
+    // Función para cerrar modal (ORIGINAL)
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
     }
 
-    function updateTableWithFilteredResults() {
-        const tbody = document.querySelector('#usersTable tbody');
-        tbody.innerHTML = '';
-
-        const usersToShow = filteredUsers.length > 0 ? filteredUsers : allUsersData;
-        usersToShow.forEach(user => tbody.appendChild(createUserRow(user)));
-
-        updateSelectedCount();
-    }
-
-    function createUserRow(user) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="updateSelectedCount()"></td>
-            <td data-label="ID">${user.id}</td>
-            <td data-label="Nombre">${user.nombre}</td>
-            <td data-label="Email">${user.email}</td>
-            <td data-label="Teléfono">${user.telefono || 'N/A'}</td>
-            <td data-label="Rol">
-                ${getRoleBadge(user.rol)}
-            </td>
-            <td data-label="Estado">
-                ${user.estado ? 
-                    '<span class="badge badge-success">Activo</span>' : 
-                    '<span class="badge badge-warning">Inactivo</span>'}
-            </td>
-            <td data-label="Registro">${new Date(user.created_at).toLocaleDateString()}</td>
-            <td data-label="Acciones">
-                <div class="table-actions">
-                    <button class="action-btn btn-edit" title="Editar" onclick="editarUsuario(${user.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    ${user.rol != 'admin' ? `
-                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>` : ''}
-                    <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
-                        <i class="fas fa-car"></i>
-                    </button>
-                </div>
-            </td>
-        `;
-        return row;
-    }
-
-    function getRoleBadge(rol) {
-        const badges = {
-            'admin': 'badge-danger',
-            'empleado': 'badge-info',
-            'cliente': 'badge-primary'
-        };
-        const text = {
-            'admin': 'Administrador',
-            'empleado': 'Empleado',
-            'cliente': 'Cliente'
-        };
-        return `<span class="badge ${badges[rol]}">${text[rol]}</span>`;
-    }
-
-    // =============================================
-    // FUNCIONES DE SELECCIÓN MASIVA
-    // =============================================
-
-    function updateSelectedCount() {
-        const checkboxes = document.querySelectorAll('.user-checkbox:checked');
-        const bulkActions = document.getElementById('bulkActions');
-        const selectedCount = document.getElementById('selectedCount');
-
-        selectedCount.textContent = `${checkboxes.length} seleccionados`;
-        bulkActions.style.display = checkboxes.length > 0 ? 'flex' : 'none';
-    }
-
-    function toggleSelectAll() {
-        const selectAll = document.getElementById('selectAll');
-        const checkboxes = document.querySelectorAll('.user-checkbox');
-        checkboxes.forEach(checkbox => checkbox.checked = selectAll.checked);
-        updateSelectedCount();
-    }
-
-    function applyBulkAction() {
-        const action = document.getElementById('bulkActionSelect').value;
-        const checkboxes = document.querySelectorAll('.user-checkbox:checked');
-        const userIds = Array.from(checkboxes).map(cb => cb.value);
-
-        if (!action || userIds.length === 0) {
-            Swal.fire('Error', 'Selecciona una acción y al menos un usuario', 'error');
-            return;
-        }
-
-        const actions = {
-            'activate': { 
-                endpoint: '/admin/usuarios/bulk-activate', 
-                method: 'POST',
-                message: 'Usuarios activados correctamente'
-            },
-            'deactivate': { 
-                endpoint: '/admin/usuarios/bulk-deactivate', 
-                method: 'POST',
-                message: 'Usuarios desactivados correctamente'
-            },
-            'delete': { 
-                endpoint: '/admin/usuarios/bulk-delete', 
-                method: 'DELETE',
-                message: 'Usuarios eliminados correctamente'
-            }
-        };
-
-        if (!actions[action]) return;
-
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: `Esta acción afectará a ${userIds.length} usuarios`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, continuar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                executeBulkAction(actions[action], userIds);
-            }
-        });
-    }
-
-    function executeBulkAction(actionConfig, userIds) {
-        fetch(actionConfig.endpoint, {
-            method: actionConfig.method,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ ids: userIds })
-        })
-        .then(handleResponse)
-        .then(() => {
-            Swal.fire('Éxito', actionConfig.message, 'success');
-            location.reload();
-        })
-        .catch(handleError);
-    }
-
-    // =============================================
-    // FUNCIONES DE EXPORTACIÓN
-    // =============================================
-
+    // Función para exportar a Excel (ORIGINAL SIN MODIFICACIONES)
     async function exportToExcel() {
         try {
             const response = await fetch('/admin/usuarios/all?export=true');
             if (!response.ok) throw new Error('Error al obtener datos');
+
             const allUsers = await response.json();
 
             const excelData = allUsers.map(user => ({
@@ -1209,7 +1062,7 @@
                 'Nombre': user.nombre,
                 'Email': user.email,
                 'Teléfono': user.telefono || 'N/A',
-                'Rol': getRoleText(user.rol),
+                'Rol': user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' : 'Cliente'),
                 'Estado': user.estado ? 'Activo' : 'Inactivo',
                 'Registro': new Date(user.created_at).toLocaleDateString()
             }));
@@ -1219,14 +1072,17 @@
             XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
             XLSX.writeFile(wb, `usuarios_${new Date().toISOString().slice(0,10)}.xlsx`);
         } catch (error) {
-            handleError(error, 'No se pudo generar el archivo Excel');
+            console.error('Error al exportar:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo Excel', 'error');
         }
     }
 
+    // Función para exportar a PDF (ORIGINAL SIN CAMBIOS)
     async function exportToPDF() {
         try {
             const response = await fetch('/admin/usuarios/all?export=true');
             if (!response.ok) throw new Error('Error al obtener datos');
+
             const allUsers = await response.json();
 
             const pdfData = allUsers.map(user => [
@@ -1234,7 +1090,7 @@
                 user.nombre,
                 user.email,
                 user.telefono || 'N/A',
-                getRoleText(user.rol),
+                user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' : 'Cliente'),
                 user.estado ? 'Activo' : 'Inactivo',
                 new Date(user.created_at).toLocaleDateString()
             ]);
@@ -1256,17 +1112,243 @@
 
             doc.save(`usuarios_completo_${new Date().toISOString().slice(0,10)}.pdf`);
         } catch (error) {
-            handleError(error, 'No se pudo generar el archivo PDF');
+            console.error('Error al exportar:', error);
+            Swal.fire('Error', 'No se pudo generar el archivo PDF', 'error');
         }
     }
 
-    function getRoleText(rol) {
-        return rol === 'admin' ? 'Administrador' : 
-               rol === 'empleado' ? 'Empleado' : 'Cliente';
+    // Función para actualizar contador de selección (ORIGINAL)
+    function updateSelectedCount() {
+        const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+
+        selectedCount.textContent = `${checkboxes.length} seleccionados`;
+
+        if (checkboxes.length > 0) {
+            bulkActions.style.display = 'flex';
+        } else {
+            bulkActions.style.display = 'none';
+        }
+    }
+
+    // Función para aplicar acciones masivas (ORIGINAL SIN MODIFICACIONES)
+    function applyBulkAction() {
+        const action = document.getElementById('bulkActionSelect').value;
+        const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+        const userIds = Array.from(checkboxes).map(cb => cb.value);
+
+        if (!action || userIds.length === 0) {
+            Swal.fire('Error', 'Selecciona una acción y al menos un usuario', 'error');
+            return;
+        }
+
+        let endpoint, method, successMessage;
+
+        switch (action) {
+            case 'activate':
+                endpoint = '/admin/usuarios/bulk-activate';
+                method = 'POST';
+                successMessage = 'Usuarios activados correctamente';
+                break;
+            case 'deactivate':
+                endpoint = '/admin/usuarios/bulk-deactivate';
+                method = 'POST';
+                successMessage = 'Usuarios desactivados correctamente';
+                break;
+            case 'delete':
+                endpoint = '/admin/usuarios/bulk-delete';
+                method = 'DELETE';
+                successMessage = 'Usuarios eliminados correctamente';
+                break;
+            default:
+                return;
+        }
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: `Esta acción afectará a ${userIds.length} usuarios`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, continuar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(endpoint, {
+                        method: method,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ ids: userIds })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al procesar la acción');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        Swal.fire('Éxito', successMessage, 'success').then(() => {
+                            location.reload();
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Ocurrió un error al procesar la acción', 'error');
+                    });
+            }
+        });
+    }
+
+    // Función para cargar todos los usuarios (ORIGINAL)
+    async function fetchAllUsers() {
+        try {
+            const response = await fetch('/admin/usuarios/all');
+            if (!response.ok) throw new Error('Error al cargar usuarios');
+            allUsersData = await response.json();
+            updateTableWithFilteredResults();
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'No se pudieron cargar los usuarios', 'error');
+        }
+    }
+
+    // Función para seleccionar/deseleccionar todos (ORIGINAL)
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+
+        updateSelectedCount();
+    }
+
+    // Función para filtrar la tabla (ORIGINAL SIN CAMBIOS)
+    function filterTable() {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const roleValue = document.getElementById('roleFilter').value;
+        const statusValue = document.getElementById('statusFilter').value;
+
+        filteredUsers = allUsersData.filter(user => {
+            const nameMatch = user.nombre.toLowerCase().includes(searchValue);
+            const emailMatch = user.email.toLowerCase().includes(searchValue);
+            const roleMatch = roleValue === '' || user.rol === roleValue;
+            const statusMatch = statusValue === '' ||
+                (statusValue === '1' && user.estado) ||
+                (statusValue === '0' && !user.estado);
+
+            return (nameMatch || emailMatch) && roleMatch && statusMatch;
+        });
+
+        updateTableWithFilteredResults();
+    }
+
+    // Función para actualizar tabla con resultados filtrados (ORIGINAL)
+    function updateTableWithFilteredResults() {
+        const tbody = document.querySelector('#usersTable tbody');
+        tbody.innerHTML = '';
+
+        const usersToShow = filteredUsers.length > 0 ? filteredUsers : allUsersData;
+
+        usersToShow.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="updateSelectedCount()"></td>
+                <td data-label="ID">${user.id}</td>
+                <td data-label="Nombre">${user.nombre}</td>
+                <td data-label="Email">${user.email}</td>
+                <td data-label="Teléfono">${user.telefono || 'N/A'}</td>
+                <td data-label="Rol">
+                    ${user.rol == 'admin' ? 
+                        '<span class="badge badge-danger">Administrador</span>' : 
+                        user.rol == 'empleado' ? 
+                        '<span class="badge badge-info">Empleado</span>' : 
+                        '<span class="badge badge-primary">Cliente</span>'}
+                </td>
+                <td data-label="Estado">
+                    ${user.estado ? 
+                        '<span class="badge badge-success">Activo</span>' : 
+                        '<span class="badge badge-warning">Inactivo</span>'}
+                </td>
+                <td data-label="Registro">${new Date(user.created_at).toLocaleDateString()}</td>
+                <td data-label="Acciones">
+                    <div class="table-actions">
+                        <button class="action-btn btn-edit" title="Editar" onclick="editarUsuario(${user.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${user.rol != 'admin' ? `
+                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>` : ''}
+                        <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
+                            <i class="fas fa-car"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        updateSelectedCount();
+    }
+
+    // Función para manejar envío de formulario (ORIGINAL SIN MODIFICACIONES)
+    function handleUsuarioFormSubmit(e) {
+        e.preventDefault();
+
+        const form = e.target;
+        const disabledFields = form.querySelectorAll('[disabled]');
+        disabledFields.forEach(field => field.disabled = false);
+
+        const formData = new FormData(form);
+        const usuarioId = formData.get('id');
+        const method = usuarioId ? 'PUT' : 'POST';
+        const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
+
+        fetch(url, {
+                method: method,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(response => {
+                disabledFields.forEach(field => field.disabled = true);
+                if (!response.ok) return response.json().then(err => { throw err; });
+                return response.json();
+            })
+            .then(data => {
+                Swal.fire(
+                    '¡Éxito!',
+                    usuarioId ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente',
+                    'success'
+                ).then(() => {
+                    closeModal('usuarioModal');
+                    location.reload();
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                let errorMessage = 'Ocurrió un error al procesar la solicitud';
+
+                if (error.errors) {
+                    errorMessage = Object.values(error.errors).join('\n');
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+
+                Swal.fire('Error', errorMessage, 'error');
+            });
     }
 
     // =============================================
-    // FUNCIONES DE REGISTROS DE USUARIO
+    // FUNCIONES DE REGISTROS DE USUARIO (ORIGINALES)
     // =============================================
 
     function mostrarRegistrosUsuario(usuarioId) {
@@ -1274,22 +1356,29 @@
         const usuario = allUsersData.find(u => u.id == usuarioId);
 
         if (!usuario) {
-            showError('No se pudo cargar la información del usuario');
+            Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
             return;
         }
 
-        if ((currentUser.rol === 'empleado' && usuario.rol === 'admin') || 
-            (currentUser.rol === 'admin' && usuario.rol === 'admin' && usuario.id !== currentUser.id)) {
-            showRestrictedActionWarning('ver esta información');
+        if (currentUser && currentUser.rol === 'admin' && usuario.rol === 'admin' && usuario.id !== currentUser.id) {
+            Swal.fire('Acceso restringido', 'Solo puedes ver tu propia información', 'warning');
             return;
         }
 
         document.getElementById('modalRegistrosText').textContent = `Registros de ${usuario.nombre}`;
 
-        showLoading('Obteniendo vehículos y citas del usuario...');
+        Swal.fire({
+            title: 'Cargando información',
+            html: 'Obteniendo vehículos y citas del usuario...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
 
         fetch(`/admin/usuarios/${usuarioId}/registros`)
-            .then(handleResponse)
+            .then(response => {
+                if (!response.ok) throw new Error('Error al cargar registros');
+                return response.json();
+            })
             .then(data => {
                 Swal.close();
                 mostrarVehiculos(data.vehiculos);
@@ -1298,7 +1387,8 @@
                 switchTab('vehiculos');
             })
             .catch(error => {
-                handleError(error, 'No se pudieron cargar los registros del usuario');
+                Swal.fire('Error', 'No se pudieron cargar los registros del usuario', 'error');
+                console.error('Error:', error);
             });
     }
 
@@ -1358,23 +1448,17 @@
                 <td>${new Date(cita.fecha_hora).toLocaleDateString()}</td>
                 <td>${new Date(cita.fecha_hora).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
                 <td>
-                    ${getStatusBadge(cita.estado)}
+                    ${cita.estado === 'pendiente' ? 
+                        '<span class="badge badge-warning">Pendiente</span>' : 
+                     cita.estado === 'completada' ? 
+                        '<span class="badge badge-success">Completada</span>' : 
+                        '<span class="badge badge-danger">Cancelada</span>'}
                 </td>
                 <td>${servicios}</td>
                 <td>$${total.toFixed(2)}</td>
             `;
             citasBody.appendChild(row);
         });
-    }
-
-    function getStatusBadge(estado) {
-        const badges = {
-            'pendiente': ['badge-warning', 'Pendiente'],
-            'completada': ['badge-success', 'Completada'],
-            'cancelada': ['badge-danger', 'Cancelada']
-        };
-        const [badgeClass, text] = badges[estado] || ['badge-secondary', 'Desconocido'];
-        return `<span class="badge ${badgeClass}">${text}</span>`;
     }
 
     function switchTab(tabName) {
@@ -1387,105 +1471,27 @@
             btn.style.color = 'var(--text-secondary)';
         });
 
-        const contentId = `${tabName}Content`;
-        const tabId = `${tabName}Tab`;
-        
-        document.getElementById(contentId).style.display = 'block';
-        document.getElementById(tabId).style.borderBottom = '2px solid var(--primary)';
-        document.getElementById(tabId).style.color = 'var(--text-primary)';
+        if (tabName === 'vehiculos') {
+            document.getElementById('vehiculosContent').style.display = 'block';
+            document.getElementById('vehiculosTab').style.borderBottom = '2px solid var(--primary)';
+            document.getElementById('vehiculosTab').style.color = 'var(--text-primary)';
+        } else {
+            document.getElementById('citasContent').style.display = 'block';
+            document.getElementById('citasTab').style.borderBottom = '2px solid var(--primary)';
+            document.getElementById('citasTab').style.color = 'var(--text-primary)';
+        }
     }
 
     // =============================================
-    // MANEJO DE FORMULARIO
-    // =============================================
-
-    function handleUsuarioFormSubmit(e) {
-        e.preventDefault();
-        const form = e.target;
-        const disabledFields = form.querySelectorAll('[disabled]');
-        disabledFields.forEach(field => field.disabled = false);
-
-        const formData = new FormData(form);
-        const usuarioId = formData.get('id');
-        const method = usuarioId ? 'PUT' : 'POST';
-        const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
-
-        fetch(url, {
-            method: method,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-            },
-            body: formData
-        })
-        .then(response => {
-            disabledFields.forEach(field => field.disabled = true);
-            if (!response.ok) return response.json().then(err => { throw err; });
-            return response.json();
-        })
-        .then(data => {
-            showSuccess(usuarioId ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente');
-            closeModal('usuarioModal');
-            location.reload();
-        })
-        .catch(error => {
-            handleFormError(error);
-        });
-    }
-
-    // =============================================
-    // FUNCIONES DE MANEJO DE RESPUESTAS
-    // =============================================
-
-    function handleResponse(response) {
-        if (!response.ok) throw new Error('Error en la respuesta del servidor');
-        return response.json();
-    }
-
-    function handleError(error, customMessage = '') {
-        console.error('Error:', error);
-        const message = customMessage || error.message || 'Ocurrió un error';
-        Swal.fire('Error', message, 'error');
-    }
-
-    function handleFormError(error) {
-        console.error('Error:', error);
-        let errorMessage = 'Ocurrió un error al procesar la solicitud';
-        if (error.errors) errorMessage = Object.values(error.errors).join('\n');
-        else if (error.message) errorMessage = error.message;
-        Swal.fire('Error', errorMessage, 'error');
-    }
-
-    function showLoading(message = 'Cargando...') {
-        Swal.fire({
-            title: 'Cargando información',
-            html: message,
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-    }
-
-    function showSuccess(message) {
-        Swal.fire('¡Éxito!', message, 'success');
-    }
-
-    function showError(message) {
-        Swal.fire('Error', message, 'error');
-    }
-
-    // =============================================
-    // INICIALIZACIÓN
+    // INICIALIZACIÓN (ORIGINAL)
     // =============================================
     document.addEventListener('DOMContentLoaded', function() {
-        // Cargar datos iniciales
         fetchAllUsers();
 
-        // Configurar eventos de filtrado
         document.getElementById('searchInput').addEventListener('keyup', filterTable);
         document.getElementById('roleFilter').addEventListener('change', filterTable);
         document.getElementById('statusFilter').addEventListener('change', filterTable);
 
-        // Configurar evento del formulario
         const usuarioForm = document.getElementById('usuarioForm');
         if (usuarioForm) {
             usuarioForm.addEventListener('submit', handleUsuarioFormSubmit);
