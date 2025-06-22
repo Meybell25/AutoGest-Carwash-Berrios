@@ -934,6 +934,15 @@
             animation: modalSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        #usuarioModal .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #usuarioModal {
+            overflow: hidden;
+        }
+
         @keyframes modalSlideIn {
             from {
                 opacity: 0;
@@ -1788,9 +1797,13 @@
             }
 
             #usuarioModal .modal-content {
-                width: 90%;
-                margin: 5% auto;
-                padding: 20px;
+                max-height: 85vh;
+                width: 95%;
+                margin: 2% auto;
+            }
+
+            #usuarioForm {
+                min-height: min-content;
             }
         }
 
@@ -1952,6 +1965,31 @@
 
             .header-actions .btn i {
                 margin-right: 5px;
+            }
+
+            #usuarioModal {
+                align-items: flex-start;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+
+            #usuarioModal .modal-content {
+                max-height: 95vh;
+                margin-top: 10px;
+            }
+
+            #usuarioModal input,
+            #usuarioModal select,
+            #usuarioModal textarea {
+                font-size: 16px;
+            }
+
+            #usuarioModal .form-group {
+                margin-bottom: 15px;
+            }
+
+            #usuarioModal .password-requirements {
+                columns: 1;
             }
         }
 
@@ -3131,89 +3169,92 @@
 
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal">
-        <div class="modal-content" style="max-width: 600px; width: 90%;">
+        <div class="modal-content" style="max-width: 600px; width: 90%; max-height: 90vh;">
             <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
-            <h2 style="color: var(--primary); margin-bottom: 20px;">
+            <h2
+                style="color: var(--primary); margin-bottom: 20px; position: sticky; top: 0; background: white; padding: 10px 0; z-index: 10;">
                 <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
             </h2>
-            <form id="usuarioForm">
-                @csrf
-                <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-                    <div class="form-group">
-                        <label for="nombre">Nombre Completo:</label>
-                        <input type="text" id="nombre" name="nombre" required class="form-control"
-                            placeholder="Nombre del usuario">
+            <div style="overflow-y: auto; max-height: calc(90vh - 100px);">
+                <form id="usuarioForm">
+                    @csrf
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                        <div class="form-group">
+                            <label for="nombre">Nombre Completo:</label>
+                            <input type="text" id="nombre" name="nombre" required class="form-control"
+                                placeholder="Nombre del usuario">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico:</label>
+                            <input type="email" id="email" name="email" required class="form-control"
+                                placeholder="ejemplo@correo.com">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="email">Correo Electrónico:</label>
-                        <input type="email" id="email" name="email" required class="form-control"
-                            placeholder="ejemplo@correo.com">
-                    </div>
-                </div>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="tel" id="telefono" name="telefono" class="form-control"
-                            placeholder="12345678" pattern="[0-9]{8}" maxlength="8"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="telefono">Teléfono:</label>
+                            <input type="tel" id="telefono" name="telefono" class="form-control"
+                                placeholder="12345678" pattern="[0-9]{8}" maxlength="8"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        </div>
+                        <div class="form-group">
+                            <label for="rol">Rol:</label>
+                            <select id="rol" name="rol" class="form-control" required>
+                                <option value="cliente">Cliente</option>
+                                <option value="empleado">Empleado</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
                     </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="password">Contraseña:</label>
+                            <div class="password-input-container">
+                                <input type="password" id="password" name="password" required
+                                    class="form-control password-input" placeholder="Mínimo 8 caracteres"
+                                    style="padding-right: 40px;">
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('password', 'eyeIconPass')" style="right: 12px;">
+                                    <i id="eyeIconPass" class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-requirements" style="margin-top: 10px;">
+                                <ul style="columns: 2; column-gap: 20px;">
+                                    <li id="req-length">Mínimo 8 caracteres</li>
+                                    <li id="req-uppercase">1 letra mayúscula</li>
+                                    <li id="req-lowercase">1 letra minúscula</li>
+                                    <li id="req-number">1 número</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password_confirmation">Confirmar Contraseña:</label>
+                            <div class="password-input-container">
+                                <input type="password" id="password_confirmation" name="password_confirmation"
+                                    required class="form-control password-input" placeholder="Confirma tu contraseña">
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('password_confirmation', 'eyeIconConfirm')">
+                                    <i id="eyeIconConfirm" class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="rol">Rol:</label>
-                        <select id="rol" name="rol" class="form-control" required>
-                            <option value="cliente">Cliente</option>
-                            <option value="empleado">Empleado</option>
-                            <option value="admin">Administrador</option>
+                        <label for="estado">Estado:</label>
+                        <select id="estado" name="estado" class="form-control">
+                            <option value="1" selected>Activo</option>
+                            <option value="0">Inactivo</option>
                         </select>
                     </div>
-                </div>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="password">Contraseña:</label>
-                        <div class="password-input-container">
-                            <input type="password" id="password" name="password" required
-                                class="form-control password-input" placeholder="Mínimo 8 caracteres"
-                                style="padding-right: 40px;">
-                            <button type="button" class="password-toggle"
-                                onclick="togglePassword('password', 'eyeIconPass')" style="right: 12px;">
-                                <i id="eyeIconPass" class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <div class="password-requirements" style="margin-top: 10px;">
-                            <ul style="columns: 2; column-gap: 20px;">
-                                <li id="req-length">Mínimo 8 caracteres</li>
-                                <li id="req-uppercase">1 letra mayúscula</li>
-                                <li id="req-lowercase">1 letra minúscula</li>
-                                <li id="req-number">1 número</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="password_confirmation">Confirmar Contraseña:</label>
-                        <div class="password-input-container">
-                            <input type="password" id="password_confirmation" name="password_confirmation" required
-                                class="form-control password-input" placeholder="Confirma tu contraseña">
-                            <button type="button" class="password-toggle"
-                                onclick="togglePassword('password_confirmation', 'eyeIconConfirm')">
-                                <i id="eyeIconConfirm" class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="estado">Estado:</label>
-                    <select id="estado" name="estado" class="form-control">
-                        <option value="1" selected>Activo</option>
-                        <option value="0">Inactivo</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-save"></i> Crear Usuario
-                </button>
-            </form>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-save"></i> Crear Usuario
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -3284,6 +3325,17 @@
 
         // Variables globales para gráficos
         let usuariosChart, ingresosChart, citasChart, serviciosChart;
+
+        document.querySelectorAll('#usuarioModal input, #usuarioModal select').forEach(el => {
+            el.addEventListener('focus', function() {
+                setTimeout(() => {
+                    this.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }, 300);
+            });
+        });
 
         // =============================================
         // FUNCIONES DE USUARIO Y VALIDACIÓN
