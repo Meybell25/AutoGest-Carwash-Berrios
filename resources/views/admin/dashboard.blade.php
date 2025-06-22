@@ -1087,6 +1087,7 @@
         }
 
         /* Estilos para la validación de contraseña */
+        /* Estilos para la validación de contraseña */
         .password-requirements {
             margin-top: 0.5rem;
         }
@@ -1166,6 +1167,11 @@
         .toggle-password:hover {
             color: var(--primary);
         }
+
+        .text-muted {
+            color: #6c757d;
+        }
+
 
         /* ======================
    RESPONSIVE DESIGN
@@ -3556,7 +3562,22 @@
         // =============================================
         // Función para inicializar validaciones del formulario de usuario
         function initUsuarioFormValidation() {
-            // Función para mostrar/ocultar contraseñas
+            // Función para inicializar los campos de contraseña
+            function initPasswordFields() {
+                // Resetear todos los estados al abrir el modal
+                document.getElementById('usuario_password-strength-bar').style.width = '0%';
+                document.getElementById('usuario_password-strength-text').textContent = 'Seguridad de la contraseña';
+                document.getElementById('usuario_password-strength-text').className = 'text-muted';
+
+                // Resetear requisitos
+                document.querySelectorAll('.password-requirements li').forEach(li => {
+                    li.className = 'text-gray-400';
+                });
+
+                // Ocultar mensaje de error
+                document.getElementById('password-match-error').classList.add('hidden');
+            }
+
             // Función para mostrar/ocultar contraseñas
             function togglePassword(fieldId, iconId) {
                 const field = document.getElementById(fieldId);
@@ -3573,14 +3594,13 @@
                 }
             }
 
-
             // Asignar evento a los botones de mostrar/ocultar contraseña
             document.getElementById('usuario_password_icon').parentNode.addEventListener('click', function() {
-                togglePassword('usuario_password');
+                togglePassword('usuario_password', 'usuario_password_icon');
             });
 
             document.getElementById('usuario_password_confirmation_icon').parentNode.addEventListener('click', function() {
-                togglePassword('usuario_password_confirmation');
+                togglePassword('usuario_password_confirmation', 'usuario_password_confirmation_icon');
             });
 
             // Validación de nombre (solo letras y espacios)
@@ -3641,39 +3661,62 @@
                 const hasNumber = /\d/.test(password);
 
                 // Actualizar lista de requisitos
-                document.getElementById('req-length').className = hasMinLength ? 'text-green-500' : 'text-gray-400';
-                document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' :
-                    'text-gray-400';
-                document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' :
-                    'text-gray-400';
-                document.getElementById('req-number').className = hasNumber ? 'text-green-500' : 'text-gray-400';
+                document.getElementById('req-length').className = password.length > 0 ?
+                    (hasMinLength ? 'text-green-500' : 'text-gray-400') : 'text-gray-400';
+                document.getElementById('req-uppercase').className = password.length > 0 ?
+                    (hasUpperCase ? 'text-green-500' : 'text-gray-400') : 'text-gray-400';
+                document.getElementById('req-lowercase').className = password.length > 0 ?
+                    (hasLowerCase ? 'text-green-500' : 'text-gray-400') : 'text-gray-400';
+                document.getElementById('req-number').className = password.length > 0 ?
+                    (hasNumber ? 'text-green-500' : 'text-gray-400') : 'text-gray-400';
 
-                // Calcular fortaleza
-                const strength = calculatePasswordStrength(password);
-                const strengthBar = document.getElementById('usuario_password-strength-bar');
-                const strengthText = document.getElementById('usuario_password-strength-text');
+                // Calcular fortaleza solo si hay contenido
+                if (password.length > 0) {
+                    const strength = calculatePasswordStrength(password);
+                    const strengthBar = document.getElementById('usuario_password-strength-bar');
+                    const strengthText = document.getElementById('usuario_password-strength-text');
 
-                strengthBar.style.width = strength.percentage + '%';
-                strengthBar.className = 'progress-bar ' + strength.class;
-                strengthText.textContent = strength.text;
-                strengthText.className = strength.textClass;
+                    strengthBar.style.width = strength.percentage + '%';
+                    strengthBar.className = 'progress-bar ' + strength.class;
+                    strengthText.textContent = strength.text;
+                    strengthText.className = strength.textClass;
+                } else {
+                    // Resetear si está vacío
+                    document.getElementById('usuario_password-strength-bar').style.width = '0%';
+                    document.getElementById('usuario_password-strength-text').textContent =
+                        'Seguridad de la contraseña';
+                    document.getElementById('usuario_password-strength-text').className = 'text-muted';
+                }
 
                 // Validar coincidencia si hay confirmación
-                if (document.getElementById('usuario_password_confirmation').value) {
+                if (confirmPassword.length > 0) {
                     validatePasswordMatch();
                 }
             });
 
             // Validación en tiempo real de confirmación de contraseña
-            document.getElementById('usuario_password_confirmation')?.addEventListener('input', validatePasswordMatch);
+            document.getElementById('usuario_password_confirmation')?.addEventListener('input', function() {
+                // Solo validar si hay contenido en ambos campos
+                const password = document.getElementById('usuario_password').value;
+                if (password.length > 0 && this.value.length > 0) {
+                    validatePasswordMatch();
+                } else {
+                    // Ocultar mensaje de error si un campo está vacío
+                    document.getElementById('password-match-error').classList.add('hidden');
+                }
+            });
 
             function validatePasswordMatch() {
                 const password = document.getElementById('usuario_password').value;
                 const confirmPassword = document.getElementById('usuario_password_confirmation').value;
                 const errorMsg = document.getElementById('password-match-error');
 
-                if (confirmPassword.length > 0 && password !== confirmPassword) {
-                    errorMsg.classList.remove('hidden');
+                if (password.length > 0 && confirmPassword.length > 0) {
+                    if (password !== confirmPassword) {
+                        errorMsg.classList.remove('hidden');
+                    } else {
+                        errorMsg.classList.add('hidden');
+                    }
                 } else {
                     errorMsg.classList.add('hidden');
                 }
@@ -3874,6 +3917,11 @@
             }
         }
 
+        // Modificar la función para mostrar el modal de usuario
+        function mostrarModalUsuario() {
+            initPasswordFields(); // Inicializar estados de contraseña
+            document.getElementById('usuarioModal').style.display = 'flex';
+        }
 
         // Formulario de perfil
         document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
