@@ -3502,7 +3502,7 @@
         });
 
 
-        // Formulario de perfil
+        // Perfil de usuario
         document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -3529,7 +3529,19 @@
                         icon: 'success',
                         title: 'Perfil actualizado correctamente'
                     });
+
+                    // ACTUALIZACIÓN DEL SIDEBAR 
+                    // 1. Actualizar el nombre en el perfil
+                    const profileName = document.querySelector('.profile-name');
+                    if (profileName) profileName.textContent = formData.nombre;
+
+                    // 2. Actualizar el teléfono en el perfil
+                    const profilePhone = document.querySelector('.profile-info-item:nth-child(2) span');
+                    if (profilePhone) profilePhone.textContent = formData.telefono || 'No especificado';
+
+                    // Cerrar el modal
                     closeModal('perfilModal');
+
                 } else {
                     throw new Error(data.message || 'Error al actualizar el perfil');
                 }
