@@ -278,11 +278,12 @@
         }
 
         .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: flex-end;
+            background-color: white;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-top: 15px;
+            /* Espacio adicional */
         }
 
         /* ======================
@@ -1823,7 +1824,7 @@
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             }
         }
-    
+
 
         @media (max-width: 576px) {
             .dashboard-container {
