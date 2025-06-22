@@ -871,21 +871,52 @@
             }
 
             .sidebar-section {
-                display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 25px;
             }
+
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 10px;
+            }
         }
 
+        @media (max-width: 992px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .next-appointment {
+                flex-direction: column;
+            }
+
+            .date-badge {
+                margin-bottom: 10px;
+            }
+        }
+
+
         @media (max-width: 768px) {
+            .welcome-section {
+                text-align: center;
+            }
+
+            .welcome-section h1 {
+                align-items: center;
+            }
+
             .dashboard-container {
-                width: 100%;
-                padding: 10px;
-                box-sizing: border-box;
+                padding: 15px;
             }
 
             .header {
-                padding: 15px 20px;
+                padding: 20px;
             }
 
             .dashboard-grid {
@@ -898,22 +929,11 @@
                 text-align: center;
             }
 
-            .welcome-section h1 {
-                font-size: 2rem;
-                flex-direction: column;
-                gap: 10px;
-            }
-
             .welcome-stats {
                 justify-content: center;
                 flex-wrap: wrap;
             }
 
-            .header-actions {
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
 
             .btn {
                 flex: 1;
@@ -929,17 +949,6 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
-            }
-
-            .service-history-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .service-price {
-                text-align: left;
-                margin-top: 10px;
             }
 
             .card {
@@ -963,6 +972,107 @@
             .service-card[style*="text-align: left"] .btn-sm {
                 width: 100%;
                 margin-bottom: 5px;
+            }
+
+            .welcome-section h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .welcome-icon {
+                margin-bottom: 10px;
+            }
+
+            .header-actions {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .service-history-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .service-price {
+                margin-top: 10px;
+                align-self: flex-end;
+            }
+
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .service-card {
+                text-align: center;
+                padding: 20px 15px;
+            }
+
+            .service-card .btn {
+                width: 100%;
+            }
+
+            .notification-item {
+                padding: 12px;
+            }
+
+            .notification-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+
+            .header-actions {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 576px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .appointment-actions {
+                flex-direction: column;
+            }
+
+            .appointment-actions .btn {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .welcome-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .notification-item {
+                flex-direction: column;
+            }
+
+            .notification-time {
+                margin-top: 5px;
+                align-self: flex-start;
+            }
+
+            .service-history-item {
+                padding: 12px;
+            }
+
+            .service-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .service-card[style*="text-align: left"] {
+                text-align: center;
             }
         }
 
@@ -1022,6 +1132,31 @@
                 grid-template-columns: 1fr;
             }
 
+        }
+
+        @media (max-width: 400px) {
+            .dashboard-container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .card-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .card-header .icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .date-badge {
+                min-width: 70px;
+                padding: 8px 12px;
+            }
         }
 
         @media (max-width: 360px) {
@@ -1525,7 +1660,7 @@
                             Próximas Citas
                         </h2>
                     </div>
-                     <div class="card-body" >
+                    <div class="card-body">
                         @if (isset($mis_citas) && count($mis_citas) > 0)
                             <!-- Próxima cita destacada -->
                             @php $nextAppointment = $mis_citas->first(); @endphp
@@ -1947,7 +2082,8 @@
                                 <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
                             </div>
                         @endif
-                         <button type="button" id="openVehiculoBtn" class="btn btn-outline" style="width: 100%; margin-top: 10px;" onclick="openVehiculoModal()">
+                        <button type="button" id="openVehiculoBtn" class="btn btn-outline"
+                            style="width: 100%; margin-top: 10px;" onclick="openVehiculoModal()">
                             <i class="fas fa-plus"></i>
                             Agregar Vehículo
                         </button>
@@ -2005,25 +2141,25 @@
     <div id="vehiculoModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeVehiculoModal()">&times;</span>
-             <h2 style="color: #4facfe; margin-bottom: 20px;">
+            <h2 style="color: #4facfe; margin-bottom: 20px;">
                 <i class="fas fa-car"></i> Nuevo Vehículo
             </h2>
 
-             <form id="vehiculoForm" action="{{ route('vehiculos.store') }}" method="POST">
+            <form id="vehiculoForm" action="{{ route('vehiculos.store') }}" method="POST">
                 @csrf
 
                 <div class="form-group">
-                     <label for="marca">Marca</label>
-                    <input type="text" id="marca" name="marca" required>   
+                    <label for="marca">Marca</label>
+                    <input type="text" id="marca" name="marca" required>
                 </div>
 
-               <div class="form-group">
-                  <label for="modelo">Modelo</label>
-                   <input type="text" id="modelo" name="modelo" required>      
+                <div class="form-group">
+                    <label for="modelo">Modelo</label>
+                    <input type="text" id="modelo" name="modelo" required>
                 </div>
 
 
-               <div class="form-group">
+                <div class="form-group">
                     <label for="tipo">Tipo</label>
                     <select id="tipo" name="tipo" required>
                         <option value="">Seleccione</option>
@@ -2040,10 +2176,10 @@
                     <input type="text" id="color" name="color" required>
                 </div>
 
-             <div class="form-group">
+                <div class="form-group">
                     <label for="descripcion">Descripción</label>
                     <textarea id="descripcion" name="descripcion" rows="3"></textarea>
-             </div>
+                </div>
 
                 <div class="form-group">
                     <label for="placa">Placa</label>
@@ -2275,11 +2411,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                <tr>
-                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                </tr>
-                                                                                                                                                            `).join('')}
+                                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                                                                                                    <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -2413,61 +2549,65 @@
     </script>
 
 
- @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('vehiculoForm');
-            form?.addEventListener('submit', async function (e) {
-                e.preventDefault();
-                const formData = new FormData(form);
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('vehiculoForm');
+                form?.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    try {
+                        const resp = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: formData
+                        });
+                        const data = await resp.json();
+                        if (!resp.ok) throw new Error(data.message || 'Error');
+
+                        localStorage.setItem('vehiculoActualizado', Date.now());
+                        form.reset();
+                        closeVehiculoModal();
+                        await actualizarMisVehiculos();
+                        swalWithBootstrapButtons.fire({
+                            title: '¡Éxito!',
+                            text: 'Vehículo guardado correctamente',
+                            icon: 'success'
+                        });
+                    } catch (error) {
+                        swalWithBootstrapButtons.fire({
+                            title: 'Error',
+                            text: error.message || 'Error al guardar el vehículo',
+                            icon: 'error'
+                        });
+                    }
+                });
+
+                window.addEventListener('storage', function(e) {
+                    if (e.key === 'vehiculoActualizado') {
+                        actualizarMisVehiculos();
+                    }
+                });
+            });
+
+            async function actualizarMisVehiculos() {
                 try {
-                    const resp = await fetch(form.action, {
-                        method: 'POST',
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                        body: formData
-                    });
-                    const data = await resp.json();
-                    if (!resp.ok) throw new Error(data.message || 'Error');
+                    const response = await fetch('{{ route('cliente.mis-vehiculos-ajax') }}');
+                    const data = await response.json();
+                    const container = document.getElementById('misVehiculosContainer');
+                    if (!container) return;
 
-                    localStorage.setItem('vehiculoActualizado', Date.now());
-                    form.reset();
-                    closeVehiculoModal();
-                    await actualizarMisVehiculos();
-                    swalWithBootstrapButtons.fire({
-                        title: '¡Éxito!',
-                        text: 'Vehículo guardado correctamente',
-                        icon: 'success'
-                    });
-                } catch (error) {
-                    swalWithBootstrapButtons.fire({
-                        title: 'Error',
-                        text: error.message || 'Error al guardar el vehículo',
-                        icon: 'error'
-                    });
-                }
-            });
+                    if (data.vehiculos.length > 0) {
+                        container.innerHTML = '';
+                        data.vehiculos.forEach(v => {
+                            let icon = 'car';
+                            if (v.tipo === 'pickup') icon = 'truck-pickup';
+                            else if (v.tipo === 'camion') icon = 'truck';
+                            else if (v.tipo === 'moto') icon = 'motorcycle';
 
-            window.addEventListener('storage', function(e){
-                if(e.key === 'vehiculoActualizado'){ actualizarMisVehiculos(); }
-            });
-        });
-
-        async function actualizarMisVehiculos() {
-            try {
-                const response = await fetch('{{ route('cliente.mis-vehiculos-ajax') }}');
-                const data = await response.json();
-                const container = document.getElementById('misVehiculosContainer');
-                if (!container) return;
-
-                if (data.vehiculos.length > 0) {
-                    container.innerHTML = '';
-                    data.vehiculos.forEach(v => {
-                        let icon = 'car';
-                        if (v.tipo === 'pickup') icon = 'truck-pickup';
-                        else if (v.tipo === 'camion') icon = 'truck';
-                        else if (v.tipo === 'moto') icon = 'motorcycle';
-
-                        container.innerHTML += `
+                            container.innerHTML += `
                             <div class="service-history-item" style="margin-bottom: 15px;">
                                 <div class="service-icon" style="background: var(--secondary-gradient);">
                                     <i class="fas fa-${icon}"></i>
@@ -2481,20 +2621,20 @@
                                     <i class="fas fa-calendar-plus"></i>
                                 </a>
                             </div>`;
-                    });
-                } else {
-                    container.innerHTML = `
+                        });
+                    } else {
+                        container.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-car"></i>
                             <h3>No tienes vehículos registrados</h3>
                             <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
                         </div>`;
+                    }
+                } catch (err) {
+                    console.error('Error al actualizar vehiculos', err);
                 }
-            } catch (err) {
-                console.error('Error al actualizar vehiculos', err);
             }
-        }
-    </script>
+        </script>
     @endpush
 
 
