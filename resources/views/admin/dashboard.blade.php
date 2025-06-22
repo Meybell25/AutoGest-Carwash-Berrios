@@ -3561,8 +3561,25 @@
         });
 
         // =============================================
-        // FORMUALRIO DE CREACION DE USUARIOS DESDE ADMIN
+        // FORMULARIO DE CREACION DE USUARIOS DESDE ADMIN
         // =============================================
+
+        // Función para mostrar/ocultar contraseñas
+        function togglePassword(fieldId, iconId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         // Función para inicializar validaciones del formulario de usuario
         function initUsuarioFormValidation() {
             // Función para inicializar los campos de contraseña
@@ -3580,31 +3597,6 @@
                 // Ocultar mensaje de error
                 document.getElementById('password-match-error').classList.add('hidden');
             }
-
-            // Función para mostrar/ocultar contraseñas
-            function togglePassword(fieldId, iconId) {
-                const field = document.getElementById(fieldId);
-                const icon = document.getElementById(iconId);
-
-                if (field.type === 'password') {
-                    field.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    field.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            }
-
-            // Asignar evento a los botones de mostrar/ocultar contraseña
-            document.getElementById('usuario_password_icon').parentNode.addEventListener('click', function() {
-                togglePassword('usuario_password', 'usuario_password_icon');
-            });
-
-            document.getElementById('usuario_password_confirmation_icon').parentNode.addEventListener('click', function() {
-                togglePassword('usuario_password_confirmation', 'usuario_password_confirmation_icon');
-            });
 
             // Validación de nombre (solo letras y espacios)
             document.getElementById('usuario_nombre').addEventListener('input', function() {
@@ -3663,15 +3655,22 @@
                 const hasLowerCase = /[a-z]/.test(password);
                 const hasNumber = /\d/.test(password);
 
-                // Actualizar lista de requisitos
-                document.getElementById('req-length').className = password.length > 0 ?
-                    (hasMinLength ? 'text-green-500' : 'text-gray-400') : 'text-gray-400';
-                document.getElementById('req-uppercase').className = password.length > 0 ?
-                    (hasUpperCase ? 'text-green-500' : 'text-gray-400') : 'text-gray-400';
-                document.getElementById('req-lowercase').className = password.length > 0 ?
-                    (hasLowerCase ? 'text-green-500' : 'text-gray-400') : 'text-gray-400';
-                document.getElementById('req-number').className = password.length > 0 ?
-                    (hasNumber ? 'text-green-500' : 'text-gray-400') : 'text-gray-400';
+                // Actualizar lista de requisitos solo si hay contenido
+                if (password.length > 0) {
+                    document.getElementById('req-length').className = hasMinLength ? 'text-green-500' :
+                        'text-gray-400';
+                    document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' :
+                        'text-gray-400';
+                    document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' :
+                        'text-gray-400';
+                    document.getElementById('req-number').className = hasNumber ? 'text-green-500' :
+                    'text-gray-400';
+                } else {
+                    // Resetear requisitos si está vacío
+                    document.querySelectorAll('.password-requirements li').forEach(li => {
+                        li.className = 'text-gray-400';
+                    });
+                }
 
                 // Calcular fortaleza solo si hay contenido
                 if (password.length > 0) {
@@ -3693,35 +3692,36 @@
 
                 // Validar coincidencia si hay confirmación
                 if (confirmPassword.length > 0) {
-                    validatePasswordMatch();
+                    validateUsuarioPasswordMatch();
                 }
             });
 
             // Validación en tiempo real de confirmación de contraseña
             document.getElementById('usuario_password_confirmation')?.addEventListener('input', function() {
-                // Solo validar si hay contenido en ambos campos
-                const password = document.getElementById('usuario_password').value;
-                if (password.length > 0 && this.value.length > 0) {
-                    validatePasswordMatch();
-                } else {
-                    // Ocultar mensaje de error si un campo está vacío
-                    document.getElementById('password-match-error').classList.add('hidden');
-                }
+                // Validar coincidencia inmediatamente
+                validateUsuarioPasswordMatch();
             });
 
-            function validatePasswordMatch() {
+            // Función para validar coincidencia de contraseñas
+            function validateUsuarioPasswordMatch() {
                 const password = document.getElementById('usuario_password').value;
                 const confirmPassword = document.getElementById('usuario_password_confirmation').value;
                 const errorMsg = document.getElementById('password-match-error');
 
+                // Solo mostrar error si ambos campos tienen contenido
                 if (password.length > 0 && confirmPassword.length > 0) {
                     if (password !== confirmPassword) {
                         errorMsg.classList.remove('hidden');
+                        errorMsg.textContent = 'Las contraseñas no coinciden';
+                        document.getElementById('usuario_password_confirmation').classList.add('is-invalid');
                     } else {
                         errorMsg.classList.add('hidden');
+                        document.getElementById('usuario_password_confirmation').classList.remove('is-invalid');
                     }
-                } else {
+                } else if (confirmPassword.length === 0) {
+                    // Si el campo de confirmación está vacío, ocultar error
                     errorMsg.classList.add('hidden');
+                    document.getElementById('usuario_password_confirmation').classList.remove('is-invalid');
                 }
             }
 
@@ -3797,6 +3797,7 @@
                 const passwordConfirm = document.getElementById('usuario_password_confirmation');
                 if (password.value !== passwordConfirm.value) {
                     passwordConfirm.classList.add('is-invalid');
+                    document.getElementById('password-match-error').classList.remove('hidden');
                     isValid = false;
                 }
 
@@ -3813,20 +3814,9 @@
                 // Si todo está bien, proceder con el envío
                 crearUsuario();
             });
-        }
 
-        // Función para actualizar el indicador de fortaleza de contraseña
-        function updatePasswordStrengthIndicator(password) {
-            const strength = calculatePasswordStrength(password);
-            const strengthBar = document.getElementById('usuario_password-strength-bar');
-            const strengthText = document.getElementById('usuario_password-strength-text');
-
-            if (strengthBar && strengthText) {
-                strengthBar.style.width = strength.percentage + '%';
-                strengthBar.className = 'progress-bar ' + strength.class;
-                strengthText.textContent = strength.text;
-                strengthText.className = strength.textClass;
-            }
+            // Inicializar campos de contraseña al cargar
+            initPasswordFields();
         }
 
         // Función para resetear el formulario de usuario al cerrar
@@ -3842,7 +3832,17 @@
                 });
 
                 // Resetear indicador de fortaleza
-                updatePasswordStrengthIndicator('');
+                document.getElementById('usuario_password-strength-bar').style.width = '0%';
+                document.getElementById('usuario_password-strength-text').textContent = 'Seguridad de la contraseña';
+                document.getElementById('usuario_password-strength-text').className = 'text-muted';
+
+                // Resetear requisitos
+                document.querySelectorAll('.password-requirements li').forEach(li => {
+                    li.className = 'text-gray-400';
+                });
+
+                // Ocultar mensaje de error
+                document.getElementById('password-match-error').classList.add('hidden');
             }
         }
 
@@ -3920,24 +3920,25 @@
             }
         }
 
-        // Modificar la función para mostrar el modal de usuario
+        // Función para mostrar el modal de usuario
         function mostrarModalUsuario() {
-            // Inicializar estados de contraseña
-            document.getElementById('usuario_password-strength-bar').style.width = '0%';
-            document.getElementById('usuario_password-strength-text').textContent = 'Seguridad de la contraseña';
-            document.getElementById('usuario_password-strength-text').className = 'text-muted';
-
-            // Resetear requisitos
-            document.querySelectorAll('.password-requirements li').forEach(li => {
-                li.className = 'text-gray-400';
-            });
-
-            // Ocultar mensaje de error
-            document.getElementById('password-match-error').classList.add('hidden');
+            // Resetear el formulario primero
+            resetUsuarioForm();
 
             // Mostrar el modal
             document.getElementById('usuarioModal').style.display = 'flex';
+
+            // Inicializar validaciones después de mostrar el modal
+            initUsuarioFormValidation();
         }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Solo inicializar si existe el modal
+            if (document.getElementById('usuarioModal')) {
+                initUsuarioFormValidation();
+            }
+        });
 
         // Formulario de perfil
         document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
