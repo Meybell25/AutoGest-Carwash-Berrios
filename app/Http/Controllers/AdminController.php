@@ -219,4 +219,76 @@ class AdminController extends Controller
     {
         return view('admin.reportes.index');
     }
+
+    /**
+ * Actualiza el perfil del administrador
+ */
+public function updateProfile(Request $request)
+{
+    $user = auth()->user();
+    
+    $validated = $request->validate([
+        'nombre' => 'required|string|max:255',
+        'telefono' => 'nullable|string|max:20',
+        'password' => 'nullable|string|min:8|confirmed'
+    ]);
+    
+    try {
+        $user->nombre = $validated['nombre'];
+        $user->telefono = $validated['telefono'];
+        
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+        
+        $user->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Perfil actualizado correctamente'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al actualizar el perfil: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * Almacena un nuevo usuario desde el panel de administración
+ */
+public function storeUser(Request $request)
+{
+    $validated = $request->validate([
+        'nombre' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:usuarios',
+        'telefono' => 'nullable|string|max:20',
+        'rol' => 'required|in:cliente,empleado,admin',
+        'password' => 'required|string|min:8|confirmed',
+        'estado' => 'required|boolean'
+    ]);
+    
+    try {
+        $user = Usuario::create([
+            'nombre' => $validated['nombre'],
+            'email' => $validated['email'],
+            'telefono' => $validated['telefono'],
+            'rol' => $validated['rol'],
+            'password' => Hash::make($validated['password']),
+            'estado' => $validated['estado']
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Usuario creado correctamente',
+            'user' => $user
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al crear usuario: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

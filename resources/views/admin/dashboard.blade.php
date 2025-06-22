@@ -2816,28 +2816,28 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="password">Contraseña:</label>
-                        <div class="relative">
-                            <input type="password" id="password" name="password" required class="form-control"
-                                placeholder="Mínimo 8 caracteres">
+                        <div class="password-input-container">
+                            <input type="password" id="password" name="password" required
+                                class="form-control password-input" placeholder="Mínimo 8 caracteres">
                             <button type="button" class="password-toggle"
                                 onclick="togglePassword('password', 'eyeIconPass')">
                                 <i id="eyeIconPass" class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="password-requirements text-xs text-gray-500 mt-1">
-                            <ul class="list-disc pl-5">
-                                <li id="req-length" class="text-gray-400">Mínimo 8 caracteres</li>
-                                <li id="req-uppercase" class="text-gray-400">1 letra mayúscula</li>
-                                <li id="req-lowercase" class="text-gray-400">1 letra minúscula</li>
-                                <li id="req-number" class="text-gray-400">1 número</li>
+                        <div class="password-requirements">
+                            <ul>
+                                <li id="req-length">Mínimo 8 caracteres</li>
+                                <li id="req-uppercase">1 letra mayúscula</li>
+                                <li id="req-lowercase">1 letra minúscula</li>
+                                <li id="req-number">1 número</li>
                             </ul>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="password_confirmation">Confirmar Contraseña:</label>
-                        <div class="relative">
+                        <div class="password-input-container">
                             <input type="password" id="password_confirmation" name="password_confirmation" required
-                                class="form-control" placeholder="Confirma tu contraseña">
+                                class="form-control password-input" placeholder="Confirma tu contraseña">
                             <button type="button" class="password-toggle"
                                 onclick="togglePassword('password_confirmation', 'eyeIconConfirm')">
                                 <i id="eyeIconConfirm" class="fas fa-eye"></i>
@@ -2932,6 +2932,22 @@
         // =============================================
         // FUNCIONES DE USUARIO Y VALIDACIÓN
         // =============================================
+
+        // Agrega esta función para alternar la visibilidad de contraseñas
+        function togglePassword(fieldId, iconId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+
+            if (field.type === "password") {
+                field.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                field.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
 
         function mostrarModalUsuario() {
             // Limpiar el formulario antes de mostrarlo
@@ -3491,16 +3507,32 @@
             e.preventDefault();
 
             const formData = {
-                nombre: document.getElementById('perfilNombre').value,
-                telefono: document.getElementById('perfilTelefono').value
+                nombre: document.getElementById('perfil_nombre').value,
+                telefono: document.getElementById('perfil_telefono').value,
+                _token: '{{ csrf_token() }}'
             };
 
+            const password = document.getElementById('perfil_password').value;
+            const passwordConfirmation = document.getElementById('perfil_password_confirmation').value;
+
+            if (password) {
+                if (password !== passwordConfirmation) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Las contraseñas no coinciden'
+                    });
+                    return;
+                }
+                formData.password = password;
+                formData.password_confirmation = passwordConfirmation;
+            }
+
             try {
-                const response = await fetch('{{ route('perfil.update') }}', {
+                const response = await fetch('{{ route('admin.perfil.update') }}', {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify(formData)
                 });
@@ -3513,7 +3545,7 @@
                         title: 'Perfil actualizado correctamente'
                     });
                     closeModal('perfilModal');
-                    await actualizarDatosDashboard();
+                    // Actualizar la UI si es necesario
                 } else {
                     throw new Error(data.message || 'Error al actualizar el perfil');
                 }
