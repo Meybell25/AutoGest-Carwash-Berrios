@@ -161,6 +161,11 @@
         }
 
         .btn-info {
+            background: rgba(2, 119, 189, 0.1);
+            color: var(--info);
+        }
+
+        .btn-info:hover {
             background: var(--info);
             color: white;
         }
@@ -388,6 +393,34 @@
             max-width: 150px;
         }
 
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 15px;
@@ -415,19 +448,32 @@
             }
 
             .table td {
-                padding-left: 40%;
+                padding-left: 50%;
                 position: relative;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
             }
 
             .table td:before {
                 content: attr(data-label);
                 position: absolute;
                 left: 15px;
-                width: 35%;
+                width: 45%;
                 padding-right: 10px;
-                white-space: nowrap;
                 font-weight: 600;
                 color: var(--primary);
+            }
+
+            .table-actions {
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .badge {
+                display: block;
+                width: fit-content;
+                margin-bottom: 5px;
             }
 
             .table-actions {
@@ -589,6 +635,10 @@
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             @endif
+                                            <button class="action-btn btn-info" title="Ver Registros"
+                                                onclick="mostrarRegistrosUsuario({{ $usuario->id }})">
+                                                <i class="fas fa-car"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -679,35 +729,38 @@
                     </div>
                 </div>
 
-                <div class="form-grid"
-                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div class="form-group">
-                        <label for="password"
-                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Contraseña</label>
-                        <div style="position: relative;">
-                            <input type="password" id="password" name="password" class="form-control"
-                                placeholder="Mínimo 8 caracteres" style="padding-right: 40px;">
-                            <button type="button" onclick="togglePassword('password')"
-                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
-                                <i class="fas fa-eye" id="passwordEye"></i>
-                            </button>
+                <div id="passwordFields" style="display: none;">
+                    <div class="form-grid"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="password"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Contraseña</label>
+                            <div style="position: relative;">
+                                <input type="password" id="password" name="password" class="form-control"
+                                    placeholder="Mínimo 8 caracteres" style="padding-right: 40px;">
+                                <button type="button" onclick="togglePassword('password')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                                    <i class="fas fa-eye" id="passwordEye"></i>
+                                </button>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                                Requisitos: 8+ caracteres, mayúscula, minúscula, número
+                            </div>
                         </div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
-                            Requisitos: 8+ caracteres, mayúscula, minúscula, número
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="password_confirmation"
-                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Confirmar
-                            Contraseña</label>
-                        <div style="position: relative;">
-                            <input type="password" id="password_confirmation" name="password_confirmation"
-                                class="form-control" placeholder="Repite la contraseña" style="padding-right: 40px;">
-                            <button type="button" onclick="togglePassword('password_confirmation')"
-                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
-                                <i class="fas fa-eye" id="passwordConfirmationEye"></i>
-                            </button>
+                        <div class="form-group">
+                            <label for="password_confirmation"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Confirmar
+                                Contraseña</label>
+                            <div style="position: relative;">
+                                <input type="password" id="password_confirmation" name="password_confirmation"
+                                    class="form-control" placeholder="Repite la contraseña"
+                                    style="padding-right: 40px;">
+                                <button type="button" onclick="togglePassword('password_confirmation')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                                    <i class="fas fa-eye" id="passwordConfirmationEye"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -725,6 +778,87 @@
                     <i class="fas fa-save"></i> Guardar Usuario
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal para ver registros del usuario (vehículos y citas) -->
+    <div id="registrosModal" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; position: relative;">
+            <span class="close-modal" onclick="closeModal('registrosModal')"
+                style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</span>
+
+            <h2 id="modalRegistrosTitle"
+                style="margin-bottom: 20px; font-size: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-car"></i>
+                <span id="modalRegistrosText">Registros del Usuario</span>
+            </h2>
+
+            <div class="tabs-container" style="margin-bottom: 20px;">
+                <div class="tabs" style="display: flex; border-bottom: 1px solid #eee;">
+                    <button id="vehiculosTab" class="tab-btn active" onclick="switchTab('vehiculos')"
+                        style="padding: 10px 20px; border: none; background: none; cursor: pointer; font-weight: 600; border-bottom: 2px solid var(--primary);">
+                        Vehículos
+                    </button>
+                    <button id="citasTab" class="tab-btn" onclick="switchTab('citas')"
+                        style="padding: 10px 20px; border: none; background: none; cursor: pointer; font-weight: 600; color: var(--text-secondary);">
+                        Citas
+                    </button>
+                </div>
+            </div>
+
+            <div id="vehiculosContent" class="tab-content">
+                <div class="empty-state" id="vehiculosEmpty" style="display: none;">
+                    <i class="fas fa-car-crash"></i>
+                    <h3>No hay vehículos registrados</h3>
+                    <p>Este usuario no tiene vehículos asociados</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table" id="vehiculosTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Placa</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Año</th>
+                                <th>Tipo</th>
+                                <th>Color</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vehiculosBody">
+                            <!-- Datos de vehículos se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="citasContent" class="tab-content" style="display: none;">
+                <div class="empty-state" id="citasEmpty" style="display: none;">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>No hay citas registradas</h3>
+                    <p>Este usuario no tiene citas asociadas</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table" id="citasTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Estado</th>
+                                <th>Servicios</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="citasBody">
+                            <!-- Datos de citas se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -750,6 +884,7 @@
                 title.textContent = 'Editar Usuario';
                 rolField.disabled = true;
                 emailField.disabled = true;
+                document.getElementById('passwordFields').style.display = 'none';
 
                 // Buscar el usuario en los datos cargados
                 const usuario = allUsersData.find(u => u.id == usuarioId);
@@ -804,6 +939,7 @@
                 rolField.value = 'cliente'; // Valor por defecto
                 document.getElementById('password').required = true;
                 document.getElementById('password_confirmation').required = true;
+                document.getElementById('passwordFields').style.display = 'block';
             }
 
             modal.style.display = 'flex';
@@ -818,46 +954,44 @@
         function confirmarEliminar(usuarioId) {
             Swal.fire({
                 title: '¿Eliminar este usuario?',
-                text: "Esta acción no se puede deshacer",
+                html: `<p>Esta acción solo es posible si:</p>
+               <ul>
+                 <li>El usuario está inactivo</li>
+                 <li>No tiene citas pendientes</li>
+               </ul>`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
+                confirmButtonText: 'Verificar y eliminar'
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch(`/admin/usuarios/${usuarioId}`, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
                                 'Content-Type': 'application/json'
-                            }
+                            },
+                            body: JSON.stringify({
+                                id: usuarioId
+                            }) // Envía el ID en el cuerpo
                         })
                         .then(response => {
-                            if (response.ok) {
-                                return response.json();
+                            if (!response.ok) {
+                                return response.json().then(err => {
+                                    throw err;
+                                });
                             }
-                            throw new Error('Error al eliminar el usuario');
+                            return response.json();
                         })
                         .then(data => {
-                            Swal.fire(
-                                '¡Eliminado!',
-                                'El usuario ha sido eliminado.',
-                                'success'
-                            ).then(() => {
-                                // Recargar la página para ver los cambios
+                            if (data.success) {
+                                Swal.fire('¡Eliminado!', data.message, 'success');
                                 location.reload();
-                            });
+                            } else {
+                                Swal.fire('Error', data.message, 'error');
+                            }
                         })
                         .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire(
-                                'Error',
-                                'No se pudo eliminar el usuario',
-                                'error'
-                            );
+                            Swal.fire('Error', error.message || 'Error al eliminar', 'error');
                         });
                 }
             });
@@ -885,93 +1019,76 @@
         }
 
         // Función para exportar a Excel
-        function exportToExcel() {
-            // Obtener los datos filtrados o todos los datos
-            const dataToExport = filteredUsers.length > 0 ? filteredUsers : allUsersData;
+        async function exportToExcel() {
+            try {
+                // Obtener TODOS los usuarios del servidor
+                const response = await fetch('/admin/usuarios/all?export=true');
+                const allUsers = await response.json();
 
-            // Preparar los datos para la exportación
-            const excelData = dataToExport.map(user => ({
-                'ID': user.id,
-                'Nombre': user.nombre,
-                'Email': user.email,
-                'Teléfono': user.telefono || 'N/A',
-                'Rol': user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' :
-                    'Cliente'),
-                'Estado': user.estado ? 'Activo' : 'Inactivo',
-                'Fecha Registro': new Date(user.created_at).toLocaleDateString()
-            }));
+                const excelData = allUsers.map(user => ({
+                    'ID': user.id,
+                    'Nombre': user.nombre,
+                    'Email': user.email,
+                    'Teléfono': user.telefono || 'N/A',
+                    'Rol': user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' :
+                        'Cliente'),
+                    'Estado': user.estado ? 'Activo' : 'Inactivo',
+                    'Registro': new Date(user.created_at).toLocaleDateString()
+                }));
 
-            // Crear libro de Excel
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(excelData);
-            XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
-
-            // Exportar el archivo
-            XLSX.writeFile(wb, `usuarios_${new Date().toISOString().slice(0,10)}.xlsx`);
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(excelData);
+                XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
+                XLSX.writeFile(wb, `usuarios_${new Date().toISOString().slice(0,10)}.xlsx`);
+            } catch (error) {
+                console.error('Error al exportar:', error);
+                Swal.fire('Error', 'No se pudo generar el archivo Excel', 'error');
+            }
         }
 
         // Función para exportar a PDF
-        function exportToPDF() {
-            // Obtener los datos filtrados o todos los datos
-            const dataToExport = filteredUsers.length > 0 ? filteredUsers : allUsersData;
+        async function exportToPDF() {
+            try {
+                const response = await fetch('/admin/usuarios/all?export=true');
+                const allUsers = await response.json();
 
-            // Preparar los datos para la exportación
-            const pdfData = dataToExport.map(user => [
-                user.id,
-                user.nombre,
-                user.email,
-                user.telefono || 'N/A',
-                user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' : 'Cliente'),
-                user.estado ? 'Activo' : 'Inactivo',
-                new Date(user.created_at).toLocaleDateString()
-            ]);
+                const pdfData = allUsers.map(user => [
+                    user.id,
+                    user.nombre,
+                    user.email,
+                    user.telefono || 'N/A',
+                    user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' : 'Cliente'),
+                    user.estado ? 'Activo' : 'Inactivo',
+                    new Date(user.created_at).toLocaleDateString()
+                ]);
 
-            // Crear PDF
-            const {
-                jsPDF
-            } = window.jspdf;
-            const doc = new jsPDF();
+                const {
+                    jsPDF
+                } = window.jspdf;
+                const doc = new jsPDF();
 
-            // Título
-            doc.setFontSize(18);
-            doc.text('Listado de Usuarios', 14, 15);
-            doc.setFontSize(12);
-            doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 22);
+                doc.setFontSize(18);
+                doc.text('Listado Completo de Usuarios', 14, 15);
+                doc.setFontSize(12);
+                doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 22);
 
-            // Tabla
-            doc.autoTable({
-                head: [
-                    ['ID', 'Nombre', 'Email', 'Teléfono', 'Rol', 'Estado', 'Registro']
-                ],
-                body: pdfData,
-                startY: 30,
-                styles: {
-                    fontSize: 8,
-                    cellPadding: 2,
-                    halign: 'left'
-                },
-                headStyles: {
-                    fillColor: [46, 125, 50],
-                    textColor: 255,
-                    fontSize: 9
-                }
-            });
+                doc.autoTable({
+                    head: [
+                        ['ID', 'Nombre', 'Email', 'Teléfono', 'Rol', 'Estado', 'Registro']
+                    ],
+                    body: pdfData,
+                    startY: 30,
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 2
+                    }
+                });
 
-            // Guardar PDF
-            doc.save(`usuarios_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-
-        // Funciones para selección múltiple
-        function toggleSelectAll() {
-            const selectAll = document.getElementById('selectAll').checked || document.getElementById('selectAllHeader')
-                .checked;
-            const checkboxes = document.querySelectorAll('.user-checkbox');
-
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAll;
-            });
-
-            updateSelectedCount();
+                doc.save(`usuarios_completo_${new Date().toISOString().slice(0,10)}.pdf`);
+            } catch (error) {
+                console.error('Error al exportar:', error);
+                Swal.fire('Error', 'No se pudo generar el archivo PDF', 'error');
+            }
         }
 
         function updateSelectedCount() {
@@ -1125,9 +1242,9 @@
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 ${user.rol != 'admin' ? `
-                                                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                        <i class="fas fa-trash"></i>
-                                                                    </button>` : ''}
+                                                                                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                <i class="fas fa-trash"></i>
+                                                                                                            </button>` : ''}
                             </div>
                         </td>
                     `;
@@ -1143,12 +1260,10 @@
                 try {
                     const response = await fetch('/admin/usuarios/all');
                     if (!response.ok) throw new Error('Error al cargar usuarios');
-
-                    const data = await response.json();
-                    allUsersData = data;
+                    allUsersData = await response.json();
+                    updateTableWithFilteredResults();
                 } catch (error) {
-                    console.error('Error al cargar todos los usuarios:', error);
-                    // Si falla, seguimos con los datos de la primera página
+                    console.error('Error:', error);
                     allUsersData = @json($usuarios->items());
                 }
             }
@@ -1223,6 +1338,158 @@
                 });
             }
         });
+
+
+        //===============================
+        //CODIGO PARA MODAL MOSTRAR INFORMACION DE UUSARIO
+        //===============================
+        // Función para mostrar los registros del usuario
+        function mostrarRegistrosUsuario(usuarioId) {
+            const modal = document.getElementById('registrosModal');
+            const usuario = allUsersData.find(u => u.id == usuarioId);
+
+            if (!usuario) {
+                Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
+                return;
+            }
+
+            // Actualizar título del modal
+            document.getElementById('modalRegistrosText').textContent = `Registros de ${usuario.nombre}`;
+
+            // Mostrar loading
+            Swal.fire({
+                title: 'Cargando información',
+                html: 'Obteniendo vehículos y citas del usuario...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Hacer petición para obtener los datos completos del usuario
+            fetch(`/admin/usuarios/${usuarioId}/registros`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al cargar registros');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    Swal.close();
+
+                    // Mostrar vehículos
+                    mostrarVehiculos(data.vehiculos);
+
+                    // Mostrar citas
+                    mostrarCitas(data.citas);
+
+                    // Mostrar modal
+                    modal.style.display = 'flex';
+
+                    // Activar pestaña de vehículos por defecto
+                    switchTab('vehiculos');
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'No se pudieron cargar los registros del usuario', 'error');
+                    console.error('Error:', error);
+                });
+        }
+
+        // Función para mostrar vehículos en la tabla
+        function mostrarVehiculos(vehiculos) {
+            const vehiculosBody = document.getElementById('vehiculosBody');
+            const vehiculosTable = document.getElementById('vehiculosTable');
+            const vehiculosEmpty = document.getElementById('vehiculosEmpty');
+
+            vehiculosBody.innerHTML = '';
+
+            if (vehiculos.length === 0) {
+                vehiculosTable.style.display = 'none';
+                vehiculosEmpty.style.display = 'block';
+                return;
+            }
+
+            vehiculosEmpty.style.display = 'none';
+            vehiculosTable.style.display = 'table';
+
+            vehiculos.forEach(vehiculo => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+            <td>${vehiculo.placa || 'N/A'}</td>
+            <td>${vehiculo.marca || 'N/A'}</td>
+            <td>${vehiculo.modelo || 'N/A'}</td>
+            <td>${vehiculo.anio || 'N/A'}</td>
+            <td>${vehiculo.tipo || 'N/A'}</td>
+            <td>${vehiculo.color || 'N/A'}</td>
+        `;
+                vehiculosBody.appendChild(row);
+            });
+        }
+
+        // Función para mostrar citas en la tabla
+        function mostrarCitas(citas) {
+            const citasBody = document.getElementById('citasBody');
+            const citasTable = document.getElementById('citasTable');
+            const citasEmpty = document.getElementById('citasEmpty');
+
+            citasBody.innerHTML = '';
+
+            if (citas.length === 0) {
+                citasTable.style.display = 'none';
+                citasEmpty.style.display = 'block';
+                return;
+            }
+
+            citasEmpty.style.display = 'none';
+            citasTable.style.display = 'table';
+
+            citas.forEach(cita => {
+                const servicios = cita.servicios.map(s => s.nombre).join(', ');
+                const total = cita.servicios.reduce((sum, s) => sum + s.precio, 0);
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+            <td>${cita.id}</td>
+            <td>${new Date(cita.fecha_hora).toLocaleDateString()}</td>
+            <td>${new Date(cita.fecha_hora).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+            <td>
+                ${cita.estado === 'pendiente' ? 
+                    '<span class="badge badge-warning">Pendiente</span>' : 
+                 cita.estado === 'completada' ? 
+                    '<span class="badge badge-success">Completada</span>' : 
+                    '<span class="badge badge-danger">Cancelada</span>'}
+            </td>
+            <td>${servicios}</td>
+            <td>$${total.toFixed(2)}</td>
+        `;
+                citasBody.appendChild(row);
+            });
+        }
+
+        // Función para cambiar entre pestañas
+        function switchTab(tabName) {
+            // Ocultar todos los contenidos
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+
+            // Desactivar todos los botones de pestaña
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.style.borderBottom = 'none';
+                btn.style.color = 'var(--text-secondary)';
+            });
+
+            // Mostrar el contenido seleccionado y activar el botón
+            if (tabName === 'vehiculos') {
+                document.getElementById('vehiculosContent').style.display = 'block';
+                document.getElementById('vehiculosTab').style.borderBottom = '2px solid var(--primary)';
+                document.getElementById('vehiculosTab').style.color = 'var(--text-primary)';
+            } else {
+                document.getElementById('citasContent').style.display = 'block';
+                document.getElementById('citasTab').style.borderBottom = '2px solid var(--primary)';
+                document.getElementById('citasTab').style.color = 'var(--text-primary)';
+            }
+        }
     </script>
 </body>
 

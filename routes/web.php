@@ -73,10 +73,11 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
     Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
 
     // Ruta para datos de ver todos los usuarios 
-    Route::get('/admin/usuarios/all', [AdminController::class, 'getAllUsers']);
+    Route::get('/admin/usuarios/all', [AdminController::class, 'getAllUsers'])->name('admin.usuarios.all');
     Route::post('/admin/usuarios/bulk-activate', [AdminController::class, 'bulkActivate']);
     Route::post('/admin/usuarios/bulk-deactivate', [AdminController::class, 'bulkDeactivate']);
     Route::delete('/admin/usuarios/bulk-delete', [AdminController::class, 'bulkDelete']);
+    Route::get('/admin/usuarios/{usuario}/registros', [AdminController::class, 'getUserRecords'])->name('admin.usuarios.registros');
 
     // Rutas de citas
     Route::prefix('citas')->name('citas.')->group(function () {

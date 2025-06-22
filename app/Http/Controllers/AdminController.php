@@ -294,9 +294,20 @@ class AdminController extends Controller
     }
 
     // Obtener todos los usuarios para filtrado
-    public function getAllUsers()
+    public function getAllUsers(Request $request)
     {
-        return response()->json(Usuario::all());
+        $withRelations = $request->has('export'); // Si viene el parámetro 'export', cargar relaciones
+
+        $query = Usuario::query();
+
+        if ($withRelations) {
+            $query->with(['vehiculos', 'citas']);
+        }
+
+        return response()->json(
+            $query->get()
+                ->makeHidden(['password', 'remember_token'])
+        );
     }
 
     // Acciones masivas
@@ -310,6 +321,20 @@ class AdminController extends Controller
     public function bulkDeactivate(Request $request)
     {
         $ids = $request->input('ids');
+
+        // Verificar que ningún usuario tenga citas pendientes
+        $usuariosConCitas = Usuario::whereIn('id', $ids)
+            ->whereHas('citas', function ($q) {
+                $q->whereIn('estado', ['pendiente', 'en_proceso']);
+            })->count();
+
+        if ($usuariosConCitas > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se puede desactivar usuarios con citas pendientes o en proceso'
+            ], 403);
+        }
+
         Usuario::whereIn('id', $ids)->update(['estado' => false]);
         return response()->json(['success' => true]);
     }
@@ -321,55 +346,127 @@ class AdminController extends Controller
         return response()->json(['success' => true]);
     }
 
- public function update(Request $request, $id)
-{
-    $usuario = Usuario::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        $usuario = Usuario::findOrFail($id);
 
-    // Validar que no se modifiquen rol o email
-    if ($request->has('rol') && $request->rol !== $usuario->rol) {
+        // Validar que no se modifiquen rol o email
+        if ($request->has('rol') && $request->rol !== $usuario->rol) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se permite modificar el rol de un usuario existente'
+            ], 403);
+        }
+
+        if ($request->has('email') && $request->email !== $usuario->email) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se permite modificar el correo electrónico'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'estado' => 'required|boolean'
+        ]);
+
+        // Auditoría (logs)
+        Log::channel('admin_actions')->info("Usuario actualizado", [
+            'admin_id' => auth()->id(),
+            'user_id' => $usuario->id,
+            'changes' => $validated,
+            'ip' => request()->ip(),
+            'fecha' => now()
+        ]);
+
+        // Guardar cambios
+        $usuario->update($validated);
+
+        // Notificación solo si cambió el estado (usando tu modelo existente)
+        if ($usuario->wasChanged('estado')) {
+            \App\Models\Notificacion::crear(
+                $usuario->id,
+                'Tu estado de cuenta ha sido actualizado a: ' . ($usuario->estado ? 'ACTIVO' : 'INACTIVO'),
+                \App\Models\Notificacion::CANAL_SISTEMA
+            );
+        }
+
         return response()->json([
-            'success' => false,
-            'message' => 'No se permite modificar el rol de un usuario existente'
-        ], 403);
+            'success' => true,
+            'message' => 'Usuario actualizado correctamente'
+        ]);
     }
 
-    if ($request->has('email') && $request->email !== $usuario->email) {
+    public function destroy($id)
+    {
+        $usuario = Usuario::findOrFail($id);
+
+        // Validación 1: No permitir eliminar admins
+        if ($usuario->rol === 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden eliminar cuentas de administrador'
+            ], 403);
+        }
+
+        // Validación 2: Usuario debe estar inactivo
+        if ($usuario->estado) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden eliminar usuarios inactivos'
+            ], 403);
+        }
+
+        // Validación 3: Inactivo por al menos 3 meses
+        $fechaLimite = now()->subMonths(3);
+        if ($usuario->updated_at > $fechaLimite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El usuario debe estar inactivo por al menos 3 meses para ser eliminado'
+            ], 403);
+        }
+
+        // Validación 4: No tener citas pendientes 
+        if ($request->estado == false && $usuario->citas()->whereIn('estado', ['pendiente', 'en_proceso'])->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se puede desactivar el usuario porque tiene citas pendientes o en proceso'
+            ], 403);
+        }
+
+        // Eliminar
+        $usuario->delete();
+
+        // Registrar en logs
+        Log::channel('admin_actions')->info("Usuario eliminado", [
+            'admin_id' => auth()->id(),
+            'user_id' => $usuario->id,
+            'ip' => request()->ip()
+        ]);
+
         return response()->json([
-            'success' => false,
-            'message' => 'No se permite modificar el correo electrónico'
-        ], 403);
+            'success' => true,
+            'message' => 'Usuario eliminado correctamente'
+        ]);
     }
 
-    $validated = $request->validate([
-        'nombre' => 'required|string|max:255',
-        'telefono' => 'nullable|string|max:20',
-        'estado' => 'required|boolean'
-    ]);
+    /**
+     * Obtiene los registros (vehículos y citas) de un usuario
+     */
+    public function getUserRecords($usuarioId)
+    {
+        $usuario = Usuario::with([
+            'vehiculos',
+            'citas' => function ($query) {
+                $query->orderBy('fecha_hora', 'desc');
+            },
+            'citas.servicios'
+        ])->findOrFail($usuarioId);
 
-    // Auditoría (logs)
-    Log::channel('admin_actions')->info("Usuario actualizado", [
-        'admin_id' => auth()->id(),
-        'user_id' => $usuario->id,
-        'changes' => $validated,
-        'ip' => request()->ip(),
-        'fecha' => now()
-    ]);
-
-    // Guardar cambios
-    $usuario->update($validated);
-
-    // Notificación solo si cambió el estado (usando tu modelo existente)
-    if ($usuario->wasChanged('estado')) {
-        \App\Models\Notificacion::crear(
-            $usuario->id,
-            'Tu estado de cuenta ha sido actualizado a: ' . ($usuario->estado ? 'ACTIVO' : 'INACTIVO'),
-            \App\Models\Notificacion::CANAL_SISTEMA
-        );
+        return response()->json([
+            'vehiculos' => $usuario->vehiculos,
+            'citas' => $usuario->citas
+        ]);
     }
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Usuario actualizado correctamente'
-    ]);
-}
 }
