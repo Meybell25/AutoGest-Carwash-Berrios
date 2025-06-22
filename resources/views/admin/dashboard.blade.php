@@ -991,6 +991,211 @@
         }
 
         /* ======================
+   DISEÑO DE MODAL USUARIO FORM
+   ====================== */
+        /* Contenedor principal del modal */
+        #usuarioModal .modal-content {
+            max-width: 600px;
+            width: 90%;
+            padding: 25px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Estructura del formulario */
+        #usuarioForm {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Grupos de formulario */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        /* Elementos de ancho completo */
+        .full-width,
+        .password-container,
+        .password-strength,
+        button[type="submit"] {
+            grid-column: span 2;
+        }
+
+        /* Contenedor para campos de contraseña */
+        .password-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Indicador de fortaleza de contraseña */
+        .password-strength-indicator {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 6px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        /* Estados de fortaleza */
+        .strength-weak {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .strength-medium {
+            background-color: #fff8e1;
+            color: #f57f17;
+        }
+
+        .strength-strong {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* Inputs con iconos */
+        .input-with-icon input {
+            padding-right: 40px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Botón de enviar */
+        #usuarioForm button[type="submit"] {
+            margin-top: 10px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        /* Texto de ayuda */
+        .form-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Estilos para la validación de contraseña */
+        .password-requirements {
+            margin-top: 0.5rem;
+        }
+
+        .password-requirements li {
+            transition: color 0.3s ease;
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+
+        .progress {
+            background-color: #e9ecef;
+            border-radius: 0.25rem;
+            overflow: hidden;
+            height: 5px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .bg-danger {
+            background-color: #dc3545;
+        }
+
+        .bg-warning {
+            background-color: #ffc107;
+        }
+
+        .bg-success {
+            background-color: #28a745;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .text-warning {
+            color: #ffc107;
+        }
+
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-green-500 {
+            color: #10b981;
+        }
+
+        .min-h-[20px] {
+            min-height: 20px;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon input {
+            padding-right: 40px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
+        /* ======================
+   RESPONSIVE DESIGN
+   ====================== */
+        @media (max-width: 768px) {
+            #usuarioForm {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .full-width,
+            .password-container,
+            .password-strength,
+            button[type="submit"] {
+                grid-column: span 1;
+            }
+
+            .password-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            #usuarioModal .modal-content {
+                padding: 20px;
+            }
+        }
+
+        /* ======================
         FOOTER
         ====================== */
         .footer {
@@ -2700,112 +2905,110 @@
         </div>
     </div>
 
-    <!-- Modal para crear usuarios -->
+    <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-content">
             <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
             <h2 style="color: var(--primary); margin-bottom: 20px;">
                 <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
             </h2>
             <form id="usuarioForm">
                 @csrf
+                <!-- Nombre -->
                 <div class="form-group">
-                    <label for="usuario_nombre">Nombre Completo:</label>
+                    <label for="usuario_nombre">Nombre Completo</label>
                     <input type="text" id="usuario_nombre" name="nombre" class="form-control"
                         placeholder="Ej: Juan Pérez" required>
-                    <div class="invalid-feedback">
-                        <strong>Por favor ingresa un nombre válido (solo letras y espacios)</strong>
-                    </div>
                 </div>
 
+                <!-- Email -->
                 <div class="form-group">
-                    <label for="usuario_email">Email:</label>
+                    <label for="usuario_email">Email</label>
                     <input type="email" id="usuario_email" name="email" class="form-control"
                         placeholder="Ej: usuario@example.com" required>
-                    <div class="invalid-feedback">
-                        <strong>Por favor ingresa un correo electrónico válido</strong>
-                    </div>
                 </div>
 
+                <!-- Teléfono -->
                 <div class="form-group">
-                    <label for="usuario_telefono">Teléfono:</label>
+                    <label for="usuario_telefono">Teléfono</label>
                     <input type="tel" id="usuario_telefono" name="telefono" class="form-control"
                         placeholder="Ej: +503 1234-5678">
-                    <div class="invalid-feedback">
-                        <strong>Por favor ingresa un número de teléfono válido</strong>
-                    </div>
-                    <div class="form-text">
-                        <small>Formato: +código país número (ej: +503 1234-5678)</small>
-                    </div>
+                    <small class="form-text text-muted">Opcional - Formato: +código país número</small>
                 </div>
 
-                <div class="form-group">
-                    <label for="usuario_rol">Rol:</label>
-                    <select id="usuario_rol" name="rol" class="form-control" required>
-                        <option value="">Seleccione un rol</option>
-                        <option value="cliente">Cliente</option>
-                        <option value="empleado">Empleado</option>
-                        <option value="admin">Administrador</option>
-                    </select>
-                    <div class="invalid-feedback">
-                        <strong>Por favor selecciona un rol para el usuario</strong>
-                    </div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="usuario_password">Contraseña:</label>
-                        <div class="input-group">
-                            <input type="password" id="usuario_password" name="password" class="form-control"
-                                placeholder="Mínimo 8 caracteres" required>
-                            <button class="btn btn-outline-secondary" type="button"
-                                onclick="togglePassword('usuario_password')">
-                                <i class="fas fa-eye" id="usuario_password_icon"></i>
-                            </button>
-                        </div>
-                        <div class="invalid-feedback">
-                            <strong>La contraseña no cumple con los requisitos de seguridad</strong>
-                        </div>
-                        <div class="form-text">
-                            <small>Mínimo 8 caracteres, incluye mayúsculas, minúsculas y números</small>
-                        </div>
-
-                        <div class="password-strength mt-2">
-                            <div class="progress" style="height: 5px;">
-                                <div class="progress-bar" id="usuario_password-strength-bar" role="progressbar"
-                                    style="width: 0%"></div>
-                            </div>
-                            <small class="text-muted" id="usuario_password-strength-text">
-                                Seguridad de la contraseña
-                            </small>
+                <!-- Rol y Estado en misma fila -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="usuario_rol">Rol</label>
+                            <select id="usuario_rol" name="rol" class="form-control" required>
+                                <option value="">Seleccione un rol</option>
+                                <option value="cliente">Cliente</option>
+                                <option value="empleado">Empleado</option>
+                                <option value="admin">Administrador</option>
+                            </select>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="usuario_password_confirmation">Confirmar Contraseña:</label>
-                        <div class="input-group">
-                            <input type="password" id="usuario_password_confirmation" name="password_confirmation"
-                                class="form-control" placeholder="Repite la contraseña" required>
-                            <button class="btn btn-outline-secondary" type="button"
-                                onclick="togglePassword('usuario_password_confirmation')">
-                                <i class="fas fa-eye" id="usuario_password_confirmation_icon"></i>
-                            </button>
-                        </div>
-                        <div class="invalid-feedback">
-                            <strong>Las contraseñas no coinciden</strong>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="usuario_estado">Estado</label>
+                            <select id="usuario_estado" name="estado" class="form-control">
+                                <option value="1" selected>Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="usuario_estado">Estado:</label>
-                    <select id="usuario_estado" name="estado" class="form-control">
-                        <option value="1" selected>Activo</option>
-                        <option value="0">Inactivo</option>
-                    </select>
+                <!-- Campo Contraseña -->
+                <div class="form-group full-width">
+                    <label for="usuario_password">Contraseña</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="usuario_password" name="password" class="form-control"
+                            placeholder="Mínimo 8 caracteres" required>
+                        <button type="button" class="toggle-password"
+                            onclick="togglePassword('usuario_password', 'usuario_password_icon')">
+                            <i class="fas fa-eye" id="usuario_password_icon"></i>
+                        </button>
+                    </div>
+
+                    <div class="password-requirements text-xs text-gray-500 mt-1">
+                        <ul class="list-disc pl-5">
+                            <li id="req-length" class="text-gray-400">Mínimo 8 caracteres</li>
+                            <li id="req-uppercase" class="text-gray-400">1 letra mayúscula</li>
+                            <li id="req-lowercase" class="text-gray-400">1 letra minúscula</li>
+                            <li id="req-number" class="text-gray-400">1 número</li>
+                        </ul>
+                    </div>
+
+                    <div class="password-strength mt-2">
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar" id="usuario_password-strength-bar" role="progressbar"
+                                style="width: 0%"></div>
+                        </div>
+                        <small class="text-muted" id="usuario_password-strength-text">Seguridad de la
+                            contraseña</small>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <!-- Campo Confirmar Contraseña -->
+                <div class="form-group full-width">
+                    <label for="usuario_password_confirmation">Confirmar Contraseña</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="usuario_password_confirmation" name="password_confirmation"
+                            class="form-control" placeholder="Confirma tu contraseña" required>
+                        <button type="button" class="toggle-password"
+                            onclick="togglePassword('usuario_password_confirmation', 'usuario_password_confirmation_icon')">
+                            <i class="fas fa-eye" id="usuario_password_confirmation_icon"></i>
+                        </button>
+                    </div>
+                    <div class="min-h-[20px]">
+                        <p id="password-match-error" class="text-red-500 text-sm mt-1 hidden">
+                            Las contraseñas no coinciden
+                        </p>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-4">
                     <i class="fas fa-save"></i> Crear Usuario
                 </button>
             </form>
@@ -3356,9 +3559,10 @@
         // Función para inicializar validaciones del formulario de usuario
         function initUsuarioFormValidation() {
             // Función para mostrar/ocultar contraseñas
-            function togglePassword(fieldId) {
+            // Función para mostrar/ocultar contraseñas
+            function togglePassword(fieldId, iconId) {
                 const field = document.getElementById(fieldId);
-                const icon = document.getElementById(fieldId + '_icon');
+                const icon = document.getElementById(iconId);
 
                 if (field.type === 'password') {
                     field.type = 'text';
@@ -3370,6 +3574,7 @@
                     icon.classList.add('fa-eye');
                 }
             }
+
 
             // Asignar evento a los botones de mostrar/ocultar contraseña
             document.getElementById('usuario_password_icon').parentNode.addEventListener('click', function() {
@@ -3426,52 +3631,86 @@
                 }
             });
 
-            // Validación en tiempo real de la contraseña
-            document.getElementById('usuario_password').addEventListener('input', function() {
+            // Validación en tiempo real de la contraseña principal
+            document.getElementById('usuario_password')?.addEventListener('input', function() {
                 const password = this.value;
+                const confirmPassword = document.getElementById('usuario_password_confirmation').value;
+
+                // Validar requisitos
                 const hasMinLength = password.length >= 8;
                 const hasUpperCase = /[A-Z]/.test(password);
                 const hasLowerCase = /[a-z]/.test(password);
                 const hasNumber = /\d/.test(password);
 
-                // Validación de fortaleza
-                if (hasMinLength && hasUpperCase && hasLowerCase && hasNumber) {
-                    this.classList.add('is-valid');
-                    this.classList.remove('is-invalid');
-                } else {
-                    this.classList.remove('is-valid');
+                // Actualizar lista de requisitos
+                document.getElementById('req-length').className = hasMinLength ? 'text-green-500' : 'text-gray-400';
+                document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' :
+                    'text-gray-400';
+                document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' :
+                    'text-gray-400';
+                document.getElementById('req-number').className = hasNumber ? 'text-green-500' : 'text-gray-400';
 
-                    let errorMessage = 'La contraseña debe tener:';
-                    if (!hasMinLength) errorMessage += '<br>- Mínimo 8 caracteres';
-                    if (!hasUpperCase || !hasLowerCase) errorMessage += '<br>- Mayúsculas y minúsculas';
-                    if (!hasNumber) errorMessage += '<br>- Al menos un número';
+                // Calcular fortaleza
+                const strength = calculatePasswordStrength(password);
+                const strengthBar = document.getElementById('usuario_password-strength-bar');
+                const strengthText = document.getElementById('usuario_password-strength-text');
 
-                    const feedback = this.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.innerHTML = `<strong>${errorMessage}</strong>`;
-                }
+                strengthBar.style.width = strength.percentage + '%';
+                strengthBar.className = 'progress-bar ' + strength.class;
+                strengthText.textContent = strength.text;
+                strengthText.className = strength.textClass;
 
-                // Actualizar indicador de fortaleza
-                updatePasswordStrengthIndicator(password);
-
-                // Disparar validación de confirmación si hay valor
-                const confirmField = document.getElementById('usuario_password_confirmation');
-                if (confirmField.value) {
-                    confirmField.dispatchEvent(new Event('input'));
+                // Validar coincidencia si hay confirmación
+                if (document.getElementById('usuario_password_confirmation').value) {
+                    validatePasswordMatch();
                 }
             });
 
             // Validación en tiempo real de confirmación de contraseña
-            document.getElementById('usuario_password_confirmation').addEventListener('input', function() {
-                const password = document.getElementById('usuario_password').value;
-                const confirmPassword = this.value;
+            document.getElementById('usuario_password_confirmation')?.addEventListener('input', validatePasswordMatch);
 
-                if (confirmPassword && password !== confirmPassword) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.innerHTML = '<strong>Las contraseñas no coinciden</strong>';
+            function validatePasswordMatch() {
+                const password = document.getElementById('usuario_password').value;
+                const confirmPassword = document.getElementById('usuario_password_confirmation').value;
+                const errorMsg = document.getElementById('password-match-error');
+
+                if (confirmPassword.length > 0 && password !== confirmPassword) {
+                    errorMsg.classList.remove('hidden');
                 } else {
-                    this.classList.remove('is-invalid');
+                    errorMsg.classList.add('hidden');
                 }
-            });
+            }
+
+            // Función para calcular fortaleza de contraseña
+            function calculatePasswordStrength(password) {
+                let strength = 0;
+                if (password.length >= 8) strength++;
+                if (/[A-Z]/.test(password)) strength++;
+                if (/[a-z]/.test(password)) strength++;
+                if (/\d/.test(password)) strength++;
+                if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+                const percentage = (strength / 5) * 100;
+
+                if (strength <= 1) return {
+                    percentage,
+                    class: 'bg-danger',
+                    text: 'Muy débil',
+                    textClass: 'text-danger'
+                };
+                if (strength <= 3) return {
+                    percentage,
+                    class: 'bg-warning',
+                    text: 'Moderada',
+                    textClass: 'text-warning'
+                };
+                return {
+                    percentage,
+                    class: 'bg-success',
+                    text: 'Fuerte',
+                    textClass: 'text-success'
+                };
+            }
 
             // Validación antes de enviar el formulario
             document.getElementById('usuarioForm').addEventListener('submit', function(e) {

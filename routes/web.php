@@ -104,6 +104,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
     Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
     Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
     Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
+    Route::get('/mis-vehiculos', [ClienteController::class, 'misVehiculosAjax'])->name('mis-vehiculos-ajax');
     Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
 });
 
