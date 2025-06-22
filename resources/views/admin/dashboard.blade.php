@@ -282,6 +282,7 @@
             gap: 12px;
             align-items: center;
             flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         /* ======================
@@ -1578,7 +1579,15 @@
 
             .header-actions {
                 justify-content: center;
-                flex-wrap: wrap;
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1 1 160px;
+                /* Mínimo 160px, pero puede crecer */
+                min-width: 160px;
+                white-space: nowrap;
+                text-align: center;
             }
 
             .card-header,
@@ -1935,6 +1944,15 @@
             #usuarioForm .form-control {
                 padding: 12px 35px 12px 12px;
             }
+
+            .header-actions .btn {
+                flex: 1 1 100%;
+                min-width: 100%;
+            }
+
+            .header-actions .btn i {
+                margin-right: 5px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2278,8 +2296,10 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <h3 style="color: var(--text-primary);">Configuración de Horarios de Trabajo</h3>
+                        <div class="card-header-actions"
+                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Configuración de horarios
+                                de trabajo</h3>
                             <button class="btn btn-primary" onclick="mostrarModalHorario()">
                                 <i class="fas fa-plus"></i> Agregar Horario
                             </button>
@@ -2508,8 +2528,10 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <h3 style="color: var(--text-primary);">Registro de gastos operativos</h3>
+                        <div class="card-header-actions"
+                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Registro de gastos
+                                operativos</h3>
                             <button class="btn btn-primary" onclick="mostrarModalGasto()">
                                 <i class="fas fa-plus"></i> Registrar Gasto
                             </button>
