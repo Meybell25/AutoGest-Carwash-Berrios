@@ -486,12 +486,18 @@ class AdminController extends Controller
     public function getUserRecords($usuarioId)
     {
         $usuario = Usuario::with([
-            'vehiculos',
-            'citas' => function ($query) {
-                $query->orderBy('fecha_hora', 'desc');
+            'vehiculos' => function ($query) {
+                $query->select(['id', 'usuario_id', 'placa', 'marca', 'modelo', 'tipo', 'color']);
+                // ↑ Solo los campos que existen en tu tabla y necesitas mostrar
             },
-            'citas.servicios'
-        ])->findOrFail($usuarioId);
+            'citas' => function ($query) {
+                $query->orderBy('fecha_hora', 'desc')
+                    ->select(['id', 'usuario_id', 'vehiculo_id', 'fecha_hora', 'estado', 'total']);
+            },
+            'citas.servicios' => function ($query) {
+                $query->select(['servicios.id', 'nombre', 'precio']);
+            }
+        ])->findOrFail($usuarioId, ['id', 'nombre']);
 
         return response()->json([
             'vehiculos' => $usuario->vehiculos,

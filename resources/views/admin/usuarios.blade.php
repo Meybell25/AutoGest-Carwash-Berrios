@@ -479,6 +479,53 @@
             .table-actions {
                 justify-content: flex-end;
             }
+
+            /* Header - Botones mejor espaciados */
+            .header-actions {
+                flex-direction: column;
+                gap: 10px !important;
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Tabla principal de usuarios */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #usersTable {
+                min-width: 100%;
+            }
+
+            /* Ocultar columnas no esenciales en móviles */
+            #usersTable th:nth-child(1),
+            #usersTable td:nth-child(1) {
+                display: none;
+            }
+
+            /* Modales - Ajustes específicos */
+            .modal-content {
+                width: 95% !important;
+                padding: 15px !important;
+            }
+
+            /* Tablas en modales */
+            #vehiculosTable,
+            #citasTable {
+                font-size: 0.85rem;
+            }
+
+            #vehiculosTable th,
+            #vehiculosTable td,
+            #citasTable th,
+            #citasTable td {
+                padding: 8px 5px;
+            }
         }
 
         @media (max-width: 576px) {
@@ -818,7 +865,6 @@
                                 <th>Placa</th>
                                 <th>Marca</th>
                                 <th>Modelo</th>
-                                <th>Año</th>
                                 <th>Tipo</th>
                                 <th>Color</th>
                             </tr>
@@ -868,6 +914,23 @@
             id: {{ Auth::id() }},
             rol: '{{ Auth::user()->rol ?? '' }}'
         };
+
+        // =============================================
+        // ASEGURAR RESPONSIVE DE TABLAS
+        // =============================================
+
+        // Asegurar que las tablas sean responsive
+        function initResponsiveTables() {
+            document.querySelectorAll('.table-responsive').forEach(tableContainer => {
+                if (window.innerWidth < 768) {
+                    tableContainer.classList.add('force-responsive');
+                }
+            });
+        }
+
+        // Ejecutar al cargar y al redimensionar
+        window.addEventListener('resize', initResponsiveTables);
+        document.addEventListener('DOMContentLoaded', initResponsiveTables);
 
         // =============================================
         // FUNCIONES PRINCIPALES
@@ -1282,9 +1345,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                    <i class="fas fa-trash"></i>
-                                                                                </button>` : ''}
+                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                            <i class="fas fa-trash"></i>
+                                                                                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1444,7 +1507,6 @@
                 <td>${vehiculo.placa || 'N/A'}</td>
                 <td>${vehiculo.marca || 'N/A'}</td>
                 <td>${vehiculo.modelo || 'N/A'}</td>
-                <td>${vehiculo.anio || 'N/A'}</td>
                 <td>${vehiculo.tipo || 'N/A'}</td>
                 <td>${vehiculo.color || 'N/A'}</td>
             `;
