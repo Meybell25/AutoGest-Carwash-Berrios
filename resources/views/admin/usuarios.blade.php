@@ -1575,7 +1575,7 @@
         }
 
         // =============================================
-        // INICIALIZACIÓN (ORIGINAL)
+        // INICIALIZACIÓN 
         // =============================================
         document.addEventListener('DOMContentLoaded', function() {
             fetchAllUsers();
