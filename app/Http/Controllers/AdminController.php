@@ -514,11 +514,20 @@ class AdminController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        $exists = Usuario::where('email', $request->email)->exists();
+        // Excluir el email del usuario actual si estamos editando
+        $excludeId = $request->input('exclude_id');
+
+        $query = Usuario::where('email', $request->email);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
 
         return response()->json([
             'available' => !$exists,
-            'message' => $exists ? 'Email ya registrado' : 'Email disponible'
+            'message' => $exists ? 'Este correo electrónico ya está registrado' : 'Email disponible'
         ]);
     }
 }

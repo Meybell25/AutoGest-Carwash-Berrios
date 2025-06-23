@@ -170,6 +170,20 @@
             color: white;
         }
 
+        .border-red-500 {
+            border-color: #ef4444 !important;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
         .card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -911,7 +925,6 @@
     </div>
 
     <!-- Modal para crear/editar usuario -->
-    <!-- Modal para crear/editar usuario -->
     <div id="usuarioModal" class="modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div class="modal-content"
@@ -945,6 +958,7 @@
                             Electrónico</label>
                         <input type="email" id="email" name="email" class="form-control" required
                             placeholder="Ej: juan@example.com" readonly>
+                        <div id="email-error" class="hidden text-sm text-red-600 mt-1"></div>
                         <small id="emailHelp"
                             style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
                             El correo electrónico no puede ser modificado
@@ -1232,6 +1246,7 @@
                 document.getElementById('email').readOnly = false;
                 document.getElementById('rol').readOnly = false;
                 document.getElementById('emailHelp').style.display = 'none';
+                document.getElementById('email').removeAttribute('readonly');
                 document.getElementById('rolHelp').style.display = 'none';
                 passwordFields.style.display = 'block';
                 document.getElementById('rol').value = 'cliente'; // Valor por defecto
@@ -1244,18 +1259,31 @@
                     if (!email) return;
 
                     try {
-                        const response = await fetch(
-                            `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}`);
+                        const usuarioId = document.getElementById('usuario_id').value;
+                        const url =
+                            `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
+
+                        const response = await fetch(url);
+
+                        if (!response.ok) {
+                            throw new Error('Error al verificar email');
+                        }
+
                         const data = await response.json();
 
                         if (!data.available) {
-                            this.setCustomValidity('Este correo electrónico ya está registrado');
-                            Swal.fire('Advertencia', 'Este correo electrónico ya está registrado', 'warning');
+                            this.setCustomValidity(data.message);
+                            this.classList.add('border-red-500');
+                            document.getElementById('email-error').textContent = data.message;
+                            document.getElementById('email-error').classList.remove('hidden');
                         } else {
                             this.setCustomValidity('');
+                            this.classList.remove('border-red-500');
+                            document.getElementById('email-error').classList.add('hidden');
                         }
                     } catch (error) {
                         console.error('Error al verificar email:', error);
+                        // No mostrar error al usuario para no confundirlo
                     }
                 });
             }
@@ -1318,7 +1346,8 @@
                         .then(data => {
                             if (data.success) {
                                 Swal.fire('¡Eliminado!', data.message, 'success');
-                                location.reload();
+                                await fetchAllUsers();
+                                closeModal('usuarioModal');
                             } else {
                                 Swal.fire('Error', data.message, 'error');
                             }
@@ -1570,7 +1599,8 @@
                         })
                         .then(data => {
                             Swal.fire('Éxito', successMessage, 'success').then(() => {
-                                location.reload();
+                                await fetchAllUsers();
+                                closeModal('usuarioModal');
                             });
                         })
                         .catch(error => {
@@ -1659,9 +1689,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                                                                                                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                                                                                                                                <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                                                                                                            </button>` : ''}
+                                                                                                                                                                                                                                                                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                                                                                                                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1682,64 +1712,55 @@
             const submitBtn = form.querySelector('button[type="submit"]');
             const usuarioId = form.querySelector('#usuario_id').value;
 
-            // Deshabilitar el botón para evitar doble envío
+            // Resetear errores visuales
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.querySelectorAll('.border-red-500').forEach(el => {
+                el.classList.remove('border-red-500');
+            });
+
+            // Deshabilitar el botón
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
 
-            const method = usuarioId ? 'PUT' : 'POST';
-            const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
-
-            // Validar contraseña si estamos en modo creación
-            if (!usuarioId) {
-                const password = form.password.value;
-                const isPasswordStrong = validatePasswordStrength(password);
-                const doPasswordsMatch = validatePasswordMatch();
-
-                if (!isPasswordStrong || !doPasswordsMatch) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error en la contraseña',
-                        text: 'Por favor, asegúrate de que la contraseña cumpla con todos los requisitos y que ambas contraseñas coincidan.'
-                    });
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
-                    return;
-                }
-            }
-
             try {
-                const formData = {
-                    nombre: form.nombre.value.trim(),
-                    email: form.email.value.trim(),
-                    telefono: form.telefono.value.trim() || null,
-                    estado: form.estado.value === '1',
-                    rol: form.rol.value
-                };
+                // Primero verificar el email nuevamente
+                const email = form.email.value;
+                const checkEmailUrl =
+                    `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
+                const checkResponse = await fetch(checkEmailUrl);
 
-                // Solo agregar password si es creación
-                if (!usuarioId) {
-                    formData.password = form.password.value;
-                    formData.password_confirmation = form.password_confirmation.value;
+                if (!checkResponse.ok) throw new Error('Error al verificar email');
+
+                const checkData = await checkResponse.json();
+
+                if (!checkData.available) {
+                    throw new Error(checkData.message);
                 }
 
-                const response = await fetch(url, {
-                    method: method,
+                // Si el email está disponible, proceder con el envío
+                const response = await fetch(usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios', {
+                    method: usuarioId ? 'PUT' : 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({
+                        nombre: form.nombre.value.trim(),
+                        email: email,
+                        telefono: form.telefono.value.trim() || null,
+                        estado: form.estado.value === '1',
+                        rol: form.rol.value,
+                        password: form.password?.value,
+                        password_confirmation: form.password_confirmation?.value
+                    })
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // Mostrar errores de validación específicos si existen
-                    if (data.errors) {
-                        const errorMessages = Object.values(data.errors).flat().join('<br>');
-                        throw new Error(errorMessages);
-                    }
                     throw new Error(data.message || 'Error al procesar la solicitud');
                 }
 
@@ -1752,30 +1773,28 @@
                     showConfirmButton: false
                 });
 
-                // Cerrar modal y recargar
+                await fetchAllUsers();
                 closeModal('usuarioModal');
-                location.reload();
 
             } catch (error) {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    html: error.message, // Usar html para mostrar saltos de línea
-                    footer: usuarioId ? `ID: ${usuarioId}` : ''
-                });
+                // Mostrar error específico para email
+                if (error.message.includes('correo electrónico')) {
+                    form.email.classList.add('border-red-500');
+                    document.getElementById('email-error').textContent = error.message;
+                    document.getElementById('email-error').classList.remove('hidden');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message,
+                        footer: usuarioId ? `ID: ${usuarioId}` : ''
+                    });
+                }
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
             }
         }
-        // Asignar el evento (seguro para modales dinámicos)
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('usuarioForm');
-            if (form) {
-                form.addEventListener('submit', handleUsuarioFormSubmit);
-            }
-        });
 
         // =============================================
         // FUNCIONES DE REGISTROS DE USUARIO 
@@ -1806,7 +1825,11 @@
 
             fetch(`/admin/usuarios/${usuarioId}/registros`)
                 .then(response => {
-                    if (!response.ok) throw new Error('Error al cargar registros');
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Error al cargar registros');
+                        });
+                    }
                     return response.json();
                 })
                 .then(data => {
