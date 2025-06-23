@@ -524,15 +524,58 @@
                 min-width: 100%;
             }
 
-            /* Ocultar columnas no esenciales en móviles */
-            #usersTable th:nth-child(1),
-            #usersTable td:nth-child(1) {
+            #usersTable thead {
                 display: none;
+                /* Esto oculta los encabezados en móviles */
             }
 
+            #usersTable tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #eee;
+                border-radius: 8px;
+                padding: 10px;
+            }
+
+            #usersTable td {
+                padding-left: 45%;
+                position: relative;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                word-break: break-word;
+                white-space: normal;
+                border: none;
+            }
+
+            #usersTable td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: 40%;
+                padding-right: 10px;
+                font-weight: 600;
+                color: var(--primary);
+            }
+
+            /* Ocultar checkbox de selección */
             #usersTable th:first-child,
             #usersTable td:first-child {
                 display: none;
+            }
+
+            /* Ajustes para badges */
+            #usersTable .badge {
+                display: inline-block;
+                width: fit-content;
+                max-width: 100%;
+            }
+
+            /* Ajustes para acciones */
+            #usersTable .table-actions {
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 5px;
             }
 
             /* Modales - Ajustes específicos */
@@ -653,6 +696,14 @@
                 display: block;
                 border: 1px solid #ddd;
             }
+
+            #usersTable td {
+                padding-left: 40%;
+            }
+
+            #usersTable td:before {
+                width: 35%;
+            }
         }
 
         @media (max-width: 480px) {
@@ -665,6 +716,14 @@
             #vehiculosTable td:before,
             #citasTable td:before {
                 width: 35%;
+            }
+
+            #usersTable td {
+                padding-left: 35%;
+            }
+
+            #usersTable td:before {
+                width: 30%;
             }
         }
     </style>
@@ -1457,9 +1516,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                <i class="fas fa-trash"></i>
-                                                                                                                                                                            </button>` : ''}
+                                                                                                                                                                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                <i class="fas fa-trash"></i>
+                                                                                                                                                                                            </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
