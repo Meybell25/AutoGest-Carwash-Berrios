@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
@@ -353,39 +354,65 @@ class AdminController extends Controller
     {
         $usuario = Usuario::findOrFail($id);
 
-        // Validación básica
+        // Validación con mensajes personalizados
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'telefono' => 'nullable|string|max:20',
             'estado' => 'required|boolean',
-            // No incluimos password, rol o email aquí
+        ], [
+            'nombre.required' => 'El nombre es obligatorio',
+            'nombre.max' => 'El nombre no puede exceder 255 caracteres',
+            'telefono.max' => 'El teléfono no puede exceder 20 caracteres',
+            'estado.required' => 'El estado es obligatorio',
+            'estado.boolean' => 'El estado debe ser verdadero o falso',
         ]);
 
-        // Auditoría (logs) - Mantenemos este bloque importante
-        Log::channel('admin_actions')->info("Usuario actualizado", [
-            'admin_id' => auth()->id(),
-            'user_id' => $usuario->id,
-            'changes' => $validated,
-            'ip' => request()->ip(),
-            'fecha' => now()
-        ]);
+        // Guardar estado anterior para comparación
+        $estadoAnterior = $usuario->estado;
 
-        // Guardar cambios
-        $usuario->update($validated);
+        DB::beginTransaction();
 
-        // Notificación solo si cambió el estado - Mantenemos esta funcionalidad
-        if ($usuario->wasChanged('estado')) {
-            \App\Models\Notificacion::crear(
-                $usuario->id,
-                'Tu estado de cuenta ha sido actualizado a: ' . ($usuario->estado ? 'ACTIVO' : 'INACTIVO'),
-                \App\Models\Notificacion::CANAL_SISTEMA
-            );
+        try {
+            // Actualizar usuario
+            $usuario->update($validated);
+
+            // Auditoría (logs)
+            Log::channel('admin_actions')->info("Usuario actualizado", [
+                'admin_id' => auth()->id(),
+                'user_id' => $usuario->id,
+                'changes' => $validated,
+                'ip' => request()->ip(),
+                'fecha' => now()
+            ]);
+
+            // Notificación solo si cambió el estado
+            if ($estadoAnterior != $usuario->estado) {
+                \App\Models\Notificacion::crear(
+                    $usuario->id,
+                    'Tu estado de cuenta ha sido actualizado a: ' . ($usuario->estado ? 'ACTIVO' : 'INACTIVO'),
+                    \App\Models\Notificacion::CANAL_SISTEMA
+                );
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario actualizado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error("Error al actualizar usuario: " . $e->getMessage(), [
+                'user_id' => $id,
+                'admin_id' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el usuario: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuario actualizado correctamente'
-        ]);
     }
     public function destroy($id)
     {

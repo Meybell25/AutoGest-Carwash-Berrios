@@ -1279,9 +1279,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>` : ''}
+                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1304,6 +1304,22 @@
             const method = usuarioId ? 'PUT' : 'POST';
             const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
 
+            // Convertir el estado a booleano
+            const estadoValue = document.getElementById('estado').value === '1';
+            formData.set('estado', estadoValue);
+
+            // Debug: verificar datos antes de enviar
+            console.log('Datos a enviar:');
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ':', pair[1]);
+            }
+
+            // Asegurarse que los campos requeridos tengan valor
+            if (!formData.get('nombre')) {
+                Swal.fire('Error', 'El nombre es requerido', 'error');
+                return;
+            }
+
             // Si es edición, no enviar campos de contraseña
             if (usuarioId) {
                 formData.delete('password');
@@ -1318,6 +1334,11 @@
                 }
             }
 
+            // Agregar estado si no está presente
+            if (!formData.get('estado')) {
+                formData.set('estado', document.getElementById('estado').value);
+            }
+
             fetch(url, {
                     method: method,
                     headers: {
@@ -1329,7 +1350,16 @@
                 .then(response => {
                     if (!response.ok) {
                         return response.json().then(err => {
-                            throw err;
+                            // Mostrar errores de validación de manera más clara
+                            let errorMessages = [];
+                            if (err.errors) {
+                                for (let field in err.errors) {
+                                    errorMessages.push(err.errors[field].join('\n'));
+                                }
+                            } else {
+                                errorMessages.push(err.message || 'Error desconocido');
+                            }
+                            throw new Error(errorMessages.join('\n'));
                         });
                     }
                     return response.json();
@@ -1346,15 +1376,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    let errorMessage = 'Ocurrió un error al procesar la solicitud';
-
-                    if (error.errors) {
-                        errorMessage = Object.values(error.errors).join('\n');
-                    } else if (error.message) {
-                        errorMessage = error.message;
-                    }
-
-                    Swal.fire('Error', errorMessage, 'error');
+                    Swal.fire('Error', error.message, 'error');
                 });
         }
 
