@@ -421,6 +421,17 @@
             display: block;
         }
 
+        .btn-export {
+            margin: 0.5rem;
+            padding: 0.5rem 1rem;
+            min-width: 100px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 15px;
@@ -526,6 +537,12 @@
             #citasTable td {
                 padding: 8px 5px;
             }
+
+            .btn-export {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
         }
 
         @media (max-width: 576px) {
@@ -554,6 +571,23 @@
 
             .table td:before {
                 width: 40%;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            td,
+            th {
+                padding: 0.3rem;
+                display: block;
+                width: 100%;
+            }
+
+            tr {
+                margin-bottom: 1rem;
+                display: block;
+                border: 1px solid #ddd;
             }
         }
     </style>
@@ -1345,9 +1379,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                            <i class="fas fa-trash"></i>
-                                                                                        </button>` : ''}
+                                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                            <i class="fas fa-trash"></i>
+                                                                                                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
