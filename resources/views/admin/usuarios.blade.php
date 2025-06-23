@@ -560,40 +560,66 @@
 
             /* Ocultar checkbox de selección */
             #usersTable th:first-child,
-            #usersTable td:first-child {
-                display: none;
-            }
-
-            /* Ajustes para badges */
-            #usersTable .badge {
-                display: inline-block;
-                width: fit-content;
-                max-width: 100%;
-            }
-
-            /* Ajustes para acciones */
-            #usersTable .table-actions {
-                justify-content: flex-start;
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-
-            /* Modales - Ajustes específicos */
-            .modal-content {
-                width: 95% !important;
-                padding: 15px !important;
-            }
-
-            /* Tablas en modales */
-            #vehiculosTable,
-            #citasTable {
-                font-size: 0.85rem;
-            }
-
-            #vehiculosTable th,
-            #citasTable th,
             {
-            padding: 8px 5px;
+            display: none;
+        }
+
+        #usersTable td:first-child {
+            position: absolute;
+            left: 10px;
+            padding-left: 0 !important;
+            width: 30px;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        #usersTable td:first-child:before {
+            display: none;
+        }
+
+        #usersTable td:not(:first-child) {
+            padding-left: 50px;
+        }
+
+        #usersTable td:not(:first-child):before {
+            left: 50px;
+            width: calc(45% - 50px);
+        }
+
+
+
+        /* Ajustes para badges */
+        #usersTable .badge {
+            display: inline-block;
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        /* Ajustes para acciones */
+        #usersTable .table-actions {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        /* Modales - Ajustes específicos */
+        .modal-content {
+            width: 95% !important;
+            padding: 15px !important;
+        }
+
+        /* Tablas en modales */
+        #vehiculosTable,
+        #citasTable {
+            font-size: 0.85rem;
+        }
+
+        #vehiculosTable th,
+        #citasTable th,
+        {
+        padding: 8px 5px;
         }
 
         .export-buttons {
@@ -649,6 +675,26 @@
         .table td[data-label="Email"] {
             word-break: break-word;
             white-space: normal;
+        }
+
+        .bulk-actions {
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .bulk-actions select {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .bulk-actions button {
+            width: 100%;
+        }
+
+        #selectedCount {
+            margin-left: 0;
+            margin-bottom: 5px;
         }
         }
 
@@ -724,6 +770,15 @@
 
             #usersTable td:before {
                 width: 30%;
+            }
+
+            #usersTable td:not(:first-child) {
+                padding-left: 40px;
+            }
+
+            #usersTable td:not(:first-child):before {
+                left: 40px;
+                width: calc(40% - 40px);
             }
         }
     </style>
@@ -817,8 +872,10 @@
                         <tbody>
                             @foreach ($usuarios as $usuario)
                                 <tr>
-                                    <td><input type="checkbox" class="user-checkbox" value="{{ $usuario->id }}"
-                                            onchange="updateSelectedCount()"></td>
+                                    <td data-label="Seleccionar">
+                                        <input type="checkbox" class="user-checkbox" value="{{ $usuario->id }}"
+                                            onchange="updateSelectedCount()">
+                                    </td>
                                     <td data-label="ID">{{ $usuario->id }}</td>
                                     <td data-label="Nombre">{{ $usuario->nombre }}</td>
                                     <td data-label="Email">{{ $usuario->email }}</td>
@@ -871,7 +928,6 @@
                         <p>No hay usuarios registrados en el sistema</p>
                     </div>
                 @endif
-
             </div>
         </div>
     </div>
@@ -1516,9 +1572,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                <i class="fas fa-trash"></i>
-                                                                                                                                                                                            </button>` : ''}
+                                                                                                                                                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                                            <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
