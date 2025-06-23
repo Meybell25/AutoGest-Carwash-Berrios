@@ -421,6 +421,12 @@
             display: block;
         }
 
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
         .btn-export {
             margin: 0.5rem;
             padding: 0.5rem 1rem;
@@ -464,7 +470,10 @@
                 min-height: 40px;
                 display: flex;
                 align-items: center;
+                word-break: break-word;
+                white-space: normal;
             }
+
 
             .table td:before {
                 content: attr(data-label);
@@ -482,13 +491,15 @@
             }
 
             .badge {
-                display: block;
+                display: inline-block;
                 width: fit-content;
-                margin-bottom: 5px;
+                max-width: 100%;
             }
 
             .table-actions {
-                justify-content: flex-end;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 5px;
             }
 
             /* Header - Botones mejor espaciados */
@@ -519,6 +530,11 @@
                 display: none;
             }
 
+            #usersTable th:first-child,
+            #usersTable td:first-child {
+                display: none;
+            }
+
             /* Modales - Ajustes específicos */
             .modal-content {
                 width: 95% !important;
@@ -532,17 +548,65 @@
             }
 
             #vehiculosTable th,
-            #vehiculosTable td,
             #citasTable th,
-            #citasTable td {
-                padding: 8px 5px;
-            }
+            {
+            padding: 8px 5px;
+        }
 
-            .btn-export {
-                display: block;
-                width: 100%;
-                margin: 0.5rem 0;
-            }
+        .export-buttons {
+            gap: 10px;
+        }
+
+        #vehiculosTable td,
+        #citasTable td {
+            padding-left: 50%;
+            position: relative;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+
+        #vehiculosTable td:before,
+        #citasTable td:before {
+            content: attr(data-label);
+            position: absolute;
+            left: 15px;
+            width: 45%;
+            padding-right: 10px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        #vehiculosTable thead,
+        #citasTable thead {
+            display: none;
+        }
+
+        #vehiculosTable tr,
+        #citasTable tr {
+            display: block;
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        #vehiculosTable .badge,
+        #citasTable .badge {
+            display: inline-block;
+            width: fit-content;
+        }
+
+        .btn-export {
+            margin: 0.5rem 0;
+        }
+
+        .table td[data-label="Email"] {
+            word-break: break-word;
+            white-space: normal;
+        }
         }
 
         @media (max-width: 576px) {
@@ -588,6 +652,19 @@
                 margin-bottom: 1rem;
                 display: block;
                 border: 1px solid #ddd;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            #vehiculosTable td,
+            #citasTable td {
+                padding-left: 40%;
+            }
+
+            #vehiculosTable td:before,
+            #citasTable td:before {
+                width: 35%;
             }
         }
     </style>
@@ -858,6 +935,7 @@
         </div>
     </div>
 
+    <!-- Modal para ver registros del usuario (vehículos y citas) -->
     <!-- Modal para ver registros del usuario (vehículos y citas) -->
     <div id="registrosModal" class="modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
@@ -1379,9 +1457,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                            <i class="fas fa-trash"></i>
-                                                                                                        </button>` : ''}
+                                                                                                                                                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                <i class="fas fa-trash"></i>
+                                                                                                                                                                            </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1538,12 +1616,12 @@
             vehiculos.forEach(vehiculo => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                <td>${vehiculo.placa || 'N/A'}</td>
-                <td>${vehiculo.marca || 'N/A'}</td>
-                <td>${vehiculo.modelo || 'N/A'}</td>
-                <td>${vehiculo.tipo || 'N/A'}</td>
-                <td>${vehiculo.color || 'N/A'}</td>
-            `;
+            <td data-label="Placa">${vehiculo.placa || 'N/A'}</td>
+            <td data-label="Marca">${vehiculo.marca || 'N/A'}</td>
+            <td data-label="Modelo">${vehiculo.modelo || 'N/A'}</td>
+            <td data-label="Tipo">${vehiculo.tipo || 'N/A'}</td>
+            <td data-label="Color">${vehiculo.color || 'N/A'}</td>
+        `;
                 vehiculosBody.appendChild(row);
             });
         }
@@ -1570,19 +1648,19 @@
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                <td>${cita.id}</td>
-                <td>${new Date(cita.fecha_hora).toLocaleDateString()}</td>
-                <td>${new Date(cita.fecha_hora).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                <td>
-                    ${cita.estado === 'pendiente' ? 
-                        '<span class="badge badge-warning">Pendiente</span>' : 
-                     cita.estado === 'completada' ? 
-                        '<span class="badge badge-success">Completada</span>' : 
-                        '<span class="badge badge-danger">Cancelada</span>'}
-                </td>
-                <td>${servicios}</td>
-                <td>$${total.toFixed(2)}</td>
-            `;
+            <td data-label="ID">${cita.id}</td>
+            <td data-label="Fecha">${new Date(cita.fecha_hora).toLocaleDateString()}</td>
+            <td data-label="Hora">${new Date(cita.fecha_hora).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+            <td data-label="Estado">
+                ${cita.estado === 'pendiente' ? 
+                    '<span class="badge badge-warning">Pendiente</span>' : 
+                 cita.estado === 'completada' ? 
+                    '<span class="badge badge-success">Completada</span>' : 
+                    '<span class="badge badge-danger">Cancelada</span>'}
+            </td>
+            <td data-label="Servicios">${servicios}</td>
+            <td data-label="Total">$${total.toFixed(2)}</td>
+        `;
                 citasBody.appendChild(row);
             });
         }
