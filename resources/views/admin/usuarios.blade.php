@@ -1343,13 +1343,11 @@
                             }
                             return response.json();
                         })
-                        .then(data => {
+                        .then(async (data) => {
                             if (data.success) {
-                                Swal.fire('¡Eliminado!', data.message, 'success');
+                                await Swal.fire('¡Eliminado!', data.message, 'success');
                                 await fetchAllUsers();
                                 closeModal('usuarioModal');
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
                             }
                         })
                         .catch(error => {
@@ -1597,11 +1595,10 @@
                             }
                             return response.json();
                         })
-                        .then(data => {
-                            Swal.fire('Éxito', successMessage, 'success').then(() => {
-                                await fetchAllUsers();
-                                closeModal('usuarioModal');
-                            });
+                        .then(async (data) => { 
+                            await Swal.fire('Éxito', successMessage, 'success');
+                            await fetchAllUsers();
+                            closeModal('usuarioModal');
                         })
                         .catch(error => {
                             console.error('Error:', error);
@@ -1689,9 +1686,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                                                                                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                                                                                                                                        </button>` : ''}
+                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
