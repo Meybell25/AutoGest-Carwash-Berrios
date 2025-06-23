@@ -535,91 +535,85 @@
                 border: 1px solid #eee;
                 border-radius: 8px;
                 padding: 10px;
+                position: relative;
+                padding-left: 40px;
+                /* Espacio para el checkbox */
             }
 
+            /* Estilo para las celdas */
             #usersTable td {
-                padding-left: 45%;
-                position: relative;
-                min-height: 40px;
                 display: flex;
-                align-items: center;
+                width: 100%;
+                padding: 8px 0;
+                border: none;
                 word-break: break-word;
                 white-space: normal;
-                border: none;
             }
 
+            /* Estilo para las etiquetas (data-label) */
             #usersTable td:before {
                 content: attr(data-label);
-                position: absolute;
-                left: 15px;
-                width: 40%;
-                padding-right: 10px;
                 font-weight: 600;
                 color: var(--primary);
+                min-width: 120px;
+                display: inline-block;
             }
 
-            /* Ocultar checkbox de selección */
-            #usersTable th:first-child,
+
+            #usersTable td:first-child {
+                position: absolute;
+                left: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 30px;
+                padding: 0;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                height: auto;
+            }
+
+            #usersTable td:first-child:before {
+                display: none;
+            }
+
+            #usersTable td:not(:first-child) {
+                padding-left: 50px;
+            }
+
+            #usersTable td:not(:first-child):before {
+                left: 50px;
+                width: calc(45% - 50px);
+            }
+
+            #usersTable .table-actions {
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            /* Ajuste para badges */
+            #usersTable .badge {
+                display: inline-block;
+                width: fit-content;
+            }
+
+            /* Modales - Ajustes específicos */
+            .modal-content {
+                width: 95% !important;
+                padding: 15px !important;
+            }
+
+            /* Tablas en modales */
+            #vehiculosTable,
+            #citasTable {
+                font-size: 0.85rem;
+            }
+
+            #vehiculosTable th,
+            #citasTable th,
             {
-            display: none;
-        }
-
-        #usersTable td:first-child {
-            position: absolute;
-            left: 10px;
-            padding-left: 0 !important;
-            width: 30px;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-        }
-
-        #usersTable td:first-child:before {
-            display: none;
-        }
-
-        #usersTable td:not(:first-child) {
-            padding-left: 50px;
-        }
-
-        #usersTable td:not(:first-child):before {
-            left: 50px;
-            width: calc(45% - 50px);
-        }
-
-
-
-        /* Ajustes para badges */
-        #usersTable .badge {
-            display: inline-block;
-            width: fit-content;
-            max-width: 100%;
-        }
-
-        /* Ajustes para acciones */
-        #usersTable .table-actions {
-            justify-content: flex-start;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        /* Modales - Ajustes específicos */
-        .modal-content {
-            width: 95% !important;
-            padding: 15px !important;
-        }
-
-        /* Tablas en modales */
-        #vehiculosTable,
-        #citasTable {
-            font-size: 0.85rem;
-        }
-
-        #vehiculosTable th,
-        #citasTable th,
-        {
-        padding: 8px 5px;
+            padding: 8px 5px;
         }
 
         .export-buttons {
@@ -1572,9 +1566,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                                            <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                        </button>` : ''}
+                                                                                                                                                                                                                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                                                        <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                    </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
