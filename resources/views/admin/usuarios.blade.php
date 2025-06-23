@@ -813,10 +813,10 @@
                         </select>
                     </div>
                     <div class="export-buttons">
-                        <button class="btn btn-success" onclick="exportToExcel()">
+                        <button class="btn btn-success btn-export" onclick="exportToExcel()">
                             <i class="fas fa-file-excel"></i> Excel
                         </button>
-                        <button class="btn btn-danger" onclick="exportToPDF()">
+                        <button class="btn btn-danger btn-export" onclick="exportToPDF()">
                             <i class="fas fa-file-pdf"></i> PDF
                         </button>
                     </div>
@@ -1553,9 +1553,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                                                    <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                                </button>` : ''}
+                                                                                                                                                                                                                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                                                        <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                    </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
