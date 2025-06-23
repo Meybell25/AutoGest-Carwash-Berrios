@@ -1425,8 +1425,8 @@
             ====================== */
         .search-filter-container {
             display: flex;
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: 15px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
