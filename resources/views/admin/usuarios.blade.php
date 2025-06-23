@@ -1245,7 +1245,7 @@
 
                     try {
                         const response = await fetch(
-                            `/admin/usuarios/check-email?email=${encodeURIComponent(email)}`);
+                            `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}`);
                         const data = await response.json();
 
                         if (!data.available) {
@@ -1335,6 +1335,11 @@
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
             const eyeIcon = document.getElementById(`${inputId}Eye`);
+
+            if (!input || !eyeIcon) {
+                console.error(`Elemento no encontrado para inputId: ${inputId}`);
+                return;
+            }
 
             if (input.type === 'password') {
                 input.type = 'text';
@@ -1654,9 +1659,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                                                                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                                                                                                                    <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                                                                                                </button>` : ''}
+                                                                                                                                                                                                                                                                                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                                                                                                                                <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                                                                                            </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1703,6 +1708,20 @@
             }
 
             try {
+                const formData = {
+                    nombre: form.nombre.value.trim(),
+                    email: form.email.value.trim(),
+                    telefono: form.telefono.value.trim() || null,
+                    estado: form.estado.value === '1',
+                    rol: form.rol.value
+                };
+
+                // Solo agregar password si es creación
+                if (!usuarioId) {
+                    formData.password = form.password.value;
+                    formData.password_confirmation = form.password_confirmation.value;
+                }
+
                 const response = await fetch(url, {
                     method: method,
                     headers: {
@@ -1710,51 +1729,39 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        nombre: form.nombre.value.trim(),
-                        email: form.email.value.trim(),
-                        telefono: form.telefono.value.trim() || null,
-                        estado: form.estado.value === '1',
-                        rol: form.rol.value,
-                        password: form.password?.value,
-                        password_confirmation: form.password_confirmation?.value
-                    })
+                    body: JSON.stringify(formData)
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
+                    // Mostrar errores de validación específicos si existen
+                    if (data.errors) {
+                        const errorMessages = Object.values(data.errors).flat().join('<br>');
+                        throw new Error(errorMessages);
+                    }
                     throw new Error(data.message || 'Error al procesar la solicitud');
                 }
 
-                // Éxito - limpiar formulario solo si es creación (no edición)
-                if (!usuarioId) {
-                    form.reset();
-                    // Resetear validaciones visuales
-                    document.querySelectorAll('.password-requirements li').forEach(li => {
-                        li.style.color = '#6b7280';
-                    });
-                    document.getElementById('passwordMatchMessage').textContent = '';
-                }
-
-                // Mostrar mensaje de éxito y recargar la página
-                Swal.fire({
+                // Éxito - mostrar mensaje y recargar
+                await Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
                     text: data.message,
-                    willClose: () => {
-                        closeModal('usuarioModal');
-                        location.reload();
-                    }
+                    timer: 2000,
+                    showConfirmButton: false
                 });
+
+                // Cerrar modal y recargar
+                closeModal('usuarioModal');
+                location.reload();
 
             } catch (error) {
                 console.error('Error:', error);
-
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: error.message,
+                    html: error.message, // Usar html para mostrar saltos de línea
                     footer: usuarioId ? `ID: ${usuarioId}` : ''
                 });
             } finally {
@@ -1762,7 +1769,6 @@
                 submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
             }
         }
-
         // Asignar el evento (seguro para modales dinámicos)
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('usuarioForm');

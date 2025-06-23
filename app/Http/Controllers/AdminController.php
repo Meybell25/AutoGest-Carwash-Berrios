@@ -261,18 +261,18 @@ class AdminController extends Controller
      */
     public function storeUser(Request $request)
     {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:usuarios',
-            'telefono' => 'nullable|string|max:20',
-            'rol' => 'required|in:cliente,empleado,admin',
-            'password' => 'required|string|min:8|confirmed',
-            'estado' => 'required|boolean'
-        ]);
-
         DB::beginTransaction();
 
         try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:usuarios',
+                'telefono' => 'nullable|string|max:20',
+                'rol' => 'required|in:cliente,empleado,admin',
+                'password' => 'required|string|min:8|confirmed',
+                'estado' => 'required|boolean'
+            ]);
+
             $user = Usuario::create([
                 'nombre' => $validated['nombre'],
                 'email' => $validated['email'],
@@ -287,16 +287,20 @@ class AdminController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Usuario creado correctamente',
-                'user' => $user,
-                'redirect' => route('admin.usuarios')
+                'user' => $user
             ]);
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
-
             return response()->json([
                 'success' => false,
-                'message' => 'Error al crear usuario: ' . $e->getMessage(),
-                'errors' => ['email' => 'El correo electrónico ya está en uso'] // Mensaje más específico
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear usuario: ' . $e->getMessage()
             ], 500);
         }
     }
