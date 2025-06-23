@@ -353,29 +353,15 @@ class AdminController extends Controller
     {
         $usuario = Usuario::findOrFail($id);
 
-        // Validar que no se modifiquen rol o email
-        if ($request->has('rol') && $request->rol !== $usuario->rol) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se permite modificar el rol de un usuario existente'
-            ], 403);
-        }
-
-        if ($request->has('email') && $request->email !== $usuario->email) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se permite modificar el correo electrónico'
-            ], 403);
-        }
-
+        // Validación básica
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'telefono' => 'nullable|string|max:20',
             'estado' => 'required|boolean',
-            // No requerir password en la actualización
+            // No incluimos password, rol o email aquí
         ]);
 
-        // Auditoría (logs)
+        // Auditoría (logs) - Mantenemos este bloque importante
         Log::channel('admin_actions')->info("Usuario actualizado", [
             'admin_id' => auth()->id(),
             'user_id' => $usuario->id,
@@ -387,7 +373,7 @@ class AdminController extends Controller
         // Guardar cambios
         $usuario->update($validated);
 
-        // Notificación solo si cambiO el estado
+        // Notificación solo si cambió el estado - Mantenemos esta funcionalidad
         if ($usuario->wasChanged('estado')) {
             \App\Models\Notificacion::crear(
                 $usuario->id,
@@ -401,7 +387,6 @@ class AdminController extends Controller
             'message' => 'Usuario actualizado correctamente'
         ]);
     }
-
     public function destroy($id)
     {
         $usuario = Usuario::findOrFail($id);

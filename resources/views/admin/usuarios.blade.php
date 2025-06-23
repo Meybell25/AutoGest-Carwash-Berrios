@@ -879,8 +879,9 @@
             const modal = document.getElementById('usuarioModal');
             const form = document.getElementById('usuarioForm');
             const title = document.getElementById('modalTitleText');
-            const rolField = document.getElementById('rol');
-            const emailField = document.getElementById('email');
+            const passwordFields = document.getElementById('passwordFields');
+            const passwordInput = document.getElementById('password');
+            const passwordConfirmation = document.getElementById('password_confirmation');
 
             // Resetear el formulario
             form.reset();
@@ -889,9 +890,9 @@
             if (usuarioId) {
                 // Modo edición
                 title.textContent = 'Editar Usuario';
-                rolField.disabled = true;
-                emailField.disabled = true;
-                document.getElementById('passwordFields').style.display = 'none';
+                passwordFields.style.display = 'none';
+                passwordInput.required = false;
+                passwordConfirmation.required = false;
 
                 // Buscar el usuario en los datos cargados
                 const usuario = allUsersData.find(u => u.id == usuarioId);
@@ -899,75 +900,20 @@
                 if (usuario) {
                     document.getElementById('usuario_id').value = usuario.id;
                     document.getElementById('nombre').value = usuario.nombre;
-                    emailField.value = usuario.email;
-                    emailField.dataset.originalValue = usuario.email; // Guardar valor original
+                    document.getElementById('email').value = usuario.email;
                     document.getElementById('telefono').value = usuario.telefono || '';
-                    rolField.value = usuario.rol;
+                    document.getElementById('rol').value = usuario.rol;
                     document.getElementById('estado').value = usuario.estado ? '1' : '0';
-
-                    // No cargamos la contraseña por seguridad
-                    document.getElementById('password').required = false;
-                    document.getElementById('password_confirmation').required = false;
-                } else {
-                    // Si no está en los datos cargados, hacer petición al servidor
-                    fetch(`/admin/usuarios/${usuarioId}/edit`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Usuario no encontrado');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            document.getElementById('usuario_id').value = data.id;
-                            document.getElementById('nombre').value = data.nombre;
-                            emailField.value = data.email;
-                            emailField.dataset.originalValue = data.email; // Guardar valor original
-                            document.getElementById('telefono').value = data.telefono || '';
-                            document.getElementById('rol').value = data.rol;
-                            document.getElementById('estado').value = data.estado ? '1' : '0';
-
-                            // Deshabilitar campos sensibles
-                            rolField.disabled = true;
-                            emailField.disabled = true;
-
-                            // No cargamos la contraseña por seguridad
-                            document.getElementById('password').required = false;
-                            document.getElementById('password_confirmation').required = false;
-                        })
-                        .catch(error => {
-                            console.error('Error al cargar usuario:', error);
-                            Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
-                            closeModal('usuarioModal');
-                        });
                 }
             } else {
                 // Modo creación
                 title.textContent = 'Crear Nuevo Usuario';
-                rolField.disabled = false;
-                emailField.disabled = false;
-                rolField.value = 'cliente'; // Valor por defecto
-                document.getElementById('password').required = true;
-                document.getElementById('password_confirmation').required = true;
-                document.getElementById('passwordFields').style.display = 'block';
+                passwordFields.style.display = 'block';
+                passwordInput.required = true;
+                passwordConfirmation.required = true;
             }
 
             modal.style.display = 'flex';
-        }
-
-        // Función para editar usuario 
-        function editarUsuario(usuarioId) {
-            const usuario = allUsersData.find(u => u.id == usuarioId);
-
-            if (usuario && usuario.rol === 'admin') {
-                Swal.fire({
-                    title: 'Acción restringida',
-                    text: 'No puedes editar la información de un administrador desde esta interfaz',
-                    icon: 'warning'
-                });
-                return;
-            }
-
-            mostrarModalUsuario(usuarioId);
         }
 
         // Función para confirmar eliminación 
@@ -1290,9 +1236,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                            <i class="fas fa-trash"></i>
-                                        </button>` : ''}
+                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1307,67 +1253,57 @@
 
         // Función para manejar envío de formulario 
         function handleUsuarioFormSubmit(e) {
-            e.preventDefault();
+    e.preventDefault();
 
-            const form = e.target;
-            const disabledFields = form.querySelectorAll('[disabled]');
+    const form = e.target;
+    const formData = new FormData(form);
+    const usuarioId = formData.get('id');
+    const method = usuarioId ? 'PUT' : 'POST';
+    const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
 
-            // Habilitar temporalmente los campos deshabilitados
-            disabledFields.forEach(field => {
-                field.disabled = false;
-                // Si es el campo de email, asegurarse de que tenga un valor
-                if (field.id === 'email' && !field.value) {
-                    field.value = document.getElementById('email').dataset.originalValue;
-                }
-            });
+    // Si es edición, no enviar campos de contraseña
+    if (usuarioId) {
+        formData.delete('password');
+        formData.delete('password_confirmation');
+    }
 
-            const formData = new FormData(form);
-            const usuarioId = formData.get('id');
-            const method = usuarioId ? 'PUT' : 'POST';
-            const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
-
-            fetch(url, {
-                    method: method,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    // Volver a deshabilitar los campos
-                    disabledFields.forEach(field => field.disabled = true);
-
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw err;
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    Swal.fire(
-                        '¡Éxito!',
-                        usuarioId ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente',
-                        'success'
-                    ).then(() => {
-                        closeModal('usuarioModal');
-                        location.reload();
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    let errorMessage = 'Ocurrió un error al procesar la solicitud';
-
-                    if (error.errors) {
-                        errorMessage = Object.values(error.errors).join('\n');
-                    } else if (error.message) {
-                        errorMessage = error.message;
-                    }
-
-                    Swal.fire('Error', errorMessage, 'error');
-                });
+    fetch(url, {
+        method: method,
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw err; });
         }
+        return response.json();
+    })
+    .then(data => {
+        Swal.fire(
+            '¡Éxito!',
+            usuarioId ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente',
+            'success'
+        ).then(() => {
+            closeModal('usuarioModal');
+            location.reload();
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        let errorMessage = 'Ocurrió un error al procesar la solicitud';
+
+        if (error.errors) {
+            errorMessage = Object.values(error.errors).join('\n');
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        Swal.fire('Error', errorMessage, 'error');
+    });
+}
 
 
         // =============================================
