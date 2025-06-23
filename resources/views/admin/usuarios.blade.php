@@ -863,7 +863,7 @@
         // =============================================
         // VARIABLES GLOBALES
         // =============================================
-        let allUsersData = @json($usuarios->items());
+        let allUsersData = @json($usuarios);
         let filteredUsers = [];
         let currentUser = {
             id: {{ Auth::id() }},
@@ -1256,7 +1256,6 @@
 
             updateTableWithFilteredResults();
         }
-
         // Función para actualizar tabla con resultados filtrados 
         function updateTableWithFilteredResults() {
             const tbody = document.querySelector('#usersTable tbody');
@@ -1291,9 +1290,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>` : ''}
+                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
