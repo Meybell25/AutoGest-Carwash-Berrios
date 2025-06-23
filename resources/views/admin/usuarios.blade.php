@@ -692,12 +692,11 @@
                             style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Correo
                             Electrónico</label>
                         <input type="email" id="email" name="email" class="form-control" required
-                            placeholder="Ej: juan@example.com" {{ isset($usuario) ? 'disabled' : '' }}>
-                        @if (isset($usuario))
-                            <small style="color: var(--text-secondary); display: block; margin-top: 5px;">
-                                El correo electrónico no puede ser modificado después de crear el usuario
-                            </small>
-                        @endif
+                            placeholder="Ej: juan@example.com" readonly> <!-- Cambiado de disabled a readonly -->
+                        <small id="emailHelp"
+                            style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
+                            El correo electrónico no puede ser modificado
+                        </small>
                     </div>
                 </div>
 
@@ -713,15 +712,15 @@
                     <div class="form-group">
                         <label for="rol"
                             style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Rol</label>
-                        <select id="rol" name="rol" class="form-control" required
-                            {{ isset($usuario) ? 'disabled' : '' }}>
+                        <select id="rol" name="rol" class="form-control" required readonly>
+                            <!-- Cambiado de disabled a readonly -->
                             <option value="cliente">Cliente</option>
                             <option value="empleado">Empleado</option>
                             <option value="admin">Administrador</option>
                         </select>
-                        <small style="color: var(--text-secondary); display: block; margin-top: 5px;">
-                            El rol no puede ser modificado después de crear el usuario para mantener la integridad de
-                            los datos.
+                        <small id="rolHelp"
+                            style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
+                            El rol no puede ser modificado después de crear el usuario
                         </small>
                     </div>
                 </div>
@@ -905,9 +904,11 @@
 
             if (usuarioId) {
                 // Modo edición
-                title.textContent = 'Editar Usuario';
-                rolField.disabled = true;
-                emailField.disabled = true;
+                document.getElementById('modalTitleText').textContent = 'Editar Usuario';
+                document.getElementById('email').readOnly = true;
+                document.getElementById('rol').readOnly = true;
+                document.getElementById('emailHelp').style.display = 'block';
+                document.getElementById('rolHelp').style.display = 'block';
                 passwordFields.style.display = 'none';
                 document.getElementById('password').required = false;
                 document.getElementById('password_confirmation').required = false;
@@ -947,11 +948,13 @@
                 }
             } else {
                 // Modo creación
-                title.textContent = 'Crear Nuevo Usuario';
-                rolField.disabled = false;
-                emailField.disabled = false;
-                rolField.value = 'cliente'; // Valor por defecto
+                document.getElementById('modalTitleText').textContent = 'Crear Nuevo Usuario';
+                document.getElementById('email').readOnly = false;
+                document.getElementById('rol').readOnly = false;
+                document.getElementById('emailHelp').style.display = 'none';
+                document.getElementById('rolHelp').style.display = 'none';
                 passwordFields.style.display = 'block';
+                rolField.value = 'cliente'; // Valor por defecto
                 document.getElementById('password').required = true;
                 document.getElementById('password_confirmation').required = true;
             }
@@ -1279,9 +1282,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>` : ''}
+                                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                    <i class="fas fa-trash"></i>
+                                                                                </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1295,91 +1298,84 @@
         }
 
         // Función para manejar envío de formulario 
-        function handleUsuarioFormSubmit(e) {
+        async function handleUsuarioFormSubmit(e) {
             e.preventDefault();
 
             const form = e.target;
-            const formData = new FormData(form);
-            const usuarioId = formData.get('id');
+            const usuarioId = form.querySelector('#usuario_id').value;
             const method = usuarioId ? 'PUT' : 'POST';
             const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
 
-            // Convertir el estado a booleano
-            const estadoValue = document.getElementById('estado').value === '1';
-            formData.set('estado', estadoValue);
+            // 1. Recoger solo campos modificados (evitando enviar vacíos)
+            const payload = {
+                nombre: form.nombre.value.trim(),
+                telefono: form.telefono.value.trim() || null, // Envía null si está vacío
+                estado: form.estado.value === '1', // Convertir a booleano
+                rol: form.rol.value,
+                ...(usuarioId ? {} : { // Solo para creación
+                    email: form.email.value.trim(),
+                    password: form.password.value,
+                    password_confirmation: form.password_confirmation.value
+                })
+            };
 
-            // Debug: verificar datos antes de enviar
-            console.log('Datos a enviar:');
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ':', pair[1]);
-            }
-
-            // Asegurarse que los campos requeridos tengan valor
-            if (!formData.get('nombre')) {
+            // 2. Validación frontend básica
+            if (!payload.nombre) {
                 Swal.fire('Error', 'El nombre es requerido', 'error');
                 return;
             }
 
-            // Si es edición, no enviar campos de contraseña
-            if (usuarioId) {
-                formData.delete('password');
-                formData.delete('password_confirmation');
+            // 3. Debug (opcional)
+            console.log('Payload a enviar:', payload);
 
-                // Asegurar que email y rol tengan valores si están deshabilitados
-                if (document.getElementById('email').disabled) {
-                    formData.set('email', document.getElementById('email').value);
-                }
-                if (document.getElementById('rol').disabled) {
-                    formData.set('rol', document.getElementById('rol').value);
-                }
-            }
-
-            // Agregar estado si no está presente
-            if (!formData.get('estado')) {
-                formData.set('estado', document.getElementById('estado').value);
-            }
-
-            fetch(url, {
+            try {
+                const response = await fetch(url, {
                     method: method,
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            // Mostrar errores de validación de manera más clara
-                            let errorMessages = [];
-                            if (err.errors) {
-                                for (let field in err.errors) {
-                                    errorMessages.push(err.errors[field].join('\n'));
-                                }
-                            } else {
-                                errorMessages.push(err.message || 'Error desconocido');
-                            }
-                            throw new Error(errorMessages.join('\n'));
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    Swal.fire(
-                        '¡Éxito!',
-                        usuarioId ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente',
-                        'success'
-                    ).then(() => {
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const errorMsg = data.errors ?
+                        Object.values(data.errors).flat().join('\n') :
+                        data.message || 'Error desconocido';
+                    throw new Error(errorMsg);
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    willClose: () => {
                         closeModal('usuarioModal');
                         location.reload();
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire('Error', error.message, 'error');
+                    }
                 });
+
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message,
+                    footer: usuarioId ? `ID: ${usuarioId}` : ''
+                });
+            }
         }
 
+        // Asignar el evento (seguro para modales dinámicos)
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('usuarioForm');
+            if (form) {
+                form.addEventListener('submit', handleUsuarioFormSubmit);
+            }
+        });
 
         // =============================================
         // FUNCIONES DE REGISTROS DE USUARIO 

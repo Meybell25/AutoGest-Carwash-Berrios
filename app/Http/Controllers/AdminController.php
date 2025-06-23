@@ -354,12 +354,20 @@ class AdminController extends Controller
     {
         $usuario = Usuario::findOrFail($id);
 
-        // Validación con mensajes personalizados
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
+        // Validación condicional
+        $rules = [
             'telefono' => 'nullable|string|max:20',
-            'estado' => 'required|boolean',
-        ], [
+        ];
+
+        if ($request->has('nombre')) {
+            $rules['nombre'] = 'required|string|max:255';
+        }
+
+        if ($request->has('estado')) {
+            $rules['estado'] = 'required|boolean';
+        }
+
+        $validated = $request->validate($rules, [
             'nombre.required' => 'El nombre es obligatorio',
             'nombre.max' => 'El nombre no puede exceder 255 caracteres',
             'telefono.max' => 'El teléfono no puede exceder 20 caracteres',
@@ -373,10 +381,10 @@ class AdminController extends Controller
         DB::beginTransaction();
 
         try {
-            // Actualizar usuario
-            $usuario->update($validated);
+            // Actualizar solo los campos validados
+            $usuario->fill($validated)->save();
 
-            // Auditoría (logs)
+            // Auditoría
             Log::channel('admin_actions')->info("Usuario actualizado", [
                 'admin_id' => auth()->id(),
                 'user_id' => $usuario->id,
@@ -386,11 +394,11 @@ class AdminController extends Controller
             ]);
 
             // Notificación solo si cambió el estado
-            if ($estadoAnterior != $usuario->estado) {
-                \App\Models\Notificacion::crear(
+            if (array_key_exists('estado', $validated) && $estadoAnterior != $usuario->estado) {
+                Notificacion::crear(
                     $usuario->id,
                     'Tu estado de cuenta ha sido actualizado a: ' . ($usuario->estado ? 'ACTIVO' : 'INACTIVO'),
-                    \App\Models\Notificacion::CANAL_SISTEMA
+                    Notificacion::CANAL_SISTEMA
                 );
             }
 
@@ -398,22 +406,24 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Usuario actualizado correctamente'
+                'message' => 'Usuario actualizado correctamente',
+                'data' => $usuario->fresh()
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
-            Log::error("Error al actualizar usuario: " . $e->getMessage(), [
-                'user_id' => $id,
-                'admin_id' => auth()->id()
+            Log::error("Error al actualizar usuario ID {$id}: " . $e->getMessage(), [
+                'exception' => $e
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error al actualizar el usuario: ' . $e->getMessage()
+                'message' => 'Error al actualizar el usuario',
+                'error' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         }
     }
+
     public function destroy($id)
     {
         $usuario = Usuario::findOrFail($id);
