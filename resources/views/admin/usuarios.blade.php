@@ -208,13 +208,15 @@
             gap: 15px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            width: 100%;
         }
 
         .search-box,
         .filter-select,
         .export-buttons {
-            flex: 1;
-            min-width: 250px;
+            flex: 1 1 100%;
+            min-width: 100%;
+            margin-bottom: 10px;
         }
 
         .form-control {
@@ -429,14 +431,14 @@
 
         .export-buttons {
             display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 10px;
         }
 
+
         .btn-export {
-            margin: 0.5rem;
-            padding: 0.5rem 1rem;
-            min-width: 100px;
+            width: 100%;
+            margin: 0;
         }
 
         .table-responsive {
@@ -458,17 +460,17 @@
                 gap: 10px;
             }
 
-            .search-box,
+            . .search-box,
             .filter-select,
-            .export-buttons,
-            .search-filter-container>div {
-                width: 100% !important;
-                min-width: 100% !important;
-                margin-bottom: 10px;
+            .export-buttons {
+                flex: 1;
+                min-width: 250px;
+                margin-bottom: 0;
             }
 
             .export-buttons {
-                flex-direction: column;
+                flex: none;
+                display: flex;
                 gap: 10px;
             }
 
@@ -635,9 +637,6 @@
             padding: 8px 5px;
         }
 
-        .export-buttons {
-            gap: 10px;
-        }
 
         #vehiculosTable td,
         #citasTable td {
@@ -1554,9 +1553,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                            <i class="fas fa-trash"></i>
-                                                                                                                                                                                                        </button>` : ''}
+                                                                                                                                                                                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                                                    <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
