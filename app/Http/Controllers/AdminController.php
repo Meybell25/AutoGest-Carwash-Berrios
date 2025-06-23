@@ -270,6 +270,8 @@ class AdminController extends Controller
             'estado' => 'required|boolean'
         ]);
 
+        DB::beginTransaction();
+
         try {
             $user = Usuario::create([
                 'nombre' => $validated['nombre'],
@@ -280,15 +282,21 @@ class AdminController extends Controller
                 'estado' => $validated['estado']
             ]);
 
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Usuario creado correctamente',
-                'user' => $user
+                'user' => $user,
+                'redirect' => route('admin.usuarios')
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error al crear usuario: ' . $e->getMessage()
+                'message' => 'Error al crear usuario: ' . $e->getMessage(),
+                'errors' => ['email' => 'El correo electrónico ya está en uso'] // Mensaje más específico
             ], 500);
         }
     }
@@ -496,6 +504,17 @@ class AdminController extends Controller
         return response()->json([
             'vehiculos' => $usuario->vehiculos,
             'citas' => $usuario->citas
+        ]);
+    }
+    public function checkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $exists = Usuario::where('email', $request->email)->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'Email ya registrado' : 'Email disponible'
         ]);
     }
 }

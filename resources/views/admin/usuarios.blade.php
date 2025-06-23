@@ -1173,9 +1173,14 @@
             const emailField = document.getElementById('email');
             const passwordFields = document.getElementById('passwordFields');
 
-            // Resetear el formulario
+            // Resetear el formulario y listeners
             form.reset();
             document.getElementById('usuario_id').value = '';
+
+            // Remover cualquier listener previo de email
+            const emailInput = document.getElementById('email');
+            const newEmailInput = emailInput.cloneNode(true);
+            emailInput.parentNode.replaceChild(newEmailInput, emailInput);
 
             if (usuarioId) {
                 // Modo edición
@@ -1194,9 +1199,9 @@
                 if (usuario) {
                     document.getElementById('usuario_id').value = usuario.id;
                     document.getElementById('nombre').value = usuario.nombre;
-                    emailField.value = usuario.email;
+                    document.getElementById('email').value = usuario.email;
                     document.getElementById('telefono').value = usuario.telefono || '';
-                    rolField.value = usuario.rol;
+                    document.getElementById('rol').value = usuario.rol;
                     document.getElementById('estado').value = usuario.estado ? '1' : '0';
                 } else {
                     // Si no está en los datos cargados, hacer petición al servidor
@@ -1210,7 +1215,7 @@
                         .then(data => {
                             document.getElementById('usuario_id').value = data.id;
                             document.getElementById('nombre').value = data.nombre;
-                            emailField.value = data.email;
+                            document.getElementById('email').value = data.email;
                             document.getElementById('telefono').value = data.telefono || '';
                             document.getElementById('rol').value = data.rol;
                             document.getElementById('estado').value = data.estado ? '1' : '0';
@@ -1229,17 +1234,42 @@
                 document.getElementById('emailHelp').style.display = 'none';
                 document.getElementById('rolHelp').style.display = 'none';
                 passwordFields.style.display = 'block';
-                rolField.value = 'cliente'; // Valor por defecto
+                document.getElementById('rol').value = 'cliente'; // Valor por defecto
                 document.getElementById('password').required = true;
                 document.getElementById('password_confirmation').required = true;
+
+                // Validación en tiempo real para email (solo en creación)
+                document.getElementById('email').addEventListener('blur', async function() {
+                    const email = this.value;
+                    if (!email) return;
+
+                    try {
+                        const response = await fetch(
+                            `/admin/usuarios/check-email?email=${encodeURIComponent(email)}`);
+                        const data = await response.json();
+
+                        if (!data.available) {
+                            this.setCustomValidity('Este correo electrónico ya está registrado');
+                            Swal.fire('Advertencia', 'Este correo electrónico ya está registrado', 'warning');
+                        } else {
+                            this.setCustomValidity('');
+                        }
+                    } catch (error) {
+                        console.error('Error al verificar email:', error);
+                    }
+                });
             }
 
-            // Resetear validaciones
+            // Resetear validaciones visuales
             document.querySelectorAll('.password-requirements li').forEach(li => {
                 li.style.color = '#6b7280';
             });
             document.getElementById('passwordMatchMessage').textContent = '';
 
+            // Resetear el botón de submit
+            const submitBtn = document.querySelector('#usuarioForm button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
 
             modal.style.display = 'flex';
         }
@@ -1624,9 +1654,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                                                                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                                                                                        <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                                                                    </button>` : ''}
+                                                                                                                                                                                                                                                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                                                                                                                    <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                                                                                </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1644,31 +1674,33 @@
             e.preventDefault();
 
             const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
             const usuarioId = form.querySelector('#usuario_id').value;
+
+            // Deshabilitar el botón para evitar doble envío
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
             const method = usuarioId ? 'PUT' : 'POST';
             const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
 
-            // 1. Recoger solo campos modificados (evitando enviar vacíos)
-            const payload = {
-                nombre: form.nombre.value.trim(),
-                telefono: form.telefono.value.trim() || null, // Envía null si está vacío
-                estado: form.estado.value === '1', // Convertir a booleano
-                rol: form.rol.value,
-                ...(usuarioId ? {} : { // Solo para creación
-                    email: form.email.value.trim(),
-                    password: form.password.value,
-                    password_confirmation: form.password_confirmation.value
-                })
-            };
+            // Validar contraseña si estamos en modo creación
+            if (!usuarioId) {
+                const password = form.password.value;
+                const isPasswordStrong = validatePasswordStrength(password);
+                const doPasswordsMatch = validatePasswordMatch();
 
-            // 2. Validación frontend básica
-            if (!payload.nombre) {
-                Swal.fire('Error', 'El nombre es requerido', 'error');
-                return;
+                if (!isPasswordStrong || !doPasswordsMatch) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error en la contraseña',
+                        text: 'Por favor, asegúrate de que la contraseña cumpla con todos los requisitos y que ambas contraseñas coincidan.'
+                    });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
+                    return;
+                }
             }
-
-            // 3. Debug (opcional)
-            console.log('Payload a enviar:', payload);
 
             try {
                 const response = await fetch(url, {
@@ -1678,18 +1710,34 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        nombre: form.nombre.value.trim(),
+                        email: form.email.value.trim(),
+                        telefono: form.telefono.value.trim() || null,
+                        estado: form.estado.value === '1',
+                        rol: form.rol.value,
+                        password: form.password?.value,
+                        password_confirmation: form.password_confirmation?.value
+                    })
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    const errorMsg = data.errors ?
-                        Object.values(data.errors).flat().join('\n') :
-                        data.message || 'Error desconocido';
-                    throw new Error(errorMsg);
+                    throw new Error(data.message || 'Error al procesar la solicitud');
                 }
 
+                // Éxito - limpiar formulario solo si es creación (no edición)
+                if (!usuarioId) {
+                    form.reset();
+                    // Resetear validaciones visuales
+                    document.querySelectorAll('.password-requirements li').forEach(li => {
+                        li.style.color = '#6b7280';
+                    });
+                    document.getElementById('passwordMatchMessage').textContent = '';
+                }
+
+                // Mostrar mensaje de éxito y recargar la página
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
@@ -1702,12 +1750,16 @@
 
             } catch (error) {
                 console.error('Error:', error);
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
                     text: error.message,
                     footer: usuarioId ? `ID: ${usuarioId}` : ''
                 });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
             }
         }
 
