@@ -52,9 +52,9 @@ Route::middleware('auth')->group(function () {
                 return redirect('/');
         }
     })->name('dashboard');
-    
+
     Route::resource('vehiculos', VehiculoController::class);
-    
+
     // Nuevas rutas para Servicios
     Route::prefix('servicios')->name('servicios.')->group(function () {
         Route::get('/', [ServicioController::class, 'index'])->name('index');
@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rutas de Admin
+<<<<<<< HEAD
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
     // Rutas principales
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -93,7 +94,56 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
     });
 });
+=======
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        // Rutas principales
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        
+        // Ruta para datos del dashboard (AJAX)
+        Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
+>>>>>>> origin/main
 
+        // Rutas de usuarios
+        Route::prefix('usuarios')->name('usuarios.')->group(function () {
+            Route::get('/', [AdminController::class, 'usuarios'])->name('index');
+            Route::post('/', [AdminController::class, 'storeUsuario'])->name('store');
+            Route::get('/all', [AdminController::class, 'getAllUsers'])->name('all');
+            Route::put('/{usuario}', [AdminController::class, 'update'])->name('update');
+            Route::delete('/{usuario}', [AdminController::class, 'destroy'])->name('destroy');
+            Route::get('/{usuario}/registros', [AdminController::class, 'getUserRecords'])->name('registros');
+
+            Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
+
+            // Rutas para acciones masivas
+            Route::post('/bulk-activate', [AdminController::class, 'bulkActivate'])->name('bulk-activate');
+            Route::post('/bulk-deactivate', [AdminController::class, 'bulkDeactivate'])->name('bulk-deactivate');
+            Route::delete('/bulk-delete', [AdminController::class, 'bulkDelete'])->name('bulk-delete');
+        });
+
+        // Rutas de citas
+        Route::prefix('citas')->name('citas.')->group(function () {
+            Route::get('/create', [AdminController::class, 'createCita'])->name('create');
+            Route::post('/', [AdminController::class, 'storeCita'])->name('store');
+        });
+
+        // Rutas de reportes
+        Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
+
+        // Rutas de servicios
+        Route::prefix('servicios')->name('servicios.')->group(function () {
+            Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
+            Route::get('/crear', [ServicioController::class, 'create'])->name('create');
+            Route::post('/', [ServicioController::class, 'store'])->name('store');
+            Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
+            Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
+        });
+    });
+
+    
 // Rutas de Empleado
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])->prefix('empleado')->name('empleado.')->group(function () {
     Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');

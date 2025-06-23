@@ -9,8 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<<<<<<< HEAD
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     @vite(['resources/js/app.js'])
+=======
+    <script src="https://cdn.tailwindcss.com"></script>
+>>>>>>> origin/main
     <style>
         /* ======================
         ESTILOS GENERALES
@@ -279,10 +283,13 @@
         }
 
         .header-actions {
+            background: transparent;
+            border: none;
             display: flex;
             gap: 12px;
             align-items: center;
             flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         /* ======================
@@ -934,6 +941,15 @@
             animation: modalSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        #usuarioModal .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #usuarioModal {
+            overflow: hidden;
+        }
+
         @keyframes modalSlideIn {
             from {
                 opacity: 0;
@@ -947,12 +963,15 @@
         }
 
         .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            z-index: 1000;
+            /* Asegura que esté por encima de todo */
             color: var(--primary);
-            float: right;
-            font-size: 30px;
-            font-weight: bold;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
 
         .close-modal:hover {
@@ -961,6 +980,10 @@
 
         .form-group {
             margin-bottom: 20px;
+        }
+
+        .form-group .relative {
+            position: relative;
         }
 
         .form-group label {
@@ -990,209 +1013,75 @@
             outline: none;
         }
 
-        /* ======================
-   DISEÑO DE MODAL USUARIO FORM
-   ====================== */
-        /* Contenedor principal del modal */
-        #usuarioModal .modal-content {
-            max-width: 600px;
-            width: 90%;
-            padding: 25px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
+        /* Estilos para el formulario de usuario en el modal */
 
-        /* Estructura del formulario */
-        #usuarioForm {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        /* Grupos de formulario */
-        .form-group {
-            margin-bottom: 20px;
+        .password-input-container {
             position: relative;
+            width: 100%;
         }
 
-        /* Elementos de ancho completo */
-        .full-width,
-        .password-container,
-        .password-strength,
-        button[type="submit"] {
-            grid-column: span 2;
-        }
-
-        /* Contenedor para campos de contraseña */
-        .password-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        /* Indicador de fortaleza de contraseña */
-        .password-strength-indicator {
-            margin-top: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-align: center;
-            padding: 6px;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        /* Estados de fortaleza */
-        .strength-weak {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-
-        .strength-medium {
-            background-color: #fff8e1;
-            color: #f57f17;
-        }
-
-        .strength-strong {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        /* Inputs con iconos */
-        .input-with-icon input {
+        /* Estilo para el input de contraseña */
+        .password-input {
             padding-right: 40px;
         }
 
-        .toggle-password {
+        .password-toggle {
             position: absolute;
             right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            background: transparent;
+            background: none;
             border: none;
-            color: var(--text-secondary);
             cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            z-index: 10;
             padding: 5px;
-        }
-
-        /* Botón de enviar */
-        #usuarioForm button[type="submit"] {
-            margin-top: 10px;
-            padding: 12px;
             font-size: 1rem;
         }
 
-        /* Texto de ayuda */
-        .form-text {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 5px;
+        .password-toggle:hover {
+            color: var(--primary);
         }
 
-        /* Estilos para la validación de contraseña */
+        /* Asegurar que el input tenga espacio para el botón */
+        #password,
+        #password_confirmation {
+            padding-right: 35px !important;
+        }
+
+        /* Estilo para los iconos dentro del botón */
+        .password-toggle i {
+            font-size: 1rem;
+        }
+
+        /* Estilo para los mensajes de validación */
         .password-requirements {
             margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .password-requirements ul {
+            margin: 0;
+            padding-left: 1.5rem;
         }
 
         .password-requirements li {
             transition: color 0.3s ease;
         }
 
-        .password-strength {
-            margin-top: 0.5rem;
-        }
-
-        .progress {
-            background-color: #e9ecef;
-            border-radius: 0.25rem;
-            overflow: hidden;
-            height: 5px;
-        }
-
-        .progress-bar {
-            height: 100%;
-            transition: width 0.3s ease, background-color 0.3s ease;
-        }
-
-        .bg-danger {
-            background-color: #dc3545;
-        }
-
-        .bg-warning {
-            background-color: #ffc107;
-        }
-
-        .bg-success {
-            background-color: #28a745;
-        }
-
-        .text-danger {
-            color: #dc3545;
-        }
-
-        .text-warning {
-            color: #ffc107;
-        }
-
-        .text-success {
-            color: #28a745;
-        }
-
         .text-green-500 {
             color: #10b981;
         }
 
-        .min-h-[20px] {
-            min-height: 20px;
+        .text-red-500 {
+            color: #ef4444;
         }
 
-        .input-with-icon {
-            position: relative;
-        }
-
-        .input-with-icon input {
-            padding-right: 40px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .toggle-password:hover {
-            color: var(--primary);
-        }
-
-        /* ======================
-   RESPONSIVE DESIGN
-   ====================== */
-        @media (max-width: 768px) {
-            #usuarioForm {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .full-width,
-            .password-container,
-            .password-strength,
-            button[type="submit"] {
-                grid-column: span 1;
-            }
-
-            .password-container {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            #usuarioModal .modal-content {
-                padding: 20px;
-            }
+        /* Estilos para el spinner */
+        .fa-spinner.fa-spin {
+            margin-right: 8px;
         }
 
         /* ======================
@@ -1541,8 +1430,8 @@
             ====================== */
         .search-filter-container {
             display: flex;
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: 15px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -1708,8 +1597,15 @@
             }
 
             .header-actions {
+                gap: 15px;
                 justify-content: center;
-                flex-wrap: wrap;
+            }
+
+            .header-actions .btn {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+                min-width: auto;
+                flex: 1 1 auto;
             }
 
             .card-header,
@@ -1737,6 +1633,16 @@
 
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+
+            /* Mejoras para cards */
+            .card {
+                border-radius: 18px;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 15px 20px;
             }
         }
 
@@ -1851,7 +1757,94 @@
                 margin-right: 0;
                 align-self: center;
             }
+
+            /* Mejoras para días no laborables */
+            #diasNoLaborablesTable td[data-label="Motivo"] {
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            /* Mejoras para gestión de gastos */
+            .search-filter-container {
+                flex-direction: column;
+            }
+
+            #gastosTable td {
+                padding-left: 45% !important;
+            }
+
+            #gastosTable td[data-label="Detalle"] {
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            .admin-table {
+                font-size: 0.85rem;
+            }
+
+            .admin-table td:before {
+                width: 40%;
+                padding-right: 8px;
+                font-size: 0.8rem;
+            }
+
+            .card-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .card-header-actions h3 {
+                margin-bottom: 0;
+                white-space: normal;
+                word-break: break-word;
+                width: 100%;
+            }
+
+            .card-header-actions .btn {
+                align-self: flex-end;
+            }
+
+            #usuarioModal .modal-content {
+                max-height: 85vh;
+                width: 95%;
+                margin: 2% auto;
+            }
+
+            #usuarioForm {
+                min-height: min-content;
+            }
+
+            .close-modal {
+                top: 10px;
+                right: 15px;
+                font-size: 24px;
+                background: rgba(255, 255, 255, 0.9);
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            }
+
+            .header-actions {
+                gap: 12px;
+                justify-content: space-between;
+            }
+
+            .header-actions .btn {
+                flex: 1 1 calc(50% - 6px);
+                min-width: calc(50% - 6px);
+                margin-bottom: 0;
+            }
+
+            .header-actions .btn i {
+                margin-right: 5px;
+            }
         }
+
 
         @media (max-width: 576px) {
             .dashboard-container {
@@ -1966,6 +1959,88 @@
                 margin-bottom: 10px;
                 align-self: flex-start;
             }
+
+            /* Ajustes para móviles pequeños */
+            #diasNoLaborablesTable td,
+            #gastosTable td {
+                padding: 8px 5px;
+                font-size: 0.85rem;
+            }
+
+            .table-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .table-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+
+            #usuarioForm .form-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px;
+            }
+
+            #usuarioForm .password-input-container {
+                position: relative;
+            }
+
+            #usuarioForm .password-toggle {
+                right: 10px;
+            }
+
+            #usuarioForm .form-control {
+                padding: 12px 35px 12px 12px;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header-actions .btn {
+                width: 100%;
+                flex: 1 1 100%;
+                min-width: 100%;
+                margin-bottom: 0;
+            }
+
+            .header-actions .btn i {
+                margin-right: 8px;
+            }
+
+            #usuarioModal {
+                align-items: flex-start;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+
+            #usuarioModal .modal-content {
+                max-height: 95vh;
+                margin-top: 10px;
+            }
+
+            #usuarioModal input,
+            #usuarioModal select,
+            #usuarioModal textarea {
+                font-size: 16px;
+            }
+
+            #usuarioModal .form-group {
+                margin-bottom: 15px;
+            }
+
+            #usuarioModal .password-requirements {
+                columns: 1;
+            }
+
+            .close-modal {
+                top: 8px;
+                right: 12px;
+                font-size: 22px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2011,6 +2086,28 @@
 
             .empty-state h3 {
                 font-size: 1.1rem;
+            }
+
+            body {
+                word-break: break-word;
+            }
+
+            .info-item:last-child {
+                white-space: normal !important;
+            }
+
+            .card-header-actions .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .password-requirements ul {
+                padding-left: 1.2rem;
+                font-size: 0.75rem;
+            }
+
+            .password-requirements li {
+                margin-bottom: 5px;
             }
         }
 
@@ -2291,8 +2388,10 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <h3 style="color: var(--text-primary);">Configuración de Horarios de Trabajo</h3>
+                        <div class="card-header-actions"
+                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Configuración de horarios
+                                de trabajo</h3>
                             <button class="btn btn-primary" onclick="mostrarModalHorario()">
                                 <i class="fas fa-plus"></i> Agregar Horario
                             </button>
@@ -2455,6 +2554,145 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Contenedor para Días No Laborables -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="card-header-icon icon-container">
+                                <i class="fas fa-calendar-times"></i>
+                            </div>
+                            Días No Laborables
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header-actions"
+                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Días festivos y feriados
+                            </h3>
+                            <button class="btn btn-primary" onclick="mostrarModalDiaNoLaborable()">
+                                <i class="fas fa-plus"></i> Agregar Día
+                            </button>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Motivo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Ejemplo de fila -->
+                                    <tr>
+                                        <td data-label="Fecha">25/12/2025</td>
+                                        <td data-label="Motivo">Navidad</td>
+                                        <td data-label="Acciones">
+                                            <div class="table-actions">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarDiaNoLaborable(1)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="table-btn btn-delete" title="Eliminar"
+                                                    onclick="eliminarDiaNoLaborable(1)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Fin ejemplo -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenedor para Gestión de Gastos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="card-header-icon icon-container">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            Gestión de Gastos
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header-actions"
+                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Registro de gastos
+                                operativos</h3>
+                            <button class="btn btn-primary" onclick="mostrarModalGasto()">
+                                <i class="fas fa-plus"></i> Registrar Gasto
+                            </button>
+                        </div>
+
+                        <div class="search-filter-container">
+                            <div class="search-box">
+                                <input type="text" placeholder="Buscar gastos..." class="form-control">
+                            </div>
+                            <div class="filter-select">
+                                <select class="form-control">
+                                    <option value="">Todos los tipos</option>
+                                    <option value="stock">Stock</option>
+                                    <option value="sueldos">Sueldos</option>
+                                    <option value="personal">Personal</option>
+                                    <option value="mantenimiento">Mantenimiento</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Detalle</th>
+                                        <th>Monto</th>
+                                        <th>Registrado por</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Ejemplo de fila -->
+                                    <tr>
+                                        <td data-label="Fecha">15/06/2025</td>
+                                        <td data-label="Tipo">Stock</td>
+                                        <td data-label="Detalle">Compra de shampoo y ceras</td>
+                                        <td data-label="Monto">$125.50</td>
+                                        <td data-label="Registrado por">Admin</td>
+                                        <td data-label="Acciones">
+                                            <div class="table-actions">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarGasto(1)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="table-btn btn-delete" title="Eliminar"
+                                                    onclick="eliminarGasto(1)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Fin ejemplo -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pagination">
+                            <a href="#" class="page-link">&laquo;</a>
+                            <a href="#" class="page-link active">1</a>
+                            <a href="#" class="page-link">2</a>
+                            <a href="#" class="page-link">3</a>
+                            <a href="#" class="page-link">&raquo;</a>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- Gráficos -->
                 <div class="card">
@@ -2636,7 +2874,7 @@
                             </div>
 
                             <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
-                                onclick="editarPerfil()">
+                                onclick="mostrarModal('perfilModal')">
                                 <i class="fas fa-edit"></i> Editar Perfil
                             </button>
                         </div>
@@ -2677,7 +2915,7 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.usuarios') }}" class="btn btn-outline" style="width: 100%;">
+                        <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline" style="width: 100%;">
                             <i class="fas fa-list"></i> Ver Todos los Usuarios
                         </a>
                     </div>
@@ -2878,6 +3116,80 @@
                 </div>
             </div>
 
+            <!-- Modal para Días No Laborables -->
+            <div id="diaNoLaborableModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('diaNoLaborableModal')">&times;</span>
+                    <h2 id="diaNoLaborableModalTitle">
+                        <i class="fas fa-calendar-times"></i> Agregar Día No Laborable
+                    </h2>
+                    <form id="diaNoLaborableForm">
+                        <div class="form-group">
+                            <label for="diaNoLaborableFecha">Fecha:</label>
+                            <input type="date" id="diaNoLaborableFecha" name="fecha" required
+                                class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="diaNoLaborableMotivo">Motivo (opcional):</label>
+                            <input type="text" id="diaNoLaborableMotivo" name="motivo" class="form-control"
+                                placeholder="Ej: Feriado nacional">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal para Gastos -->
+            <div id="gastoModal" class="modal">
+                <div class="modal-content" style="max-width: 600px;">
+                    <span class="close-modal" onclick="closeModal('gastoModal')">&times;</span>
+                    <h2 id="gastoModalTitle">
+                        <i class="fas fa-money-bill-wave"></i> Registrar Gasto
+                    </h2>
+                    <form id="gastoForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="gastoTipo">Tipo:</label>
+                                <select id="gastoTipo" name="tipo" class="form-control" required>
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="stock">Stock</option>
+                                    <option value="sueldos">Sueldos</option>
+                                    <option value="personal">Personal</option>
+                                    <option value="mantenimiento">Mantenimiento</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gastoMonto">Monto ($):</label>
+                                <input type="number" step="0.01" id="gastoMonto" name="monto" required
+                                    class="form-control" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gastoDetalle">Detalle:</label>
+                            <textarea id="gastoDetalle" name="detalle" rows="3" required class="form-control"
+                                placeholder="Descripción del gasto..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gastoFecha">Fecha:</label>
+                            <input type="date" id="gastoFecha" name="fecha" class="form-control"
+                                value="{{ date('Y-m-d') }}">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i> Registrar Gasto
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Modal para editar perfil -->
             <div id="perfilModal" class="modal">
                 <div class="modal-content" style="max-width: 500px;">
@@ -2911,113 +3223,98 @@
 
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
-            <h2 style="color: var(--primary); margin-bottom: 20px;">
+        <div class="modal-content" style="max-width: 600px; width: 90%; max-height: 90vh; position: relative;">
+            <!-- Añadido position:relative -->
+            <span class="close-modal" onclick="closeModal('usuarioModal')"
+                style="position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer;">
+                &times;
+            </span>
+            <h2 style="margin-top: 10px; padding-right: 30px;"> <!-- Añadido padding para no solapar con la X -->
                 <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
             </h2>
-            <form id="usuarioForm">
-                @csrf
-                <!-- Nombre -->
-                <div class="form-group">
-                    <label for="usuario_nombre">Nombre Completo</label>
-                    <input type="text" id="usuario_nombre" name="nombre" class="form-control"
-                        placeholder="Ej: Juan Pérez" required>
-                </div>
-
-                <!-- Email -->
-                <div class="form-group">
-                    <label for="usuario_email">Email</label>
-                    <input type="email" id="usuario_email" name="email" class="form-control"
-                        placeholder="Ej: usuario@example.com" required>
-                </div>
-
-                <!-- Teléfono -->
-                <div class="form-group">
-                    <label for="usuario_telefono">Teléfono</label>
-                    <input type="tel" id="usuario_telefono" name="telefono" class="form-control"
-                        placeholder="Ej: +503 1234-5678">
-                    <small class="form-text text-muted">Opcional - Formato: +código país número</small>
-                </div>
-
-                <!-- Rol y Estado en misma fila -->
-                <div class="row">
-                    <div class="col-md-6">
+            <div style="overflow-y: auto; max-height: calc(90vh - 100px); padding: 0 5px;">
+                <form id="usuarioForm">
+                    @csrf
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
                         <div class="form-group">
-                            <label for="usuario_rol">Rol</label>
-                            <select id="usuario_rol" name="rol" class="form-control" required>
-                                <option value="">Seleccione un rol</option>
+                            <label for="nombre">Nombre Completo:</label>
+                            <input type="text" id="nombre" name="nombre" required class="form-control"
+                                placeholder="Nombre del usuario">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico:</label>
+                            <input type="email" id="email" name="email" required class="form-control"
+                                placeholder="ejemplo@correo.com">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="telefono">Teléfono:</label>
+                            <input type="tel" id="telefono" name="telefono" class="form-control"
+                                placeholder="12345678" pattern="[0-9]{8}" maxlength="8"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        </div>
+                        <div class="form-group">
+                            <label for="rol">Rol:</label>
+                            <select id="rol" name="rol" class="form-control" required>
                                 <option value="cliente">Cliente</option>
                                 <option value="empleado">Empleado</option>
                                 <option value="admin">Administrador</option>
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-6">
+
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label for="usuario_estado">Estado</label>
-                            <select id="usuario_estado" name="estado" class="form-control">
-                                <option value="1" selected>Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
+                            <label for="password">Contraseña:</label>
+                            <div class="password-input-container">
+                                <input type="password" id="password" name="password" required
+                                    class="form-control password-input" placeholder="Mínimo 8 caracteres"
+                                    style="padding-right: 40px;">
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('password', 'eyeIconPass')" style="right: 12px;">
+                                    <i id="eyeIconPass" class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-requirements" style="margin-top: 10px;">
+                                <ul style="columns: 2; column-gap: 20px;">
+                                    <li id="req-length">Mínimo 8 caracteres</li>
+                                    <li id="req-uppercase">1 letra mayúscula</li>
+                                    <li id="req-lowercase">1 letra minúscula</li>
+                                    <li id="req-number">1 número</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password_confirmation">Confirmar Contraseña:</label>
+                            <div class="password-input-container">
+                                <input type="password" id="password_confirmation" name="password_confirmation"
+                                    required class="form-control password-input" placeholder="Confirma tu contraseña">
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('password_confirmation', 'eyeIconConfirm')">
+                                    <i id="eyeIconConfirm" class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Campo Contraseña -->
-                <div class="form-group full-width">
-                    <label for="usuario_password">Contraseña</label>
-                    <div class="input-with-icon">
-                        <input type="password" id="usuario_password" name="password" class="form-control"
-                            placeholder="Mínimo 8 caracteres" required>
-                        <button type="button" class="toggle-password"
-                            onclick="togglePassword('usuario_password', 'usuario_password_icon')">
-                            <i class="fas fa-eye" id="usuario_password_icon"></i>
-                        </button>
+                    <div class="form-group">
+                        <label for="estado">Estado:</label>
+                        <select id="estado" name="estado" class="form-control">
+                            <option value="1" selected>Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
                     </div>
 
-                    <div class="password-requirements text-xs text-gray-500 mt-1">
-                        <ul class="list-disc pl-5">
-                            <li id="req-length" class="text-gray-400">Mínimo 8 caracteres</li>
-                            <li id="req-uppercase" class="text-gray-400">1 letra mayúscula</li>
-                            <li id="req-lowercase" class="text-gray-400">1 letra minúscula</li>
-                            <li id="req-number" class="text-gray-400">1 número</li>
-                        </ul>
-                    </div>
-
-                    <div class="password-strength mt-2">
-                        <div class="progress" style="height: 5px;">
-                            <div class="progress-bar" id="usuario_password-strength-bar" role="progressbar"
-                                style="width: 0%"></div>
-                        </div>
-                        <small class="text-muted" id="usuario_password-strength-text">Seguridad de la
-                            contraseña</small>
-                    </div>
-                </div>
-
-                <!-- Campo Confirmar Contraseña -->
-                <div class="form-group full-width">
-                    <label for="usuario_password_confirmation">Confirmar Contraseña</label>
-                    <div class="input-with-icon">
-                        <input type="password" id="usuario_password_confirmation" name="password_confirmation"
-                            class="form-control" placeholder="Confirma tu contraseña" required>
-                        <button type="button" class="toggle-password"
-                            onclick="togglePassword('usuario_password_confirmation', 'usuario_password_confirmation_icon')">
-                            <i class="fas fa-eye" id="usuario_password_confirmation_icon"></i>
-                        </button>
-                    </div>
-                    <div class="min-h-[20px]">
-                        <p id="password-match-error" class="text-red-500 text-sm mt-1 hidden">
-                            Las contraseñas no coinciden
-                        </p>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block mt-4">
-                    <i class="fas fa-save"></i> Crear Usuario
-                </button>
-            </form>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-save"></i> Crear Usuario
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
+
 
     <!-- Footer -->
     <footer class="footer">
@@ -3085,6 +3382,117 @@
 
         // Variables globales para gráficos
         let usuariosChart, ingresosChart, citasChart, serviciosChart;
+
+        document.querySelectorAll('#usuarioModal input, #usuarioModal select').forEach(el => {
+            el.addEventListener('focus', function() {
+                setTimeout(() => {
+                    this.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }, 300);
+            });
+        });
+
+        // =============================================
+        // FUNCIONES DE USUARIO Y VALIDACIÓN
+        // =============================================
+
+        // Agrega esta función para alternar la visibilidad de contraseñas
+        function togglePassword(fieldId, iconId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+
+            if (field.type === "password") {
+                field.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                field.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        function mostrarModalUsuario() {
+            // Limpiar el formulario antes de mostrarlo
+            document.getElementById('usuarioForm').reset();
+
+            // Mostrar el modal
+            document.getElementById('usuarioModal').style.display = 'flex';
+
+            // Resetear estilos de validación
+            document.querySelectorAll('#usuarioForm input, #usuarioForm select').forEach(el => {
+                el.classList.remove('border-red-500');
+            });
+
+            // Actualizar los indicadores de contraseña
+            document.getElementById('req-length').className = 'text-gray-400';
+            document.getElementById('req-uppercase').className = 'text-gray-400';
+            document.getElementById('req-lowercase').className = 'text-gray-400';
+            document.getElementById('req-number').className = 'text-gray-400';
+        }
+
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+            const confirmField = document.getElementById('password_confirmation');
+
+            if (confirmPassword.length > 0 && password !== confirmPassword) {
+                confirmField.classList.add('border-red-500');
+                // Mostrar mensaje de error
+                let errorMsg = confirmField.nextElementSibling;
+                if (!errorMsg || !errorMsg.classList.contains('text-red-500')) {
+                    errorMsg = document.createElement('div');
+                    errorMsg.className = 'text-red-500 text-sm mt-1';
+                    confirmField.parentNode.insertBefore(errorMsg, confirmField.nextSibling);
+                }
+                errorMsg.textContent = 'Las contraseñas no coinciden';
+            } else {
+                confirmField.classList.remove('border-red-500');
+                // Eliminar mensaje de error si existe
+                const errorMsg = confirmField.nextElementSibling;
+                if (errorMsg && errorMsg.classList.contains('text-red-500')) {
+                    errorMsg.remove();
+                }
+            }
+        }
+
+        function initUsuarioFormValidation() {
+            const passwordField = document.getElementById('password');
+            const confirmPasswordField = document.getElementById('password_confirmation');
+
+            if (passwordField) {
+                passwordField.addEventListener('input', function() {
+                    const password = this.value;
+
+                    // Validar requisitos
+                    const hasMinLength = password.length >= 8;
+                    const hasUpperCase = /[A-Z]/.test(password);
+                    const hasLowerCase = /[a-z]/.test(password);
+                    const hasNumber = /\d/.test(password);
+
+                    // Actualizar lista de requisitos
+                    document.getElementById('req-length').className = hasMinLength ? 'text-green-500' :
+                        'text-gray-400';
+                    document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' :
+                        'text-gray-400';
+                    document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' :
+                        'text-gray-400';
+                    document.getElementById('req-number').className = hasNumber ? 'text-green-500' :
+                        'text-gray-400';
+
+                    // Validar coincidencia si hay confirmación
+                    if (confirmPasswordField && confirmPasswordField.value) {
+                        validatePasswordMatch();
+                    }
+                });
+            }
+
+            if (confirmPasswordField) {
+                confirmPasswordField.addEventListener('input', validatePasswordMatch);
+            }
+        }
 
         // =============================================
         // FUNCIONES DE INICIALIZACIÓN
@@ -3301,10 +3709,6 @@
             document.getElementById(modalId).style.display = 'flex';
         }
 
-        function mostrarModalUsuario() {
-            document.getElementById('usuarioModal').style.display = 'flex';
-        }
-
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
@@ -3518,11 +3922,16 @@
             if (document.getElementById('serviciosChart')) {
                 inicializarGraficoServicios();
             }
-            if (document.getElementById('usuarioForm')) {
-                initUsuarioFormValidation();
-            }
+            if (document.getElementById('usuarioForm')) initUsuarioFormValidation();
 
             actualizarDatosDashboard();
+
+            // Inicializar validaciones del formulario de usuario
+            initUsuarioFormValidation();
+
+            // Asignar el evento al botón de crear usuario
+            document.querySelector('.btn-primary[onclick="mostrarModalUsuario()"]').addEventListener('click',
+                mostrarModalUsuario);
 
             // Configurar intervalo para actualizaciones (5 segundos)
             setInterval(actualizarDatosDashboard, 5000);
@@ -3557,286 +3966,19 @@
             });
         });
 
-        // =============================================
-        // FORMUALRIO DE CREACION DE USUARIOS DESDE ADMIN
-        // =============================================
-        // Función para inicializar validaciones del formulario de usuario
-        function initUsuarioFormValidation() {
-            // Función para mostrar/ocultar contraseñas
-            // Función para mostrar/ocultar contraseñas
-            function togglePassword(fieldId, iconId) {
-                const field = document.getElementById(fieldId);
-                const icon = document.getElementById(iconId);
 
-                if (field.type === 'password') {
-                    field.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    field.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            }
-
-
-            // Asignar evento a los botones de mostrar/ocultar contraseña
-            document.getElementById('usuario_password_icon').parentNode.addEventListener('click', function() {
-                togglePassword('usuario_password');
-            });
-
-            document.getElementById('usuario_password_confirmation_icon').parentNode.addEventListener('click', function() {
-                togglePassword('usuario_password_confirmation');
-            });
-
-            // Validación de nombre (solo letras y espacios)
-            document.getElementById('usuario_nombre').addEventListener('input', function() {
-                const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-                if (!regex.test(this.value)) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.innerHTML = '<strong>Por favor ingresa solo letras y espacios</strong>';
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-
-            // Validación de email
-            document.getElementById('usuario_email').addEventListener('input', function() {
-                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!regex.test(this.value)) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.innerHTML =
-                        '<strong>Por favor ingresa un correo electrónico válido</strong>';
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-
-            // Validación de teléfono
-            document.getElementById('usuario_telefono').addEventListener('input', function() {
-                const regex = /^\+?[\d\s\-]+$/;
-                if (this.value && !regex.test(this.value)) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.innerHTML =
-                        '<strong>Por favor ingresa un número de teléfono válido</strong>';
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-
-            // Validación de rol
-            document.getElementById('usuario_rol').addEventListener('change', function() {
-                if (!this.value) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.innerHTML =
-                        '<strong>Por favor selecciona un rol para el usuario</strong>';
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-
-            // Validación en tiempo real de la contraseña principal
-            document.getElementById('usuario_password')?.addEventListener('input', function() {
-                const password = this.value;
-                const confirmPassword = document.getElementById('usuario_password_confirmation').value;
-
-                // Validar requisitos
-                const hasMinLength = password.length >= 8;
-                const hasUpperCase = /[A-Z]/.test(password);
-                const hasLowerCase = /[a-z]/.test(password);
-                const hasNumber = /\d/.test(password);
-
-                // Actualizar lista de requisitos
-                document.getElementById('req-length').className = hasMinLength ? 'text-green-500' : 'text-gray-400';
-                document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' :
-                    'text-gray-400';
-                document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' :
-                    'text-gray-400';
-                document.getElementById('req-number').className = hasNumber ? 'text-green-500' : 'text-gray-400';
-
-                // Calcular fortaleza
-                const strength = calculatePasswordStrength(password);
-                const strengthBar = document.getElementById('usuario_password-strength-bar');
-                const strengthText = document.getElementById('usuario_password-strength-text');
-
-                strengthBar.style.width = strength.percentage + '%';
-                strengthBar.className = 'progress-bar ' + strength.class;
-                strengthText.textContent = strength.text;
-                strengthText.className = strength.textClass;
-
-                // Validar coincidencia si hay confirmación
-                if (document.getElementById('usuario_password_confirmation').value) {
-                    validatePasswordMatch();
-                }
-            });
-
-            // Validación en tiempo real de confirmación de contraseña
-            document.getElementById('usuario_password_confirmation')?.addEventListener('input', validatePasswordMatch);
-
-            function validatePasswordMatch() {
-                const password = document.getElementById('usuario_password').value;
-                const confirmPassword = document.getElementById('usuario_password_confirmation').value;
-                const errorMsg = document.getElementById('password-match-error');
-
-                if (confirmPassword.length > 0 && password !== confirmPassword) {
-                    errorMsg.classList.remove('hidden');
-                } else {
-                    errorMsg.classList.add('hidden');
-                }
-            }
-
-            // Función para calcular fortaleza de contraseña
-            function calculatePasswordStrength(password) {
-                let strength = 0;
-                if (password.length >= 8) strength++;
-                if (/[A-Z]/.test(password)) strength++;
-                if (/[a-z]/.test(password)) strength++;
-                if (/\d/.test(password)) strength++;
-                if (/[^A-Za-z0-9]/.test(password)) strength++;
-
-                const percentage = (strength / 5) * 100;
-
-                if (strength <= 1) return {
-                    percentage,
-                    class: 'bg-danger',
-                    text: 'Muy débil',
-                    textClass: 'text-danger'
-                };
-                if (strength <= 3) return {
-                    percentage,
-                    class: 'bg-warning',
-                    text: 'Moderada',
-                    textClass: 'text-warning'
-                };
-                return {
-                    percentage,
-                    class: 'bg-success',
-                    text: 'Fuerte',
-                    textClass: 'text-success'
-                };
-            }
-
-            // Validación antes de enviar el formulario
-            document.getElementById('usuarioForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                let isValid = true;
-                const fieldsToValidate = [
-                    'usuario_nombre',
-                    'usuario_email',
-                    'usuario_rol',
-                    'usuario_password',
-                    'usuario_password_confirmation'
-                ];
-
-                // Validar campos obligatorios
-                fieldsToValidate.forEach(fieldId => {
-                    const field = document.getElementById(fieldId);
-                    if (!field.value) {
-                        field.classList.add('is-invalid');
-                        isValid = false;
-                    }
-                });
-
-                // Validar teléfono si tiene valor
-                const telefono = document.getElementById('usuario_telefono');
-                if (telefono.value && !/^\+?[\d\s\-]+$/.test(telefono.value)) {
-                    telefono.classList.add('is-invalid');
-                    isValid = false;
-                }
-
-                // Validar contraseña cumple requisitos
-                const password = document.getElementById('usuario_password');
-                if (password.value.length < 8 || !/[A-Z]/.test(password.value) ||
-                    !/[a-z]/.test(password.value) || !/\d/.test(password.value)) {
-                    password.classList.add('is-invalid');
-                    isValid = false;
-                }
-
-                // Validar confirmación de contraseña
-                const passwordConfirm = document.getElementById('usuario_password_confirmation');
-                if (password.value !== passwordConfirm.value) {
-                    passwordConfirm.classList.add('is-invalid');
-                    isValid = false;
-                }
-
-                if (!isValid) {
-                    Swal.fire({
-                        title: 'Error en el formulario',
-                        html: 'Por favor completa correctamente todos los campos requeridos.',
-                        icon: 'error',
-                        confirmButtonText: 'Entendido'
-                    });
-                    return;
-                }
-
-                // Si todo está bien, proceder con el envío
-                crearUsuario();
-            });
-        }
-
-        // Función para actualizar el indicador de fortaleza de contraseña
-        function updatePasswordStrengthIndicator(password) {
-            const strength = calculatePasswordStrength(password);
-            const strengthBar = document.getElementById('usuario_password-strength-bar');
-            const strengthText = document.getElementById('usuario_password-strength-text');
-
-            if (strengthBar && strengthText) {
-                strengthBar.style.width = strength.percentage + '%';
-                strengthBar.className = 'progress-bar ' + strength.class;
-                strengthText.textContent = strength.text;
-                strengthText.className = strength.textClass;
-            }
-        }
-
-        // Función para resetear el formulario de usuario al cerrar
-        function resetUsuarioForm() {
-            const form = document.getElementById('usuarioForm');
-            if (form) {
-                form.reset();
-
-                // Resetear indicadores de validación
-                const fields = form.querySelectorAll('.is-invalid, .is-valid');
-                fields.forEach(field => {
-                    field.classList.remove('is-invalid', 'is-valid');
-                });
-
-                // Resetear indicador de fortaleza
-                updatePasswordStrengthIndicator('');
-            }
-        }
-
-        // Modificar la función closeModal para resetear el formulario
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-
-            if (modalId === 'usuarioModal') {
-                resetUsuarioForm();
-            }
-        }
-
-        // Función para crear usuario via AJAX
-        async function crearUsuario() {
-            const form = document.getElementById('usuarioForm');
-            const submitButton = form.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.innerHTML;
-
-            // Mostrar estado de carga
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando usuario...';
+        // Perfil de usuario
+        document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
             const formData = {
-                nombre: document.getElementById('usuario_nombre').value,
-                email: document.getElementById('usuario_email').value,
-                telefono: document.getElementById('usuario_telefono').value,
-                rol: document.getElementById('usuario_rol').value,
-                password: document.getElementById('usuario_password').value,
-                password_confirmation: document.getElementById('usuario_password_confirmation').value,
-                estado: document.getElementById('usuario_estado').value === '1'
+                nombre: document.getElementById('perfil_nombre').value,
+                telefono: document.getElementById('perfil_telefono').value,
+                _token: '{{ csrf_token() }}'
             };
 
             try {
-                const response = await fetch('{{ route('admin.usuarios.store') }}', {
+                const response = await fetch('{{ route('perfil.update-ajax') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3848,54 +3990,56 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    Swal.fire({
+                    Toast.fire({
                         icon: 'success',
-                        title: '¡Usuario creado!',
-                        text: 'El usuario ha sido registrado correctamente.',
-                        confirmButtonText: 'Aceptar'
-                    }).then(() => {
-                        closeModal('usuarioModal');
-                        actualizarDatosDashboard();
+                        title: 'Perfil actualizado correctamente'
                     });
-                } else {
-                    let errorMessage = 'No se pudo crear el usuario.';
-                    if (data.errors) {
-                        errorMessage += '<br><br>' + Object.values(data.errors).join('<br>');
-                    } else if (data.message) {
-                        errorMessage += '<br><br>' + data.message;
-                    }
 
-                    throw new Error(errorMessage);
+                    // ACTUALIZACIÓN DEL SIDEBAR 
+                    // 1. Actualizar el nombre en el perfil
+                    const profileName = document.querySelector('.profile-name');
+                    if (profileName) profileName.textContent = formData.nombre;
+
+                    // 2. Actualizar el teléfono en el perfil
+                    const profilePhone = document.querySelector('.profile-info-item:nth-child(2) span');
+                    if (profilePhone) profilePhone.textContent = formData.telefono || 'No especificado';
+
+                    // Cerrar el modal
+                    closeModal('perfilModal');
+
+                } else {
+                    throw new Error(data.message || 'Error al actualizar el perfil');
                 }
             } catch (error) {
-                Swal.fire({
+                Toast.fire({
                     icon: 'error',
-                    title: 'Error',
-                    html: error.message,
-                    confirmButtonText: 'Entendido'
+                    title: error.message
                 });
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
             }
-        }
+        });
 
-
-        // Formulario de perfil
-        document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
+        // Formulario de usuario
+        document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const formData = {
-                nombre: document.getElementById('perfilNombre').value,
-                telefono: document.getElementById('perfilTelefono').value
+                nombre: document.getElementById('nombre').value,
+                email: document.getElementById('email').value,
+                telefono: document.getElementById('telefono').value,
+                rol: document.getElementById('rol').value,
+                password: document.getElementById('password').value,
+                password_confirmation: document.getElementById('password_confirmation').value,
+                estado: document.getElementById('estado').value,
+                _token: '{{ csrf_token() }}'
             };
 
             try {
-                const response = await fetch('{{ route('perfil.update') }}', {
+                const response = await fetch('{{ route('admin.usuarios.store') }}', {
                     method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(formData)
                 });
@@ -3905,12 +4049,18 @@
                 if (response.ok) {
                     Toast.fire({
                         icon: 'success',
-                        title: 'Perfil actualizado correctamente'
+                        title: 'Usuario creado correctamente'
                     });
-                    closeModal('perfilModal');
+                    closeModal('usuarioModal');
                     await actualizarDatosDashboard();
                 } else {
-                    throw new Error(data.message || 'Error al actualizar el perfil');
+                    let errorMessage = 'Error al crear el usuario';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).join('\n');
+                    } else if (data.message) {
+                        errorMessage = data.message;
+                    }
+                    throw new Error(errorMessage);
                 }
             } catch (error) {
                 Toast.fire({
@@ -3934,7 +4084,8 @@
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(formData)
                 });
@@ -3985,9 +4136,6 @@
                 editarServicio(servicioId);
             }
         });
-
-        // Botón para mostrar modal de usuario
-        document.getElementById('btnCrearUsuario')?.addEventListener('click', mostrarModalUsuario);
 
         // Botón para mostrar modal de nuevo servicio
         document.getElementById('btnNuevoServicio')?.addEventListener('click', nuevoServicio);
