@@ -383,11 +383,17 @@
         }
 
         .bulk-actions {
-            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
             gap: 10px;
-            margin-bottom: 15px;
-            align-items: center;
+            width: 100%;
         }
+
+        .bulk-actions>* {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
 
         .bulk-actions select {
             max-width: 150px;
@@ -454,18 +460,21 @@
 
             .search-box,
             .filter-select,
-            .export-buttons {
-                min-width: 100%;
-                width: 100%;
+            .export-buttons,
+            .search-filter-container>div {
+                width: 100% !important;
+                min-width: 100% !important;
+                margin-bottom: 10px;
             }
 
             .export-buttons {
                 flex-direction: column;
+                gap: 10px;
             }
 
             .btn-export {
                 width: 100%;
-                margin: 0.25rem 0;
+                margin: 0;
             }
 
             /* Mostrar el checkbox en responsive */
@@ -1545,9 +1554,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                            <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                <i class="fas fa-trash"></i>
-                                                                                                                                                                                            </button>` : ''}
+                                                                                                                                                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                            <i class="fas fa-trash"></i>
+                                                                                                                                                                                                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
