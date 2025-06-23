@@ -2906,7 +2906,7 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.usuarios') }}" class="btn btn-outline" style="width: 100%;">
+                        <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline" style="width: 100%;">
                             <i class="fas fa-list"></i> Ver Todos los Usuarios
                         </a>
                     </div>
