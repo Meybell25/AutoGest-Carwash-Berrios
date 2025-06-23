@@ -456,6 +456,44 @@
             .filter-select,
             .export-buttons {
                 min-width: 100%;
+                width: 100%;
+            }
+
+            .export-buttons {
+                flex-direction: column;
+            }
+
+            .btn-export {
+                width: 100%;
+                margin: 0.25rem 0;
+            }
+
+            /* Mostrar el checkbox en responsive */
+            #usersTable th:first-child,
+            #usersTable td:first-child {
+                display: block;
+                position: relative;
+                padding-left: 15px;
+            }
+
+            #usersTable td:first-child:before {
+                content: 'Seleccionar';
+                position: absolute;
+                left: 15px;
+                width: 40%;
+                padding-right: 10px;
+                font-weight: 600;
+                color: var(--primary);
+            }
+
+            #usersTable td:first-child {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+            }
+
+            #usersTable td:first-child input {
+                margin-left: auto;
             }
 
             .table {
@@ -473,7 +511,6 @@
                 word-break: break-word;
                 white-space: normal;
             }
-
 
             .table td:before {
                 content: attr(data-label);
@@ -526,7 +563,6 @@
 
             #usersTable thead {
                 display: none;
-                /* Esto oculta los encabezados en móviles */
             }
 
             #usersTable tr {
@@ -556,12 +592,6 @@
                 padding-right: 10px;
                 font-weight: 600;
                 color: var(--primary);
-            }
-
-            /* Ocultar checkbox de selección */
-            #usersTable th:first-child,
-            #usersTable td:first-child {
-                display: none;
             }
 
             /* Ajustes para badges */
@@ -610,7 +640,6 @@
             word-break: break-word;
             white-space: normal;
         }
-
 
         #vehiculosTable td:before,
         #citasTable td:before {
