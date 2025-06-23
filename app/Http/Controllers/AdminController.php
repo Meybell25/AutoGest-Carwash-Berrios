@@ -6,6 +6,7 @@ use App\Models\Usuario;
 use App\Models\Cita;
 use App\Models\Vehiculo;
 use App\Models\Servicio;
+use App\Models\Notificacion;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
@@ -395,11 +396,13 @@ class AdminController extends Controller
 
             // Notificación solo si cambió el estado
             if (array_key_exists('estado', $validated) && $estadoAnterior != $usuario->estado) {
-                Notificacion::crear(
-                    $usuario->id,
-                    'Tu estado de cuenta ha sido actualizado a: ' . ($usuario->estado ? 'ACTIVO' : 'INACTIVO'),
-                    Notificacion::CANAL_SISTEMA
-                );
+                Notificacion::create([
+                    'usuario_id' => $usuario->id,
+                    'mensaje' => 'Tu estado de cuenta ha sido actualizado a: ' . ($usuario->estado ? 'ACTIVO' : 'INACTIVO'),
+                    'canal' => Notificacion::CANAL_SISTEMA,
+                    'leido' => false,
+                    'fecha_envio' => now()
+                ]);
             }
 
             DB::commit();
