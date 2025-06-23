@@ -439,6 +439,8 @@
         }
 
         @media (max-width: 768px) {
+
+            /* Estilos generales */
             .header {
                 padding: 15px;
             }
@@ -458,6 +460,7 @@
                 min-width: 100%;
             }
 
+            /* Estilos para tablas generales */
             .table {
                 display: block;
                 overflow-x: auto;
@@ -474,7 +477,6 @@
                 white-space: normal;
             }
 
-
             .table td:before {
                 content: attr(data-label);
                 position: absolute;
@@ -488,6 +490,7 @@
             .table-actions {
                 justify-content: flex-start;
                 flex-wrap: wrap;
+                gap: 5px;
             }
 
             .badge {
@@ -496,13 +499,7 @@
                 max-width: 100%;
             }
 
-            .table-actions {
-                justify-content: flex-start;
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-
-            /* Header - Botones mejor espaciados */
+            /* Header actions */
             .header-actions {
                 flex-direction: column;
                 gap: 10px !important;
@@ -526,7 +523,6 @@
 
             #usersTable thead {
                 display: none;
-                /* Esto oculta los encabezados en móviles */
             }
 
             #usersTable tr {
@@ -537,28 +533,22 @@
                 padding: 10px;
                 position: relative;
                 padding-left: 40px;
-                /* Espacio para el checkbox */
             }
 
-            /* Estilo para las celdas */
             #usersTable td {
                 display: flex;
                 width: 100%;
                 padding: 8px 0;
                 border: none;
-                word-break: break-word;
-                white-space: normal;
             }
 
-            /* Estilo para las etiquetas (data-label) */
             #usersTable td:before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: var(--primary);
                 min-width: 120px;
                 display: inline-block;
+                position: static;
+                width: auto;
+                padding-right: 10px;
             }
-
 
             #usersTable td:first-child {
                 position: absolute;
@@ -577,119 +567,79 @@
                 display: none;
             }
 
-            #usersTable td:not(:first-child) {
-                padding-left: 50px;
-            }
-
-            #usersTable td:not(:first-child):before {
-                left: 50px;
-                width: calc(45% - 50px);
-            }
-
-            #usersTable .table-actions {
-                justify-content: flex-start;
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-
-            /* Ajuste para badges */
-            #usersTable .badge {
-                display: inline-block;
-                width: fit-content;
-            }
-
-            /* Modales - Ajustes específicos */
+            /* Tablas en modales */
             .modal-content {
                 width: 95% !important;
                 padding: 15px !important;
             }
 
-            /* Tablas en modales */
             #vehiculosTable,
             #citasTable {
                 font-size: 0.85rem;
             }
 
             #vehiculosTable th,
-            #citasTable th,
-            {
-            padding: 8px 5px;
-        }
+            #citasTable th {
+                padding: 8px 5px;
+            }
 
-        .export-buttons {
-            gap: 10px;
-        }
+            .export-buttons {
+                gap: 10px;
+            }
 
-        #vehiculosTable td,
-        #citasTable td {
-            padding-left: 50%;
-            position: relative;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            word-break: break-word;
-            white-space: normal;
-        }
+            #vehiculosTable td,
+            #citasTable td {
+                padding-left: 50%;
+                position: relative;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+            }
 
+            #vehiculosTable td:before,
+            #citasTable td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: 45%;
+                padding-right: 10px;
+                font-weight: 600;
+                color: var(--primary);
+            }
 
-        #vehiculosTable td:before,
-        #citasTable td:before {
-            content: attr(data-label);
-            position: absolute;
-            left: 15px;
-            width: 45%;
-            padding-right: 10px;
-            font-weight: 600;
-            color: var(--primary);
-        }
+            #vehiculosTable thead,
+            #citasTable thead {
+                display: none;
+            }
 
-        #vehiculosTable thead,
-        #citasTable thead {
-            display: none;
-        }
+            #vehiculosTable tr,
+            #citasTable tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #eee;
+                border-radius: 8px;
+            }
 
-        #vehiculosTable tr,
-        #citasTable tr {
-            display: block;
-            margin-bottom: 15px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-        }
+            /* Bulk actions */
+            .bulk-actions {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
 
-        #vehiculosTable .badge,
-        #citasTable .badge {
-            display: inline-block;
-            width: fit-content;
-        }
+            .bulk-actions select {
+                max-width: 100%;
+                width: 100%;
+            }
 
-        .btn-export {
-            margin: 0.5rem 0;
-        }
+            .bulk-actions button {
+                width: 100%;
+            }
 
-        .table td[data-label="Email"] {
-            word-break: break-word;
-            white-space: normal;
-        }
-
-        .bulk-actions {
-            flex-direction: column;
-            gap: 10px;
-            align-items: flex-start;
-        }
-
-        .bulk-actions select {
-            max-width: 100%;
-            width: 100%;
-        }
-
-        .bulk-actions button {
-            width: 100%;
-        }
-
-        #selectedCount {
-            margin-left: 0;
-            margin-bottom: 5px;
-        }
+            #selectedCount {
+                margin-left: 0;
+                margin-bottom: 5px;
+            }
         }
 
         @media (max-width: 576px) {
@@ -724,19 +674,6 @@
                 font-size: 0.8rem;
             }
 
-            td,
-            th {
-                padding: 0.3rem;
-                display: block;
-                width: 100%;
-            }
-
-            tr {
-                margin-bottom: 1rem;
-                display: block;
-                border: 1px solid #ddd;
-            }
-
             #usersTable td {
                 padding-left: 40%;
             }
@@ -764,6 +701,14 @@
 
             #usersTable td:before {
                 width: 30%;
+            }
+
+            #usersTable tr {
+                padding-left: 35px;
+            }
+
+            #usersTable td:first-child {
+                left: 5px;
             }
 
             #usersTable td:not(:first-child) {
@@ -1403,16 +1348,19 @@
         // Función para actualizar contador de selección 
         function updateSelectedCount() {
             const checkboxes = document.querySelectorAll('.user-checkbox:checked');
-            const bulkActions = document.getElementById('bulkActions');
             const selectedCount = document.getElementById('selectedCount');
+            const bulkActions = document.getElementById('bulkActions');
 
             selectedCount.textContent = `${checkboxes.length} seleccionados`;
+            bulkActions.style.display = checkboxes.length > 0 ? 'flex' : 'none';
+        }
 
-            if (checkboxes.length > 0) {
-                bulkActions.style.display = 'flex';
-            } else {
-                bulkActions.style.display = 'none';
-            }
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAllHeader').checked;
+            document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+                checkbox.checked = selectAll;
+            });
+            updateSelectedCount();
         }
 
         // Función para aplicar acciones masivas 
@@ -1566,9 +1514,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                                                        <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                                    </button>` : ''}
+                                                                                                                                                                                                                                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                                                                        <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                                    </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
