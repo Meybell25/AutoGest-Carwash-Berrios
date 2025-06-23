@@ -911,6 +911,7 @@
     </div>
 
     <!-- Modal para crear/editar usuario -->
+    <!-- Modal para crear/editar usuario -->
     <div id="usuarioModal" class="modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div class="modal-content"
@@ -943,7 +944,7 @@
                             style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Correo
                             Electrónico</label>
                         <input type="email" id="email" name="email" class="form-control" required
-                            placeholder="Ej: juan@example.com" readonly> <!-- Cambiado de disabled a readonly -->
+                            placeholder="Ej: juan@example.com" readonly>
                         <small id="emailHelp"
                             style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
                             El correo electrónico no puede ser modificado
@@ -964,7 +965,6 @@
                         <label for="rol"
                             style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Rol</label>
                         <select id="rol" name="rol" class="form-control" required readonly>
-                            <!-- Cambiado de disabled a readonly -->
                             <option value="cliente">Cliente</option>
                             <option value="empleado">Empleado</option>
                             <option value="admin">Administrador</option>
@@ -976,7 +976,8 @@
                     </div>
                 </div>
 
-                <div id="passwordFields" style="display: none;">
+                <!-- Sección de contraseñas mejorada -->
+                <div id="passwordFields" style="display: block; margin-bottom: 15px;">
                     <div class="form-grid"
                         style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                         <div class="form-group">
@@ -990,8 +991,14 @@
                                     <i class="fas fa-eye" id="passwordEye"></i>
                                 </button>
                             </div>
-                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
-                                Requisitos: 8+ caracteres, mayúscula, minúscula, número
+                            <div class="password-requirements"
+                                style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                                <ul style="columns: 2; column-gap: 20px;">
+                                    <li id="req-length">Mínimo 8 caracteres</li>
+                                    <li id="req-uppercase">1 letra mayúscula</li>
+                                    <li id="req-lowercase">1 letra minúscula</li>
+                                    <li id="req-number">1 número</li>
+                                </ul>
                             </div>
                         </div>
 
@@ -1008,6 +1015,7 @@
                                     <i class="fas fa-eye" id="passwordConfirmationEye"></i>
                                 </button>
                             </div>
+                            <div id="passwordMatchMessage" style="font-size: 0.8rem; margin-top: 5px;"></div>
                         </div>
                     </div>
                 </div>
@@ -1028,7 +1036,6 @@
         </div>
     </div>
 
-    <!-- Modal para ver registros del usuario (vehículos y citas) -->
     <!-- Modal para ver registros del usuario (vehículos y citas) -->
     <div id="registrosModal" class="modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
@@ -1227,6 +1234,13 @@
                 document.getElementById('password_confirmation').required = true;
             }
 
+            // Resetear validaciones
+            document.querySelectorAll('.password-requirements li').forEach(li => {
+                li.style.color = '#6b7280';
+            });
+            document.getElementById('passwordMatchMessage').textContent = '';
+
+
             modal.style.display = 'flex';
         }
 
@@ -1302,6 +1316,66 @@
                 eyeIcon.classList.add('fa-eye');
             }
         }
+
+        // Función para validar fortaleza de contraseña
+        function validatePasswordStrength(password) {
+            const hasMinLength = password.length >= 8;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+
+            // Actualizar indicadores visuales
+            document.getElementById('req-length').style.color = hasMinLength ? '#10b981' : '#6b7280';
+            document.getElementById('req-uppercase').style.color = hasUpperCase ? '#10b981' : '#6b7280';
+            document.getElementById('req-lowercase').style.color = hasLowerCase ? '#10b981' : '#6b7280';
+            document.getElementById('req-number').style.color = hasNumber ? '#10b981' : '#6b7280';
+
+            return hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
+        }
+
+        // Función para validar coincidencia de contraseñas
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+            const messageElement = document.getElementById('passwordMatchMessage');
+
+            if (confirmPassword.length === 0) {
+                messageElement.textContent = '';
+                messageElement.style.color = '';
+                return false;
+            }
+
+            if (password === confirmPassword) {
+                messageElement.textContent = 'Las contraseñas coinciden';
+                messageElement.style.color = '#10b981';
+                return true;
+            } else {
+                messageElement.textContent = 'Las contraseñas no coinciden';
+                messageElement.style.color = '#ef4444';
+                return false;
+            }
+        }
+
+        // Inicializar validaciones del formulario
+        function initPasswordValidations() {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('password_confirmation');
+
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    validatePasswordStrength(this.value);
+                    if (confirmPasswordInput.value.length > 0) {
+                        validatePasswordMatch();
+                    }
+                });
+            }
+
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+            }
+        }
+
+
 
         // Función para cerrar modal 
         function closeModal(modalId) {
@@ -1550,9 +1624,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                                                                    <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                                                </button>` : ''}
+                                                                                                                                                                                                                                                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                                                                                                                                                                                                                        <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                                                    </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1784,6 +1858,7 @@
         // =============================================
         document.addEventListener('DOMContentLoaded', function() {
             fetchAllUsers();
+            initPasswordValidations();
 
             document.getElementById('searchInput').addEventListener('keyup', filterTable);
             document.getElementById('roleFilter').addEventListener('change', filterTable);
@@ -1791,7 +1866,28 @@
 
             const usuarioForm = document.getElementById('usuarioForm');
             if (usuarioForm) {
-                usuarioForm.addEventListener('submit', handleUsuarioFormSubmit);
+                usuarioForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    // Validar contraseña si estamos en modo creación
+                    if (document.getElementById('passwordFields').style.display !== 'none') {
+                        const password = document.getElementById('password').value;
+                        const isPasswordStrong = validatePasswordStrength(password);
+                        const doPasswordsMatch = validatePasswordMatch();
+
+                        if (!isPasswordStrong || !doPasswordsMatch) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error en la contraseña',
+                                text: 'Por favor, asegúrate de que la contraseña cumpla con todos los requisitos y que ambas contraseñas coincidan.'
+                            });
+                            return;
+                        }
+                    }
+
+                    // Si todo está bien, enviar el formulario
+                    handleUsuarioFormSubmit(e);
+                });
             }
         });
     </script>
