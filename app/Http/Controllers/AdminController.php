@@ -118,9 +118,7 @@ class AdminController extends Controller
      */
     public function usuarios(): View
     {
-        $usuarios = Usuario::with(['vehiculos', 'citas'])
-            ->paginate(10);
-
+        $usuarios = Usuario::with(['vehiculos', 'citas'])->get();
         return view('admin.usuarios', compact('usuarios'));
     }
 
@@ -373,7 +371,8 @@ class AdminController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'telefono' => 'nullable|string|max:20',
-            'estado' => 'required|boolean'
+            'estado' => 'required|boolean',
+            // No requerir password en la actualización
         ]);
 
         // Auditoría (logs)
@@ -388,7 +387,7 @@ class AdminController extends Controller
         // Guardar cambios
         $usuario->update($validated);
 
-        // Notificación solo si cambió el estado (usando tu modelo existente)
+        // Notificación solo si cambiO el estado
         if ($usuario->wasChanged('estado')) {
             \App\Models\Notificacion::crear(
                 $usuario->id,
@@ -455,6 +454,7 @@ class AdminController extends Controller
             'message' => 'Usuario eliminado correctamente'
         ]);
     }
+
     /**
      * Obtiene los registros (vehículos y citas) de un usuario
      */
