@@ -1114,11 +1114,6 @@
             color: var(--text-secondary);
         }
 
-        .password-match-message {
-            font-size: 0.8rem;
-            margin-top: 5px;
-        }
-
         .text-green-500 {
             color: #10b981;
         }
@@ -1146,6 +1141,20 @@
         /* Estilos para el spinner */
         .fa-spinner.fa-spin {
             margin-right: 8px;
+        }
+
+        .password-match-message {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .password-match-message.valid {
+            color: #28a745;
+        }
+
+        .password-match-message.invalid {
+            color: #dc3545;
         }
 
         /* ======================
@@ -3281,6 +3290,7 @@
         </div>
     </div>
 
+
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
@@ -3389,7 +3399,8 @@
                                     <i class="fas fa-eye" id="passwordConfirmationEye"></i>
                                 </button>
                             </div>
-                            <div id="passwordMatchMessage" style="font-size: 0.8rem; margin-top: 5px;"></div>
+                            <div id="passwordMatchMessage" class="password-match-message"
+                                style="margin-top: 5px; font-size: 0.8rem;"></div>
                         </div>
                     </div>
                 </div>
@@ -3409,8 +3420,8 @@
             </form>
         </div>
     </div>
-    </div>
 
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -3495,76 +3506,83 @@
         // =============================================
 
         // Cargar días no laborables desde la API
-        async function cargarDiasNoLaborables() {
-            try {
-                const response = await fetch('/api/dias-no-laborables');
-                if (!response.ok) throw new Error('Error al cargar días no laborables');
+        /* async function cargarDiasNoLaborables() {
+                                                         try {
+                                                             const response = await fetch('/dias-no-laborables');
+                                                             if (!response.ok) throw new Error('Error al cargar días no laborables');
 
-                diasNoLaborables = await response.json();
-                actualizarTablaDiasNoLaborables();
-            } catch (error) {
-                console.error('Error al cargar días no laborables:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error al cargar días no laborables',
-                    text: error.message
-                });
-            }
-        }
+                                                             diasNoLaborables = await response.json();
+                                                             actualizarTablaDiasNoLaborables();
+                                                         } catch (error) {
+                                                             console.error('Error al cargar días no laborables:', error);
+                                                             Toast.fire({
+                                                                 icon: 'error',
+                                                                 title: 'Error al cargar días no laborables',
+                                                                 text: error.message
+                                                             });
+                                                         }
+                                                     }
 
-        // Actualizar la tabla con los días no laborables
-        function actualizarTablaDiasNoLaborables() {
-            const tbody = document.querySelector('#diasNoLaborablesTable tbody');
-            if (!tbody) return;
+                                                     // Actualizar la tabla con los días no laborables
+                                                     function actualizarTablaDiasNoLaborables() {
+                                                         const tbody = document.querySelector('#diasNoLaborablesTable tbody');
+                                                         if (!tbody) return;
 
-            tbody.innerHTML = '';
+                                                         tbody.innerHTML = '';
 
-            if (diasNoLaborables.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="3" style="text-align: center; padding: 20px;">
-                            <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
-                            <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
+                                                         if (diasNoLaborables.length === 0) {
+                                                             tbody.innerHTML = `
+         <tr>
+             <td colspan="3" style="text-align: center; padding: 20px;">
+                 <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
+                 <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
+             </td>
+         </tr>
+     `;
+                                                             return;
+                                                         }
 
-            diasNoLaborables.forEach(dia => {
-                const fecha = new Date(dia.fecha);
-                const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
+                                                         diasNoLaborables.forEach(dia => {
+                                                             const fecha = new Date(dia.fecha);
+                                                             const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                                                                 day: '2-digit',
+                                                                 month: '2-digit',
+                                                                 year: 'numeric'
+                                                             });
 
-                const row = document.createElement('tr');
-                row.setAttribute('data-id', dia.id);
-                row.innerHTML = `
-                    <td data-label="Fecha">${fechaFormateada}</td>
-                    <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
-                    <td data-label="Acciones">
-                        <div class="table-actions">
-                            <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
+                                                             const row = document.createElement('tr');
+                                                             row.setAttribute('data-id', dia.id);
+                                                             row.innerHTML = `
+         <td data-label="Fecha">${fechaFormateada}</td>
+         <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
+         <td data-label="Acciones">
+             <div class="table-actions">
+                 <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
+                     <i class="fas fa-edit"></i>
+                 </button>
+                 <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
+                     <i class="fas fa-trash"></i>
+                 </button>
+             </div>
+         </td>
+     `;
+                                                             tbody.appendChild(row);
+                                                         });
+                                                     }*/
 
         // Mostrar modal para agregar/editar día no laborable
-        function mostrarModalDiaNoLaborable(diaId = null) {
+        /*function mostrarModalDiaNoLaborable(diaId = null) {
             const modal = document.getElementById('diaNoLaborableModal');
             const form = document.getElementById('diaNoLaborableForm');
             const title = document.getElementById('diaNoLaborableModalTitle');
 
+            if (result.isConfirmed) {
+                const response = await fetch(`/dias-no-laborables/${diaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
             form.reset();
 
             if (diaId) {
@@ -3605,15 +3623,7 @@
                     cancelButtonText: 'Cancelar'
                 });
 
-                if (result.isConfirmed) {
-                    const response = await fetch(`/api/dias-no-laborables/${diaId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    });
-
+                
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.message || 'Error al eliminar el día no laborable');
@@ -3717,7 +3727,7 @@
                 });
                 this.value = hoy.toISOString().split('T')[0];
             }
-        });
+        });*/
 
 
         // =============================================
@@ -3847,6 +3857,9 @@
             submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
 
             modal.style.display = 'flex';
+
+            initPasswordValidations();
+
         }
 
         // Función para alternar visibilidad de contraseña 
@@ -3969,21 +3982,24 @@
             // Limpiar clases previas
             messageElement.classList.remove('text-success', 'text-danger');
 
+            messageElement.className = 'password-match-message';
+            messageElement.textContent = '';
+
             if (confirmPassword.length === 0) {
-                messageElement.textContent = '';
                 return false;
             }
 
             if (password === confirmPassword) {
                 messageElement.textContent = 'Las contraseñas coinciden';
-                messageElement.classList.add('text-success');
+                messageElement.classList.add('valid');
                 return true;
             } else {
                 messageElement.textContent = 'Las contraseñas no coinciden';
-                messageElement.classList.add('text-danger');
+                messageElement.classList.add('invalid');
                 return false;
             }
         }
+
 
         // Inicializar validaciones del formulario
         function initPasswordValidations() {
@@ -3991,6 +4007,7 @@
             const confirmPasswordInput = document.getElementById('password_confirmation');
 
             if (passwordInput && confirmPasswordInput) {
+                // Validar mientras se escribe en campo de contraseña
                 passwordInput.addEventListener('input', function() {
                     validatePasswordStrength(this.value);
                     if (confirmPasswordInput.value.length > 0) {
@@ -3998,14 +4015,16 @@
                     }
                 });
 
+                // Validar mientras se escribe en campo de confirmación
                 confirmPasswordInput.addEventListener('input', function() {
-                    // Validar solo si ambos campos tienen contenido
-                    if (passwordInput.value.length > 0 && this.value.length > 0) {
+                    if (passwordInput.value.length > 0) {
                         validatePasswordMatch();
                     } else {
                         document.getElementById('passwordMatchMessage').textContent = '';
                     }
                 });
+            } else {
+                console.error('No se encontraron los inputs de contraseña');
             }
         }
 
@@ -4126,6 +4145,7 @@
                 options: getCommonChartOptions('bottom')
             });
         }
+        console.log(document.getElementById('usuariosChart')); // Debería mostrar el elemento canvas
 
         function inicializarGraficoIngresos() {
             const ctx = document.getElementById('ingresosChart').getContext('2d');
@@ -4234,6 +4254,7 @@
         // FUNCIONES DE ACTUALIZACIÓN DE DATOS
         // =============================================
 
+        // En la función actualizarDatosDashboard
         async function actualizarDatosDashboard() {
             try {
                 const response = await fetch('{{ route('admin.dashboard.data') }}');
@@ -4246,7 +4267,17 @@
                 }
 
                 actualizarEstadisticas(data.stats);
-                actualizarGraficoUsuarios(data.rolesDistribucion);
+
+                // Asegúrate de que el canvas existe antes de inicializar el gráfico
+                if (document.getElementById('usuariosChart')) {
+                    // Si el gráfico ya existe, actualízalo
+                    if (usuariosChart) {
+                        actualizarGraficoUsuarios(data.rolesDistribucion);
+                    } else {
+                        // Si no existe, créalo
+                        inicializarGraficoUsuarios(data.rolesDistribucion);
+                    }
+                }
 
                 return true;
             } catch (error) {
@@ -4530,13 +4561,15 @@
             if (document.getElementById('serviciosChart')) {
                 inicializarGraficoServicios();
             }
-            if (document.getElementById('usuarioForm')) initUsuarioFormValidation();
 
             actualizarDatosDashboard();
 
             // Inicializar validaciones del formulario de usuario
-            initUsuarioFormValidation();
-            initPasswordValidations();
+            if (!document.getElementById('password') || !document.getElementById('password_confirmation')) {
+                console.error('Elementos de contraseña no encontrados');
+            } else {
+                initPasswordValidations();
+            }
 
             cargarDiasNoLaborables();
 
