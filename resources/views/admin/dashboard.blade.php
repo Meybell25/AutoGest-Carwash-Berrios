@@ -3463,7 +3463,33 @@
         mostrarModalDiaNoLaborable(diaId);
     }
 
-    
+    // Función para eliminar un día no laborable
+    async function eliminarDiaNoLaborable(diaId) {
+        try {
+            const result = await Swal.fire({
+                title: '¿Eliminar este día no laborable?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                const response = await fetch(`/api/dias-no-laborables/${diaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Error al eliminar el día no laborable');
+                }
 
         // Configuración de SweetAlert
         const Toast = Swal.mixin({
