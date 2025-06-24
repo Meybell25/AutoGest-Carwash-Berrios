@@ -22,7 +22,6 @@ class AdminController extends Controller
     public function dashboard(): View
     {
         $stats = $this->getDashboardStats();
-        Log::debug('Datos de distribución de roles:', $rolesDistribucion);
 
         $ultimas_citas = Cita::with(['usuario', 'vehiculo', 'servicios'])
             ->latest()
