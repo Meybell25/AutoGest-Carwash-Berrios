@@ -3362,76 +3362,75 @@
         // CONFIGURACIONES GLOBALES
         // =============================================
 
-        // =============================================
-        // FUNCIONES PARA DÍAS NO LABORABLES
-        // =============================================
+            // =============================================
+            // FUNCIONES PARA DÍAS NO LABORABLES
+            // =============================================
 
-        // Cargar días no laborables desde la API
-        async function cargarDiasNoLaborables() {
-            try {
-                const response = await fetch('/dias-no-laborables');
-                if (!response.ok) throw new Error('Error al cargar días no laborables');
-                
-                diasNoLaborables = await response.json();
-                actualizarTablaDiasNoLaborables();
-            } catch (error) {
-                console.error('Error al cargar días no laborables:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error al cargar días no laborables',
-                    text: error.message
-                });
-            }
-        }
+        // Variables globales
+    let diasNoLaborables = [];
 
-        // Actualizar la tabla con los días no laborables
-        function actualizarTablaDiasNoLaborables() {
-            const tbody = document.querySelector('#diasNoLaborablesTable tbody');
-            if (!tbody) return;
-
-            tbody.innerHTML = '';
+    // Cargar días no laborables desde la API
+    async function cargarDiasNoLaborables() {
+        try {
+            const response = await fetch('/api/dias-no-laborables');
+            if (!response.ok) throw new Error('Error al cargar días no laborables');
             
-            if (diasNoLaborables.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="3" style="text-align: center; padding: 20px;">
-                            <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
-                            <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
+            diasNoLaborables = await response.json();
+            actualizarTablaDiasNoLaborables();
+        } catch (error) {
+            console.error('Error al cargar días no laborables:', error);
+            mostrarError('Error al cargar días no laborables', error.message);
+        }
+    }
 
-            diasNoLaborables.forEach(dia => {
-                const fecha = new Date(dia.fecha);
-                const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
+    // Actualizar la tabla con los días no laborables
+    function actualizarTablaDiasNoLaborables() {
+        const tbody = document.querySelector('#diasNoLaborablesTable tbody');
+        if (!tbody) return;
 
-                const row = document.createElement('tr');
-                row.setAttribute('data-id', dia.id);
-                row.innerHTML = `
-                    <td data-label="Fecha">${fechaFormateada}</td>
-                    <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
-                    <td data-label="Acciones">
-                        <div class="table-actions">
-                            <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
+        tbody.innerHTML = '';
+        
+        if (diasNoLaborables.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="3" style="text-align: center; padding: 20px;">
+                        <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
+                        <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
                     </td>
-                `;
-                tbody.appendChild(row);
-            });
+                </tr>
+            `;
+            return;
         }
 
-        // Mostrar modal para agregar/editar día no laborable
+        diasNoLaborables.forEach(dia => {
+            const fecha = new Date(dia.fecha);
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
+            const row = document.createElement('tr');
+            row.setAttribute('data-id', dia.id);
+            row.innerHTML = `
+                <td data-label="Fecha">${fechaFormateada}</td>
+                <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
+                <td data-label="Acciones">
+                    <div class="table-actions">
+                        <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Mostrar modal para agregar/editar día no laborable
     function mostrarModalDiaNoLaborable(diaId = null) {
         const modal = document.getElementById('diaNoLaborableModal');
         const form = document.getElementById('diaNoLaborableForm');
@@ -3445,7 +3444,7 @@
             
             const dia = diasNoLaborables.find(d => d.id == diaId);
             if (dia) {
-                document.getElementById('diaNoLaborableFecha').value = dia.fecha;
+                document.getElementById('diaNoLaborableFecha').value = dia.fecha.split('T')[0];
                 document.getElementById('diaNoLaborableMotivo').value = dia.motivo || '';
             }
         } else {
@@ -3478,10 +3477,10 @@
             });
 
             if (result.isConfirmed) {
-                const response = await fetch(`/dias-no-laborables/${diaId}`, {
+                const response = await fetch(`/api/dias-no-laborables/${diaId}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     }
                 });
@@ -3490,25 +3489,15 @@
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Error al eliminar el día no laborable');
                 }
+                
                 await cargarDiasNoLaborables();
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Día no laborable eliminado correctamente'
-                });
+                mostrarExito('Día no laborable eliminado correctamente');
             }
         } catch (error) {
             console.error('Error al eliminar día no laborable:', error);
-            Toast.fire({
-                icon: 'error',
-                title: 'Error al eliminar día no laborable',
-                text: error.message
-            });
+            mostrarError('Error al eliminar día no laborable', error.message);
         }
     }
-
-    // =============================================
-    // EVENT LISTENERS ADICIONALES
-    // =============================================
 
     // Manejar el envío del formulario de día no laborable
     document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
@@ -3521,11 +3510,110 @@
         const formData = {
             fecha: document.getElementById('diaNoLaborableFecha').value,
             motivo: document.getElementById('diaNoLaborableMotivo').value,
-            _token: '{{ csrf_token() }}'
+            _token: document.querySelector('meta[name="csrf-token"]').content
         };
         
         try {
             let response;
+            let url;
+            let method;
+            
+            if (isEdit) {
+                url = `/api/dias-no-laborables/${diaId}`;
+                method = 'PUT';
+            } else {
+                url = '/api/dias-no-laborables';
+                method = 'POST';
+            }
+            
+            response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                let errorMessage = 'Error al guardar el día no laborable';
+                if (data.errors) {
+                    errorMessage = Object.values(data.errors).join('\n');
+                } else if (data.message) {
+                    errorMessage = data.message;
+                }
+                throw new Error(errorMessage);
+            }
+            
+            mostrarExito(isEdit ? 'Día no laborable actualizado' : 'Día no laborable agregado');
+            
+            closeModal('diaNoLaborableModal');
+            await cargarDiasNoLaborables();
+        } catch (error) {
+            console.error('Error al guardar día no laborable:', error);
+            mostrarError('Error', error.message);
+        }
+    });
+
+    // Funciones de ayuda para notificaciones
+    function mostrarExito(mensaje) {
+        Toast.fire({
+            icon: 'success',
+            title: mensaje
+        });
+    }
+
+    function mostrarError(titulo, mensaje) {
+        Toast.fire({
+            icon: 'error',
+            title: titulo,
+            text: mensaje
+        });
+    }
+
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarDiasNoLaborables();
+        
+        // Validar que la fecha seleccionada no sea en el pasado
+        document.getElementById('diaNoLaborableFecha')?.addEventListener('change', function() {
+            const fechaSeleccionada = new Date(this.value);
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            
+            if (fechaSeleccionada < hoy) {
+                mostrarError('Fecha inválida', 'No puedes seleccionar una fecha pasada');
+                this.value = hoy.toISOString().split('T')[0];
+            }
+        });
+    });
+                
+                
+                            
+                
+        // =============================================
+        // EVENT LISTENERS ADICIONALES
+        // =============================================
+
+        // Manejar el envío del formulario de día no laborable
+        document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const diaId = form.getAttribute('data-id');
+            const isEdit = !!diaId;
+            
+            const formData = {
+                fecha: document.getElementById('diaNoLaborableFecha').value,
+                motivo: document.getElementById('diaNoLaborableMotivo').value,
+                _token: '{{ csrf_token() }}'
+            };
+            
+            try {
+                let response;
             let url;
             let method;
             

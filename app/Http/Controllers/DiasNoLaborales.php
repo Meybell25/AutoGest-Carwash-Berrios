@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/DiaNoLaborableController.php
 
 namespace App\Http\Controllers;
 
@@ -10,84 +11,86 @@ class DiaNoLaborableController extends Controller
 {
     public function index()
     {
-        $dias = DiaNoLaborable::ordenadoPorFecha()->get();
-        return response()->json($dias);
+        $diasNoLaborables = DiaNoLaborable::orderBy('fecha', 'asc')->get();
+        return view('admin.dias-no-laborables.index', compact('diasNoLaborables'));
     }
 
-    public function show($id)
+    public function create()
     {
-        $dia = DiaNoLaborable::findOrFail($id);
-        return response()->json($dia);
+        $motivos = DiaNoLaborable::getMotivosDisponibles();
+        return view('admin.dias-no-laborables.create', compact('motivos'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'fecha' => 'required|date|unique:dias_no_laborables,fecha',
-            'motivo' => 'required|string',
+            'fecha' => 'required|date|after_or_equal:today',
+            'motivo' => 'nullable|string|max:255'
         ]);
 
-        $dia = DiaNoLaborable::create([
+        DiaNoLaborable::create([
             'fecha' => $request->fecha,
-            'motivo' => $request->motivo,
+            'motivo' => $request->motivo
         ]);
 
-        return response()->json($dia, 201);
+        return redirect()->route('admin.dias-no-laborables.index')
+            ->with('success', 'Día no laborable agregado correctamente');
     }
 
-    public function update(Request $request, $id)
+    public function show(DiaNoLaborable $diasNoLaborable)
     {
-        $dia = DiaNoLaborable::findOrFail($id);
-
-        $request->validate([
-            'fecha' => 'required|date|unique:dias_no_laborables,fecha,' . $id,
-            'motivo' => 'required|string',
-        ]);
-
-        $dia->update([
-            'fecha' => $request->fecha,
-            'motivo' => $request->motivo,
-        ]);
-
-        return response()->json($dia);
+        return view('admin.dias-no-laborables.show', compact('diasNoLaborable'));
     }
 
-    public function destroy($id)
+    public function edit(DiaNoLaborable $diasNoLaborable)
     {
-        $dia = DiaNoLaborable::findOrFail($id);
-        $dia->delete();
-
-        return response()->json(['mensaje' => 'Día no laborable eliminado correctamente.']);
+        $motivos = DiaNoLaborable::getMotivosDisponibles();
+        return view('admin.dias-no-laborables.edit', compact('diasNoLaborable', 'motivos'));
     }
 
-    public function proximos()
-    {
-        $dias = DiaNoLaborable::getProximosNoLaborables();
-        return response()->json($dias);
-    }
-
-    public function delMes(Request $request)
-    {
-        $mes = $request->input('mes');
-        $año = $request->input('año');
-
-        $dias = DiaNoLaborable::getNoLaborablesDelMes($mes, $año);
-        return response()->json($dias);
-    }
-
-    public function diasLaborables(Request $request)
+    public function update(Request $request, DiaNoLaborable $diasNoLaborable)
     {
         $request->validate([
-            'inicio' => 'required|date',
-            'fin' => 'required|date|after_or_equal:inicio',
+            'fecha' => 'required|date',
+            'motivo' => 'nullable|string|max:255'
         ]);
 
-        $dias = DiaNoLaborable::getDiasLaborablesEnRango($request->inicio, $request->fin);
-        return response()->json($dias);
+        $diasNoLaborable->update([
+            'fecha' => $request->fecha,
+            'motivo' => $request->motivo
+        ]);
+
+        return redirect()->route('admin.dias-no-laborables.index')
+            ->with('success', 'Día no laborable actualizado correctamente');
     }
 
-    public function motivos()
+    public function destroy(DiaNoLaborable $diasNoLaborable)
     {
-        return response()->json(DiaNoLaborable::getMotivosDisponibles());
+        $diasNoLaborable->delete();
+        return redirect()->route('admin.dias-no-laborables.index')
+            ->with('success', 'Día no laborable eliminado correctamente');
+    }
+
+    // API Methods
+    public function getProximos()
+    {
+        $proximos = DiaNoLaborable::where('fecha', '>=', now())
+            ->orderBy('fecha', 'asc')
+            ->take(5)
+            ->get();
+            
+        return response()->json($proximos);
+    }
+
+    public function getDelMes()
+    {
+        $inicioMes = now()->startOfMonth();
+        $finMes = now()->endOfMonth();
+        
+        $dias = DiaNoLaborable::whereBetween('fecha', [$inicioMes, $finMes])
+            ->orderBy('fecha', 'asc')
+            ->get();
+            
+        return response()->json($dias);
     }
 }

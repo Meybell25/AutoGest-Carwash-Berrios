@@ -63,7 +63,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Rutas para Días No Laborables
-    Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
+    /*Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
         Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
         Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
         Route::post('/', [DiaNoLaborableController::class, 'store'])->name('store');
@@ -76,6 +76,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/del-mes', [DiaNoLaborableController::class, 'delMes'])->name('del-mes');
         Route::get('/laborables', [DiaNoLaborableController::class, 'diasLaborables'])->name('laborables');
         Route::get('/motivos', [DiaNoLaborableController::class, 'motivos'])->name('motivos');
+    }); */
+
+    // routes/api.php
+
+    Route::prefix('dias-no-laborables')->group(function() {
+        Route::get('/', [DiaNoLaborableController::class, 'index']); // Para la API
+        Route::post('/', [DiaNoLaborableController::class, 'store']);
+        Route::put('/{diaNoLaborable}', [DiaNoLaborableController::class, 'update']);
+        Route::delete('/{diaNoLaborable}', [DiaNoLaborableController::class, 'destroy']);
+        Route::get('/proximos', [DiaNoLaborableController::class, 'getProximos']);
+        Route::get('/del-mes', [DiaNoLaborableController::class, 'getDelMes']);
     });
 });
 
