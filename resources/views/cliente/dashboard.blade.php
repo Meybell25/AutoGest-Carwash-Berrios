@@ -1255,6 +1255,8 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            padding: 20px 0;
         }
 
         .modal-content {
@@ -1264,6 +1266,8 @@
             border-radius: 15px;
             width: 90%;
             max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             animation: modalFadeIn 0.3s;
         }

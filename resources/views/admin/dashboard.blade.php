@@ -1114,11 +1114,6 @@
             color: var(--text-secondary);
         }
 
-        .password-match-message {
-            font-size: 0.8rem;
-            margin-top: 5px;
-        }
-
         .text-green-500 {
             color: #10b981;
         }
@@ -1146,6 +1141,20 @@
         /* Estilos para el spinner */
         .fa-spinner.fa-spin {
             margin-right: 8px;
+        }
+
+        .password-match-message {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .password-match-message.valid {
+            color: #28a745;
+        }
+
+        .password-match-message.invalid {
+            color: #dc3545;
         }
 
         /* ======================
@@ -3285,6 +3294,9 @@
         </div>
     </div>
 
+
+
+    New chat
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
@@ -3393,10 +3405,9 @@
                                     <i class="fas fa-eye" id="passwordConfirmationEye"></i>
                                 </button>
                             </div>
-                            <div id="passwordMatchMessage" style="font-size: 0.8rem; margin-top: 5px;"></div>
+                            <div id="passwordMatchMessage" class="password-match-message"></div>
                         </div>
                     </div>
-                </div>
 
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label for="estado"
@@ -3495,390 +3506,45 @@
         });
 
         // =============================================
-        // FUNCIONES PARA DÍAS NO LABORABLES
-        // =============================================
-
-        // Cargar días no laborables desde la API
-        async function cargarDiasNoLaborables() {
-            try {
-                const response = await fetch('/dias-no-laborables');
-                if (!response.ok) throw new Error('Error al cargar días no laborables');
-
-                diasNoLaborables = await response.json();
-                actualizarTablaDiasNoLaborables();
-            } catch (error) {
-                console.error('Error al cargar días no laborables:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error al cargar días no laborables',
-                    text: error.message
-                });
-            }
-        }
-
-        // Actualizar la tabla con los días no laborables
-        function actualizarTablaDiasNoLaborables() {
-            const tbody = document.querySelector('#diasNoLaborablesTable tbody');
-            if (!tbody) return;
-
-            tbody.innerHTML = '';
-
-            if (diasNoLaborables.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="3" style="text-align: center; padding: 20px;">
-                            <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
-                            <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            diasNoLaborables.forEach(dia => {
-                const fecha = new Date(dia.fecha);
-                const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-
-                const row = document.createElement('tr');
-                row.setAttribute('data-id', dia.id);
-                row.innerHTML = `
-                    <td data-label="Fecha">${fechaFormateada}</td>
-                    <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
-                    <td data-label="Acciones">
-                        <div class="table-actions">
-                            <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        // Mostrar modal para agregar/editar día no laborable
-        function mostrarModalDiaNoLaborable(diaId = null) {
-            const modal = document.getElementById('diaNoLaborableModal');
-            const form = document.getElementById('diaNoLaborableForm');
-            const title = document.getElementById('diaNoLaborableModalTitle');
-
-            if (result.isConfirmed) {
-                const response = await fetch(`/dias-no-laborables/${diaId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-            form.reset();
-
-            if (diaId) {
-                title.innerHTML = '<i class="fas fa-edit"></i> Editar Día No Laborable';
-                form.setAttribute('data-id', diaId);
-
-                const dia = diasNoLaborables.find(d => d.id == diaId);
-                if (dia) {
-                    document.getElementById('diaNoLaborableFecha').value = dia.fecha;
-                    document.getElementById('diaNoLaborableMotivo').value = dia.motivo || '';
-                }
-            } else {
-                title.innerHTML = '<i class="fas fa-plus"></i> Agregar Día No Laborable';
-                form.removeAttribute('data-id');
-                // Establecer la fecha mínima como hoy
-                document.getElementById('diaNoLaborableFecha').min = new Date().toISOString().split('T')[0];
-            }
-
-            modal.style.display = 'flex';
-        }
-
-        // Función para editar un día no laborable
-        function editarDiaNoLaborable(diaId) {
-            mostrarModalDiaNoLaborable(diaId);
-        }
-
-        // Función para eliminar un día no laborable
-        async function eliminarDiaNoLaborable(diaId) {
-            try {
-                const result = await Swal.fire({
-                    title: '¿Eliminar este día no laborable?',
-                    text: "Esta acción no se puede deshacer",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Sí, eliminar',
-                    cancelButtonText: 'Cancelar'
-                });
-
-                
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Error al eliminar el día no laborable');
-                    }
-                    await cargarDiasNoLaborables();
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Día no laborable eliminado correctamente'
-                    });
-                }
-            } catch (error) {
-                console.error('Error al eliminar día no laborable:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error al eliminar día no laborable',
-                    text: error.message
-                });
-            }
-        }
-
-        // =============================================
-        // EVENT LISTENERS ADICIONALES
-        // =============================================
-
-        // Manejar el envío del formulario de día no laborable
-        document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const form = e.target;
-            const diaId = form.getAttribute('data-id');
-            const isEdit = !!diaId;
-
-            const formData = {
-                fecha: document.getElementById('diaNoLaborableFecha').value,
-                motivo: document.getElementById('diaNoLaborableMotivo').value,
-                _token: '{{ csrf_token() }}'
-            };
-
-            try {
-                let response;
-                let url;
-                let method;
-
-                if (isEdit) {
-                    url = `/api/dias-no-laborables/${diaId}`;
-                    method = 'PUT';
-                } else {
-                    url = '/api/dias-no-laborables';
-                    method = 'POST';
-                }
-
-                response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    let errorMessage = 'Error al guardar el día no laborable';
-                    if (data.errors) {
-                        errorMessage = Object.values(data.errors).join('\n');
-                    } else if (data.message) {
-                        errorMessage = data.message;
-                    }
-                    throw new Error(errorMessage);
-                }
-
-                Toast.fire({
-                    icon: 'success',
-                    title: isEdit ? 'Día no laborable actualizado' : 'Día no laborable agregado'
-                });
-
-                closeModal('diaNoLaborableModal');
-                await cargarDiasNoLaborables();
-            } catch (error) {
-                console.error('Error al guardar día no laborable:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message
-                });
-            }
-        });
-
-        // Validar que la fecha seleccionada no sea en el pasado
-        document.getElementById('diaNoLaborableFecha')?.addEventListener('change', function() {
-            const fechaSeleccionada = new Date(this.value);
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-
-            if (fechaSeleccionada < hoy) {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'No puedes seleccionar una fecha pasada'
-                });
-                this.value = hoy.toISOString().split('T')[0];
-            }
-        });
-
-
-        // =============================================
         // FUNCIONES DE USUARIO Y VALIDACIÓN
         // =============================================
 
+        // Agrega esta función para alternar la visibilidad de contraseñas
+        function togglePassword(fieldId, iconId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
 
-        // Función para mostrar el modal de usuario 
-        function mostrarModalUsuario(usuarioId = null) {
-            const modal = document.getElementById('usuarioModal');
-            const form = document.getElementById('usuarioForm');
-            const title = document.getElementById('modalTitleText');
-            const rolField = document.getElementById('rol');
-            const emailField = document.getElementById('email');
-            const passwordFields = document.getElementById('passwordFields');
-
-            // Resetear el formulario y listeners
-            form.reset();
-            document.getElementById('usuario_id').value = '';
-
-            // Remover cualquier listener previo de email
-            const emailInput = document.getElementById('email');
-            const newEmailInput = emailInput.cloneNode(true);
-            emailInput.parentNode.replaceChild(newEmailInput, emailInput);
-
-            if (usuarioId) {
-                // Modo edición
-                document.getElementById('modalTitleText').textContent = 'Editar Usuario';
-                document.getElementById('email').readOnly = true;
-                document.getElementById('rol').readOnly = true;
-                document.getElementById('emailHelp').style.display = 'block';
-                document.getElementById('rolHelp').style.display = 'block';
-                passwordFields.style.display = 'none';
-                document.getElementById('password').required = false;
-                document.getElementById('password_confirmation').required = false;
-
-                // Buscar el usuario en los datos cargados
-                const usuario = allUsersData.find(u => u.id == usuarioId);
-
-                if (usuario) {
-                    document.getElementById('usuario_id').value = usuario.id;
-                    document.getElementById('nombre').value = usuario.nombre;
-                    document.getElementById('email').value = usuario.email;
-                    document.getElementById('telefono').value = usuario.telefono || '';
-                    document.getElementById('rol').value = usuario.rol;
-                    document.getElementById('estado').value = usuario.estado ? '1' : '0';
-                } else {
-                    // Si no está en los datos cargados, hacer petición al servidor
-                    fetch(`/admin/usuarios/${usuarioId}/edit`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Usuario no encontrado');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            document.getElementById('usuario_id').value = data.id;
-                            document.getElementById('nombre').value = data.nombre;
-                            document.getElementById('email').value = data.email;
-                            document.getElementById('telefono').value = data.telefono || '';
-                            document.getElementById('rol').value = data.rol;
-                            document.getElementById('estado').value = data.estado ? '1' : '0';
-                        })
-                        .catch(error => {
-                            console.error('Error al cargar usuario:', error);
-                            Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
-                            closeModal('usuarioModal');
-                        });
-                }
+            if (field.type === "password") {
+                field.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
             } else {
-                // Modo creación
-                document.getElementById('modalTitleText').textContent = 'Crear Nuevo Usuario';
-                document.getElementById('email').readOnly = false;
-                document.getElementById('rol').readOnly = false;
-                document.getElementById('emailHelp').style.display = 'none';
-                document.getElementById('email').removeAttribute('readonly');
-                document.getElementById('rolHelp').style.display = 'none';
-                passwordFields.style.display = 'block';
-                document.getElementById('rol').value = 'cliente'; // Valor por defecto
-                document.getElementById('password').required = true;
-                document.getElementById('password_confirmation').required = true;
-
-                // Validación en tiempo real para email (solo en creación)
-                document.getElementById('email').addEventListener('blur', async function() {
-                    const email = this.value;
-                    if (!email) return;
-
-                    try {
-                        const usuarioId = document.getElementById('usuario_id').value;
-                        const url =
-                            `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
-
-                        const response = await fetch(url);
-
-                        if (!response.ok) {
-                            throw new Error('Error al verificar email');
-                        }
-
-                        const data = await response.json();
-
-                        if (!data.available) {
-                            this.setCustomValidity(data.message);
-                            this.classList.add('border-red-500');
-                            document.getElementById('email-error').textContent = data.message;
-                            document.getElementById('email-error').classList.remove('hidden');
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('border-red-500');
-                            document.getElementById('email-error').classList.add('hidden');
-                        }
-                    } catch (error) {
-                        console.error('Error al verificar email:', error);
-                        // No mostrar error al usuario para no confundirlo
-                    }
-                });
+                field.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
             }
+        }
 
-            // Resetear validaciones visuales
-            document.querySelectorAll('.password-requirements li').forEach(li => {
-                li.style.color = '#6b7280';
+        function mostrarModalUsuario() {
+            // Limpiar el formulario antes de mostrarlo
+            document.getElementById('usuarioForm').reset();
+
+            // Mostrar el modal
+            document.getElementById('usuarioModal').style.display = 'flex';
+
+            // Resetear estilos de validación
+            document.querySelectorAll('#usuarioForm input, #usuarioForm select').forEach(el => {
+                el.classList.remove('border-red-500');
             });
-            document.getElementById('passwordMatchMessage').textContent = '';
 
-            // Resetear el botón de submit
-            const submitBtn = document.querySelector('#usuarioForm button[type="submit"]');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
-
-            modal.style.display = 'flex';
+            // Actualizar los indicadores de contraseña
+            document.getElementById('req-length').className = 'text-gray-400';
+            document.getElementById('req-uppercase').className = 'text-gray-400';
+            document.getElementById('req-lowercase').className = 'text-gray-400';
+            document.getElementById('req-number').className = 'text-gray-400';
         }
 
-        // Función para alternar visibilidad de contraseña 
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            let eyeIcon;
-
-            if (inputId === 'password') {
-                eyeIcon = document.getElementById('passwordEye');
-            } else {
-                eyeIcon = document.getElementById('passwordConfirmationEye');
-            }
-
-            if (!input || !eyeIcon) {
-                console.error(`Elemento no encontrado para inputId: ${inputId}`);
-                return;
-            }
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            }
-        }
-
+        // Función para evaluar fortaleza de contraseña
         function evaluatePasswordStrength(password) {
             let strength = 0;
             const strengthText = document.getElementById('passwordStrengthText');
@@ -3974,133 +3640,43 @@
 
             if (confirmPassword.length === 0) {
                 messageElement.textContent = '';
+                messageElement.className = 'password-match-message';
                 return false;
             }
 
             if (password === confirmPassword) {
                 messageElement.textContent = 'Las contraseñas coinciden';
-                messageElement.classList.add('text-success');
+                messageElement.className = 'password-match-message text-green-500';
                 return true;
             } else {
                 messageElement.textContent = 'Las contraseñas no coinciden';
-                messageElement.classList.add('text-danger');
+                messageElement.className = 'password-match-message text-red-500';
                 return false;
             }
         }
+
+
 
         // Inicializar validaciones del formulario
         function initPasswordValidations() {
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('password_confirmation');
 
-            if (passwordInput && confirmPasswordInput) {
-                passwordInput.addEventListener('input', function() {
-                    validatePasswordStrength(this.value);
-                    if (confirmPasswordInput.value.length > 0) {
-                        validatePasswordMatch();
-                    }
-                });
+            if (passwordField) {
+                passwordField.addEventListener('input', function() {
+                    const password = this.value;
+                    validatePasswordStrength(password);
 
-                confirmPasswordInput.addEventListener('input', function() {
-                    // Validar solo si ambos campos tienen contenido
-                    if (passwordInput.value.length > 0 && this.value.length > 0) {
+                    if (confirmPasswordField && confirmPasswordField.value) {
                         validatePasswordMatch();
                     } else {
                         document.getElementById('passwordMatchMessage').textContent = '';
                     }
                 });
             }
-        }
 
-        // Función para manejar envío de formulario 
-        async function handleUsuarioFormSubmit(e) {
-            e.preventDefault();
-
-            const form = e.target;
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const usuarioId = form.querySelector('#usuario_id').value;
-
-            // Resetear errores visuales
-            document.querySelectorAll('.error-message').forEach(el => {
-                el.classList.add('hidden');
-            });
-            document.querySelectorAll('.border-red-500').forEach(el => {
-                el.classList.remove('border-red-500');
-            });
-
-            // Deshabilitar el botón
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-
-            try {
-                // Primero verificar el email nuevamente
-                const email = form.email.value;
-                const checkEmailUrl =
-                    `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
-                const checkResponse = await fetch(checkEmailUrl);
-
-                if (!checkResponse.ok) throw new Error('Error al verificar email');
-
-                const checkData = await checkResponse.json();
-
-                if (!checkData.available) {
-                    throw new Error(checkData.message);
-                }
-
-                // Si el email está disponible, proceder con el envío
-                const response = await fetch(usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios', {
-                    method: usuarioId ? 'PUT' : 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        nombre: form.nombre.value.trim(),
-                        email: email,
-                        telefono: form.telefono.value.trim() || null,
-                        estado: form.estado.value === '1',
-                        rol: form.rol.value,
-                        password: form.password?.value,
-                        password_confirmation: form.password_confirmation?.value
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Error al procesar la solicitud');
-                }
-
-                // Éxito - mostrar mensaje y recargar
-                await Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: data.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-
-                await fetchAllUsers();
-                closeModal('usuarioModal');
-
-            } catch (error) {
-                // Mostrar error específico para email
-                if (error.message.includes('correo electrónico')) {
-                    form.email.classList.add('border-red-500');
-                    document.getElementById('email-error').textContent = error.message;
-                    document.getElementById('email-error').classList.remove('hidden');
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message,
-                        footer: usuarioId ? `ID: ${usuarioId}` : ''
-                    });
-                }
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
+            if (confirmPasswordField) {
+                confirmPasswordField.addEventListener('input', validatePasswordMatch);
             }
         }
 
@@ -4539,9 +4115,6 @@
 
             // Inicializar validaciones del formulario de usuario
             initUsuarioFormValidation();
-            initPasswordValidations();
-
-            cargarDiasNoLaborables();
 
             // Asignar el evento al botón de crear usuario
             document.querySelector('.btn-primary[onclick="mostrarModalUsuario()"]').addEventListener('click',
