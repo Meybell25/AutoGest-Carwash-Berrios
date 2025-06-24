@@ -9,7 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<<<<<<< HEAD
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+    @vite(['resources/js/app.js'])
+=======
     <script src="https://cdn.tailwindcss.com"></script>
+>>>>>>> origin/main
     <style>
         /* ======================
         ESTILOS GENERALES
@@ -2386,6 +2391,10 @@
                     <a href="{{ route('admin.reportes') }}" class="btn btn-success">
                         <i class="fas fa-chart-bar"></i>
                         Reportes
+                    </a>
+                     <a href="{{ route('admin.bitacora.index') }}" class="btn btn-success">
+                        <i class="fas fa-chart-bar"></i>
+                        Bitácora
                     </a>
                     <a href="{{ route('configuracion.index') }}" class="btn btn-info">
                         <i class="fas fa-cog"></i>
