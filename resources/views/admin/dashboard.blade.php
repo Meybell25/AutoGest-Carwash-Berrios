@@ -3362,6 +3362,28 @@
         // CONFIGURACIONES GLOBALES
         // =============================================
 
+        // =============================================
+        // FUNCIONES PARA DÍAS NO LABORABLES
+        // =============================================
+
+        // Cargar días no laborables desde la API
+        async function cargarDiasNoLaborables() {
+            try {
+                const response = await fetch('/api/dias-no-laborables');
+                if (!response.ok) throw new Error('Error al cargar días no laborables');
+                
+                diasNoLaborables = await response.json();
+                actualizarTablaDiasNoLaborables();
+            } catch (error) {
+                console.error('Error al cargar días no laborables:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error al cargar días no laborables',
+                    text: error.message
+                });
+            }
+        }
+
         // Configuración de SweetAlert
         const Toast = Swal.mixin({
             toast: true,
