@@ -108,6 +108,9 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
             Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
         });
+
+        //Rutas para horarios
+        Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
     });
 
     
