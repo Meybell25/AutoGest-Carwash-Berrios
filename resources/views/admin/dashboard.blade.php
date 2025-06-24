@@ -3295,8 +3295,6 @@
     </div>
 
 
-
-    New chat
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
@@ -3424,8 +3422,8 @@
             </form>
         </div>
     </div>
-    </div>
 
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -3504,6 +3502,235 @@
                 }, 300);
             });
         });
+
+        // =============================================
+        // FUNCIONES PARA DÍAS NO LABORABLES
+        // =============================================
+
+        // Cargar días no laborables desde la API
+        /* async function cargarDiasNoLaborables() {
+                                                 try {
+                                                     const response = await fetch('/dias-no-laborables');
+                                                     if (!response.ok) throw new Error('Error al cargar días no laborables');
+
+                                                     diasNoLaborables = await response.json();
+                                                     actualizarTablaDiasNoLaborables();
+                                                 } catch (error) {
+                                                     console.error('Error al cargar días no laborables:', error);
+                                                     Toast.fire({
+                                                         icon: 'error',
+                                                         title: 'Error al cargar días no laborables',
+                                                         text: error.message
+                                                     });
+                                                 }
+                                             }
+
+                                             // Actualizar la tabla con los días no laborables
+                                             function actualizarTablaDiasNoLaborables() {
+                                                 const tbody = document.querySelector('#diasNoLaborablesTable tbody');
+                                                 if (!tbody) return;
+
+                                                 tbody.innerHTML = '';
+
+                                                 if (diasNoLaborables.length === 0) {
+                                                     tbody.innerHTML = `
+         <tr>
+             <td colspan="3" style="text-align: center; padding: 20px;">
+                 <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
+                 <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
+             </td>
+         </tr>
+     `;
+                                                     return;
+                                                 }
+
+                                                 diasNoLaborables.forEach(dia => {
+                                                     const fecha = new Date(dia.fecha);
+                                                     const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                                                         day: '2-digit',
+                                                         month: '2-digit',
+                                                         year: 'numeric'
+                                                     });
+
+                                                     const row = document.createElement('tr');
+                                                     row.setAttribute('data-id', dia.id);
+                                                     row.innerHTML = `
+         <td data-label="Fecha">${fechaFormateada}</td>
+         <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
+         <td data-label="Acciones">
+             <div class="table-actions">
+                 <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
+                     <i class="fas fa-edit"></i>
+                 </button>
+                 <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
+                     <i class="fas fa-trash"></i>
+                 </button>
+             </div>
+         </td>
+     `;
+                                                     tbody.appendChild(row);
+                                                 });
+                                             }*/
+
+        // Mostrar modal para agregar/editar día no laborable
+        /*function mostrarModalDiaNoLaborable(diaId = null) {
+            const modal = document.getElementById('diaNoLaborableModal');
+            const form = document.getElementById('diaNoLaborableForm');
+            const title = document.getElementById('diaNoLaborableModalTitle');
+
+            if (result.isConfirmed) {
+                const response = await fetch(`/dias-no-laborables/${diaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+            form.reset();
+
+            if (diaId) {
+                title.innerHTML = '<i class="fas fa-edit"></i> Editar Día No Laborable';
+                form.setAttribute('data-id', diaId);
+
+                const dia = diasNoLaborables.find(d => d.id == diaId);
+                if (dia) {
+                    document.getElementById('diaNoLaborableFecha').value = dia.fecha;
+                    document.getElementById('diaNoLaborableMotivo').value = dia.motivo || '';
+                }
+            } else {
+                title.innerHTML = '<i class="fas fa-plus"></i> Agregar Día No Laborable';
+                form.removeAttribute('data-id');
+                // Establecer la fecha mínima como hoy
+                document.getElementById('diaNoLaborableFecha').min = new Date().toISOString().split('T')[0];
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        // Función para editar un día no laborable
+        function editarDiaNoLaborable(diaId) {
+            mostrarModalDiaNoLaborable(diaId);
+        }
+
+        // Función para eliminar un día no laborable
+        async function eliminarDiaNoLaborable(diaId) {
+            try {
+                const result = await Swal.fire({
+                    title: '¿Eliminar este día no laborable?',
+                    text: "Esta acción no se puede deshacer",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Error al eliminar el día no laborable');
+                    }
+                    await cargarDiasNoLaborables();
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Día no laborable eliminado correctamente'
+                    });
+                }
+            } catch (error) {
+                console.error('Error al eliminar día no laborable:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error al eliminar día no laborable',
+                    text: error.message
+                });
+            }
+        }
+
+        // =============================================
+        // EVENT LISTENERS ADICIONALES
+        // =============================================
+
+        // Manejar el envío del formulario de día no laborable
+        document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const diaId = form.getAttribute('data-id');
+            const isEdit = !!diaId;
+
+            const formData = {
+                fecha: document.getElementById('diaNoLaborableFecha').value,
+                motivo: document.getElementById('diaNoLaborableMotivo').value,
+                _token: '{{ csrf_token() }}'
+            };
+
+            try {
+                let response;
+                let url;
+                let method;
+
+                if (isEdit) {
+                    url = `/api/dias-no-laborables/${diaId}`;
+                    method = 'PUT';
+                } else {
+                    url = '/api/dias-no-laborables';
+                    method = 'POST';
+                }
+
+                response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    let errorMessage = 'Error al guardar el día no laborable';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).join('\n');
+                    } else if (data.message) {
+                        errorMessage = data.message;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                Toast.fire({
+                    icon: 'success',
+                    title: isEdit ? 'Día no laborable actualizado' : 'Día no laborable agregado'
+                });
+
+                closeModal('diaNoLaborableModal');
+                await cargarDiasNoLaborables();
+            } catch (error) {
+                console.error('Error al guardar día no laborable:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                });
+            }
+        });
+
+        // Validar que la fecha seleccionada no sea en el pasado
+        document.getElementById('diaNoLaborableFecha')?.addEventListener('change', function() {
+            const fechaSeleccionada = new Date(this.value);
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+
+            if (fechaSeleccionada < hoy) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'No puedes seleccionar una fecha pasada'
+                });
+                this.value = hoy.toISOString().split('T')[0];
+            }
+        });*/
+
 
         // =============================================
         // FUNCIONES DE USUARIO Y VALIDACIÓN
@@ -3705,6 +3932,7 @@
                 options: getCommonChartOptions('bottom')
             });
         }
+        console.log(document.getElementById('usuariosChart')); // Debería mostrar el elemento canvas
 
         function inicializarGraficoIngresos() {
             const ctx = document.getElementById('ingresosChart').getContext('2d');
@@ -3813,6 +4041,7 @@
         // FUNCIONES DE ACTUALIZACIÓN DE DATOS
         // =============================================
 
+        // En la función actualizarDatosDashboard
         async function actualizarDatosDashboard() {
             try {
                 const response = await fetch('{{ route('admin.dashboard.data') }}');
@@ -3825,7 +4054,17 @@
                 }
 
                 actualizarEstadisticas(data.stats);
-                actualizarGraficoUsuarios(data.rolesDistribucion);
+
+                // Asegúrate de que el canvas existe antes de inicializar el gráfico
+                if (document.getElementById('usuariosChart')) {
+                    // Si el gráfico ya existe, actualízalo
+                    if (usuariosChart) {
+                        actualizarGraficoUsuarios(data.rolesDistribucion);
+                    } else {
+                        // Si no existe, créalo
+                        inicializarGraficoUsuarios(data.rolesDistribucion);
+                    }
+                }
 
                 return true;
             } catch (error) {
@@ -4109,7 +4348,6 @@
             if (document.getElementById('serviciosChart')) {
                 inicializarGraficoServicios();
             }
-            if (document.getElementById('usuarioForm')) initUsuarioFormValidation();
 
             actualizarDatosDashboard();
 
