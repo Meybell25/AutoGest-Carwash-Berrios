@@ -11,12 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
-<<<<<<< HEAD
 use App\Events\UsuarioCreado;
-=======
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
->>>>>>> origin/main
 
 class AdminController extends Controller
 {
@@ -516,6 +513,7 @@ class AdminController extends Controller
             'citas' => $usuario->citas
         ]);
     }
+
     public function checkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email']);

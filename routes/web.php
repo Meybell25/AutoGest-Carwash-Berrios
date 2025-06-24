@@ -87,22 +87,22 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
     Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
     Route::post('/usuarios', [AdminController::class, 'storeUsuario'])->name('usuarios.store');
     Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
-    
+
     // Ruta para datos del dashboard (AJAX)
     Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
-    
+
     // Rutas de citas
     Route::prefix('citas')->name('citas.')->group(function () {
         Route::get('/create', [AdminController::class, 'createCita'])->name('create');
         Route::post('/', [AdminController::class, 'storeCita'])->name('store');
     });
-    
+
     // Rutas de reportes
     Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
-    
+
     // Rutas de servicios
     Route::prefix('servicios')->name('servicios.')->group(function () {
-        Route::get('/', [ServicioController::class, 'adminIndex'])->name('index'); // Cambiado de admin.index a index
+        Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
         Route::get('/crear', [ServicioController::class, 'create'])->name('create');
         Route::post('/', [ServicioController::class, 'store'])->name('store');
         Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
