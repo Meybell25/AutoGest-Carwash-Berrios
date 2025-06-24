@@ -2570,11 +2570,19 @@
             const horaSelect = document.getElementById('hora');
             horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
-            // Buscar horarios para este día
-            const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeek);
+            console.log('Horarios disponibles:', horariosDisponibles);
+            console.log('Buscando horarios para día:', dayOfWeek);
+
+            const horariosDia = horariosDisponibles.filter(h => {
+                console.log(
+                    `Horario día: ${h.dia_semana} (tipo ${typeof h.dia_semana}) vs ${dayOfWeek} (tipo ${typeof dayOfWeek})`
+                    );
+                return h.dia_semana == dayOfWeek;
+            });
 
             if (horariosDia.length === 0) {
-                horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                console.error('No hay horarios configurados para este día de la semana');
+                horaSelect.innerHTML = '<option value="">No hay horarios disponibles para este día</option>';
                 return;
             }
 
@@ -2694,16 +2702,21 @@
             const vehiculoSelect = document.getElementById('vehiculo_id');
             const tipoVehiculo = vehiculoSelect.options[vehiculoSelect.selectedIndex]?.dataset.tipo;
 
+            console.log('Tipo de vehículo seleccionado:', tipoVehiculo);
+            console.log('Todos los servicios disponibles:', todosServiciosDisponibles);
+
             if (!tipoVehiculo) {
                 document.getElementById('serviciosContainer').innerHTML = '<p>Seleccione un vehículo primero</p>';
                 return;
             }
 
-            // Filtrar servicios por categoría (tipo de vehículo)
-            serviciosFiltrados = todosServiciosDisponibles.filter(servicio =>
-                servicio.categoria === tipoVehiculo
-            );
+            // Asegúrate que los servicios tienen categoría y coinciden con el tipo
+            serviciosFiltrados = todosServiciosDisponibles.filter(servicio => {
+                console.log(`Servicio ${servicio.nombre}: Categoría ${servicio.categoria} vs Tipo ${tipoVehiculo}`);
+                return servicio.categoria && servicio.categoria.toLowerCase() === tipoVehiculo.toLowerCase();
+            });
 
+            console.log('Servicios filtrados:', serviciosFiltrados);
             renderServicios();
         }
 
@@ -3059,10 +3072,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                    <tr>
-                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                    </tr>
-                                                                                                                    `).join('')}
+                                                                                                                                    <tr>
+                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                    </tr>
+                                                                                                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>

@@ -162,7 +162,8 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
 
         Route::get('/servicios-disponibles', function () {
             return response()->json(
-                App\Models\Servicio::activos()->get(['id', 'nombre', 'precio', 'duracion_min'])
+                App\Models\Servicio::activos()
+                    ->get(['id', 'nombre', 'precio', 'duracion_min', 'categoria'])
             );
         })->name('servicios-disponibles');
 
@@ -228,3 +229,56 @@ Route::get('/test-middleware', function () {
         'role' => Auth::user()->rol ?? null
     ]);
 })->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente']);
+
+// Ruta para verificar horarios
+Route::get('/debug/horarios', function () {
+    $horarios = App\Models\Horario::activos()->get();
+
+    if ($horarios->isEmpty()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No hay horarios configurados',
+            'data' => []
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'count' => $horarios->count(),
+        'data' => $horarios->map(function ($h) {
+            return [
+                'id' => $h->id,
+                'dia_semana' => $h->dia_semana,
+                'hora_inicio' => $h->hora_inicio,
+                'hora_fin' => $h->hora_fin,
+                'activo' => $h->activo
+            ];
+        })
+    ]);
+});
+
+// Ruta para verificar servicios
+Route::get('/debug/servicios', function () {
+    $servicios = App\Models\Servicio::activos()->get();
+
+    if ($servicios->isEmpty()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No hay servicios configurados',
+            'data' => []
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'count' => $servicios->count(),
+        'data' => $servicios->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'nombre' => $s->nombre,
+                'categoria' => $s->categoria,
+                'activo' => $s->activo
+            ];
+        })
+    ]);
+});
