@@ -8,6 +8,7 @@ use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\ServicioController;
+use App\Http\Controllers\DiaNoLaborableController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
@@ -54,11 +55,27 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('vehiculos', VehiculoController::class);
 
-    // Nuevas rutas para Servicios
+    // Rutas para Servicios
     Route::prefix('servicios')->name('servicios.')->group(function () {
         Route::get('/', [ServicioController::class, 'index'])->name('index');
         Route::get('/categoria/{categoria}', [ServicioController::class, 'porCategoria'])->name('categoria');
         Route::get('/{id}', [ServicioController::class, 'show'])->name('show');
+    });
+
+    // Rutas para Días No Laborables
+    Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
+        Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
+        Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
+        Route::post('/', [DiaNoLaborableController::class, 'store'])->name('store');
+        Route::get('/{id}', [DiaNoLaborableController::class, 'show'])->name('show');
+        Route::get('/{id}/editar', [DiaNoLaborableController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [DiaNoLaborableController::class, 'update'])->name('update');
+        Route::delete('/{id}', [DiaNoLaborableController::class, 'destroy'])->name('destroy');
+
+        Route::get('/proximos', [DiaNoLaborableController::class, 'proximos'])->name('proximos');
+        Route::get('/del-mes', [DiaNoLaborableController::class, 'delMes'])->name('del-mes');
+        Route::get('/laborables', [DiaNoLaborableController::class, 'diasLaborables'])->name('laborables');
+        Route::get('/motivos', [DiaNoLaborableController::class, 'motivos'])->name('motivos');
     });
 });
 
@@ -67,13 +84,9 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        // Rutas principales
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-
-        // Ruta para datos del dashboard (AJAX)
         Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
 
-        // Rutas de usuarios
         Route::prefix('usuarios')->name('usuarios.')->group(function () {
             Route::get('/', [AdminController::class, 'usuarios'])->name('index');
             Route::post('/', [AdminController::class, 'storeUsuario'])->name('store');
@@ -81,7 +94,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::put('/{usuario}', [AdminController::class, 'update'])->name('update');
             Route::delete('/{usuario}', [AdminController::class, 'destroy'])->name('destroy');
             Route::get('/{usuario}/registros', [AdminController::class, 'getUserRecords'])->name('registros');
-
             Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
 
             // Rutas para acciones masivas
@@ -90,16 +102,13 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::delete('/bulk-delete', [AdminController::class, 'bulkDelete'])->name('bulk-delete');
         });
 
-        // Rutas de citas
         Route::prefix('citas')->name('citas.')->group(function () {
             Route::get('/create', [AdminController::class, 'createCita'])->name('create');
             Route::post('/', [AdminController::class, 'storeCita'])->name('store');
         });
 
-        // Rutas de reportes
         Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
 
-        // Rutas de servicios
         Route::prefix('servicios')->name('servicios.')->group(function () {
             Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
             Route::get('/crear', [ServicioController::class, 'create'])->name('create');
@@ -109,7 +118,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
         });
     });
-
 
 // Rutas de Empleado
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])->prefix('empleado')->name('empleado.')->group(function () {

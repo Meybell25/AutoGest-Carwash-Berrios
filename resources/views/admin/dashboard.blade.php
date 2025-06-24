@@ -945,6 +945,20 @@
             overflow: hidden;
         }
 
+        #passwordMatchMessage {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            height: 18px;
+        }
+
+        .text-success {
+            color: #10b981;
+        }
+
+        .text-danger {
+            color: #ef4444;
+        }
+
         @keyframes modalSlideIn {
             from {
                 opacity: 0;
@@ -3965,6 +3979,9 @@
             const confirmPassword = document.getElementById('password_confirmation').value;
             const messageElement = document.getElementById('passwordMatchMessage');
 
+            // Limpiar clases previas
+            messageElement.classList.remove('text-success', 'text-danger');
+
             messageElement.className = 'password-match-message';
             messageElement.textContent = '';
 
@@ -4002,6 +4019,8 @@
                 confirmPasswordInput.addEventListener('input', function() {
                     if (passwordInput.value.length > 0) {
                         validatePasswordMatch();
+                    } else {
+                        document.getElementById('passwordMatchMessage').textContent = '';
                     }
                 });
             } else {
