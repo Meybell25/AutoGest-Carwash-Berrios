@@ -3506,6 +3506,103 @@
         }
     }
 
+    // =============================================
+    // EVENT LISTENERS ADICIONALES
+    // =============================================
+
+    // Manejar el envío del formulario de día no laborable
+    document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const diaId = form.getAttribute('data-id');
+        const isEdit = !!diaId;
+        
+        const formData = {
+            fecha: document.getElementById('diaNoLaborableFecha').value,
+            motivo: document.getElementById('diaNoLaborableMotivo').value,
+            _token: '{{ csrf_token() }}'
+        };
+        
+        try {
+            let response;
+            let url;
+            let method;
+            
+            if (isEdit) {
+                url = `/api/dias-no-laborables/${diaId}`;
+                method = 'PUT';
+            } else {
+                url = '/api/dias-no-laborables';
+                method = 'POST';
+            }
+            
+            response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                let errorMessage = 'Error al guardar el día no laborable';
+                if (data.errors) {
+                    errorMessage = Object.values(data.errors).join('\n');
+                } else if (data.message) {
+                    errorMessage = data.message;
+                }
+                throw new Error(errorMessage);
+            }
+            
+            Toast.fire({
+                icon: 'success',
+                title: isEdit ? 'Día no laborable actualizado' : 'Día no laborable agregado'
+            });
+            
+            closeModal('diaNoLaborableModal');
+            await cargarDiasNoLaborables();
+        } catch (error) {
+            console.error('Error al guardar día no laborable:', error);
+            Toast.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message
+            });
+        }
+    });
+
+    // Validar que la fecha seleccionada no sea en el pasado
+    document.getElementById('diaNoLaborableFecha')?.addEventListener('change', function() {
+        const fechaSeleccionada = new Date(this.value);
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        
+        if (fechaSeleccionada < hoy) {
+            Toast.fire({
+                icon: 'warning',
+                title: 'No puedes seleccionar una fecha pasada'
+            });
+            this.value = hoy.toISOString().split('T')[0];
+        }
+    });
+
+    // =============================================
+    // INICIALIZACIÓN AL CARGAR LA PÁGINA
+    // =============================================
+
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        cargarDiasNoLaborables();
+        
+       
+    });
+
+   
         // Configuración de SweetAlert
         const Toast = Swal.mixin({
             toast: true,
