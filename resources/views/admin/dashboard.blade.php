@@ -3431,6 +3431,40 @@
             });
         }
 
+        // Mostrar modal para agregar/editar día no laborable
+    function mostrarModalDiaNoLaborable(diaId = null) {
+        const modal = document.getElementById('diaNoLaborableModal');
+        const form = document.getElementById('diaNoLaborableForm');
+        const title = document.getElementById('diaNoLaborableModalTitle');
+        
+        form.reset();
+        
+        if (diaId) {
+            title.innerHTML = '<i class="fas fa-edit"></i> Editar Día No Laborable';
+            form.setAttribute('data-id', diaId);
+            
+            const dia = diasNoLaborables.find(d => d.id == diaId);
+            if (dia) {
+                document.getElementById('diaNoLaborableFecha').value = dia.fecha;
+                document.getElementById('diaNoLaborableMotivo').value = dia.motivo || '';
+            }
+        } else {
+            title.innerHTML = '<i class="fas fa-plus"></i> Agregar Día No Laborable';
+            form.removeAttribute('data-id');
+            // Establecer la fecha mínima como hoy
+            document.getElementById('diaNoLaborableFecha').min = new Date().toISOString().split('T')[0];
+        }
+        
+        modal.style.display = 'flex';
+    }
+
+    // Función para editar un día no laborable
+    function editarDiaNoLaborable(diaId) {
+        mostrarModalDiaNoLaborable(diaId);
+    }
+
+    
+
         // Configuración de SweetAlert
         const Toast = Swal.mixin({
             toast: true,
