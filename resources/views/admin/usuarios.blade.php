@@ -1434,6 +1434,13 @@
             // Resetear clases
             strengthBar.className = 'password-strength-meter-fill';
 
+            // Si está vacío, ocultar barra y texto
+            if (password.length === 0) {
+                strengthBar.style.width = '0';
+                strengthText.textContent = '';
+                return false;
+            }
+
             // Longitud mínima
             if (password.length >= 8) strength += 1;
             // Contiene mayúsculas
@@ -1471,7 +1478,7 @@
                     break;
             }
 
-            return strength >= 3;
+            return strength >= 3; // Considerar fuerte si cumple al menos 3 criterios
         }
 
         function validatePasswordStrength(password) {
@@ -1790,9 +1797,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>` : ''}
+                                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
