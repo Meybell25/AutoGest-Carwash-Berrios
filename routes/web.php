@@ -97,8 +97,11 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         Route::post('/', [AdminController::class, 'storeCita'])->name('store');
     });
 
-
+    // Rutas de usuarios (moví este grupo para que esté completo antes de continuar)
+    Route::prefix('usuarios')->name('usuarios.')->group(function () {
+        Route::get('/', [AdminController::class, 'usuarios'])->name('index');
         Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
+    }); // <-- Este cierre estaba faltando
 
     // Rutas de reportes
     Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
