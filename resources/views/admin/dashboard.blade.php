@@ -1917,54 +1917,103 @@
         </div>
     </div>
 
-    <!-- Modal para nuevo/editar servicio -->
+    <!-- Modal para nuevo/editar servicio - VERSIÓN MEJORADA -->
     <div id="servicioModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 800px;">
             <span class="close-modal" onclick="closeModal('servicioModal')">&times;</span>
-            <h2 id="servicioModalTitle">
-                <i class="fas fa-plus"></i> Nuevo Servicio
-            </h2>
-            <form id="servicioForm">
-                <input type="hidden" id="servicio_id" name="id">
-
-                <div class="form-group">
-                    <label for="servicio_nombre">Nombre del Servicio:</label>
-                    <input type="text" id="servicio_nombre" name="nombre" required class="form-control"
-                        placeholder="Ej: Lavado Premium">
-                </div>
-
-                <div class="form-group">
-                    <label for="servicio_descripcion">Descripción:</label>
-                    <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control"
-                        placeholder="Describe los detalles del servicio..."></textarea>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="servicio_precio">Precio ($):</label>
-                        <input type="number" step="0.01" id="servicio_precio" name="precio" required
-                            class="form-control" placeholder="0.00">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="servicio_duracion">Duración (min):</label>
-                        <input type="number" id="servicio_duracion" name="duracion" required class="form-control"
-                            placeholder="30">
+            
+            <!-- Usando tu formulario de servicios -->
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h1 class="h3 mb-0 text-gray-800" id="servicioModalTitle">
+                            <i class="fas fa-plus-circle"></i> Crear Nuevo Servicio
+                        </h1>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="servicio_activo">Estado:</label>
-                    <select id="servicio_activo" name="activo" class="form-control">
-                        <option value="1">Activo</option>
-                        <option value="0">Inactivo</option>
-                    </select>
-                </div>
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form id="servicioForm" action="#" method="POST">
+                            @csrf
+                            <input type="hidden" id="servicio_id" name="id">
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-save"></i> Guardar Servicio
-                </button>
-            </form>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="nombre">Nombre del Servicio *</label>
+                                        <input type="text" class="form-control" 
+                                               id="nombre" name="nombre" 
+                                               value="" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="categoria">Categoría *</label>
+                                        <select class="form-control" 
+                                                id="categoria" name="categoria" required>
+                                            <option value="">Seleccione una categoría</option>
+                                            @foreach(['lavado', 'pulido', 'interior', 'completo'] as $categoria)
+                                                <option value="{{ $categoria }}">
+                                                    {{ ucfirst($categoria) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="descripcion">Descripción</label>
+                                <textarea class="form-control" 
+                                          id="descripcion" name="descripcion" rows="2"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="precio">Precio ($) *</label>
+                                        <input type="number" step="0.01" min="0.01" 
+                                               class="form-control" 
+                                               id="precio" name="precio" 
+                                               value="" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="duracion_min">Duración (minutos) *</label>
+                                        <input type="number" min="5" 
+                                               class="form-control" 
+                                               id="duracion_min" name="duracion_min" 
+                                               value="" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="activo">Estado</label>
+                                        <select class="form-control" id="activo" name="activo">
+                                            <option value="1" selected>Activo</option>
+                                            <option value="0">Inactivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="closeModal('servicioModal')">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2398,44 +2447,46 @@
             window.open(`/admin/citas/${citaId}/recibo`, '_blank');
         }
 
+        // Scripts actualizados para manejar el formulario de servicios
+        // Función para abrir el modal de nuevo servicio
         function nuevoServicio() {
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Nuevo Servicio';
+            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Crear Nuevo Servicio';
+            document.getElementById('servicioForm').reset();
             document.getElementById('servicio_id').value = '';
-            document.getElementById('servicio_nombre').value = '';
-            document.getElementById('servicio_descripcion').value = '';
-            document.getElementById('servicio_precio').value = '';
-            document.getElementById('servicio_duracion').value = '';
-            document.getElementById('servicio_activo').value = '1';
             document.getElementById('servicioModal').style.display = 'block';
         }
 
+        // Función para abrir el modal de edición
         function editarServicio(servicioId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
             document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
+            
+            // Simulación de datos - en una aplicación real harías una petición AJAX
+            // Estos son datos de ejemplo:
             document.getElementById('servicio_id').value = servicioId;
-            document.getElementById('servicio_nombre').value = 'Lavado Completo';
-            document.getElementById('servicio_descripcion').value =
-                'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
-            document.getElementById('servicio_precio').value = '25.00';
-            document.getElementById('servicio_duracion').value = '30';
-            document.getElementById('servicio_activo').value = '1';
+            document.getElementById('nombre').value = 'Lavado Premium';
+            document.getElementById('categoria').value = 'lavado';
+            document.getElementById('descripcion').value = 'Lavado completo exterior con cera y brillo profesional';
+            document.getElementById('precio').value = '45.00';
+            document.getElementById('duracion_min').value = '45';
+            document.getElementById('activo').value = '1';
+            
             document.getElementById('servicioModal').style.display = 'block';
         }
 
-        // Manejar envío del formulario de servicio
+        // Manejar envío del formulario
         document.getElementById('servicioForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
-            // Aquí iría la petición AJAX para guardar el servicio
+            
+            // Aquí iría tu lógica para guardar el servicio (AJAX)
             const isNew = document.getElementById('servicio_id').value === '';
-
+            
             Toast.fire({
                 icon: 'success',
                 title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
             });
 
             closeModal('servicioModal');
-
+            
             // Simulación de recarga de datos
             setTimeout(() => {
                 window.location.reload();
