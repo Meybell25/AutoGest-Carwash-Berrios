@@ -741,6 +741,27 @@
             word-break: break-word;
             white-space: normal;
         }
+
+        .password-fields-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .password-fields-container .form-group {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .confirm-password-field {
+            margin-top: 15px;
+        }
+        .form-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .password-requirements ul {
+            columns: 1 !important;
+        }
         }
 
         @media (max-width: 576px) {
@@ -1033,10 +1054,9 @@
                     </div>
                 </div>
 
-                <!-- Sección de contraseñas mejorada -->
+                <!-- Sección de contraseñas -->
                 <div id="passwordFields" style="display: block; margin-bottom: 15px;">
-                    <div class="form-grid"
-                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="password-fields-container">
                         <div class="form-group">
                             <label for="password"
                                 style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Contraseña</label>
@@ -1063,7 +1083,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group confirm-password-field">
                             <label for="password_confirmation"
                                 style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Confirmar
                                 Contraseña</label>
@@ -1807,9 +1827,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>` : ''}
+                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
