@@ -458,68 +458,47 @@
             width: 100%;
         }
 
-        .password-strength-container {
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        .password-strength-bar {
+        /* Barra de fortaleza de contraseña */
+        .password-strength-meter {
             height: 5px;
-            border-radius: 3px;
-            margin-top: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .strength-0 {
-            width: 20%;
-            background-color: #ef4444;
-            /* Rojo */
-        }
-
-        .strength-1 {
-            width: 40%;
-            background-color: #f59e0b;
-        }
-
-        .strength-2 {
-            width: 60%;
-            background-color: #3b82f6;
-        }
-
-        .strength-3 {
-            width: 80%;
-            background-color: #10b981;
-        }
-
-        .strength-4 {
             width: 100%;
-            background-color: #047857;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
         }
 
-        .strength-text {
+        .password-strength-meter-fill {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Colores para los diferentes niveles de fortaleza */
+        .password-weak {
+            background-color: #ff5252;
+            width: 25%;
+        }
+
+        .password-medium {
+            background-color: #ffb74d;
+            width: 50%;
+        }
+
+        .password-strong {
+            background-color: #4caf50;
+            width: 75%;
+        }
+
+        .password-very-strong {
+            background-color: #2e7d32;
+            width: 100%;
+        }
+
+        .password-strength-text {
             font-size: 0.8rem;
-            margin-top: 3px;
-            font-weight: 600;
-        }
-
-        .strength-weak {
-            color: #ef4444;
-        }
-
-        .strength-medium {
-            color: #f59e0b;
-        }
-
-        .strength-good {
-            color: #3b82f6;
-        }
-
-        .strength-strong {
-            color: #10b981;
-        }
-
-        .strength-very-strong {
-            color: #047857;
+            margin-top: 5px;
+            color: var(--text-secondary);
         }
 
         @media (max-width: 768px) {
@@ -1069,13 +1048,13 @@
                                     <i class="fas fa-eye" id="passwordEye"></i>
                                 </button>
                             </div>
-                            <div class="password-strength-container">
-                                <div class="password-strength-bar" id="passwordStrengthBar"></div>
-                                <div class="strength-text" id="passwordStrengthText">Seguridad de la contraseña</div>
-                            </div>
-                            <div class="password-requirements"
-                                style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
-                                <ul style="columns: 2; column-gap: 20px;">
+                            <div class="password-requirements">
+                                <div class="password-strength-meter">
+                                    <div class="password-strength-meter-fill" id="passwordStrengthBar"></div>
+                                </div>
+                                <div class="password-strength-text" id="passwordStrengthText">Fortaleza de la
+                                    contraseña</div>
+                                <ul style="columns: 2; column-gap: 20px; margin-top: 10px;">
                                     <li id="req-length">Mínimo 8 caracteres</li>
                                     <li id="req-uppercase">1 letra mayúscula</li>
                                     <li id="req-lowercase">1 letra minúscula</li>
@@ -1447,21 +1426,78 @@
             }
         }
 
-        // Función para validar fortaleza de contraseña
+        function evaluatePasswordStrength(password) {
+            let strength = 0;
+            const strengthText = document.getElementById('passwordStrengthText');
+            const strengthBar = document.getElementById('passwordStrengthBar');
+
+            // Resetear clases
+            strengthBar.className = 'password-strength-meter-fill';
+
+            // Longitud mínima
+            if (password.length >= 8) strength += 1;
+            // Contiene mayúsculas
+            if (/[A-Z]/.test(password)) strength += 1;
+            // Contiene minúsculas
+            if (/[a-z]/.test(password)) strength += 1;
+            // Contiene números
+            if (/[0-9]/.test(password)) strength += 1;
+            // Contiene caracteres especiales
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            // Actualizar la barra y el texto según la fortaleza
+            switch (strength) {
+                case 0:
+                case 1:
+                    strengthBar.classList.add('password-weak');
+                    strengthText.textContent = 'Débil';
+                    strengthText.style.color = '#ff5252';
+                    break;
+                case 2:
+                    strengthBar.classList.add('password-medium');
+                    strengthText.textContent = 'Moderada';
+                    strengthText.style.color = '#ffb74d';
+                    break;
+                case 3:
+                    strengthBar.classList.add('password-strong');
+                    strengthText.textContent = 'Fuerte';
+                    strengthText.style.color = '#4caf50';
+                    break;
+                case 4:
+                case 5:
+                    strengthBar.classList.add('password-very-strong');
+                    strengthText.textContent = 'Muy fuerte';
+                    strengthText.style.color = '#2e7d32';
+                    break;
+            }
+
+            return strength >= 3;
+        }
+
         function validatePasswordStrength(password) {
             const hasMinLength = password.length >= 8;
             const hasUpperCase = /[A-Z]/.test(password);
             const hasLowerCase = /[a-z]/.test(password);
             const hasNumber = /\d/.test(password);
 
-            // Actualizar indicadores visuales
+            // Actualizar lista de requisitos
             document.getElementById('req-length').style.color = hasMinLength ? '#10b981' : '#6b7280';
             document.getElementById('req-uppercase').style.color = hasUpperCase ? '#10b981' : '#6b7280';
             document.getElementById('req-lowercase').style.color = hasLowerCase ? '#10b981' : '#6b7280';
             document.getElementById('req-number').style.color = hasNumber ? '#10b981' : '#6b7280';
 
+            // Evaluar fortaleza general
+            evaluatePasswordStrength(password);
+
             return hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
         }
+
+        document.getElementById('password')?.addEventListener('input', function() {
+            validatePasswordStrength(this.value);
+            if (document.getElementById('password_confirmation').value.length > 0) {
+                validatePasswordMatch();
+            }
+        });
 
         // Función para validar coincidencia de contraseñas
         function validatePasswordMatch() {
@@ -1486,85 +1522,15 @@
             }
         }
 
-        // Función para verificar la fortaleza de la contraseña
-        function checkPasswordStrength(password) {
-            let strength = 0;
-            const strengthBar = document.getElementById('passwordStrengthBar');
-            const strengthText = document.getElementById('passwordStrengthText');
-
-            // Resetear clases
-            strengthBar.className = 'password-strength-bar';
-            strengthText.className = 'strength-text';
-
-            // Verificar longitud
-            if (password.length >= 8) strength++;
-            if (password.length >= 12) strength++;
-
-            // Verificar caracteres mezclados
-            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-
-            // Verificar números
-            if (/\d/.test(password)) strength++;
-
-            // Verificar caracteres especiales
-            if (/[^a-zA-Z0-9]/.test(password)) strength++;
-
-            // Limitar a máximo 5 niveles
-            strength = Math.min(strength, 4);
-
-            // Actualizar barra y texto
-            strengthBar.classList.add(`strength-${strength}`);
-
-            // Actualizar texto según fortaleza
-            switch (strength) {
-                case 0:
-                    strengthText.textContent = 'Muy débil';
-                    strengthText.classList.add('strength-weak');
-                    break;
-                case 1:
-                    strengthText.textContent = 'Débil';
-                    strengthText.classList.add('strength-weak');
-                    break;
-                case 2:
-                    strengthText.textContent = 'Moderada';
-                    strengthText.classList.add('strength-medium');
-                    break;
-                case 3:
-                    strengthText.textContent = 'Fuerte';
-                    strengthText.classList.add('strength-strong');
-                    break;
-                case 4:
-                    strengthText.textContent = 'Muy fuerte';
-                    strengthText.classList.add('strength-very-strong');
-                    break;
-            }
-
-            // También actualizar los requisitos individuales
-            updatePasswordRequirements(password);
-        }
-
-        // Función para actualizar los requisitos de contraseña
-        function updatePasswordRequirements(password) {
-            const hasMinLength = password.length >= 8;
-            const hasUpperCase = /[A-Z]/.test(password);
-            const hasLowerCase = /[a-z]/.test(password);
-            const hasNumber = /\d/.test(password);
-
-            document.getElementById('req-length').style.color = hasMinLength ? '#10b981' : '#6b7280';
-            document.getElementById('req-uppercase').style.color = hasUpperCase ? '#10b981' : '#6b7280';
-            document.getElementById('req-lowercase').style.color = hasLowerCase ? '#10b981' : '#6b7280';
-            document.getElementById('req-number').style.color = hasNumber ? '#10b981' : '#6b7280';
-        }
-
         // Inicializar validaciones del formulario
         function initPasswordValidations() {
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('password_confirmation');
 
             if (passwordInput) {
-                passwordField.addEventListener('input', function() {
-                    checkPasswordStrength(this.value);
-                    if (confirmPasswordField && confirmPasswordField.value) {
+                passwordInput.addEventListener('input', function() {
+                    validatePasswordStrength(this.value);
+                    if (confirmPasswordInput.value.length > 0) {
                         validatePasswordMatch();
                     }
                 });

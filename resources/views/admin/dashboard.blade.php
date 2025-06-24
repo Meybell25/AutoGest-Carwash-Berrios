@@ -3220,7 +3220,7 @@
                 style="position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer;">
                 &times;
             </span>
-            <h2 style="margin-top: 10px; padding-right: 30px;"> <!-- Añadido padding para no solapar con la X -->
+            <h2 style="margin-top: 10px; padding-right: 30px;"> 
                 <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
             </h2>
             <div style="overflow-y: auto; max-height: calc(90vh - 100px); padding: 0 5px;">
