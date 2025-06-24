@@ -97,6 +97,9 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         Route::post('/', [AdminController::class, 'storeCita'])->name('store');
     });
 
+
+        Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
+
     // Rutas de reportes
     Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
 
