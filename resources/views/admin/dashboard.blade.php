@@ -1094,6 +1094,40 @@
             width: 100%;
         }
 
+        .password-strength-meter {
+    height: 5px;
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.password-strength-meter-fill {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.password-weak {
+    background-color: #ff5252;
+    width: 25%;
+}
+
+.password-medium {
+    background-color: #ffb74d;
+    width: 50%;
+}
+
+.password-strong {
+    background-color: #4caf50;
+    width: 75%;
+}
+
+.password-very-strong {
+    background-color: #2e7d32;
+    width: 100%;
+}
         .password-strength-text {
             font-size: 0.8rem;
             margin-top: 5px;
@@ -3543,25 +3577,70 @@
             return strength >= 3;
         }
 
-        // Función para validar los requisitos de la contraseña
+        // Inicializar validación de contraseña en tiempo real
+        document.getElementById('password')?.addEventListener('input', function() {
+            const password = this.value;
+            validatePasswordStrength(password);
+
+            // Validar coincidencia si hay texto en confirmación
+            if (document.getElementById('password_confirmation').value.length > 0) {
+                validatePasswordMatch();
+            }
+        });
+
+        // Función para validar fortaleza de contraseña
         function validatePasswordStrength(password) {
             const hasMinLength = password.length >= 8;
             const hasUpperCase = /[A-Z]/.test(password);
             const hasLowerCase = /[a-z]/.test(password);
             const hasNumber = /\d/.test(password);
+            const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
 
-            // Actualizar lista de requisitos
+            // Actualizar indicadores visuales
             document.getElementById('req-length').className = hasMinLength ? 'text-green-500' : 'text-gray-400';
             document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' : 'text-gray-400';
             document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' : 'text-gray-400';
             document.getElementById('req-number').className = hasNumber ? 'text-green-500' : 'text-gray-400';
 
-            // Evaluar fortaleza general
-            evaluatePasswordStrength(password);
+            // Calcular fortaleza general
+            let strength = 0;
+            if (hasMinLength) strength++;
+            if (hasUpperCase) strength++;
+            if (hasLowerCase) strength++;
+            if (hasNumber) strength++;
+            if (hasSpecialChar) strength++;
 
-            return hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
+            // Actualizar barra de progreso
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            strengthBar.className = 'password-strength-meter-fill'; // Resetear clases
+
+            if (password.length === 0) {
+                strengthBar.style.width = '0';
+                strengthBar.style.backgroundColor = 'transparent';
+                document.getElementById('passwordStrengthText').textContent = 'Fortaleza de la contraseña';
+                return false;
+            }
+
+            let strengthClass, strengthText;
+            if (strength <= 1) {
+                strengthClass = 'password-weak';
+                strengthText = 'Débil';
+            } else if (strength <= 3) {
+                strengthClass = 'password-medium';
+                strengthText = 'Moderada';
+            } else if (strength === 4) {
+                strengthClass = 'password-strong';
+                strengthText = 'Fuerte';
+            } else {
+                strengthClass = 'password-very-strong';
+                strengthText = 'Muy fuerte';
+            }
+
+            strengthBar.classList.add(strengthClass);
+            document.getElementById('passwordStrengthText').textContent = strengthText;
+
+            return strength >= 3; // Considerar válida si tiene al menos 3 de 5 criterios
         }
-
         // Función para validar coincidencia de contraseñas
         function validatePasswordMatch() {
             const password = document.getElementById('password').value;
