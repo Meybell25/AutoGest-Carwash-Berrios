@@ -3384,6 +3384,53 @@
             }
         }
 
+        // Actualizar la tabla con los días no laborables
+        function actualizarTablaDiasNoLaborables() {
+            const tbody = document.querySelector('#diasNoLaborablesTable tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            
+            if (diasNoLaborables.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 20px;">
+                            <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
+                            <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            diasNoLaborables.forEach(dia => {
+                const fecha = new Date(dia.fecha);
+                const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', dia.id);
+                row.innerHTML = `
+                    <td data-label="Fecha">${fechaFormateada}</td>
+                    <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
+                    <td data-label="Acciones">
+                        <div class="table-actions">
+                            <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
         // Configuración de SweetAlert
         const Toast = Swal.mixin({
             toast: true,
