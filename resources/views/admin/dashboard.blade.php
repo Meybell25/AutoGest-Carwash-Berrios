@@ -3984,7 +3984,9 @@
             }
 
             if (confirmPasswordInput) {
-                confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+                confirmPasswordInput.addEventListener('input', function() {
+                    validatePasswordMatch();
+                });
             }
         }
 
