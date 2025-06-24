@@ -7,11 +7,13 @@ use App\Models\Cita;
 use App\Models\Vehiculo;
 use App\Models\Servicio;
 use App\Models\Usuario;
+use App\Models\DiaNoLaborable;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ClienteController extends Controller
 {
@@ -109,20 +111,46 @@ class ClienteController extends Controller
 
     public function storeCita(Request $request)
     {
-        // Validar estado del usuario primero
+
+        // Validar estado del usuario
         if (!Auth::user()->estado) {
-            return response()->json([
-                'message' => 'Tu cuenta está inactiva. No puedes crear nuevas citas.'
-            ], 403);
+            return response()->json(['message' => 'Tu cuenta está inactiva.'], 403);
         }
 
         $validated = $request->validate([
             'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
             'fecha_hora' => 'required|date|after:now',
-            'servicios' => 'required|array',
+            'servicios' => 'required|array|min:1',
             'servicios.*' => 'exists:servicios,id',
             'observaciones' => 'nullable|string|max:500'
         ]);
+
+        $fechaCita = Carbon::parse($validated['fecha_hora']);
+
+        // Validar 1 mes de anticipación
+        if ($fechaCita->gt(Carbon::now()->addMonth())) {
+            return response()->json(['message' => 'Máximo 1 mes de anticipación.'], 400);
+        }
+
+        // Validar día no laborable
+        if (DiaNoLaborable::whereDate('fecha', $fechaCita)->exists()) {
+            return response()->json(['message' => 'Día no laborable.'], 400);
+        }
+
+        // Validar domingo
+        if ($fechaCita->isSunday()) {
+            return response()->json(['message' => 'No atendemos domingos.'], 400);
+        }
+
+        // Validar tipo de vehículo vs servicios
+        $vehiculo = Vehiculo::find($validated['vehiculo_id']);
+        $serviciosInvalidos = Servicio::whereIn('id', $validated['servicios'])
+            ->where('categoria', '!=', $vehiculo->tipo)
+            ->exists();
+
+        if ($serviciosInvalidos) {
+            return response()->json(['message' => 'Servicios no válidos para este vehículo.'], 400);
+        }
 
         try {
             // Crear la cita

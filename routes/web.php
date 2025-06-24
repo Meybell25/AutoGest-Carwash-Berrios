@@ -127,7 +127,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':emplea
 });
 
 // Rutas de Cliente
-// Rutas de Cliente
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente'])
     ->prefix('cliente')
     ->name('cliente.')
@@ -151,8 +150,8 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
                 App\Models\Horario::activos()->get()->map(function ($horario) {
                     return [
                         'dia_semana' => $horario->dia_semana,
-                        'hora_inicio' => $horario->hora_inicio->format('H:i'),
-                        'hora_fin' => $horario->hora_fin->format('H:i')
+                        'hora_inicio' => $horario->hora_inicio->format('H:i:s'), // Asegurar formato completo
+                        'hora_fin' => $horario->hora_fin->format('H:i:s')
                     ];
                 })
             );
@@ -167,9 +166,13 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::get('/dias-no-laborables', function () {
             return response()->json(
                 App\Models\DiaNoLaborable::futuros()
+                    ->orderBy('fecha')
                     ->get()
                     ->map(function ($dia) {
-                        return $dia->fecha->format('Y-m-d');
+                        return [
+                            'fecha' => $dia->fecha->format('Y-m-d'),
+                            'motivo' => $dia->motivo
+                        ];
                     })
             );
         })->name('dias-no-laborables');

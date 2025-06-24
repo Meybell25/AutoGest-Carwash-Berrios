@@ -1362,6 +1362,115 @@
             }
         }
 
+        /* Estilos para el select de vehículos */
+        #vehiculo_id {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            background-color: white;
+        }
+
+        /* Estilos para las tarjetas de servicio */
+        .service-card {
+            transition: all 0.3s ease;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .service-card:hover {
+            background-color: #f0f7ff;
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-card input[type="checkbox"]:checked+div h4 {
+            color: #4facfe;
+            font-weight: bold;
+        }
+
+        /* Estilos para el contenedor de servicios */
+        #serviciosContainer {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        /* Estilos para mensajes de error en el calendario */
+        .swal2-popup .swal2-html-container {
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .swal2-popup .swal2-title {
+            color: #dc3545;
+        }
+
+        /* Estilo para el input de fecha cuando hay error */
+        input:invalid {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+        }
+
+        /* Estilo para días no disponibles en el datepicker */
+        input[type="date"]::after {
+            content: "✓";
+            color: green;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        /* Estilo para el input de fecha cuando es inválido */
+        input[type="date"]:invalid {
+            border-color: #ff6b6b;
+            background-color: #fff5f5;
+        }
+
+        /* Estilo para el contenedor de días no disponibles */
+        .dia-no-disponible {
+            color: #ff6b6b;
+            text-decoration: line-through;
+        }
+
+        /* Mejora para los mensajes de error */
+        .swal2-popup .swal2-html-container {
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .swal2-popup .swal2-title {
+            color: #4facfe;
+            font-size: 1.5em;
+        }
+
+        /* Estilo para el select de vehículos */
+        #vehiculo_id {
+            transition: all 0.3s;
+        }
+
+        #vehiculo_id:invalid {
+            border-color: #ff6b6b;
+        }
+
+        /* Estilos para la selección de hora */
+        #hora {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
         /* Footer */
         .footer {
             width: 100%;
@@ -1703,7 +1812,6 @@
         <div class="dashboard-grid">
             <!-- Sección Principal -->
             <div class="main-section">
-                <!-- Próximas Citas -->
                 <!-- Próximas Citas -->
                 <div class="card">
                     <div class="card-header">
@@ -2237,7 +2345,20 @@
 
             <form id="citaForm">
                 @csrf
-                <input type="hidden" id="vehiculo_id" name="vehiculo_id">
+
+                <!-- Selección de vehículo -->
+                <div class="form-group">
+                    <label for="vehiculo_id">Vehículo:</label>
+                    <select id="vehiculo_id" name="vehiculo_id" required onchange="cargarServiciosPorTipo()">
+                        <option value="">Seleccione un vehículo</option>
+                        @foreach ($mis_vehiculos as $vehiculo)
+                            <option value="{{ $vehiculo->id }}" data-tipo="{{ $vehiculo->tipo }}">
+                                {{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->placa }}
+                                ({{ ucfirst($vehiculo->tipo) }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div class="form-group">
                     <label for="fecha">Fecha:</label>
@@ -2253,10 +2374,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Servicios:</label>
+                    <label>Servicios Disponibles:</label>
                     <div id="serviciosContainer"
                         style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
-                        <!-- Los servicios se cargarán dinámicamente -->
+                        <!-- Los servicios se cargarán dinámicamente según el tipo de vehículo -->
                     </div>
                 </div>
 
@@ -2327,13 +2448,6 @@
     </footer>
 
     <script>
-        // Variables globales
-        let horariosDisponibles = [];
-        let serviciosDisponibles = [];
-        let diasNoLaborables = [];
-
-
-
         // Configuración global de SweetAlert
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
@@ -2346,6 +2460,13 @@
         /*=========================================================
         FUNCIONAMIENTO DE CREAR CITAS
         =========================================================*/
+        // Variables globales
+        let horariosDisponibles = [];
+        let todosServiciosDisponibles = [];
+        let serviciosFiltrados = [];
+        let diasNoLaborables = [];
+
+
         // Funciones del modal de citas
         function openCitaModal(vehiculoId = null) {
             // Verificar estado del usuario primero
@@ -2407,9 +2528,10 @@
             }
         }
 
+        // Función para cargar datos iniciales
         async function loadInitialData() {
             try {
-                // Cargar horarios, servicios y días no laborables en paralelo
+                // Cargar datos en paralelo
                 const [horariosRes, serviciosRes, noLaborablesRes] = await Promise.all([
                     fetch('{{ route('cliente.horarios-disponibles') }}'),
                     fetch('{{ route('cliente.servicios-disponibles') }}'),
@@ -2421,68 +2543,35 @@
                     throw new Error('Error al cargar datos iniciales');
                 }
 
+                // Procesar respuestas
                 horariosDisponibles = await horariosRes.json();
-                serviciosDisponibles = await serviciosRes.json();
+                todosServiciosDisponibles = await serviciosRes.json();
                 diasNoLaborables = await noLaborablesRes.json();
 
-                // Configurar el datepicker
+                // Configurar datepicker con validaciones
                 setupDatePicker();
 
-                // Mostrar servicios
-                renderServicios();
+                // Mostrar estado inicial
+                document.getElementById('serviciosContainer').innerHTML =
+                    '<p>Seleccione un vehículo para ver los servicios disponibles</p>';
+
             } catch (error) {
-                console.error('Error cargando datos iniciales:', error);
+                console.error('Error cargando datos:', error);
                 swalWithBootstrapButtons.fire({
                     title: 'Error',
-                    text: 'No se pudieron cargar los datos necesarios. Por favor intenta nuevamente.',
+                    text: 'No se pudieron cargar los datos necesarios. Por favor recarga la página.',
                     icon: 'error'
                 });
             }
         }
 
-        function setupDatePicker() {
-            const fechaInput = document.getElementById('fecha');
-
-            fechaInput.addEventListener('change', function() {
-                const selectedDate = new Date(this.value);
-                const dayOfWeek = selectedDate.getDay(); // 0 = Domingo, 1 = Lunes, etc.
-
-                // Verificar si es día no laborable
-                const fechaStr = selectedDate.toISOString().split('T')[0];
-                if (diasNoLaborables.includes(fechaStr)) {
-                    swalWithBootstrapButtons.fire({
-                        title: 'Día no laborable',
-                        text: 'No se atienden citas en la fecha seleccionada. Por favor elige otra fecha.',
-                        icon: 'warning'
-                    });
-                    this.value = '';
-                    document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
-                    return;
-                }
-
-                // Verificar si es domingo (día de descanso)
-                if (dayOfWeek === 0) {
-                    swalWithBootstrapButtons.fire({
-                        title: 'Domingo no laborable',
-                        text: 'No atendemos los domingos. Por favor selecciona otro día.',
-                        icon: 'warning'
-                    });
-                    this.value = '';
-                    document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
-                    return;
-                }
-
-                // Cargar horarios disponibles para ese día
-                loadAvailableHours(dayOfWeek);
-            });
-        }
-
+        // Función para cargar horas disponibles (actualizada)
         function loadAvailableHours(dayOfWeek) {
             const horaSelect = document.getElementById('hora');
             horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
             // Buscar horarios para este día
-            const horariosDia = horariosDisponibles.filter(h => h.dia_semana === dayOfWeek);
+            const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeek);
 
             if (horariosDia.length === 0) {
                 horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
@@ -2491,32 +2580,144 @@
 
             // Generar opciones de hora cada 30 minutos dentro del horario laboral
             horariosDia.forEach(horario => {
-                const inicio = new Date(`2000-01-01T${horario.hora_inicio}`);
-                const fin = new Date(`2000-01-01T${horario.hora_fin}`);
+                const [inicioHora, inicioMinuto] = horario.hora_inicio.split(':');
+                const [finHora, finMinuto] = horario.hora_fin.split(':');
 
-                let current = new Date(inicio);
+                let currentHora = parseInt(inicioHora);
+                let currentMinuto = parseInt(inicioMinuto);
+                const finHoraInt = parseInt(finHora);
+                const finMinutoInt = parseInt(finMinuto);
 
-                while (current < fin) {
-                    const horaStr = current.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
+                while (currentHora < finHoraInt || (currentHora === finHoraInt && currentMinuto < finMinutoInt)) {
+                    const horaStr =
+                        `${currentHora.toString().padStart(2, '0')}:${currentMinuto.toString().padStart(2, '0')}`;
                     const option = document.createElement('option');
                     option.value = horaStr;
                     option.textContent = horaStr;
                     horaSelect.appendChild(option);
 
                     // Incrementar 30 minutos
-                    current.setMinutes(current.getMinutes() + 30);
+                    currentMinuto += 30;
+                    if (currentMinuto >= 60) {
+                        currentMinuto -= 60;
+                        currentHora += 1;
+                    }
                 }
             });
         }
 
+        // Configuración del datepicker (actualizada)
+        function setupDatePicker() {
+            const fechaInput = document.getElementById('fecha');
+
+            // Establecer límites de fecha (hoy hasta 1 mes después)
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + 1);
+
+            fechaInput.min = formatDateForInput(today);
+            fechaInput.max = formatDateForInput(maxDate);
+
+            fechaInput.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const fechaStr = selectedDate.toISOString().split('T')[0];
+                const dayOfWeek = selectedDate.getDay(); // 0 = Domingo
+
+                // Validación 1: No más de 1 mes de anticipación
+                if (selectedDate > maxDate) {
+                    showDateError(
+                        'Fecha no permitida',
+                        'Solo puedes agendar citas con hasta 1 mes de anticipación.'
+                    );
+                    return;
+                }
+
+                // Validación 2: No domingos
+                if (dayOfWeek === 0) {
+                    showDateError(
+                        'Domingo no laborable',
+                        'No atendemos los domingos. Por favor selecciona otro día.'
+                    );
+                    return;
+                }
+
+                // Validación 3: Días no laborables
+                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+                if (diaNoLaborable) {
+                    showDateError(
+                        'Día no laborable',
+                        `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
+                 <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
+                    );
+                    return;
+                }
+
+                // Si pasa todas las validaciones, cargar horarios
+                loadAvailableHours(dayOfWeek);
+            });
+        }
+
+        // Función para formatear fecha como YYYY-MM-DD (para input date)
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Función para formatear fecha bonita (ej: "Lunes, 25 de Junio")
+        function formatFechaBonita(date) {
+            const options = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long'
+            };
+            return date.toLocaleDateString('es-ES', options);
+        }
+
+        // Función mejorada para mostrar errores
+        function showDateError(title, message) {
+            swalWithBootstrapButtons.fire({
+                title: title,
+                html: message,
+                icon: 'warning',
+                confirmButtonColor: '#4facfe'
+            });
+
+            // Resetear selección
+            document.getElementById('fecha').value = '';
+            document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
+        }
+
+        // Función para cargar servicios según el tipo de vehículo seleccionado
+        function cargarServiciosPorTipo() {
+            const vehiculoSelect = document.getElementById('vehiculo_id');
+            const tipoVehiculo = vehiculoSelect.options[vehiculoSelect.selectedIndex]?.dataset.tipo;
+
+            if (!tipoVehiculo) {
+                document.getElementById('serviciosContainer').innerHTML = '<p>Seleccione un vehículo primero</p>';
+                return;
+            }
+
+            // Filtrar servicios por categoría (tipo de vehículo)
+            serviciosFiltrados = todosServiciosDisponibles.filter(servicio =>
+                servicio.categoria === tipoVehiculo
+            );
+
+            renderServicios();
+        }
+
+        // Función para renderizar servicios
         function renderServicios() {
             const container = document.getElementById('serviciosContainer');
             container.innerHTML = '';
 
-            serviciosDisponibles.forEach(servicio => {
+            if (serviciosFiltrados.length === 0) {
+                container.innerHTML = '<p>No hay servicios disponibles para este tipo de vehículo</p>';
+                return;
+            }
+
+            serviciosFiltrados.forEach(servicio => {
                 const servicioDiv = document.createElement('div');
                 servicioDiv.className = 'service-card';
                 servicioDiv.style.padding = '10px';
@@ -2526,17 +2727,17 @@
                 servicioDiv.style.transition = 'all 0.3s';
 
                 servicioDiv.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="servicio_${servicio.id}" name="servicios[]" value="${servicio.id}" 
-                           style="width: 18px; height: 18px;">
-                    <div>
-                        <h4 style="margin: 0; font-size: 1rem;">${servicio.nombre}</h4>
-                        <p style="margin: 0; font-size: 0.8rem; color: #666;">
-                            $${servicio.precio.toFixed(2)} • ${formatDuration(servicio.duracion_min)}
-                        </p>
-                    </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="servicio_${servicio.id}" name="servicios[]" value="${servicio.id}" 
+                       style="width: 18px; height: 18px;">
+                <div>
+                    <h4 style="margin: 0; font-size: 1rem;">${servicio.nombre}</h4>
+                    <p style="margin: 0; font-size: 0.8rem; color: #666;">
+                        $${servicio.precio.toFixed(2)} • ${formatDuration(servicio.duracion_min)}
+                    </p>
                 </div>
-            `;
+            </div>
+        `;
 
                 servicioDiv.addEventListener('click', function(e) {
                     if (e.target.tagName !== 'INPUT') {
@@ -2549,6 +2750,7 @@
             });
         }
 
+        // Función para formatear duración
         function formatDuration(minutes) {
             const hours = Math.floor(minutes / 60);
             const mins = minutes % 60;
@@ -2557,15 +2759,6 @@
                 return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
             }
             return `${mins}min`;
-        }
-        // Funciones para manejar citas existentes
-        function editCita(citaId) {
-            // Implementar lógica de edición
-            swalWithBootstrapButtons.fire({
-                title: 'Editar cita',
-                text: 'Esta funcionalidad estará disponible pronto',
-                icon: 'info'
-            });
         }
 
         function cancelCita(citaId) {
@@ -2627,10 +2820,24 @@
         document.getElementById('citaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const vehiculoId = formData.get('vehiculo_id');
             const formData = new FormData(this);
             const fecha = formData.get('fecha');
             const hora = formData.get('hora');
-            const vehiculoId = formData.get('vehiculo_id');
+            const selectedDate = new Date(fecha);
+
+            // Validación de fecha máxima (1 mes)
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + 1);
+
+            if (selectedDate > maxDate) {
+                showDateError(
+                    'Fecha no permitida',
+                    'Solo puedes agendar citas con hasta 1 mes de anticipación.'
+                );
+                return;
+            }
+
 
             // Validaciones básicas
             if (!vehiculoId && {{ $mis_vehiculos->count() }} > 1) {
@@ -2852,10 +3059,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                            <tr>
-                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                            </tr>
-                                                                            `).join('')}
+                                                                                                                    <tr>
+                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                    </tr>
+                                                                                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
