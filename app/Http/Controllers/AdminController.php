@@ -261,16 +261,18 @@ class AdminController extends Controller
      */
     public function storeUser(Request $request)
     {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:usuarios',
-            'telefono' => 'nullable|string|max:20',
-            'rol' => 'required|in:cliente,empleado,admin',
-            'password' => 'required|string|min:8|confirmed',
-            'estado' => 'required|boolean'
-        ]);
+        DB::beginTransaction();
 
         try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:usuarios',
+                'telefono' => 'nullable|string|max:20',
+                'rol' => 'required|in:cliente,empleado,admin',
+                'password' => 'required|string|min:8|confirmed',
+                'estado' => 'required|boolean'
+            ]);
+
             $user = Usuario::create([
                 'nombre' => $validated['nombre'],
                 'email' => $validated['email'],
@@ -280,12 +282,22 @@ class AdminController extends Controller
                 'estado' => $validated['estado']
             ]);
 
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Usuario creado correctamente',
                 'user' => $user
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear usuario: ' . $e->getMessage()
@@ -496,6 +508,26 @@ class AdminController extends Controller
         return response()->json([
             'vehiculos' => $usuario->vehiculos,
             'citas' => $usuario->citas
+        ]);
+    }
+    public function checkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        // Excluir el email del usuario actual si estamos editando
+        $excludeId = $request->input('exclude_id');
+
+        $query = Usuario::where('email', $request->email);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'Este correo electrónico ya está registrado' : 'Email disponible'
         ]);
     }
 }

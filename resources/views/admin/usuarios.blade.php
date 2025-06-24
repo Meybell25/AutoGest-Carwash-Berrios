@@ -170,6 +170,20 @@
             color: white;
         }
 
+        .border-red-500 {
+            border-color: #ef4444 !important;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
         .card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -444,6 +458,49 @@
             width: 100%;
         }
 
+        /* Barra de fortaleza de contraseña */
+        .password-strength-meter {
+            height: 5px;
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .password-strength-meter-fill {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Colores para los diferentes niveles de fortaleza */
+        .password-weak {
+            background-color: #ff5252;
+            width: 25%;
+        }
+
+        .password-medium {
+            background-color: #ffb74d;
+            width: 50%;
+        }
+
+        .password-strong {
+            background-color: #4caf50;
+            width: 75%;
+        }
+
+        .password-very-strong {
+            background-color: #2e7d32;
+            width: 100%;
+        }
+
+        .password-strength-text {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: var(--text-secondary);
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 15px;
@@ -683,6 +740,29 @@
         .table td[data-label="Email"] {
             word-break: break-word;
             white-space: normal;
+        }
+
+        .password-fields-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .password-fields-container .form-group {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .confirm-password-field {
+            margin-top: 15px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .password-requirements ul {
+            columns: 1 !important;
         }
         }
 
@@ -943,7 +1023,8 @@
                             style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Correo
                             Electrónico</label>
                         <input type="email" id="email" name="email" class="form-control" required
-                            placeholder="Ej: juan@example.com" readonly> <!-- Cambiado de disabled a readonly -->
+                            placeholder="Ej: juan@example.com" readonly>
+                        <div id="email-error" class="hidden text-sm text-red-600 mt-1"></div>
                         <small id="emailHelp"
                             style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
                             El correo electrónico no puede ser modificado
@@ -964,7 +1045,6 @@
                         <label for="rol"
                             style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Rol</label>
                         <select id="rol" name="rol" class="form-control" required readonly>
-                            <!-- Cambiado de disabled a readonly -->
                             <option value="cliente">Cliente</option>
                             <option value="empleado">Empleado</option>
                             <option value="admin">Administrador</option>
@@ -976,9 +1056,9 @@
                     </div>
                 </div>
 
-                <div id="passwordFields" style="display: none;">
-                    <div class="form-grid"
-                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <!-- Sección de contraseñas -->
+                <div id="passwordFields" style="display: block; margin-bottom: 15px;">
+                    <div class="password-fields-container">
                         <div class="form-group">
                             <label for="password"
                                 style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Contraseña</label>
@@ -990,12 +1070,22 @@
                                     <i class="fas fa-eye" id="passwordEye"></i>
                                 </button>
                             </div>
-                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
-                                Requisitos: 8+ caracteres, mayúscula, minúscula, número
+                            <div class="password-requirements">
+                                <div class="password-strength-meter">
+                                    <div class="password-strength-meter-fill" id="passwordStrengthBar"></div>
+                                </div>
+                                <div class="password-strength-text" id="passwordStrengthText">Fortaleza de la
+                                    contraseña</div>
+                                <ul style="columns: 2; column-gap: 20px; margin-top: 10px;">
+                                    <li id="req-length">Mínimo 8 caracteres</li>
+                                    <li id="req-uppercase">1 letra mayúscula</li>
+                                    <li id="req-lowercase">1 letra minúscula</li>
+                                    <li id="req-number">1 número</li>
+                                </ul>
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group confirm-password-field">
                             <label for="password_confirmation"
                                 style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Confirmar
                                 Contraseña</label>
@@ -1008,6 +1098,7 @@
                                     <i class="fas fa-eye" id="passwordConfirmationEye"></i>
                                 </button>
                             </div>
+                            <div id="passwordMatchMessage" style="font-size: 0.8rem; margin-top: 5px;"></div>
                         </div>
                     </div>
                 </div>
@@ -1028,7 +1119,6 @@
         </div>
     </div>
 
-    <!-- Modal para ver registros del usuario (vehículos y citas) -->
     <!-- Modal para ver registros del usuario (vehículos y citas) -->
     <div id="registrosModal" class="modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
@@ -1166,9 +1256,14 @@
             const emailField = document.getElementById('email');
             const passwordFields = document.getElementById('passwordFields');
 
-            // Resetear el formulario
+            // Resetear el formulario y listeners
             form.reset();
             document.getElementById('usuario_id').value = '';
+
+            // Remover cualquier listener previo de email
+            const emailInput = document.getElementById('email');
+            const newEmailInput = emailInput.cloneNode(true);
+            emailInput.parentNode.replaceChild(newEmailInput, emailInput);
 
             if (usuarioId) {
                 // Modo edición
@@ -1187,9 +1282,9 @@
                 if (usuario) {
                     document.getElementById('usuario_id').value = usuario.id;
                     document.getElementById('nombre').value = usuario.nombre;
-                    emailField.value = usuario.email;
+                    document.getElementById('email').value = usuario.email;
                     document.getElementById('telefono').value = usuario.telefono || '';
-                    rolField.value = usuario.rol;
+                    document.getElementById('rol').value = usuario.rol;
                     document.getElementById('estado').value = usuario.estado ? '1' : '0';
                 } else {
                     // Si no está en los datos cargados, hacer petición al servidor
@@ -1203,7 +1298,7 @@
                         .then(data => {
                             document.getElementById('usuario_id').value = data.id;
                             document.getElementById('nombre').value = data.nombre;
-                            emailField.value = data.email;
+                            document.getElementById('email').value = data.email;
                             document.getElementById('telefono').value = data.telefono || '';
                             document.getElementById('rol').value = data.rol;
                             document.getElementById('estado').value = data.estado ? '1' : '0';
@@ -1220,12 +1315,58 @@
                 document.getElementById('email').readOnly = false;
                 document.getElementById('rol').readOnly = false;
                 document.getElementById('emailHelp').style.display = 'none';
+                document.getElementById('email').removeAttribute('readonly');
                 document.getElementById('rolHelp').style.display = 'none';
                 passwordFields.style.display = 'block';
-                rolField.value = 'cliente'; // Valor por defecto
+                document.getElementById('rol').value = 'cliente'; // Valor por defecto
                 document.getElementById('password').required = true;
                 document.getElementById('password_confirmation').required = true;
+
+                // Validación en tiempo real para email (solo en creación)
+                document.getElementById('email').addEventListener('blur', async function() {
+                    const email = this.value;
+                    if (!email) return;
+
+                    try {
+                        const usuarioId = document.getElementById('usuario_id').value;
+                        const url =
+                            `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
+
+                        const response = await fetch(url);
+
+                        if (!response.ok) {
+                            throw new Error('Error al verificar email');
+                        }
+
+                        const data = await response.json();
+
+                        if (!data.available) {
+                            this.setCustomValidity(data.message);
+                            this.classList.add('border-red-500');
+                            document.getElementById('email-error').textContent = data.message;
+                            document.getElementById('email-error').classList.remove('hidden');
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('border-red-500');
+                            document.getElementById('email-error').classList.add('hidden');
+                        }
+                    } catch (error) {
+                        console.error('Error al verificar email:', error);
+                        // No mostrar error al usuario para no confundirlo
+                    }
+                });
             }
+
+            // Resetear validaciones visuales
+            document.querySelectorAll('.password-requirements li').forEach(li => {
+                li.style.color = '#6b7280';
+            });
+            document.getElementById('passwordMatchMessage').textContent = '';
+
+            // Resetear el botón de submit
+            const submitBtn = document.querySelector('#usuarioForm button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
 
             modal.style.display = 'flex';
         }
@@ -1271,12 +1412,11 @@
                             }
                             return response.json();
                         })
-                        .then(data => {
+                        .then(async (data) => {
                             if (data.success) {
-                                Swal.fire('¡Eliminado!', data.message, 'success');
-                                location.reload();
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
+                                await Swal.fire('¡Eliminado!', data.message, 'success');
+                                await fetchAllUsers();
+                                closeModal('usuarioModal');
                             }
                         })
                         .catch(error => {
@@ -1290,7 +1430,18 @@
         // Función para alternar visibilidad de contraseña 
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
-            const eyeIcon = document.getElementById(`${inputId}Eye`);
+            let eyeIcon;
+
+            if (inputId === 'password') {
+                eyeIcon = document.getElementById('passwordEye');
+            } else {
+                eyeIcon = document.getElementById('passwordConfirmationEye');
+            }
+
+            if (!input || !eyeIcon) {
+                console.error(`Elemento no encontrado para inputId: ${inputId}`);
+                return;
+            }
 
             if (input.type === 'password') {
                 input.type = 'text';
@@ -1302,6 +1453,134 @@
                 eyeIcon.classList.add('fa-eye');
             }
         }
+
+        function evaluatePasswordStrength(password) {
+            let strength = 0;
+            const strengthText = document.getElementById('passwordStrengthText');
+            const strengthBar = document.getElementById('passwordStrengthBar');
+
+            // Resetear completamente
+            strengthBar.className = 'password-strength-meter-fill';
+            strengthBar.style.backgroundColor = 'transparent';
+            strengthBar.style.width = '0';
+            strengthText.textContent = '';
+
+            // Si está vacío, salir sin evaluar
+            if (password.length === 0) {
+                return false;
+            }
+
+            // Evaluar fortaleza
+            if (password.length >= 8) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[a-z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            // Aplicar estilos según fortaleza
+            let color, width, text;
+            switch (strength) {
+                case 0:
+                case 1:
+                    color = '#ff5252';
+                    width = '25%';
+                    text = 'Débil';
+                    break;
+                case 2:
+                    color = '#ffb74d';
+                    width = '50%';
+                    text = 'Moderada';
+                    break;
+                case 3:
+                    color = '#4caf50';
+                    width = '75%';
+                    text = 'Fuerte';
+                    break;
+                case 4:
+                case 5:
+                    color = '#2e7d32';
+                    width = '100%';
+                    text = 'Muy fuerte';
+                    break;
+            }
+
+            // Aplicar cambios visuales
+            strengthBar.style.backgroundColor = color;
+            strengthBar.style.width = width;
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+
+            return strength >= 3;
+        }
+
+        function validatePasswordStrength(password) {
+            const hasMinLength = password.length >= 8;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+
+            // Actualizar lista de requisitos
+            document.getElementById('req-length').style.color = hasMinLength ? '#10b981' : '#6b7280';
+            document.getElementById('req-uppercase').style.color = hasUpperCase ? '#10b981' : '#6b7280';
+            document.getElementById('req-lowercase').style.color = hasLowerCase ? '#10b981' : '#6b7280';
+            document.getElementById('req-number').style.color = hasNumber ? '#10b981' : '#6b7280';
+
+            // Evaluar fortaleza general
+            evaluatePasswordStrength(password);
+
+            return hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
+        }
+
+        document.getElementById('password')?.addEventListener('input', function() {
+            validatePasswordStrength(this.value);
+            if (document.getElementById('password_confirmation').value.length > 0) {
+                validatePasswordMatch();
+            }
+        });
+
+        // Función para validar coincidencia de contraseñas
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+            const messageElement = document.getElementById('passwordMatchMessage');
+
+            if (confirmPassword.length === 0) {
+                messageElement.textContent = '';
+                messageElement.style.color = '';
+                return false;
+            }
+
+            if (password === confirmPassword) {
+                messageElement.textContent = 'Las contraseñas coinciden';
+                messageElement.style.color = '#10b981';
+                return true;
+            } else {
+                messageElement.textContent = 'Las contraseñas no coinciden';
+                messageElement.style.color = '#ef4444';
+                return false;
+            }
+        }
+
+        // Inicializar validaciones del formulario
+        function initPasswordValidations() {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('password_confirmation');
+
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    validatePasswordStrength(this.value);
+                    if (confirmPasswordInput.value.length > 0) {
+                        validatePasswordMatch();
+                    }
+                });
+            }
+
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+            }
+        }
+
+
 
         // Función para cerrar modal 
         function closeModal(modalId) {
@@ -1459,10 +1738,10 @@
                             }
                             return response.json();
                         })
-                        .then(data => {
-                            Swal.fire('Éxito', successMessage, 'success').then(() => {
-                                location.reload();
-                            });
+                        .then(async (data) => {
+                            await Swal.fire('Éxito', successMessage, 'success');
+                            await fetchAllUsers();
+                            closeModal('usuarioModal');
                         })
                         .catch(error => {
                             console.error('Error:', error);
@@ -1550,9 +1829,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                                                                                                                                                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                                                                                                                                                                                                    <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                                                </button>` : ''}
+                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -1570,80 +1849,92 @@
             e.preventDefault();
 
             const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
             const usuarioId = form.querySelector('#usuario_id').value;
-            const method = usuarioId ? 'PUT' : 'POST';
-            const url = usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios';
 
-            // 1. Recoger solo campos modificados (evitando enviar vacíos)
-            const payload = {
-                nombre: form.nombre.value.trim(),
-                telefono: form.telefono.value.trim() || null, // Envía null si está vacío
-                estado: form.estado.value === '1', // Convertir a booleano
-                rol: form.rol.value,
-                ...(usuarioId ? {} : { // Solo para creación
-                    email: form.email.value.trim(),
-                    password: form.password.value,
-                    password_confirmation: form.password_confirmation.value
-                })
-            };
+            // Resetear errores visuales
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.querySelectorAll('.border-red-500').forEach(el => {
+                el.classList.remove('border-red-500');
+            });
 
-            // 2. Validación frontend básica
-            if (!payload.nombre) {
-                Swal.fire('Error', 'El nombre es requerido', 'error');
-                return;
-            }
-
-            // 3. Debug (opcional)
-            console.log('Payload a enviar:', payload);
+            // Deshabilitar el botón
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
 
             try {
-                const response = await fetch(url, {
-                    method: method,
+                // Primero verificar el email nuevamente
+                const email = form.email.value;
+                const checkEmailUrl =
+                    `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
+                const checkResponse = await fetch(checkEmailUrl);
+
+                if (!checkResponse.ok) throw new Error('Error al verificar email');
+
+                const checkData = await checkResponse.json();
+
+                if (!checkData.available) {
+                    throw new Error(checkData.message);
+                }
+
+                // Si el email está disponible, proceder con el envío
+                const response = await fetch(usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios', {
+                    method: usuarioId ? 'PUT' : 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        nombre: form.nombre.value.trim(),
+                        email: email,
+                        telefono: form.telefono.value.trim() || null,
+                        estado: form.estado.value === '1',
+                        rol: form.rol.value,
+                        password: form.password?.value,
+                        password_confirmation: form.password_confirmation?.value
+                    })
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    const errorMsg = data.errors ?
-                        Object.values(data.errors).flat().join('\n') :
-                        data.message || 'Error desconocido';
-                    throw new Error(errorMsg);
+                    throw new Error(data.message || 'Error al procesar la solicitud');
                 }
 
-                Swal.fire({
+                // Éxito - mostrar mensaje y recargar
+                await Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
                     text: data.message,
-                    willClose: () => {
-                        closeModal('usuarioModal');
-                        location.reload();
-                    }
+                    timer: 2000,
+                    showConfirmButton: false
                 });
+
+                await fetchAllUsers();
+                closeModal('usuarioModal');
 
             } catch (error) {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message,
-                    footer: usuarioId ? `ID: ${usuarioId}` : ''
-                });
+                // Mostrar error específico para email
+                if (error.message.includes('correo electrónico')) {
+                    form.email.classList.add('border-red-500');
+                    document.getElementById('email-error').textContent = error.message;
+                    document.getElementById('email-error').classList.remove('hidden');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message,
+                        footer: usuarioId ? `ID: ${usuarioId}` : ''
+                    });
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
             }
         }
-
-        // Asignar el evento (seguro para modales dinámicos)
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('usuarioForm');
-            if (form) {
-                form.addEventListener('submit', handleUsuarioFormSubmit);
-            }
-        });
 
         // =============================================
         // FUNCIONES DE REGISTROS DE USUARIO 
@@ -1674,7 +1965,11 @@
 
             fetch(`/admin/usuarios/${usuarioId}/registros`)
                 .then(response => {
-                    if (!response.ok) throw new Error('Error al cargar registros');
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Error al cargar registros');
+                        });
+                    }
                     return response.json();
                 })
                 .then(data => {
@@ -1784,6 +2079,7 @@
         // =============================================
         document.addEventListener('DOMContentLoaded', function() {
             fetchAllUsers();
+            initPasswordValidations();
 
             document.getElementById('searchInput').addEventListener('keyup', filterTable);
             document.getElementById('roleFilter').addEventListener('change', filterTable);
@@ -1791,7 +2087,28 @@
 
             const usuarioForm = document.getElementById('usuarioForm');
             if (usuarioForm) {
-                usuarioForm.addEventListener('submit', handleUsuarioFormSubmit);
+                usuarioForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    // Validar contraseña si estamos en modo creación
+                    if (document.getElementById('passwordFields').style.display !== 'none') {
+                        const password = document.getElementById('password').value;
+                        const isPasswordStrong = validatePasswordStrength(password);
+                        const doPasswordsMatch = validatePasswordMatch();
+
+                        if (!isPasswordStrong || !doPasswordsMatch) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error en la contraseña',
+                                text: 'Por favor, asegúrate de que la contraseña cumpla con todos los requisitos y que ambas contraseñas coincidan.'
+                            });
+                            return;
+                        }
+                    }
+
+                    // Si todo está bien, enviar el formulario
+                    handleUsuarioFormSubmit(e);
+                });
             }
         });
     </script>

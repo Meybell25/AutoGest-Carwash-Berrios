@@ -94,6 +94,9 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::put('/{usuario}', [AdminController::class, 'update'])->name('update');
             Route::delete('/{usuario}', [AdminController::class, 'destroy'])->name('destroy');
             Route::get('/{usuario}/registros', [AdminController::class, 'getUserRecords'])->name('registros');
+            Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
+
+            // Rutas para acciones masivas
             Route::post('/bulk-activate', [AdminController::class, 'bulkActivate'])->name('bulk-activate');
             Route::post('/bulk-deactivate', [AdminController::class, 'bulkDeactivate'])->name('bulk-deactivate');
             Route::delete('/bulk-delete', [AdminController::class, 'bulkDelete'])->name('bulk-delete');

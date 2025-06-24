@@ -251,7 +251,6 @@
 
         .header-actions {
             padding: 12px;
-            border-radius: var(--border-radius);
             box-shadow: var(--shadow-sm);
             margin-top: 15px;
             border: 1px solid rgba(0, 0, 0, 0.1);

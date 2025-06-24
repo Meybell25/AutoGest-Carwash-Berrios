@@ -927,10 +927,10 @@
             background: var(--bg-light);
             backdrop-filter: var(--blur);
             margin: 5% auto;
-            padding: 35px;
+            padding: 20px;
             border-radius: 25px;
-            width: 90%;
-            max-width: 500px;
+            width: 100%;
+            max-width: 600px;
             box-shadow: var(--shadow-xl);
             border: 1px solid var(--border-light);
             animation: modalSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1057,13 +1057,52 @@
             color: var(--text-secondary);
         }
 
-        .password-requirements ul {
-            margin: 0;
-            padding-left: 1.5rem;
+        /* Barra de fortaleza de contraseña */
+        .password-strength-meter {
+            height: 5px;
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
         }
 
-        .password-requirements li {
-            transition: color 0.3s ease;
+        .password-strength-meter-fill {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Colores para los diferentes niveles de fortaleza */
+        .password-weak {
+            background-color: #ff5252;
+            width: 25%;
+        }
+
+        .password-medium {
+            background-color: #ffb74d;
+            width: 50%;
+        }
+
+        .password-strong {
+            background-color: #4caf50;
+            width: 75%;
+        }
+
+        .password-very-strong {
+            background-color: #2e7d32;
+            width: 100%;
+        }
+
+        .password-strength-text {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: var(--text-secondary);
+        }
+
+        .password-match-message {
+            font-size: 0.8rem;
+            margin-top: 5px;
         }
 
         .text-green-500 {
@@ -1072,6 +1111,22 @@
 
         .text-red-500 {
             color: #ef4444;
+        }
+
+        .text-gray-400 {
+            color: #9ca3af;
+        }
+
+        .password-requirements ul {
+            margin: 0.5rem 0 0 0;
+            padding-left: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .password-requirements li {
+            margin-bottom: 0.3rem;
+            transition: color 0.3s ease;
         }
 
         /* Estilos para el spinner */
@@ -3215,15 +3270,15 @@
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal">
         <div class="modal-content" style="max-width: 600px; width: 90%; max-height: 90vh; position: relative;">
-            <!-- Añadido position:relative -->
             <span class="close-modal" onclick="closeModal('usuarioModal')"
                 style="position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer;">
                 &times;
             </span>
-            <h2 style="margin-top: 10px; padding-right: 30px;"> <!-- Añadido padding para no solapar con la X -->
+            <h2 style="margin-top: 10px; padding-right: 30px;">
                 <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
             </h2>
             <div style="overflow-y: auto; max-height: calc(90vh - 100px); padding: 0 5px;">
+                <!-- Reemplazar el formulario actual con este -->
                 <form id="usuarioForm">
                     @csrf
                     <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
@@ -3264,11 +3319,18 @@
                                     class="form-control password-input" placeholder="Mínimo 8 caracteres"
                                     style="padding-right: 40px;">
                                 <button type="button" class="password-toggle"
-                                    onclick="togglePassword('password', 'eyeIconPass')" style="right: 12px;">
+                                    onclick="togglePassword('password', 'eyeIconPass')">
                                     <i id="eyeIconPass" class="fas fa-eye"></i>
                                 </button>
                             </div>
-                            <div class="password-requirements" style="margin-top: 10px;">
+                            <!-- Barra de fortaleza de contraseña -->
+                            <div class="password-strength-meter">
+                                <div class="password-strength-meter-fill" id="passwordStrengthBar"></div>
+                            </div>
+                            <div class="password-strength-text" id="passwordStrengthText">Fortaleza de la contraseña
+                            </div>
+                            <!-- Lista de requisitos -->
+                            <div class="password-requirements">
                                 <ul style="columns: 2; column-gap: 20px;">
                                     <li id="req-length">Mínimo 8 caracteres</li>
                                     <li id="req-uppercase">1 letra mayúscula</li>
@@ -3287,6 +3349,7 @@
                                     <i id="eyeIconConfirm" class="fas fa-eye"></i>
                                 </button>
                             </div>
+                            <div id="passwordMatchMessage" class="password-match-message"></div>
                         </div>
                     </div>
 
@@ -3665,31 +3728,110 @@
             document.getElementById('req-number').className = 'text-gray-400';
         }
 
+        // Función para evaluar fortaleza de contraseña
+        function evaluatePasswordStrength(password) {
+            let strength = 0;
+            const strengthText = document.getElementById('passwordStrengthText');
+            const strengthBar = document.getElementById('passwordStrengthBar');
+
+            // Resetear completamente al inicio
+            strengthBar.className = 'password-strength-meter-fill';
+            strengthBar.style.backgroundColor = 'transparent';
+            strengthBar.style.width = '0';
+            strengthText.textContent = '';
+
+            // Si está vacío, salir sin evaluar
+            if (password.length === 0) {
+                return false;
+            }
+
+            // Evaluar fortaleza
+            if (password.length >= 8) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[a-z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            // Actualizar UI según fortaleza
+            let color, width, text;
+            switch (strength) {
+                case 0:
+                case 1:
+                    color = '#ff5252';
+                    width = '25%';
+                    text = 'Débil';
+                    break;
+                case 2:
+                    color = '#ffb74d';
+                    width = '50%';
+                    text = 'Moderada';
+                    break;
+                case 3:
+                    color = '#4caf50';
+                    width = '75%';
+                    text = 'Fuerte';
+                    break;
+                case 4:
+                case 5:
+                    color = '#2e7d32';
+                    width = '100%';
+                    text = 'Muy fuerte';
+                    break;
+            }
+
+            strengthBar.style.backgroundColor = color;
+            strengthBar.style.width = width;
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+
+            return strength >= 3;
+        }
+
+        // Función para validar fortaleza de contraseña
+        function validatePasswordStrength(password) {
+            const hasMinLength = password.length >= 8;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+
+            // Actualizar indicadores visuales
+            document.getElementById('req-length').className = hasMinLength ? 'text-green-500' : 'text-gray-400';
+            document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' : 'text-gray-400';
+            document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' : 'text-gray-400';
+            document.getElementById('req-number').className = hasNumber ? 'text-green-500' : 'text-gray-400';
+
+            // Calcular fortaleza general
+            evaluatePasswordStrength(password);
+
+            return hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
+        }
+
+        // Función para validar coincidencia de contraseñas
         function validatePasswordMatch() {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('password_confirmation').value;
-            const confirmField = document.getElementById('password_confirmation');
+            const messageElement = document.getElementById('passwordMatchMessage');
 
-            if (confirmPassword.length > 0 && password !== confirmPassword) {
-                confirmField.classList.add('border-red-500');
-                // Mostrar mensaje de error
-                let errorMsg = confirmField.nextElementSibling;
-                if (!errorMsg || !errorMsg.classList.contains('text-red-500')) {
-                    errorMsg = document.createElement('div');
-                    errorMsg.className = 'text-red-500 text-sm mt-1';
-                    confirmField.parentNode.insertBefore(errorMsg, confirmField.nextSibling);
-                }
-                errorMsg.textContent = 'Las contraseñas no coinciden';
+            if (confirmPassword.length === 0) {
+                messageElement.textContent = '';
+                messageElement.className = 'password-match-message';
+                return false;
+            }
+
+            if (password === confirmPassword) {
+                messageElement.textContent = 'Las contraseñas coinciden';
+                messageElement.className = 'password-match-message text-green-500';
+                return true;
             } else {
-                confirmField.classList.remove('border-red-500');
-                // Eliminar mensaje de error si existe
-                const errorMsg = confirmField.nextElementSibling;
-                if (errorMsg && errorMsg.classList.contains('text-red-500')) {
-                    errorMsg.remove();
-                }
+                messageElement.textContent = 'Las contraseñas no coinciden';
+                messageElement.className = 'password-match-message text-red-500';
+                return false;
             }
         }
 
+
+
+        // Inicializar validaciones del formulario
         function initUsuarioFormValidation() {
             const passwordField = document.getElementById('password');
             const confirmPasswordField = document.getElementById('password_confirmation');
@@ -3697,24 +3839,8 @@
             if (passwordField) {
                 passwordField.addEventListener('input', function() {
                     const password = this.value;
+                    validatePasswordStrength(password);
 
-                    // Validar requisitos
-                    const hasMinLength = password.length >= 8;
-                    const hasUpperCase = /[A-Z]/.test(password);
-                    const hasLowerCase = /[a-z]/.test(password);
-                    const hasNumber = /\d/.test(password);
-
-                    // Actualizar lista de requisitos
-                    document.getElementById('req-length').className = hasMinLength ? 'text-green-500' :
-                        'text-gray-400';
-                    document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' :
-                        'text-gray-400';
-                    document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' :
-                        'text-gray-400';
-                    document.getElementById('req-number').className = hasNumber ? 'text-green-500' :
-                        'text-gray-400';
-
-                    // Validar coincidencia si hay confirmación
                     if (confirmPasswordField && confirmPasswordField.value) {
                         validatePasswordMatch();
                     }
@@ -3725,6 +3851,8 @@
                 confirmPasswordField.addEventListener('input', validatePasswordMatch);
             }
         }
+
+
 
         // =============================================
         // FUNCIONES DE INICIALIZACIÓN
@@ -4251,8 +4379,25 @@
         });
 
         // Formulario de usuario
+        // Formulario de usuario - Versión unificada con validación de contraseña
         document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
+
+            // Validar contraseña si estamos en modo creación
+            if (document.getElementById('passwordFields').style.display !== 'none') {
+                const password = document.getElementById('password').value;
+                const isPasswordStrong = validatePasswordStrength(password);
+                const doPasswordsMatch = validatePasswordMatch();
+
+                if (!isPasswordStrong || !doPasswordsMatch) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error en la contraseña',
+                        text: 'Por favor, asegúrate de que la contraseña cumpla con todos los requisitos y que ambas contraseñas coincidan.'
+                    });
+                    return;
+                }
+            }
 
             const formData = {
                 nombre: document.getElementById('nombre').value,
