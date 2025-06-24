@@ -3490,6 +3490,21 @@
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Error al eliminar el día no laborable');
                 }
+                await cargarDiasNoLaborables();
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Día no laborable eliminado correctamente'
+                });
+            }
+        } catch (error) {
+            console.error('Error al eliminar día no laborable:', error);
+            Toast.fire({
+                icon: 'error',
+                title: 'Error al eliminar día no laborable',
+                text: error.message
+            });
+        }
+    }
 
         // Configuración de SweetAlert
         const Toast = Swal.mixin({
