@@ -127,13 +127,56 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':emplea
 });
 
 // Rutas de Cliente
-Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente'])->prefix('cliente')->name('cliente.')->group(function () {
-    Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
-    Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
-    Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
-    Route::get('/mis-vehiculos', [ClienteController::class, 'misVehiculosAjax'])->name('mis-vehiculos-ajax');
-    Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
-});
+// Rutas de Cliente
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente'])
+    ->prefix('cliente')
+    ->name('cliente.')
+    ->group(function () {
+        // Dashboard y vistas principales
+        Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
+        Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
+        Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
+
+        // Datos AJAX
+        Route::get('/mis-vehiculos', [ClienteController::class, 'misVehiculosAjax'])->name('mis-vehiculos-ajax');
+        Route::get('/check-status', [ClienteController::class, 'checkStatus'])->name('check-status');
+
+        // Gestión de citas
+        Route::post('/citas', [ClienteController::class, 'storeCita'])->name('citas.store');
+        Route::post('/citas/{cita}/cancelar', [ClienteController::class, 'cancelarCita'])->name('citas.cancelar');
+
+        // Datos para formularios
+        Route::get('/horarios-disponibles', function () {
+            return response()->json(
+                App\Models\Horario::activos()->get()->map(function ($horario) {
+                    return [
+                        'dia_semana' => $horario->dia_semana,
+                        'hora_inicio' => $horario->hora_inicio->format('H:i'),
+                        'hora_fin' => $horario->hora_fin->format('H:i')
+                    ];
+                })
+            );
+        })->name('horarios-disponibles');
+
+        Route::get('/servicios-disponibles', function () {
+            return response()->json(
+                App\Models\Servicio::activos()->get(['id', 'nombre', 'precio', 'duracion_min'])
+            );
+        })->name('servicios-disponibles');
+
+        Route::get('/dias-no-laborables', function () {
+            return response()->json(
+                App\Models\DiaNoLaborable::futuros()
+                    ->get()
+                    ->map(function ($dia) {
+                        return $dia->fecha->format('Y-m-d');
+                    })
+            );
+        })->name('dias-no-laborables');
+
+        // Servicios
+        Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
+    });
 
 // Rutas de perfil
 Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
