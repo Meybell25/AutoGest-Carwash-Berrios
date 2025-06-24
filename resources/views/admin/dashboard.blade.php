@@ -1100,11 +1100,6 @@
             color: var(--text-secondary);
         }
 
-        .password-match-message {
-            font-size: 0.8rem;
-            margin-top: 5px;
-        }
-
         .text-green-500 {
             color: #10b981;
         }
@@ -1132,6 +1127,12 @@
         /* Estilos para el spinner */
         .fa-spinner.fa-spin {
             margin-right: 8px;
+        }
+
+        .password-match-message {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            transition: color 0.3s ease;
         }
 
         /* ======================
@@ -3378,7 +3379,7 @@
                                     <i class="fas fa-eye" id="passwordConfirmationEye"></i>
                                 </button>
                             </div>
-                            <div id="passwordMatchMessage" style="font-size: 0.8rem; margin-top: 5px;"></div>
+                            <div id="passwordMatchMessage" class="password-match-message"></div>
                         </div>
                     </div>
                 </div>
@@ -3485,68 +3486,68 @@
 
         // Cargar días no laborables desde la API
         /* async function cargarDiasNoLaborables() {
-             try {
-                 const response = await fetch('/dias-no-laborables');
-                 if (!response.ok) throw new Error('Error al cargar días no laborables');
+                         try {
+                             const response = await fetch('/dias-no-laborables');
+                             if (!response.ok) throw new Error('Error al cargar días no laborables');
 
-                 diasNoLaborables = await response.json();
-                 actualizarTablaDiasNoLaborables();
-             } catch (error) {
-                 console.error('Error al cargar días no laborables:', error);
-                 Toast.fire({
-                     icon: 'error',
-                     title: 'Error al cargar días no laborables',
-                     text: error.message
-                 });
-             }
-         }
+                             diasNoLaborables = await response.json();
+                             actualizarTablaDiasNoLaborables();
+                         } catch (error) {
+                             console.error('Error al cargar días no laborables:', error);
+                             Toast.fire({
+                                 icon: 'error',
+                                 title: 'Error al cargar días no laborables',
+                                 text: error.message
+                             });
+                         }
+                     }
 
-         // Actualizar la tabla con los días no laborables
-         function actualizarTablaDiasNoLaborables() {
-             const tbody = document.querySelector('#diasNoLaborablesTable tbody');
-             if (!tbody) return;
+                     // Actualizar la tabla con los días no laborables
+                     function actualizarTablaDiasNoLaborables() {
+                         const tbody = document.querySelector('#diasNoLaborablesTable tbody');
+                         if (!tbody) return;
 
-             tbody.innerHTML = '';
+                         tbody.innerHTML = '';
 
-             if (diasNoLaborables.length === 0) {
-                 tbody.innerHTML = `
-             <tr>
-                 <td colspan="3" style="text-align: center; padding: 20px;">
-                     <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
-                     <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
-                 </td>
-             </tr>
-         `;
-                 return;
-             }
-
-             diasNoLaborables.forEach(dia => {
-                 const fecha = new Date(dia.fecha);
-                 const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-                     day: '2-digit',
-                     month: '2-digit',
-                     year: 'numeric'
-                 });
-
-                 const row = document.createElement('tr');
-                 row.setAttribute('data-id', dia.id);
-                 row.innerHTML = `
-             <td data-label="Fecha">${fechaFormateada}</td>
-             <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
-             <td data-label="Acciones">
-                 <div class="table-actions">
-                     <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
-                         <i class="fas fa-edit"></i>
-                     </button>
-                     <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
-                         <i class="fas fa-trash"></i>
-                     </button>
-                 </div>
+                         if (diasNoLaborables.length === 0) {
+                             tbody.innerHTML = `
+         <tr>
+             <td colspan="3" style="text-align: center; padding: 20px;">
+                 <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
+                 <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
              </td>
-         `;
-                 tbody.appendChild(row);
-             });
-         }*/
+         </tr>
+     `;
+                             return;
+                         }
+
+                         diasNoLaborables.forEach(dia => {
+                             const fecha = new Date(dia.fecha);
+                             const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                                 day: '2-digit',
+                                 month: '2-digit',
+                                 year: 'numeric'
+                             });
+
+                             const row = document.createElement('tr');
+                             row.setAttribute('data-id', dia.id);
+                             row.innerHTML = `
+         <td data-label="Fecha">${fechaFormateada}</td>
+         <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
+         <td data-label="Acciones">
+             <div class="table-actions">
+                 <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
+                     <i class="fas fa-edit"></i>
+                 </button>
+                 <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
+                     <i class="fas fa-trash"></i>
+                 </button>
+             </div>
+         </td>
+     `;
+                             tbody.appendChild(row);
+                         });
+                     }*/
 
         // Mostrar modal para agregar/editar día no laborable
         /*function mostrarModalDiaNoLaborable(diaId = null) {
@@ -3954,11 +3955,9 @@
             const confirmPassword = document.getElementById('password_confirmation').value;
             const messageElement = document.getElementById('passwordMatchMessage');
 
-            // Limpiar clases previas
-            messageElement.classList.remove('text-success', 'text-danger', 'text-green-500', 'text-red-500');
-            messageElement.style.color = '';
-             // Resetear estilos previos
+            // Limpiar estilos previos
             messageElement.className = '';
+            messageElement.style.color = '';
 
             if (confirmPassword.length === 0) {
                 messageElement.textContent = '';
@@ -3967,7 +3966,7 @@
 
             if (password === confirmPassword) {
                 messageElement.textContent = 'Las contraseñas coinciden';
-                messageElement.style.color = '#10b981'; // Verde
+                messageElement.style.color = '#28a745'; // Verde
                 return true;
             } else {
                 messageElement.textContent = 'Las contraseñas no coinciden';
@@ -3976,36 +3975,33 @@
             }
         }
 
+
         // Inicializar validaciones del formulario
-function initPasswordValidations() {
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('password_confirmation');
+        function initPasswordValidations() {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('password_confirmation');
 
-    if (passwordInput && confirmPasswordInput) {
-        // Versión mejorada pero compatible
-        passwordInput.addEventListener('input', function() {
-            // 1. Primero validar fortaleza como siempre
-            validatePasswordStrength(this.value);
-            
-            // 2. Validar coincidencia SOLO si hay texto en confirmación
-            if (confirmPasswordInput.value.length > 0) {
-                validatePasswordMatch();
-            } else {
-                // Limpiar mensaje si no hay confirmación
-                document.getElementById('passwordMatchMessage').textContent = '';
-            }
-        });
+            if (passwordInput && confirmPasswordInput) {
+                // Validar mientras se escribe en campo de contraseña
+                passwordInput.addEventListener('input', function() {
+                    validatePasswordStrength(this.value);
+                    if (this.value.length > 0 && confirmPasswordInput.value.length > 0) {
+                        validatePasswordMatch();
+                    } else {
+                        document.getElementById('passwordMatchMessage').textContent = '';
+                    }
+                });
 
-        confirmPasswordInput.addEventListener('input', function() {
-            // Validar coincidencia SOLO si hay texto en ambos campos
-            if (passwordInput.value.length > 0) {
-                validatePasswordMatch();
-            } else {
-                document.getElementById('passwordMatchMessage').textContent = '';
+                // Validar mientras se escribe en campo de confirmación
+                confirmPasswordInput.addEventListener('input', function() {
+                    if (passwordInput.value.length > 0) {
+                        validatePasswordMatch();
+                    } else {
+                        document.getElementById('passwordMatchMessage').textContent = '';
+                    }
+                });
             }
-        });
-    }
-}
+        }
 
         // Función para manejar envío de formulario 
         async function handleUsuarioFormSubmit(e) {
@@ -4533,7 +4529,6 @@ function initPasswordValidations() {
             actualizarDatosDashboard();
 
             // Inicializar validaciones del formulario de usuario
-            initUsuarioFormValidation();
             initPasswordValidations();
 
             cargarDiasNoLaborables();
