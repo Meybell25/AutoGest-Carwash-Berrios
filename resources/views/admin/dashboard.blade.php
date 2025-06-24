@@ -3277,8 +3277,6 @@
     </div>
 
 
-
-    New chat
     <!-- Modal para crear nuevo usuario -->
     <div id="usuarioModal" class="modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
@@ -3408,8 +3406,8 @@
             </form>
         </div>
     </div>
-    </div>
 
+</div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -4128,6 +4126,7 @@
                 options: getCommonChartOptions('bottom')
             });
         }
+        console.log(document.getElementById('usuariosChart')); // Debería mostrar el elemento canvas
 
         function inicializarGraficoIngresos() {
             const ctx = document.getElementById('ingresosChart').getContext('2d');
