@@ -9,12 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<<<<<<< HEAD
-    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
-    @vite(['resources/js/app.js'])
-=======
     <script src="https://cdn.tailwindcss.com"></script>
->>>>>>> origin/main
     <style>
         /* ======================
         ESTILOS GENERALES
@@ -3506,7 +3501,7 @@
         // Cargar días no laborables desde la API
         async function cargarDiasNoLaborables() {
             try {
-                const response = await fetch('/api/dias-no-laborables');
+                const response = await fetch('/dias-no-laborables');
                 if (!response.ok) throw new Error('Error al cargar días no laborables');
 
                 diasNoLaborables = await response.json();
@@ -3574,6 +3569,13 @@
             const form = document.getElementById('diaNoLaborableForm');
             const title = document.getElementById('diaNoLaborableModalTitle');
 
+            if (result.isConfirmed) {
+                const response = await fetch(`/dias-no-laborables/${diaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
             form.reset();
 
             if (diaId) {
@@ -3614,15 +3616,7 @@
                     cancelButtonText: 'Cancelar'
                 });
 
-                if (result.isConfirmed) {
-                    const response = await fetch(`/api/dias-no-laborables/${diaId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    });
-
+                
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.message || 'Error al eliminar el día no laborable');
