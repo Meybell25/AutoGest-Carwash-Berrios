@@ -1431,54 +1431,58 @@
             const strengthText = document.getElementById('passwordStrengthText');
             const strengthBar = document.getElementById('passwordStrengthBar');
 
-            // Resetear clases
+            // Resetear completamente
             strengthBar.className = 'password-strength-meter-fill';
+            strengthBar.style.backgroundColor = 'transparent';
+            strengthBar.style.width = '0';
+            strengthText.textContent = '';
 
-            // Si está vacío, ocultar barra y texto
+            // Si está vacío, salir sin evaluar
             if (password.length === 0) {
-                strengthBar.style.width = '0';
-                strengthText.textContent = '';
                 return false;
             }
 
-            // Longitud mínima
+            // Evaluar fortaleza
             if (password.length >= 8) strength += 1;
-            // Contiene mayúsculas
             if (/[A-Z]/.test(password)) strength += 1;
-            // Contiene minúsculas
             if (/[a-z]/.test(password)) strength += 1;
-            // Contiene números
             if (/[0-9]/.test(password)) strength += 1;
-            // Contiene caracteres especiales
             if (/[^A-Za-z0-9]/.test(password)) strength += 1;
 
-            // Actualizar la barra y el texto según la fortaleza
+            // Aplicar estilos según fortaleza
+            let color, width, text;
             switch (strength) {
                 case 0:
                 case 1:
-                    strengthBar.classList.add('password-weak');
-                    strengthText.textContent = 'Débil';
-                    strengthText.style.color = '#ff5252';
+                    color = '#ff5252';
+                    width = '25%';
+                    text = 'Débil';
                     break;
                 case 2:
-                    strengthBar.classList.add('password-medium');
-                    strengthText.textContent = 'Moderada';
-                    strengthText.style.color = '#ffb74d';
+                    color = '#ffb74d';
+                    width = '50%';
+                    text = 'Moderada';
                     break;
                 case 3:
-                    strengthBar.classList.add('password-strong');
-                    strengthText.textContent = 'Fuerte';
-                    strengthText.style.color = '#4caf50';
+                    color = '#4caf50';
+                    width = '75%';
+                    text = 'Fuerte';
                     break;
                 case 4:
                 case 5:
-                    strengthBar.classList.add('password-very-strong');
-                    strengthText.textContent = 'Muy fuerte';
-                    strengthText.style.color = '#2e7d32';
+                    color = '#2e7d32';
+                    width = '100%';
+                    text = 'Muy fuerte';
                     break;
             }
 
-            return strength >= 3; // Considerar fuerte si cumple al menos 3 criterios
+            // Aplicar cambios visuales
+            strengthBar.style.backgroundColor = color;
+            strengthBar.style.width = width;
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+
+            return strength >= 3;
         }
 
         function validatePasswordStrength(password) {
@@ -1797,9 +1801,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                    <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>` : ''}
+                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
