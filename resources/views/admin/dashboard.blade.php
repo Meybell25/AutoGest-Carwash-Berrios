@@ -945,6 +945,20 @@
             overflow: hidden;
         }
 
+        #passwordMatchMessage {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            height: 18px;
+        }
+
+        .text-success {
+            color: #10b981;
+        }
+
+        .text-danger {
+            color: #ef4444;
+        }
+
         @keyframes modalSlideIn {
             from {
                 opacity: 0;
@@ -3952,19 +3966,21 @@
             const confirmPassword = document.getElementById('password_confirmation').value;
             const messageElement = document.getElementById('passwordMatchMessage');
 
+            // Limpiar clases previas
+            messageElement.classList.remove('text-success', 'text-danger');
+
             if (confirmPassword.length === 0) {
                 messageElement.textContent = '';
-                messageElement.style.color = '';
                 return false;
             }
 
             if (password === confirmPassword) {
                 messageElement.textContent = 'Las contraseñas coinciden';
-                messageElement.style.color = '#10b981';
+                messageElement.classList.add('text-success');
                 return true;
             } else {
                 messageElement.textContent = 'Las contraseñas no coinciden';
-                messageElement.style.color = '#ef4444';
+                messageElement.classList.add('text-danger');
                 return false;
             }
         }
@@ -3974,18 +3990,21 @@
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('password_confirmation');
 
-            if (passwordInput) {
+            if (passwordInput && confirmPasswordInput) {
                 passwordInput.addEventListener('input', function() {
                     validatePasswordStrength(this.value);
                     if (confirmPasswordInput.value.length > 0) {
                         validatePasswordMatch();
                     }
                 });
-            }
 
-            if (confirmPasswordInput) {
                 confirmPasswordInput.addEventListener('input', function() {
-                    validatePasswordMatch();
+                    // Validar solo si ambos campos tienen contenido
+                    if (passwordInput.value.length > 0 && this.value.length > 0) {
+                        validatePasswordMatch();
+                    } else {
+                        document.getElementById('passwordMatchMessage').textContent = '';
+                    }
                 });
             }
         }
