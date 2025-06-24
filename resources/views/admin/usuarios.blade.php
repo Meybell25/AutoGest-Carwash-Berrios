@@ -1408,7 +1408,13 @@
         // Función para alternar visibilidad de contraseña 
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
-            const eyeIcon = document.getElementById(`${inputId}Eye`);
+            let eyeIcon;
+
+            if (inputId === 'password') {
+                eyeIcon = document.getElementById('passwordEye');
+            } else {
+                eyeIcon = document.getElementById('passwordConfirmationEye');
+            }
 
             if (!input || !eyeIcon) {
                 console.error(`Elemento no encontrado para inputId: ${inputId}`);
@@ -1801,9 +1807,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>` : ''}
+                                                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
