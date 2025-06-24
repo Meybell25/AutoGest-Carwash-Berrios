@@ -756,9 +756,11 @@
         .confirm-password-field {
             margin-top: 15px;
         }
+
         .form-grid {
             grid-template-columns: 1fr !important;
         }
+
         .password-requirements ul {
             columns: 1 !important;
         }
@@ -1827,9 +1829,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                                                                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                                                                            <i class="fas fa-trash"></i>
-                                                                        </button>` : ''}
+                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
