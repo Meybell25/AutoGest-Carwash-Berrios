@@ -14,14 +14,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Crear Admin por defecto
-        Usuario::create([
-    'nombre' => 'Meybell',
-    'email' => 'mey@example.com',
-    'telefono' => '+503 7000-1234',
-    'password' => Hash::make('123456'),
-    'rol' => Usuario::ROL_CLIENTE,
-    'estado' => true,
-]);
+       Usuario::create([
+        'nombre' => 'Meybell',
+        'email' => 'mey@example.com',
+        'telefono' => '+503 7000-1234',
+        'password' => Hash::make('123456'),
+        'rol' => Usuario::ROL_CLIENTE,
+        'estado' => true,
+       ]);
 
 
         // Crear empleados de prueba
@@ -42,5 +42,7 @@ class DatabaseSeeder extends Seeder
             ->inactivo()
             ->count(2)
             ->create();
+
+        $this->call(PagoSeeder::class);
     }
 }
