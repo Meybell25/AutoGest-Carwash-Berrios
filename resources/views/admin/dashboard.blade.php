@@ -3493,11 +3493,13 @@
             const strengthText = document.getElementById('passwordStrengthText');
             const strengthBar = document.getElementById('passwordStrengthBar');
 
-            // Resetear
+            // Resetear completamente al inicio
             strengthBar.className = 'password-strength-meter-fill';
-            strengthText.textContent = 'Fortaleza de la contraseña';
-            strengthText.style.color = 'inherit';
+            strengthBar.style.backgroundColor = 'transparent';
+            strengthBar.style.width = '0';
+            strengthText.textContent = '';
 
+            // Si está vacío, salir sin evaluar
             if (password.length === 0) {
                 return false;
             }
