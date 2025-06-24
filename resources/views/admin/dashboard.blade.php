@@ -3268,70 +3268,92 @@
     </div>
 
     <!-- Modal para crear nuevo usuario -->
-    <div id="usuarioModal" class="modal">
-        <div class="modal-content" style="max-width: 600px; width: 90%; max-height: 90vh; position: relative;">
+    <div id="usuarioModal" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
             <span class="close-modal" onclick="closeModal('usuarioModal')"
-                style="position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer;">
-                &times;
-            </span>
-            <h2 style="margin-top: 10px; padding-right: 30px;">
-                <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
+                style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</span>
+
+            <h2 id="modalUsuarioTitle"
+                style="margin-bottom: 20px; font-size: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-user-plus"></i>
+                <span id="modalTitleText">Crear Nuevo Usuario</span>
             </h2>
-            <div style="overflow-y: auto; max-height: calc(90vh - 100px); padding: 0 5px;">
-                <!-- Reemplazar el formulario actual con este -->
-                <form id="usuarioForm">
-                    @csrf
-                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-                        <div class="form-group">
-                            <label for="nombre">Nombre Completo:</label>
-                            <input type="text" id="nombre" name="nombre" required class="form-control"
-                                placeholder="Nombre del usuario">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Correo Electrónico:</label>
-                            <input type="email" id="email" name="email" required class="form-control"
-                                placeholder="ejemplo@correo.com">
-                        </div>
+
+            <form id="usuarioForm" style="margin-top: 20px;">
+                @csrf
+                <input type="hidden" id="usuario_id" name="id">
+
+                <div class="form-grid"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label for="nombre"
+                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Nombre
+                            Completo</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control" required
+                            placeholder="Ej: Juan Pérez">
                     </div>
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="telefono">Teléfono:</label>
-                            <input type="tel" id="telefono" name="telefono" class="form-control"
-                                placeholder="12345678" pattern="[0-9]{8}" maxlength="8"
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                        </div>
-                        <div class="form-group">
-                            <label for="rol">Rol:</label>
-                            <select id="rol" name="rol" class="form-control" required>
-                                <option value="cliente">Cliente</option>
-                                <option value="empleado">Empleado</option>
-                                <option value="admin">Administrador</option>
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label for="email"
+                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Correo
+                            Electrónico</label>
+                        <input type="email" id="email" name="email" class="form-control" required
+                            placeholder="Ej: juan@example.com" readonly>
+                        <div id="email-error" class="hidden text-sm text-red-600 mt-1"></div>
+                        <small id="emailHelp"
+                            style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
+                            El correo electrónico no puede ser modificado
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-grid"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label for="telefono"
+                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" class="form-control"
+                            placeholder="Ej: 75855197" pattern="[0-9]{8}" maxlength="8">
                     </div>
 
-                    <div class="form-grid">
+                    <div class="form-group">
+                        <label for="rol"
+                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Rol</label>
+                        <select id="rol" name="rol" class="form-control" required readonly>
+                            <option value="cliente">Cliente</option>
+                            <option value="empleado">Empleado</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                        <small id="rolHelp"
+                            style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
+                            El rol no puede ser modificado después de crear el usuario
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Sección de contraseñas -->
+                <div id="passwordFields" style="display: block; margin-bottom: 15px;">
+                    <div class="password-fields-container">
                         <div class="form-group">
-                            <label for="password">Contraseña:</label>
-                            <div class="password-input-container">
-                                <input type="password" id="password" name="password" required
-                                    class="form-control password-input" placeholder="Mínimo 8 caracteres"
-                                    style="padding-right: 40px;">
-                                <button type="button" class="password-toggle"
-                                    onclick="togglePassword('password', 'eyeIconPass')">
-                                    <i id="eyeIconPass" class="fas fa-eye"></i>
+                            <label for="password"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Contraseña</label>
+                            <div style="position: relative;">
+                                <input type="password" id="password" name="password" class="form-control"
+                                    placeholder="Mínimo 8 caracteres" style="padding-right: 40px;">
+                                <button type="button" onclick="togglePassword('password')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                                    <i class="fas fa-eye" id="passwordEye"></i>
                                 </button>
                             </div>
-                            <!-- Barra de fortaleza de contraseña -->
-                            <div class="password-strength-meter">
-                                <div class="password-strength-meter-fill" id="passwordStrengthBar"></div>
-                            </div>
-                            <div class="password-strength-text" id="passwordStrengthText">Fortaleza de la contraseña
-                            </div>
-                            <!-- Lista de requisitos -->
                             <div class="password-requirements">
-                                <ul style="columns: 2; column-gap: 20px;">
+                                <div class="password-strength-meter">
+                                    <div class="password-strength-meter-fill" id="passwordStrengthBar"></div>
+                                </div>
+                                <div class="password-strength-text" id="passwordStrengthText">Fortaleza de la
+                                    contraseña</div>
+                                <ul style="columns: 2; column-gap: 20px; margin-top: 10px;">
                                     <li id="req-length">Mínimo 8 caracteres</li>
                                     <li id="req-uppercase">1 letra mayúscula</li>
                                     <li id="req-lowercase">1 letra minúscula</li>
@@ -3339,34 +3361,40 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="password_confirmation">Confirmar Contraseña:</label>
-                            <div class="password-input-container">
+
+                        <div class="form-group confirm-password-field">
+                            <label for="password_confirmation"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Confirmar
+                                Contraseña</label>
+                            <div style="position: relative;">
                                 <input type="password" id="password_confirmation" name="password_confirmation"
-                                    required class="form-control password-input" placeholder="Confirma tu contraseña">
-                                <button type="button" class="password-toggle"
-                                    onclick="togglePassword('password_confirmation', 'eyeIconConfirm')">
-                                    <i id="eyeIconConfirm" class="fas fa-eye"></i>
+                                    class="form-control" placeholder="Repite la contraseña"
+                                    style="padding-right: 40px;">
+                                <button type="button" onclick="togglePassword('password_confirmation')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                                    <i class="fas fa-eye" id="passwordConfirmationEye"></i>
                                 </button>
                             </div>
-                            <div id="passwordMatchMessage" class="password-match-message"></div>
+                            <div id="passwordMatchMessage" style="font-size: 0.8rem; margin-top: 5px;"></div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label for="estado">Estado:</label>
-                        <select id="estado" name="estado" class="form-control">
-                            <option value="1" selected>Activo</option>
-                            <option value="0">Inactivo</option>
-                        </select>
-                    </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="estado"
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Estado</label>
+                    <select id="estado" name="estado" class="form-control">
+                        <option value="1" selected>Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        <i class="fas fa-save"></i> Crear Usuario
-                    </button>
-                </form>
-            </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+                    <i class="fas fa-save"></i> Guardar Usuario
+                </button>
+            </form>
         </div>
+    </div>
     </div>
 
 
@@ -3422,8 +3450,31 @@
 
     <script>
         // =============================================
-        // CONFIGURACIONES GLOBALES
+        // INICIALIZACIÓN AL CARGAR LA PÁGINA
         // =============================================
+
+        // Configuración de SweetAlert
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        // Variables globales para gráficos
+        let usuariosChart, ingresosChart, citasChart, serviciosChart;
+
+        document.querySelectorAll('#usuarioModal input, #usuarioModal select').forEach(el => {
+            el.addEventListener('focus', function() {
+                setTimeout(() => {
+                    this.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }, 300);
+            });
+        });
 
         // =============================================
         // FUNCIONES PARA DÍAS NO LABORABLES
@@ -3434,7 +3485,7 @@
             try {
                 const response = await fetch('/api/dias-no-laborables');
                 if (!response.ok) throw new Error('Error al cargar días no laborables');
-                
+
                 diasNoLaborables = await response.json();
                 actualizarTablaDiasNoLaborables();
             } catch (error) {
@@ -3453,7 +3504,7 @@
             if (!tbody) return;
 
             tbody.innerHTML = '';
-            
+
             if (diasNoLaborables.length === 0) {
                 tbody.innerHTML = `
                     <tr>
@@ -3495,246 +3546,328 @@
         }
 
         // Mostrar modal para agregar/editar día no laborable
-    function mostrarModalDiaNoLaborable(diaId = null) {
-        const modal = document.getElementById('diaNoLaborableModal');
-        const form = document.getElementById('diaNoLaborableForm');
-        const title = document.getElementById('diaNoLaborableModalTitle');
-        
-        form.reset();
-        
-        if (diaId) {
-            title.innerHTML = '<i class="fas fa-edit"></i> Editar Día No Laborable';
-            form.setAttribute('data-id', diaId);
-            
-            const dia = diasNoLaborables.find(d => d.id == diaId);
-            if (dia) {
-                document.getElementById('diaNoLaborableFecha').value = dia.fecha;
-                document.getElementById('diaNoLaborableMotivo').value = dia.motivo || '';
+        function mostrarModalDiaNoLaborable(diaId = null) {
+            const modal = document.getElementById('diaNoLaborableModal');
+            const form = document.getElementById('diaNoLaborableForm');
+            const title = document.getElementById('diaNoLaborableModalTitle');
+
+            form.reset();
+
+            if (diaId) {
+                title.innerHTML = '<i class="fas fa-edit"></i> Editar Día No Laborable';
+                form.setAttribute('data-id', diaId);
+
+                const dia = diasNoLaborables.find(d => d.id == diaId);
+                if (dia) {
+                    document.getElementById('diaNoLaborableFecha').value = dia.fecha;
+                    document.getElementById('diaNoLaborableMotivo').value = dia.motivo || '';
+                }
+            } else {
+                title.innerHTML = '<i class="fas fa-plus"></i> Agregar Día No Laborable';
+                form.removeAttribute('data-id');
+                // Establecer la fecha mínima como hoy
+                document.getElementById('diaNoLaborableFecha').min = new Date().toISOString().split('T')[0];
             }
-        } else {
-            title.innerHTML = '<i class="fas fa-plus"></i> Agregar Día No Laborable';
-            form.removeAttribute('data-id');
-            // Establecer la fecha mínima como hoy
-            document.getElementById('diaNoLaborableFecha').min = new Date().toISOString().split('T')[0];
+
+            modal.style.display = 'flex';
         }
-        
-        modal.style.display = 'flex';
-    }
 
-    // Función para editar un día no laborable
-    function editarDiaNoLaborable(diaId) {
-        mostrarModalDiaNoLaborable(diaId);
-    }
+        // Función para editar un día no laborable
+        function editarDiaNoLaborable(diaId) {
+            mostrarModalDiaNoLaborable(diaId);
+        }
 
-    // Función para eliminar un día no laborable
-    async function eliminarDiaNoLaborable(diaId) {
-        try {
-            const result = await Swal.fire({
-                title: '¿Eliminar este día no laborable?',
-                text: "Esta acción no se puede deshacer",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            });
+        // Función para eliminar un día no laborable
+        async function eliminarDiaNoLaborable(diaId) {
+            try {
+                const result = await Swal.fire({
+                    title: '¿Eliminar este día no laborable?',
+                    text: "Esta acción no se puede deshacer",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                });
 
-            if (result.isConfirmed) {
-                const response = await fetch(`/api/dias-no-laborables/${diaId}`, {
-                    method: 'DELETE',
+                if (result.isConfirmed) {
+                    const response = await fetch(`/api/dias-no-laborables/${diaId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Error al eliminar el día no laborable');
+                    }
+                    await cargarDiasNoLaborables();
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Día no laborable eliminado correctamente'
+                    });
+                }
+            } catch (error) {
+                console.error('Error al eliminar día no laborable:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error al eliminar día no laborable',
+                    text: error.message
+                });
+            }
+        }
+
+        // =============================================
+        // EVENT LISTENERS ADICIONALES
+        // =============================================
+
+        // Manejar el envío del formulario de día no laborable
+        document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const diaId = form.getAttribute('data-id');
+            const isEdit = !!diaId;
+
+            const formData = {
+                fecha: document.getElementById('diaNoLaborableFecha').value,
+                motivo: document.getElementById('diaNoLaborableMotivo').value,
+                _token: '{{ csrf_token() }}'
+            };
+
+            try {
+                let response;
+                let url;
+                let method;
+
+                if (isEdit) {
+                    url = `/api/dias-no-laborables/${diaId}`;
+                    method = 'PUT';
+                } else {
+                    url = '/api/dias-no-laborables';
+                    method = 'POST';
+                }
+
+                response = await fetch(url, {
+                    method: method,
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify(formData)
                 });
+
+                const data = await response.json();
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Error al eliminar el día no laborable');
+                    let errorMessage = 'Error al guardar el día no laborable';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).join('\n');
+                    } else if (data.message) {
+                        errorMessage = data.message;
+                    }
+                    throw new Error(errorMessage);
                 }
-                await cargarDiasNoLaborables();
+
                 Toast.fire({
                     icon: 'success',
-                    title: 'Día no laborable eliminado correctamente'
+                    title: isEdit ? 'Día no laborable actualizado' : 'Día no laborable agregado'
+                });
+
+                closeModal('diaNoLaborableModal');
+                await cargarDiasNoLaborables();
+            } catch (error) {
+                console.error('Error al guardar día no laborable:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
                 });
             }
-        } catch (error) {
-            console.error('Error al eliminar día no laborable:', error);
-            Toast.fire({
-                icon: 'error',
-                title: 'Error al eliminar día no laborable',
-                text: error.message
-            });
-        }
-    }
-
-    // =============================================
-    // EVENT LISTENERS ADICIONALES
-    // =============================================
-
-    // Manejar el envío del formulario de día no laborable
-    document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const form = e.target;
-        const diaId = form.getAttribute('data-id');
-        const isEdit = !!diaId;
-        
-        const formData = {
-            fecha: document.getElementById('diaNoLaborableFecha').value,
-            motivo: document.getElementById('diaNoLaborableMotivo').value,
-            _token: '{{ csrf_token() }}'
-        };
-        
-        try {
-            let response;
-            let url;
-            let method;
-            
-            if (isEdit) {
-                url = `/api/dias-no-laborables/${diaId}`;
-                method = 'PUT';
-            } else {
-                url = '/api/dias-no-laborables';
-                method = 'POST';
-            }
-            
-            response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                let errorMessage = 'Error al guardar el día no laborable';
-                if (data.errors) {
-                    errorMessage = Object.values(data.errors).join('\n');
-                } else if (data.message) {
-                    errorMessage = data.message;
-                }
-                throw new Error(errorMessage);
-            }
-            
-            Toast.fire({
-                icon: 'success',
-                title: isEdit ? 'Día no laborable actualizado' : 'Día no laborable agregado'
-            });
-            
-            closeModal('diaNoLaborableModal');
-            await cargarDiasNoLaborables();
-        } catch (error) {
-            console.error('Error al guardar día no laborable:', error);
-            Toast.fire({
-                icon: 'error',
-                title: 'Error',
-                text: error.message
-            });
-        }
-    });
-
-    // Validar que la fecha seleccionada no sea en el pasado
-    document.getElementById('diaNoLaborableFecha')?.addEventListener('change', function() {
-        const fechaSeleccionada = new Date(this.value);
-        const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-        
-        if (fechaSeleccionada < hoy) {
-            Toast.fire({
-                icon: 'warning',
-                title: 'No puedes seleccionar una fecha pasada'
-            });
-            this.value = hoy.toISOString().split('T')[0];
-        }
-    });
-
-    // =============================================
-    // INICIALIZACIÓN AL CARGAR LA PÁGINA
-    // =============================================
-
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        cargarDiasNoLaborables();
-        
-       
-    });
-
-   
-        // Configuración de SweetAlert
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
         });
 
-        // Variables globales para gráficos
-        let usuariosChart, ingresosChart, citasChart, serviciosChart;
+        // Validar que la fecha seleccionada no sea en el pasado
+        document.getElementById('diaNoLaborableFecha')?.addEventListener('change', function() {
+            const fechaSeleccionada = new Date(this.value);
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
 
-        document.querySelectorAll('#usuarioModal input, #usuarioModal select').forEach(el => {
-            el.addEventListener('focus', function() {
-                setTimeout(() => {
-                    this.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }, 300);
-            });
+            if (fechaSeleccionada < hoy) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'No puedes seleccionar una fecha pasada'
+                });
+                this.value = hoy.toISOString().split('T')[0];
+            }
         });
+
 
         // =============================================
         // FUNCIONES DE USUARIO Y VALIDACIÓN
         // =============================================
 
-        // Agrega esta función para alternar la visibilidad de contraseñas
-        function togglePassword(fieldId, iconId) {
-            const field = document.getElementById(fieldId);
-            const icon = document.getElementById(iconId);
 
-            if (field.type === "password") {
-                field.type = "text";
-                icon.classList.remove("fa-eye");
-                icon.classList.add("fa-eye-slash");
+        // Función para mostrar el modal de usuario 
+        function mostrarModalUsuario(usuarioId = null) {
+            const modal = document.getElementById('usuarioModal');
+            const form = document.getElementById('usuarioForm');
+            const title = document.getElementById('modalTitleText');
+            const rolField = document.getElementById('rol');
+            const emailField = document.getElementById('email');
+            const passwordFields = document.getElementById('passwordFields');
+
+            // Resetear el formulario y listeners
+            form.reset();
+            document.getElementById('usuario_id').value = '';
+
+            // Remover cualquier listener previo de email
+            const emailInput = document.getElementById('email');
+            const newEmailInput = emailInput.cloneNode(true);
+            emailInput.parentNode.replaceChild(newEmailInput, emailInput);
+
+            if (usuarioId) {
+                // Modo edición
+                document.getElementById('modalTitleText').textContent = 'Editar Usuario';
+                document.getElementById('email').readOnly = true;
+                document.getElementById('rol').readOnly = true;
+                document.getElementById('emailHelp').style.display = 'block';
+                document.getElementById('rolHelp').style.display = 'block';
+                passwordFields.style.display = 'none';
+                document.getElementById('password').required = false;
+                document.getElementById('password_confirmation').required = false;
+
+                // Buscar el usuario en los datos cargados
+                const usuario = allUsersData.find(u => u.id == usuarioId);
+
+                if (usuario) {
+                    document.getElementById('usuario_id').value = usuario.id;
+                    document.getElementById('nombre').value = usuario.nombre;
+                    document.getElementById('email').value = usuario.email;
+                    document.getElementById('telefono').value = usuario.telefono || '';
+                    document.getElementById('rol').value = usuario.rol;
+                    document.getElementById('estado').value = usuario.estado ? '1' : '0';
+                } else {
+                    // Si no está en los datos cargados, hacer petición al servidor
+                    fetch(`/admin/usuarios/${usuarioId}/edit`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Usuario no encontrado');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            document.getElementById('usuario_id').value = data.id;
+                            document.getElementById('nombre').value = data.nombre;
+                            document.getElementById('email').value = data.email;
+                            document.getElementById('telefono').value = data.telefono || '';
+                            document.getElementById('rol').value = data.rol;
+                            document.getElementById('estado').value = data.estado ? '1' : '0';
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar usuario:', error);
+                            Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
+                            closeModal('usuarioModal');
+                        });
+                }
             } else {
-                field.type = "password";
-                icon.classList.remove("fa-eye-slash");
-                icon.classList.add("fa-eye");
+                // Modo creación
+                document.getElementById('modalTitleText').textContent = 'Crear Nuevo Usuario';
+                document.getElementById('email').readOnly = false;
+                document.getElementById('rol').readOnly = false;
+                document.getElementById('emailHelp').style.display = 'none';
+                document.getElementById('email').removeAttribute('readonly');
+                document.getElementById('rolHelp').style.display = 'none';
+                passwordFields.style.display = 'block';
+                document.getElementById('rol').value = 'cliente'; // Valor por defecto
+                document.getElementById('password').required = true;
+                document.getElementById('password_confirmation').required = true;
+
+                // Validación en tiempo real para email (solo en creación)
+                document.getElementById('email').addEventListener('blur', async function() {
+                    const email = this.value;
+                    if (!email) return;
+
+                    try {
+                        const usuarioId = document.getElementById('usuario_id').value;
+                        const url =
+                            `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
+
+                        const response = await fetch(url);
+
+                        if (!response.ok) {
+                            throw new Error('Error al verificar email');
+                        }
+
+                        const data = await response.json();
+
+                        if (!data.available) {
+                            this.setCustomValidity(data.message);
+                            this.classList.add('border-red-500');
+                            document.getElementById('email-error').textContent = data.message;
+                            document.getElementById('email-error').classList.remove('hidden');
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('border-red-500');
+                            document.getElementById('email-error').classList.add('hidden');
+                        }
+                    } catch (error) {
+                        console.error('Error al verificar email:', error);
+                        // No mostrar error al usuario para no confundirlo
+                    }
+                });
+            }
+
+            // Resetear validaciones visuales
+            document.querySelectorAll('.password-requirements li').forEach(li => {
+                li.style.color = '#6b7280';
+            });
+            document.getElementById('passwordMatchMessage').textContent = '';
+
+            // Resetear el botón de submit
+            const submitBtn = document.querySelector('#usuarioForm button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
+
+            modal.style.display = 'flex';
+        }
+
+        // Función para alternar visibilidad de contraseña 
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            let eyeIcon;
+
+            if (inputId === 'password') {
+                eyeIcon = document.getElementById('passwordEye');
+            } else {
+                eyeIcon = document.getElementById('passwordConfirmationEye');
+            }
+
+            if (!input || !eyeIcon) {
+                console.error(`Elemento no encontrado para inputId: ${inputId}`);
+                return;
+            }
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
             }
         }
 
-        function mostrarModalUsuario() {
-            // Limpiar el formulario antes de mostrarlo
-            document.getElementById('usuarioForm').reset();
-
-            // Mostrar el modal
-            document.getElementById('usuarioModal').style.display = 'flex';
-
-            // Resetear estilos de validación
-            document.querySelectorAll('#usuarioForm input, #usuarioForm select').forEach(el => {
-                el.classList.remove('border-red-500');
-            });
-
-            // Actualizar los indicadores de contraseña
-            document.getElementById('req-length').className = 'text-gray-400';
-            document.getElementById('req-uppercase').className = 'text-gray-400';
-            document.getElementById('req-lowercase').className = 'text-gray-400';
-            document.getElementById('req-number').className = 'text-gray-400';
-        }
-
-        // Función para evaluar fortaleza de contraseña
         function evaluatePasswordStrength(password) {
             let strength = 0;
             const strengthText = document.getElementById('passwordStrengthText');
             const strengthBar = document.getElementById('passwordStrengthBar');
 
-            // Resetear completamente al inicio
+            // Resetear completamente
             strengthBar.className = 'password-strength-meter-fill';
             strengthBar.style.backgroundColor = 'transparent';
             strengthBar.style.width = '0';
@@ -3752,7 +3885,7 @@
             if (/[0-9]/.test(password)) strength += 1;
             if (/[^A-Za-z0-9]/.test(password)) strength += 1;
 
-            // Actualizar UI según fortaleza
+            // Aplicar estilos según fortaleza
             let color, width, text;
             switch (strength) {
                 case 0:
@@ -3779,6 +3912,7 @@
                     break;
             }
 
+            // Aplicar cambios visuales
             strengthBar.style.backgroundColor = color;
             strengthBar.style.width = width;
             strengthText.textContent = text;
@@ -3787,24 +3921,30 @@
             return strength >= 3;
         }
 
-        // Función para validar fortaleza de contraseña
         function validatePasswordStrength(password) {
             const hasMinLength = password.length >= 8;
             const hasUpperCase = /[A-Z]/.test(password);
             const hasLowerCase = /[a-z]/.test(password);
             const hasNumber = /\d/.test(password);
 
-            // Actualizar indicadores visuales
-            document.getElementById('req-length').className = hasMinLength ? 'text-green-500' : 'text-gray-400';
-            document.getElementById('req-uppercase').className = hasUpperCase ? 'text-green-500' : 'text-gray-400';
-            document.getElementById('req-lowercase').className = hasLowerCase ? 'text-green-500' : 'text-gray-400';
-            document.getElementById('req-number').className = hasNumber ? 'text-green-500' : 'text-gray-400';
+            // Actualizar lista de requisitos
+            document.getElementById('req-length').style.color = hasMinLength ? '#10b981' : '#6b7280';
+            document.getElementById('req-uppercase').style.color = hasUpperCase ? '#10b981' : '#6b7280';
+            document.getElementById('req-lowercase').style.color = hasLowerCase ? '#10b981' : '#6b7280';
+            document.getElementById('req-number').style.color = hasNumber ? '#10b981' : '#6b7280';
 
-            // Calcular fortaleza general
+            // Evaluar fortaleza general
             evaluatePasswordStrength(password);
 
             return hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
         }
+
+        document.getElementById('password')?.addEventListener('input', function() {
+            validatePasswordStrength(this.value);
+            if (document.getElementById('password_confirmation').value.length > 0) {
+                validatePasswordMatch();
+            }
+        });
 
         // Función para validar coincidencia de contraseñas
         function validatePasswordMatch() {
@@ -3814,41 +3954,129 @@
 
             if (confirmPassword.length === 0) {
                 messageElement.textContent = '';
-                messageElement.className = 'password-match-message';
+                messageElement.style.color = '';
                 return false;
             }
 
             if (password === confirmPassword) {
                 messageElement.textContent = 'Las contraseñas coinciden';
-                messageElement.className = 'password-match-message text-green-500';
+                messageElement.style.color = '#10b981';
                 return true;
             } else {
                 messageElement.textContent = 'Las contraseñas no coinciden';
-                messageElement.className = 'password-match-message text-red-500';
+                messageElement.style.color = '#ef4444';
                 return false;
             }
         }
 
-
-
         // Inicializar validaciones del formulario
-        function initUsuarioFormValidation() {
-            const passwordField = document.getElementById('password');
-            const confirmPasswordField = document.getElementById('password_confirmation');
+        function initPasswordValidations() {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('password_confirmation');
 
-            if (passwordField) {
-                passwordField.addEventListener('input', function() {
-                    const password = this.value;
-                    validatePasswordStrength(password);
-
-                    if (confirmPasswordField && confirmPasswordField.value) {
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    validatePasswordStrength(this.value);
+                    if (confirmPasswordInput.value.length > 0) {
                         validatePasswordMatch();
                     }
                 });
             }
 
-            if (confirmPasswordField) {
-                confirmPasswordField.addEventListener('input', validatePasswordMatch);
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+            }
+        }
+
+        // Función para manejar envío de formulario 
+        async function handleUsuarioFormSubmit(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const usuarioId = form.querySelector('#usuario_id').value;
+
+            // Resetear errores visuales
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.querySelectorAll('.border-red-500').forEach(el => {
+                el.classList.remove('border-red-500');
+            });
+
+            // Deshabilitar el botón
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+            try {
+                // Primero verificar el email nuevamente
+                const email = form.email.value;
+                const checkEmailUrl =
+                    `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
+                const checkResponse = await fetch(checkEmailUrl);
+
+                if (!checkResponse.ok) throw new Error('Error al verificar email');
+
+                const checkData = await checkResponse.json();
+
+                if (!checkData.available) {
+                    throw new Error(checkData.message);
+                }
+
+                // Si el email está disponible, proceder con el envío
+                const response = await fetch(usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios', {
+                    method: usuarioId ? 'PUT' : 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: form.nombre.value.trim(),
+                        email: email,
+                        telefono: form.telefono.value.trim() || null,
+                        estado: form.estado.value === '1',
+                        rol: form.rol.value,
+                        password: form.password?.value,
+                        password_confirmation: form.password_confirmation?.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error al procesar la solicitud');
+                }
+
+                // Éxito - mostrar mensaje y recargar
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+                await fetchAllUsers();
+                closeModal('usuarioModal');
+
+            } catch (error) {
+                // Mostrar error específico para email
+                if (error.message.includes('correo electrónico')) {
+                    form.email.classList.add('border-red-500');
+                    document.getElementById('email-error').textContent = error.message;
+                    document.getElementById('email-error').classList.remove('hidden');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message,
+                        footer: usuarioId ? `ID: ${usuarioId}` : ''
+                    });
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
             }
         }
 
@@ -4251,7 +4479,6 @@
         // =============================================
         // EVENT LISTENERS
         // =============================================
-
         document.addEventListener('DOMContentLoaded', function() {
             // 1. PRIMERO VERIFICAR QUE LOS CONTENEDORES DE GRÁFICOS EXISTAN
             if (!document.getElementById('usuariosChart')) {
@@ -4288,6 +4515,9 @@
 
             // Inicializar validaciones del formulario de usuario
             initUsuarioFormValidation();
+            initPasswordValidations();
+
+            cargarDiasNoLaborables();
 
             // Asignar el evento al botón de crear usuario
             document.querySelector('.btn-primary[onclick="mostrarModalUsuario()"]').addEventListener('click',
@@ -4324,6 +4554,33 @@
                     closeModal(this.closest('.modal').id);
                 });
             });
+
+            // Inicializar el formulario de usuario
+            const usuarioForm = document.getElementById('usuarioForm');
+            if (usuarioForm) {
+                usuarioForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    // Validar contraseña si estamos en modo creación
+                    if (document.getElementById('passwordFields').style.display !== 'none') {
+                        const password = document.getElementById('password').value;
+                        const isPasswordStrong = validatePasswordStrength(password);
+                        const doPasswordsMatch = validatePasswordMatch();
+
+                        if (!isPasswordStrong || !doPasswordsMatch) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error en la contraseña',
+                                text: 'Por favor, asegúrate de que la contraseña cumpla con todos los requisitos y que ambas contraseñas coincidan.'
+                            });
+                            return;
+                        }
+                    }
+
+                    // Si todo está bien, enviar el formulario
+                    handleUsuarioFormSubmit(e);
+                });
+            }
         });
 
 
