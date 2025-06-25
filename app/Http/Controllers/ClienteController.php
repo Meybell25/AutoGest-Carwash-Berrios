@@ -61,7 +61,7 @@ class ClienteController extends Controller
                 ],
                 'mis_vehiculos' => $vehiculos,
                 'vehiculos_dashboard' => $vehiculosDashboard,
-                'proximas_citas' => $proximas_citas->take(5), 
+                'proximas_citas' => $proximas_citas->take(5),
                 'historial_citas' => $historial_citas->take(5),
                 'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
                 'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count()
@@ -371,59 +371,47 @@ class ClienteController extends Controller
     {
         $user = Auth::user();
 
+        if (!$user || !$user->isCliente()) {
+            abort(403, 'Acceso no autorizado');
+        }
+
         try {
-            // Obtener citas futuras con estados específicos
-            $proximas_citas = $user->citas()
-                ->with(['vehiculo', 'servicios'])
-                ->where('fecha_hora', '>=', now())
-                ->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso'])
-                ->orderBy('fecha_hora')
-                ->get()
-                ->map(function ($cita) {
-                    return [
-                        'id' => $cita->id,
-                        'fecha_hora' => $cita->fecha_hora,
-                        'estado' => $cita->estado,
-                        'observaciones' => $cita->observaciones,
-                        'vehiculo' => $cita->vehiculo,
-                        'servicios' => $cita->servicios,
-                        'duracion_total' => $cita->servicios->sum('duracion_min')
-                    ];
-                });
+            $vehiculos = $user->vehiculos()
+                ->withCount('citas')
+                ->orderByDesc('citas_count')
+                ->get();
 
-            // Obtener historial de citas
-            $historial_citas = $user->citas()
+            $vehiculosDashboard = $vehiculos->take(3);
+
+            // Obtener TODAS las citas del usuario (esto reemplaza $mis_citas)
+            $todasLasCitas = $user->citas()
                 ->with(['vehiculo', 'servicios'])
-                ->where(function ($query) {
-                    $query->where('fecha_hora', '<', now())
-                        ->orWhereIn('estado', ['finalizada', 'cancelada']);
-                })
                 ->orderBy('fecha_hora', 'desc')
-                ->get()
-                ->map(function ($cita) {
-                    return [
-                        'id' => $cita->id,
-                        'fecha_hora' => $cita->fecha_hora,
-                        'estado' => $cita->estado,
-                        'observaciones' => $cita->observaciones,
-                        'vehiculo' => $cita->vehiculo,
-                        'servicios' => $cita->servicios,
-                        'duracion_total' => $cita->servicios->sum('duracion_min')
-                    ];
-                });
+                ->get();
 
-            return response()->json([
-                'success' => true,
-                'proximas_citas' => $proximas_citas,
-                'historial_citas' => $historial_citas,
-                'total_citas' => $user->citas()->count(),
-                'citas_pendientes' => $user->citas()->where('estado', 'pendiente')->count(),
+            // Filtrar citas próximas
+            $proximas_citas = $todasLasCitas->where('fecha_hora', '>=', now())
+                ->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso']);
+
+            // Filtrar historial
+            $historial_citas = $todasLasCitas->filter(function ($cita) {
+                return $cita->fecha_hora < now() ||
+                    in_array($cita->estado, ['finalizada', 'cancelada']);
+            });
+
+            return view('cliente.dashboard', [
+                'user' => $user,
                 'stats' => [
-                    'total_vehiculos' => $user->vehiculos()->count(),
-                    'total_citas' => $user->citas()->count(),
-                    'citas_pendientes' => $user->citas()->where('estado', 'pendiente')->count(),
-                    'citas_confirmadas' => $user->citas()->where('estado', 'confirmada')->count(),
-                ]
+                    'total_vehiculos' => $vehiculos->count(),
+                    'total_citas' => $todasLasCitas->count(),
+                    'citas_pendientes' => $todasLasCitas->where('estado', 'pendiente')->count(),
+                    'citas_confirmadas' => $todasLasCitas->where('estado', 'confirmada')->count(),
+                ],
+                'vehiculos_dashboard' => $vehiculosDashboard,
+                'proximas_citas' => $proximas_citas, // Pasar ya filtradas
+                'historial_citas' => $historial_citas, // Pasar ya filtradas
+                'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
+                'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count()
             ]);
         } catch (\Exception $e) {
             return response()->json([
