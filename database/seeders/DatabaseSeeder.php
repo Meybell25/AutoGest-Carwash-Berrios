@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
             ->count(2)
             ->create();
 
-        $this->call(PagoSeeder::class);
+        
 
     }
 }

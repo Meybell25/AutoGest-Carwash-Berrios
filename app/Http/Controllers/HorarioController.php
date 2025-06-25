@@ -11,12 +11,11 @@ class HorarioController extends Controller
     public function index()
     {
         $horarios = Horario::ordenadoPorDia()->get();
+        // Si es AJAX, devolver JSON
+        if (request()->ajax()) {
+            return response()->json($horarios);
+        }
         return view('HorariosViews.index', compact('horarios'));
-    }
-
-    public function create()
-    {
-        return view('HorariosViews.create');
     }
 
     public function store(Request $request)
@@ -31,7 +30,7 @@ class HorarioController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $existe = Horario::where('dia_semana', $data['dia_semana'])
@@ -39,18 +38,17 @@ class HorarioController extends Controller
             ->exists();
 
         if ($existe) {
-            return back()->withErrors(['dia_semana' => 'Ya existe un horario con este día y hora de inicio.'])->withInput();
+            return response()->json(['errors' => ['dia_semana' => 'Ya existe un horario con este día y hora de inicio.']], 422);
         }
 
-        Horario::create($data);
-
-        return redirect()->route('horarios.index')->with('success', 'Horario creado exitosamente.');
+        $horario = Horario::create($data);
+        return response()->json(['message' => 'Horario creado exitosamente.', 'horario' => $horario]);
     }
 
-    public function edit($id)
+    public function show($id)
     {
         $horario = Horario::findOrFail($id);
-        return view('HorariosViews.edit', compact('horario'));
+        return response()->json($horario);
     }
 
     public function update(Request $request, $id)
@@ -66,7 +64,7 @@ class HorarioController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $existe = Horario::where('dia_semana', $data['dia_semana'])
@@ -75,12 +73,11 @@ class HorarioController extends Controller
             ->exists();
 
         if ($existe) {
-            return back()->withErrors(['dia_semana' => 'Ya existe un horario con este día y hora de inicio.'])->withInput();
+            return response()->json(['errors' => ['dia_semana' => 'Ya existe un horario con este día y hora de inicio.']], 422);
         }
 
         $horario->update($data);
-
-        return redirect()->route('horarios.index')->with('success', 'Horario actualizado exitosamente.');
+        return response()->json(['message' => 'Horario actualizado exitosamente.', 'horario' => $horario]);
     }
 
     public function destroy($id)
@@ -88,6 +85,7 @@ class HorarioController extends Controller
         $horario = Horario::findOrFail($id);
         $horario->delete();
 
-        return redirect()->route('horarios.index')->with('success', 'Horario eliminado correctamente.');
+        return response()->json(['message' => 'Horario eliminado correctamente.']);
     }
 }
+

@@ -2628,6 +2628,107 @@
                     </div>
                 </div>
 
+                <script>
+                   document.addEventListener('DOMContentLoaded', function () {
+                   const horarioForm = document.getElementById('horarioForm');
+                   const horarioModal = document.getElementById('horarioModal');
+                   const modalTitle = document.getElementById('horarioModalTitle');
+
+                  function openCreateModal() {
+                   horarioForm.reset();
+                   document.getElementById('horario_id').value = "";
+                   modalTitle.innerHTML = '<i class="fas fa-clock"></i> Agregar Horario';
+                   openModal('horarioModal');
+                  }
+
+                  function openEditModal(id) {
+                    fetch(`/horarios/${id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                    document.getElementById('horario_id').value = data.id;
+                    document.getElementById('horario_dia').value = data.dia_semana;
+                    document.getElementById('horario_inicio').value = data.hora_inicio.substring(0, 5);
+                    document.getElementById('horario_fin').value = data.hora_fin.substring(0, 5);
+                    document.getElementById('horario_activo').value = data.activo ? 1 : 0;
+                    modalTitle.innerHTML = '<i class="fas fa-clock"></i> Editar Horario';
+                    openModal('horarioModal');
+                   });
+                  }
+
+                  horarioForm.addEventListener('submit', function (e) {
+                     e.preventDefault();
+
+                   const id = document.getElementById('horario_id').value;
+                   const method = id ? 'PUT' : 'POST';
+                   const url = id ? `/horarios/${id}` : '/horarios';
+
+                  const formData = {
+                    dia_semana: document.getElementById('horario_dia').value,
+                    hora_inicio: document.getElementById('horario_inicio').value,
+                    hora_fin: document.getElementById('horario_fin').value,
+                    activo: document.getElementById('horario_activo').value
+                  };
+
+                   fetch(url, {
+                       method: method,
+                     headers: {
+                       'Content-Type': 'application/json',
+                       'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                     },
+                      body: JSON.stringify(formData)
+                    })
+                   .then(response => {
+                   if (!response.ok)
+                    return response.json().then(err => Promise.reject(err));
+                    return response.json();
+                   })
+                   .then(data => {
+                   Swal.fire('Éxito', data.message, 'success');
+                   closeModal('horarioModal');
+                   location.reload();
+                  })
+                  .catch(err => {
+                  if (err.errors) {
+                    let errorMsg = '';
+                    for (let campo in err.errors) {
+                        errorMsg += err.errors[campo][0] + '<br>';
+                    }
+                    Swal.fire('Error', errorMsg, 'error');
+                  }
+                 });
+                  });
+ 
+                       function eliminarHorario(id) {
+                           Swal.fire({
+                              title: '¿Eliminar?',
+                              text: 'Esta acción no se puede deshacer',
+                              icon: 'warning',
+                              showCancelButton: true,
+                              confirmButtonText: 'Sí, eliminar'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                   fetch(`/horarios/${id}`, {
+                                   method: 'DELETE',
+                                   headers: {
+                                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                             Swal.fire('Eliminado', data.message, 'success');
+                             location.reload();
+                            });
+                        }
+                      });
+                    }
+
+                      window.openCreateModal = openCreateModal;
+                      window.openEditModal = openEditModal;
+                      .eliminarHorario = eliminarHorario;
+                    });
+                </script>
+
+
                 <!-- Contenedor para Días No Laborables -->
                 <div class="card">
                     <div class="card-header">
@@ -3188,6 +3289,8 @@
                     </form>
                 </div>
             </div>
+
+            
 
             <!-- Modal para Días No Laborables -->
             <div id="diaNoLaborableModal" class="modal">
