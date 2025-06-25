@@ -210,23 +210,7 @@
                             <p class="text-red-500 text-xs sm:text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-
-                    <!-- Checkbox Recordarme -->
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                        <div class="flex items-center">
-                            <input id="remember" name="remember" type="checkbox" 
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="remember" class="ml-2 block text-sm text-gray-700">
-                                Recordarme
-                            </label>
-                        </div>
-                        <div>
-                            <a href="#" class="text-sm text-blue-600 hover:text-blue-500 transition-colors">
-                                ¿Olvidaste tu contraseña?
-                            </a>
-                        </div>
-                    </div>
-
+                    <div class="mb-4"></div>
                     <!-- Botón de login -->
                     <button type="submit"
                             class="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">

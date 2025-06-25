@@ -251,7 +251,6 @@
 
         .header-actions {
             padding: 12px;
-            border-radius: var(--border-radius);
             box-shadow: var(--shadow-sm);
             margin-top: 15px;
             border: 1px solid rgba(0, 0, 0, 0.1);
@@ -1252,6 +1251,8 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            padding: 20px 0;
         }
 
         .modal-content {
@@ -1261,6 +1262,8 @@
             border-radius: 15px;
             width: 90%;
             max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             animation: modalFadeIn 0.3s;
         }
@@ -1308,6 +1311,164 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
+        }
+
+        /* Estilos para el modal de citas */
+        .service-card input[type="checkbox"] {
+            accent-color: #4facfe;
+            cursor: pointer;
+        }
+
+        .service-card:hover {
+            background-color: #f8f9fa;
+            border-color: #4facfe;
+            transform: translateY(-2px);
+        }
+
+        .service-card.selected {
+            background-color: #e7f3ff;
+            border-color: #4facfe;
+        }
+
+        /* Estilos para el selector de hora */
+        #hora {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+        }
+
+        /* Estilos para el calendario */
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        /* Efecto para los servicios seleccionados */
+        .service-card input[type="checkbox"]:checked+div h4 {
+            color: #4facfe;
+            font-weight: bold;
+        }
+
+        /* Responsive para el grid de servicios */
+        @media (max-width: 768px) {
+            #serviciosContainer {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Estilos para el select de vehículos */
+        #vehiculo_id {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            background-color: white;
+        }
+
+        /* Estilos para las tarjetas de servicio */
+        .service-card {
+            transition: all 0.3s ease;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .service-card:hover {
+            background-color: #f0f7ff;
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-card input[type="checkbox"]:checked+div h4 {
+            color: #4facfe;
+            font-weight: bold;
+        }
+
+        /* Estilos para el contenedor de servicios */
+        #serviciosContainer {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        /* Estilos para mensajes de error en el calendario */
+        .swal2-popup .swal2-html-container {
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .swal2-popup .swal2-title {
+            color: #dc3545;
+        }
+
+        /* Estilo para el input de fecha cuando hay error */
+        input:invalid {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+        }
+
+        /* Estilo para días no disponibles en el datepicker */
+        input[type="date"]::after {
+            content: "✓";
+            color: green;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        /* Estilo para el input de fecha cuando es inválido */
+        input[type="date"]:invalid {
+            border-color: #ff6b6b;
+            background-color: #fff5f5;
+        }
+
+        /* Estilo para el contenedor de días no disponibles */
+        .dia-no-disponible {
+            color: #ff6b6b;
+            text-decoration: line-through;
+        }
+
+        /* Mejora para los mensajes de error */
+        .swal2-popup .swal2-html-container {
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .swal2-popup .swal2-title {
+            color: #4facfe;
+            font-size: 1.5em;
+        }
+
+        /* Estilo para el select de vehículos */
+        #vehiculo_id {
+            transition: all 0.3s;
+        }
+
+        #vehiculo_id:invalid {
+            border-color: #ff6b6b;
+        }
+
+        /* Estilos para la selección de hora */
+        #hora {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
         }
 
         /* Footer */
@@ -1629,7 +1790,7 @@
                         <i class="fas fa-plus"></i>
                         Agregar Vehículo
                     </a>
-                    <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
+                    <a href="#" class="btn btn-primary" onclick="openCitaModal()">
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
                     </a>
@@ -1662,88 +1823,63 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        @if (isset($mis_citas) && count($mis_citas) > 0)
-                            <!-- Próxima cita destacada -->
-                            @php $nextAppointment = $mis_citas->first(); @endphp
-                            <div class="next-appointment">
-                                <div class="appointment-date-time">
-                                    <div class="date-badge">
-                                        <span
-                                            class="day">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('d') }}</span>
-                                        <span
-                                            class="month">{{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('M') }}</span>
-                                    </div>
-                                    <div class="time-info">
-                                        <div class="time">
-                                            {{ \Carbon\Carbon::parse($nextAppointment->fecha_hora)->format('h:i A') }}
-                                        </div>
-                                        <div class="service">
-                                            @if ($nextAppointment->servicios && count($nextAppointment->servicios) > 0)
-                                                {{ $nextAppointment->servicios->pluck('nombre')->join(', ') }}
-                                            @else
-                                                Sin servicios especificados
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <span class="appointment-status status-{{ $nextAppointment->estado }}">
-                                        {{ ucfirst($nextAppointment->estado) }}
-                                    </span>
-                                </div>
-                                <div class="appointment-actions">
-                                    <button class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i>
-                                        Modificar
-                                    </button>
-                                    <button class="btn btn-sm btn-outline">
-                                        <i class="fas fa-times"></i>
-                                        Cancelar
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Otras citas próximas -->
-                            <div style="max-height: 200px; overflow-y: auto;">
-                                @foreach ($mis_citas->slice(1) as $cita)
-                                    <div class="appointment-date-time"
-                                        style="padding: 15px; border-bottom: 1px solid #eee;">
-                                        <div class="date-badge" style="width: 60px; height: 60px; font-size: 0.8rem;">
-                                            <span
-                                                class="day">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d') }}</span>
-                                            <span
-                                                class="month">{{ \Carbon\Carbon::parse($cita->fecha_hora)->format('M') }}</span>
+                        @if (isset($mis_citas) && count($mis_citas->where('fecha_hora', '>=', now())) > 0)
+                            @foreach ($mis_citas->where('fecha_hora', '>=', now())->sortBy('fecha_hora')->take(3) as $cita)
+                                <div class="next-appointment {{ $loop->first ? 'highlighted' : '' }}">
+                                    <div class="appointment-date-time">
+                                        <div class="date-badge">
+                                            <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
+                                            <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
                                         </div>
                                         <div class="time-info">
-                                            <div class="time" style="font-size: 1.1rem;">
-                                                {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('h:i A') }}</div>
+                                            <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
                                             <div class="service">
-                                                @if ($cita->servicios && count($cita->servicios) > 0)
-                                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                                @else
-                                                    Sin servicios especificados
-                                                @endif
+                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                            </div>
+                                            <div class="vehicle-info">
+                                                <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                {{ $cita->vehiculo->modelo }}
                                             </div>
                                         </div>
                                         <span class="appointment-status status-{{ $cita->estado }}">
                                             {{ ucfirst($cita->estado) }}
                                         </span>
                                     </div>
-                                @endforeach
-                            </div>
+                                    <div class="appointment-actions">
+                                        @if ($cita->estado == 'pendiente' || $cita->estado == 'confirmada')
+                                            <button class="btn btn-sm btn-warning"
+                                                onclick="editCita({{ $cita->id }})">
+                                                <i class="fas fa-edit"></i> Modificar
+                                            </button>
+                                            <button class="btn btn-sm btn-outline"
+                                                onclick="cancelCita({{ $cita->id }})">
+                                                <i class="fas fa-times"></i> Cancelar
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            @if ($mis_citas->where('fecha_hora', '>=', now())->count() > 3)
+                                <div style="text-align: center; margin-top: 15px;">
+                                    <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
+                                        <i class="fas fa-list"></i> Ver todas las citas
+                                    </a>
+                                </div>
+                            @endif
                         @else
                             <div class="empty-state">
                                 <i class="fas fa-calendar-alt"></i>
                                 <h3>No tienes citas programadas</h3>
                                 <p>Agenda tu primera cita de lavado</p>
-                                <a href="{{ route('cliente.citas') }}" class="btn btn-primary"
-                                    style="margin-top: 15px;">
+                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
                                     <i class="fas fa-calendar-plus"></i>
                                     Agendar Cita
-                                </a>
+                                </button>
                             </div>
                         @endif
                     </div>
                 </div>
-
                 <!-- Historial de Servicios -->
                 <div class="card">
                     <div class="card-header">
@@ -2016,7 +2152,6 @@
                         </div>
                         <!--
 @endforelse -->
-
                         {{-- Comentado el enlace a todas las notificaciones --}}
                         <!-- @if ($notificaciones->count() > 0)
 -->
@@ -2041,8 +2176,8 @@
                         </h2>
                     </div>
                     <div class="card-body" id="misVehiculosContainer">
-                        @if (isset($mis_vehiculos) && count($mis_vehiculos) > 0)
-                            @foreach ($mis_vehiculos as $vehiculo)
+                       @if (isset($vehiculos_dashboard) && count($vehiculos_dashboard) > 0)
+                            @foreach ($vehiculos_dashboard as $vehiculo)
                                 <div class="service-history-item" style="margin-bottom: 15px;">
                                     <div class="service-icon" style="background: var(--secondary-gradient);">
                                         @switch($vehiculo->tipo)
@@ -2071,9 +2206,10 @@
                                         <p><i class="fas fa-palette"></i> {{ $vehiculo->color }}</p>
                                         <p><i class="fas fa-id-card"></i> {{ $vehiculo->placa }}</p>
                                     </div>
-                                    <a href="{{ route('cliente.citas') }}" class="btn btn-sm btn-primary">
+                                    <button class="btn btn-sm btn-primary"
+                                        onclick="openCitaModal('{{ $vehiculo->id }}')">
                                         <i class="fas fa-calendar-plus"></i>
-                                    </a>
+                                    </button>
                                 </div>
                             @endforeach
                         @else
@@ -2199,6 +2335,68 @@
         </div>
     </div>
 
+    <!-- Modal para crear cita -->
+    <div id="createCitaModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="closeCitaModal()">&times;</span>
+            <h2 style="color: #4facfe; margin-bottom: 20px;">
+                <i class="fas fa-calendar-plus"></i> Nueva Cita
+            </h2>
+
+            <form id="citaForm">
+                @csrf
+
+                <!-- Selección de vehículo -->
+                <div class="form-group">
+                    <label for="vehiculo_id">Vehículo:</label>
+                    <select id="vehiculo_id" name="vehiculo_id" required onchange="cargarServiciosPorTipo()">
+                        <option value="">Seleccione un vehículo</option>
+                        @foreach ($mis_vehiculos as $vehiculo)
+                            <option value="{{ $vehiculo->id }}" data-tipo="{{ $vehiculo->tipo }}">
+                                {{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->placa }}
+                                ({{ ucfirst($vehiculo->tipo) }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="hora">Hora:</label>
+                    <select id="hora" name="hora" required>
+                        <option value="">Seleccione una hora</option>
+                        <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Servicios Disponibles:</label>
+                    <div id="serviciosContainer"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                        <!-- Los servicios se cargarán dinámicamente según el tipo de vehículo -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="observaciones">Observaciones:</label>
+                    <textarea id="observaciones" name="observaciones" rows="3"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn btn-outline" onclick="closeCitaModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar Cita
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
 
     <!-- Footer -->
     <footer class="footer">
@@ -2258,6 +2456,431 @@
             },
             buttonsStyling: false
         });
+
+        /*=========================================================
+        FUNCIONAMIENTO DE CREAR CITAS
+        =========================================================*/
+        // Variables globales
+        let horariosDisponibles = [];
+        let todosServiciosDisponibles = [];
+        let serviciosFiltrados = [];
+        let diasNoLaborables = [];
+
+
+        // Funciones del modal de citas
+        function openCitaModal(vehiculoId = null) {
+            // Verificar estado del usuario primero
+            checkUserStatus().then(isActive => {
+                if (!isActive) {
+                    swalWithBootstrapButtons.fire({
+                        title: 'Cuenta inactiva',
+                        text: 'Tu cuenta está inactiva. No puedes crear nuevas citas.',
+                        icon: 'error'
+                    });
+                    return;
+                }
+
+                const modal = document.getElementById('createCitaModal');
+                modal.style.display = 'block';
+
+                // Resetear el formulario
+                document.getElementById('citaForm').reset();
+
+                // Cargar datos necesarios
+                loadInitialData().then(() => {
+                    // Si se proporciona un vehículo, establecerlo
+                    if (vehiculoId) {
+                        document.getElementById('vehiculo_id').value = vehiculoId;
+                        cargarServiciosPorTipo();
+                    }
+                });
+            });
+        }
+
+        function closeCitaModal() {
+            document.getElementById('createCitaModal').style.display = 'none';
+            document.getElementById('citaForm').reset();
+        }
+        async function checkUserStatus() {
+            try {
+                const response = await fetch('{{ route('cliente.check-status') }}', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json();
+                return data.is_active;
+            } catch (error) {
+                console.error('Error al verificar estado:', error);
+                return false;
+            }
+        }
+
+        // Función para cargar datos iniciales
+        async function loadInitialData() {
+            try {
+                // Cargar datos en paralelo
+                const [horariosRes, serviciosRes, noLaborablesRes] = await Promise.all([
+                    fetch('{{ route('cliente.horarios-disponibles') }}'),
+                    fetch('{{ route('cliente.servicios-disponibles') }}'),
+                    fetch('{{ route('cliente.dias-no-laborables') }}')
+                ]);
+
+                // Verificar respuestas
+                if (!horariosRes.ok || !serviciosRes.ok || !noLaborablesRes.ok) {
+                    throw new Error('Error al cargar datos iniciales');
+                }
+
+                // Procesar respuestas
+                horariosDisponibles = await horariosRes.json();
+                todosServiciosDisponibles = await serviciosRes.json();
+                diasNoLaborables = await noLaborablesRes.json();
+
+                console.log('Datos cargados:', {
+                    horarios: horariosDisponibles,
+                    servicios: todosServiciosDisponibles,
+                    diasNoLaborables: diasNoLaborables
+                });
+
+                // Configurar datepicker
+                setupDatePicker();
+
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'No se pudieron cargar los datos necesarios. Por favor recarga la página.',
+                    icon: 'error'
+                });
+            }
+        }
+
+        // Función para cargar horas disponibles (actualizada)
+        function loadAvailableHours(dayOfWeek) {
+            const horaSelect = document.getElementById('hora');
+            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+
+            // Asegurarse que dayOfWeek es un número
+            const diaSemana = typeof dayOfWeek === 'string' ? parseInt(dayOfWeek) : dayOfWeek;
+
+            // Filtrar horarios para el día seleccionado
+            const horariosDia = horariosDisponibles.filter(h => {
+                const horarioDia = typeof h.dia_semana === 'string' ? parseInt(h.dia_semana) : h.dia_semana;
+                return horarioDia === diaSemana;
+            });
+
+            if (horariosDia.length === 0) {
+                horaSelect.innerHTML = '<option value="">No hay horarios disponibles para este día</option>';
+                return;
+            }
+
+            // Generar opciones de hora cada 30 minutos
+            horariosDia.forEach(horario => {
+                const [inicioHora, inicioMinuto] = horario.hora_inicio.split(':').map(Number);
+                const [finHora, finMinuto] = horario.hora_fin.split(':').map(Number);
+
+                let currentHora = inicioHora;
+                let currentMinuto = inicioMinuto;
+
+                while (currentHora < finHora || (currentHora === finHora && currentMinuto < finMinuto)) {
+                    const horaStr =
+                        `${currentHora.toString().padStart(2, '0')}:${currentMinuto.toString().padStart(2, '0')}`;
+                    const option = document.createElement('option');
+                    option.value = horaStr;
+                    option.textContent = horaStr;
+                    horaSelect.appendChild(option);
+
+                    // Incrementar 30 minutos
+                    currentMinuto += 30;
+                    if (currentMinuto >= 60) {
+                        currentMinuto -= 60;
+                        currentHora += 1;
+                    }
+                }
+            });
+        }
+
+        // Configuración del datepicker (actualizada)
+        function setupDatePicker() {
+            const fechaInput = document.getElementById('fecha');
+
+            // Establecer límites de fecha (hoy hasta 1 mes después)
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + 1);
+
+            fechaInput.min = formatDateForInput(today);
+            fechaInput.max = formatDateForInput(maxDate);
+
+            fechaInput.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const dayOfWeek = selectedDate.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+
+                // Validar día no laborable
+                const fechaStr = selectedDate.toISOString().split('T')[0];
+                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+
+                if (diaNoLaborable) {
+                    showDateError(
+                        'Día no laborable',
+                        `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
+                 <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
+                    );
+                    return;
+                }
+
+                // Validar domingos
+                if (dayOfWeek === 0) {
+                    showDateError(
+                        'Domingo no laborable',
+                        'No atendemos los domingos. Por favor selecciona otro día.'
+                    );
+                    return;
+                }
+
+                // Si pasa todas las validaciones, cargar horarios
+                loadAvailableHours(dayOfWeek);
+            });
+        }
+
+        // Función para formatear fecha como YYYY-MM-DD (para input date)
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Función para formatear fecha bonita (ej: "Lunes, 25 de Junio")
+        function formatFechaBonita(date) {
+            const options = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long'
+            };
+            return date.toLocaleDateString('es-ES', options);
+        }
+
+        // Función mejorada para mostrar errores
+        function showDateError(title, message) {
+            swalWithBootstrapButtons.fire({
+                title: title,
+                html: message,
+                icon: 'warning',
+                confirmButtonColor: '#4facfe'
+            });
+
+            // Resetear selección
+            document.getElementById('fecha').value = '';
+            document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
+        }
+
+        // Función para cargar servicios según el tipo de vehículo seleccionado
+        function cargarServiciosPorTipo() {
+            const vehiculoSelect = document.getElementById('vehiculo_id');
+            const selectedOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
+            const tipoVehiculo = selectedOption?.dataset.tipo?.toLowerCase(); // Asegurar minúsculas
+
+            if (!tipoVehiculo) {
+                document.getElementById('serviciosContainer').innerHTML = '<p>Seleccione un vehículo primero</p>';
+                return;
+            }
+
+            // Filtrar servicios por categoría (comparando en minúsculas)
+            const serviciosFiltrados = [];
+            for (const categoria in todosServiciosDisponibles) {
+                if (categoria.toLowerCase() === tipoVehiculo) {
+                    serviciosFiltrados.push(...todosServiciosDisponibles[categoria]);
+                }
+            }
+
+            renderServicios(serviciosFiltrados);
+        }
+
+        // Función para renderizar servicios
+        function renderServicios(servicios) {
+            const container = document.getElementById('serviciosContainer');
+            container.innerHTML = '';
+
+            if (servicios.length === 0) {
+                container.innerHTML = '<p>No hay servicios disponibles para este tipo de vehículo</p>';
+                return;
+            }
+
+            servicios.forEach(servicio => {
+                const servicioDiv = document.createElement('div');
+                servicioDiv.className = 'service-card';
+                servicioDiv.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="servicio_${servicio.id}" name="servicios[]" value="${servicio.id}">
+                <div>
+                    <h4 style="margin: 0; font-size: 1rem;">${servicio.nombre}</h4>
+                    <p style="margin: 0; font-size: 0.8rem; color: #666;">
+                        $${servicio.precio.toFixed(2)} • ${formatDuration(servicio.duracion_min)}
+                    </p>
+                </div>
+            </div>
+        `;
+                container.appendChild(servicioDiv);
+            });
+        }
+
+        // Función para formatear duración
+        function formatDuration(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+
+            if (hours > 0) {
+                return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+            }
+            return `${mins}min`;
+        }
+
+        function cancelCita(citaId) {
+            swalWithBootstrapButtons.fire({
+                title: '¿Cancelar cita?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cancelar',
+                cancelButtonText: 'No, mantener'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/cliente/citas/${citaId}/cancelar`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => {
+                                    throw err;
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                swalWithBootstrapButtons.fire({
+                                    title: 'Cancelada',
+                                    text: data.message,
+                                    icon: 'success'
+                                }).then(() => {
+                                    // Recargar solo si fue exitoso
+                                    location.reload();
+                                });
+                            } else {
+                                throw new Error(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            let errorMsg = typeof error === 'string' ? error :
+                                (error.message || 'Error al cancelar la cita');
+
+                            swalWithBootstrapButtons.fire({
+                                title: 'Error',
+                                text: errorMsg,
+                                icon: 'error'
+                            });
+                        });
+                }
+            });
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('citaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const vehiculoId = formData.get('vehiculo_id');
+            const fecha = formData.get('fecha');
+            const hora = formData.get('hora');
+            const selectedDate = new Date(`${fecha}T${hora}`);
+
+            // Validaciones
+            if (!vehiculoId) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Debes seleccionar un vehículo',
+                    icon: 'error'
+                });
+                return;
+            }
+
+            if (!fecha || !hora) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Debes seleccionar fecha y hora',
+                    icon: 'error'
+                });
+                return;
+            }
+
+            const servicios = Array.from(document.querySelectorAll('input[name="servicios[]"]:checked'))
+                .map(el => el.value);
+
+            if (servicios.length === 0) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Debes seleccionar al menos un servicio',
+                    icon: 'error'
+                });
+                return;
+            }
+
+            // Preparar datos para enviar
+            const data = {
+                vehiculo_id: vehiculoId,
+                fecha_hora: selectedDate.toISOString(),
+                servicios: servicios,
+                observaciones: formData.get('observaciones'),
+                _token: '{{ csrf_token() }}'
+            };
+
+            try {
+                const response = await fetch('{{ route('cliente.citas.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Error al crear la cita');
+                }
+
+                // Éxito
+                swalWithBootstrapButtons.fire({
+                    title: '¡Éxito!',
+                    text: 'Cita creada correctamente',
+                    icon: 'success'
+                }).then(() => {
+                    closeCitaModal();
+                    location.reload();
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: error.message || 'Error al crear la cita',
+                    icon: 'error'
+                });
+            }
+        });
+
 
         // Funciones del modal
         function openEditModal() {
@@ -2369,23 +2992,10 @@
         window.addEventListener('click', function(event) {
             if (event.target.classList.contains('modal')) {
                 closeEditModal();
+                closeCitaModal();
             }
         });
 
-        // Función para marcar notificaciones como leídas
-        //function markAsRead(notificacionId) {
-        //fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
-        // method: 'POST',
-        //  headers: {
-        //    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-        //   'Content-Type': 'application/json'
-        //}
-        //}).then(response => {
-        //  if(response.ok) {
-        //    location.reload();
-        //}
-        //});
-        //}
 
         // Función para generar recibo
         function generateReceipt(citaId) {
@@ -2412,11 +3022,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                    `).join('')}
+                                                                        <tr>
+                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                        </tr>
+                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
