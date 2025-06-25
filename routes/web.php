@@ -7,6 +7,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\DiaNoLaborableController;
 use Illuminate\Support\Facades\Route;
@@ -108,6 +109,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         });
 
         Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
+        Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
 
         Route::prefix('servicios')->name('servicios.')->group(function () {
             Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
