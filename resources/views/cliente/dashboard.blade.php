@@ -432,9 +432,7 @@
 
 
         .card-body {
-            max-height: 500px;
-            overflow-y: auto;
-            padding-right: 10px;
+            padding: 0 25px 25px;
         }
 
         /* Próximas Citas */
@@ -3000,11 +2998,11 @@
             <div style="text-align: left;">
                 <p>${errorMessage}</p>
                 ${showAvailableTimes ? `
-                                            <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
-                                            <ul style="margin-top: 5px;">
-                                                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                            </ul>
-                                        ` : ''}
+                                                <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
+                                                <ul style="margin-top: 5px;">
+                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                </ul>
+                                            ` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3093,10 +3091,10 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                <i class="fas fa-calendar-plus"></i>
-                                Agendar Cita
-                            </button>` : ''}
+                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    Agendar Cita
+                                </button>` : ''}
             </div>
         `;
                 return;
@@ -3129,12 +3127,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                    <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                        <i class="fas fa-edit"></i> Modificar
-                                    </button>
-                                    <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </button>` : ''}
+                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                            <i class="fas fa-edit"></i> Modificar
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3167,9 +3165,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                    <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                        <i class="fas fa-redo"></i> Volver a agendar
-                                    </a>` : ''}
+                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                            <i class="fas fa-redo"></i> Volver a agendar
+                                        </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3449,10 +3447,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                        <tr>
-                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                        </tr>
-                                                                                                                        `).join('')}
+                                                                                                                            <tr>
+                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                            </tr>
+                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
