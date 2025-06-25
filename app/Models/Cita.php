@@ -17,11 +17,14 @@ class Cita extends Model
         'fecha_hora',
         'estado',
         'observaciones',
+        'created_at',
+        'updated_at' 
     ];
 
     protected $casts = [
         'fecha_hora' => 'datetime',
         'created_at' => 'datetime',
+        'updated_at' => 'datetime' 
     ];
 
     // Estados de las citas
