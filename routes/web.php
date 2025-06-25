@@ -160,14 +160,12 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
             );
         })->name('horarios-disponibles');
 
-        // En tu ruta /servicios-disponibles
         Route::get('/servicios-disponibles', function () {
             return response()->json(
                 App\Models\Servicio::activos()
-                    ->get()
-                    ->groupBy('categoria')
+                    ->get(['id', 'nombre', 'precio', 'duracion_min', 'categoria'])
             );
-        });
+        })->name('servicios-disponibles');
 
         Route::get('/dias-no-laborables', function () {
             return response()->json(
