@@ -135,6 +135,8 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
 
         //Rutas para horarios
         Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
+        Route::get('/admin/horarios', [HorarioController::class, 'index']);
+
     });
 
 // Rutas de Empleado
