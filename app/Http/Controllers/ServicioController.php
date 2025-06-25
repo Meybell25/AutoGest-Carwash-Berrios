@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Servicio;
+use App\Models\Bitacora;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -73,6 +74,7 @@ class ServicioController extends Controller
 
         try {
             $servicio = Servicio::create($request->all());
+            Bitacora::registrar(Bitacora::ACCION_CREAR_SERVICIO, null, $request->ip());
 
             return response()->json([
                 'success' => true,
@@ -138,6 +140,7 @@ class ServicioController extends Controller
             }
 
             $servicio->update($request->all());
+            Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_SERVICIO, null, $request->ip());
 
             return response()->json([
                 'success' => true,
@@ -171,6 +174,8 @@ class ServicioController extends Controller
             }
 
             $servicio->delete();
+            Bitacora::registrar(Bitacora::ACCION_ELIMINAR_SERVICIO, null, request()->ip());
+
 
             return response()->json([
                 'success' => true,

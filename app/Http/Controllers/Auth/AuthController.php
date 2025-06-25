@@ -45,6 +45,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
+            \App\Models\Bitacora::login($user->id, $request->ip());
 
             if (!$user->estado) {
                 Auth::logout();
