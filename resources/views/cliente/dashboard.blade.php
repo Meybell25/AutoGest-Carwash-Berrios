@@ -2567,52 +2567,51 @@
 
         // Función para cargar horas disponibles (actualizada)
         function loadAvailableHours(dayOfWeek) {
-            const horaSelect = document.getElementById('hora');
-            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+    const horaSelect = document.getElementById('hora');
+    horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
-            console.log('Horarios disponibles:', horariosDisponibles);
-            console.log('Buscando horarios para día:', dayOfWeek);
+    console.log('Horarios disponibles:', horariosDisponibles);
+    console.log('Buscando horarios para día:', dayOfWeek);
 
-            const horariosDia = horariosDisponibles.filter(h => {
-                console.log(
-                    `Horario día: ${h.dia_semana} (tipo ${typeof h.dia_semana}) vs ${dayOfWeek} (tipo ${typeof dayOfWeek})`
-                    );
-                return h.dia_semana == dayOfWeek;
-            });
+    // Convertir dayOfWeek a número si es string
+    const diaSemana = typeof dayOfWeek === 'string' ? parseInt(dayOfWeek) : dayOfWeek;
 
-            if (horariosDia.length === 0) {
-                console.error('No hay horarios configurados para este día de la semana');
-                horaSelect.innerHTML = '<option value="">No hay horarios disponibles para este día</option>';
-                return;
+    const horariosDia = horariosDisponibles.filter(h => {
+        // Asegurarse de que ambos valores sean números para comparar
+        const horarioDia = typeof h.dia_semana === 'string' ? parseInt(h.dia_semana) : h.dia_semana;
+        return horarioDia === diaSemana;
+    });
+
+    if (horariosDia.length === 0) {
+        console.error('No hay horarios configurados para este día de la semana');
+        horaSelect.innerHTML = '<option value="">No hay horarios disponibles para este día</option>';
+        return;
+    }
+
+    // Generar opciones de hora cada 30 minutos dentro del horario laboral
+    horariosDia.forEach(horario => {
+        const [inicioHora, inicioMinuto] = horario.hora_inicio.split(':').map(Number);
+        const [finHora, finMinuto] = horario.hora_fin.split(':').map(Number);
+
+        let currentHora = inicioHora;
+        let currentMinuto = inicioMinuto;
+
+        while (currentHora < finHora || (currentHora === finHora && currentMinuto < finMinuto)) {
+            const horaStr = `${currentHora.toString().padStart(2, '0')}:${currentMinuto.toString().padStart(2, '0')}`;
+            const option = document.createElement('option');
+            option.value = horaStr;
+            option.textContent = horaStr;
+            horaSelect.appendChild(option);
+
+            // Incrementar 30 minutos
+            currentMinuto += 30;
+            if (currentMinuto >= 60) {
+                currentMinuto -= 60;
+                currentHora += 1;
             }
-
-            // Generar opciones de hora cada 30 minutos dentro del horario laboral
-            horariosDia.forEach(horario => {
-                const [inicioHora, inicioMinuto] = horario.hora_inicio.split(':');
-                const [finHora, finMinuto] = horario.hora_fin.split(':');
-
-                let currentHora = parseInt(inicioHora);
-                let currentMinuto = parseInt(inicioMinuto);
-                const finHoraInt = parseInt(finHora);
-                const finMinutoInt = parseInt(finMinuto);
-
-                while (currentHora < finHoraInt || (currentHora === finHoraInt && currentMinuto < finMinutoInt)) {
-                    const horaStr =
-                        `${currentHora.toString().padStart(2, '0')}:${currentMinuto.toString().padStart(2, '0')}`;
-                    const option = document.createElement('option');
-                    option.value = horaStr;
-                    option.textContent = horaStr;
-                    horaSelect.appendChild(option);
-
-                    // Incrementar 30 minutos
-                    currentMinuto += 30;
-                    if (currentMinuto >= 60) {
-                        currentMinuto -= 60;
-                        currentHora += 1;
-                    }
-                }
-            });
         }
+    });
+}
 
         // Configuración del datepicker (actualizada)
         function setupDatePicker() {
@@ -2700,7 +2699,8 @@
         // Función para cargar servicios según el tipo de vehículo seleccionado
         function cargarServiciosPorTipo() {
             const vehiculoSelect = document.getElementById('vehiculo_id');
-            const tipoVehiculo = vehiculoSelect.options[vehiculoSelect.selectedIndex]?.dataset.tipo;
+            const selectedOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
+            const tipoVehiculo = selectedOption?.dataset.tipo;
 
             console.log('Tipo de vehículo seleccionado:', tipoVehiculo);
             console.log('Todos los servicios disponibles:', todosServiciosDisponibles);
@@ -2710,10 +2710,13 @@
                 return;
             }
 
-            // Asegúrate que los servicios tienen categoría y coinciden con el tipo
+            // Convertir ambos a minúsculas para comparación insensible a mayúsculas
             serviciosFiltrados = todosServiciosDisponibles.filter(servicio => {
-                console.log(`Servicio ${servicio.nombre}: Categoría ${servicio.categoria} vs Tipo ${tipoVehiculo}`);
-                return servicio.categoria && servicio.categoria.toLowerCase() === tipoVehiculo.toLowerCase();
+                const servicioCategoria = servicio.categoria?.toLowerCase() || '';
+                const vehiculoTipo = tipoVehiculo.toLowerCase();
+
+                console.log(`Servicio ${servicio.nombre}: Categoría ${servicioCategoria} vs Tipo ${vehiculoTipo}`);
+                return servicioCategoria === vehiculoTipo;
             });
 
             console.log('Servicios filtrados:', serviciosFiltrados);
@@ -3072,10 +3075,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                    <tr>
-                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                    </tr>
-                                                                                                                                    `).join('')}
+                                                                                                                                        <tr>
+                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                        </tr>
+                                                                                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
