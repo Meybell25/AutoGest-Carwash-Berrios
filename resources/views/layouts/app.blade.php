@@ -76,6 +76,22 @@
         .is-invalid~.invalid-tooltip {
             display: block;
         }
+
+         .pagination {
+            margin-top: 1rem;
+        }
+
+        .pagination .page-item .page-link,
+        .pagination .page-item span {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .pagination svg {
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
+        }
     </style>
 </head>
 

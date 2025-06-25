@@ -64,7 +64,9 @@
             </table>
         </div>
 
-        {{ $logs->links() }}
+        <div class="d-flex justify-content-center">
+            {{ $logs->links('pagination::bootstrap-5') }}
+        </div>
     </div>
 </div>
 @endsection
