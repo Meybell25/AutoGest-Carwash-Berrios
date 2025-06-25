@@ -33,11 +33,23 @@ class ClienteController extends Controller
 
             $vehiculosDashboard = $vehiculos->take(3);
 
-            $citas = $user->citas()->with(['vehiculo', 'servicios'])->get();
+            // Obtener todas las citas del usuario
+            $citas = $user->citas()
+                ->with(['vehiculo', 'servicios'])
+                ->orderBy('fecha_hora', 'desc')
+                ->get();
 
-            // Cambia 'leida' por 'leido' para coincidir con la base de datos
-            $notificaciones = $user->notificaciones()->orderBy('fecha_envio', 'desc')->get();
-            $notificacionesNoLeidas = $user->notificaciones()->where('leido', false)->count();
+            // Filtrar citas próximas (futuras y con estados específicos)
+            $proximas_citas = $citas->filter(function ($cita) {
+                return $cita->fecha_hora >= now() &&
+                    in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
+            });
+
+            // Filtrar historial (pasadas o con estados finalizados)
+            $historial_citas = $citas->filter(function ($cita) {
+                return $cita->fecha_hora < now() ||
+                    in_array($cita->estado, ['finalizada', 'cancelada']);
+            });
 
             return view('cliente.dashboard', [
                 'user' => $user,
@@ -49,9 +61,10 @@ class ClienteController extends Controller
                 ],
                 'mis_vehiculos' => $vehiculos,
                 'vehiculos_dashboard' => $vehiculosDashboard,
-                'mis_citas' => $citas->take(3),
-                'notificaciones' => $notificaciones,
-                'notificacionesNoLeidas' => $notificacionesNoLeidas
+                'proximas_citas' => $proximas_citas->take(5), 
+                'historial_citas' => $historial_citas->take(5),
+                'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
+                'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count()
             ]);
         } catch (\Exception $e) {
             Log::error('Dashboard error', [
@@ -418,5 +431,18 @@ class ClienteController extends Controller
                 'message' => 'Error al obtener datos del dashboard: ' . $e->getMessage()
             ], 500);
         }
+    }
+    public function edit(Cita $cita)
+    {
+        if ($cita->usuario_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'cita' => $cita->load(['vehiculo', 'servicios']),
+            'servicios' => Servicio::activos()->get(),
+            'vehiculos' => Auth::user()->vehiculos
+        ]);
     }
 }
