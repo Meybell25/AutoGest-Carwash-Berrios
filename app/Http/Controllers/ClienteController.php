@@ -30,6 +30,9 @@ class ClienteController extends Controller
                 ->withCount('citas')
                 ->orderByDesc('citas_count')
                 ->get();
+
+            $vehiculosDashboard = $vehiculos->take(3);
+
             $citas = $user->citas()->with(['vehiculo', 'servicios'])->get();
 
             // Cambia 'leida' por 'leido' para coincidir con la base de datos
@@ -44,7 +47,8 @@ class ClienteController extends Controller
                     'citas_pendientes' => $citas->where('estado', 'pendiente')->count(),
                     'citas_confirmadas' => $citas->where('estado', 'confirmada')->count(),
                 ],
-                'mis_vehiculos' => $vehiculos->take(3),
+                'mis_vehiculos' => $vehiculos, 
+                'vehiculos_dashboard' => $vehiculosDashboard, 
                 'mis_citas' => $citas->take(3),
                 'notificaciones' => $notificaciones,
                 'notificacionesNoLeidas' => $notificacionesNoLeidas

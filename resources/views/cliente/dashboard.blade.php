@@ -2176,8 +2176,8 @@
                         </h2>
                     </div>
                     <div class="card-body" id="misVehiculosContainer">
-                        @if (isset($mis_vehiculos) && count($mis_vehiculos) > 0)
-                            @foreach ($mis_vehiculos as $vehiculo)
+                       @if (isset($vehiculos_dashboard) && count($vehiculos_dashboard) > 0)
+                            @foreach ($vehiculos_dashboard as $vehiculo)
                                 <div class="service-history-item" style="margin-bottom: 15px;">
                                     <div class="service-icon" style="background: var(--secondary-gradient);">
                                         @switch($vehiculo->tipo)
@@ -2682,17 +2682,17 @@
         function cargarServiciosPorTipo() {
             const vehiculoSelect = document.getElementById('vehiculo_id');
             const selectedOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
-            const tipoVehiculo = selectedOption?.dataset.tipo;
+            const tipoVehiculo = selectedOption?.dataset.tipo?.toLowerCase(); // Asegurar minúsculas
 
             if (!tipoVehiculo) {
                 document.getElementById('serviciosContainer').innerHTML = '<p>Seleccione un vehículo primero</p>';
                 return;
             }
 
-            // Filtrar servicios por categoría (que debe coincidir con el tipo de vehículo)
+            // Filtrar servicios por categoría (comparando en minúsculas)
             const serviciosFiltrados = [];
             for (const categoria in todosServiciosDisponibles) {
-                if (categoria.toLowerCase() === tipoVehiculo.toLowerCase()) {
+                if (categoria.toLowerCase() === tipoVehiculo) {
                     serviciosFiltrados.push(...todosServiciosDisponibles[categoria]);
                 }
             }
@@ -2798,40 +2798,27 @@
         document.getElementById('citaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const vehiculoId = formData.get('vehiculo_id');
             const formData = new FormData(this);
+            const vehiculoId = formData.get('vehiculo_id');
             const fecha = formData.get('fecha');
             const hora = formData.get('hora');
-            const selectedDate = new Date(fecha);
+            const selectedDate = new Date(`${fecha}T${hora}`);
 
-            // Validación de fecha máxima (1 mes)
-            const maxDate = new Date();
-            maxDate.setMonth(maxDate.getMonth() + 1);
-
-            if (selectedDate > maxDate) {
-                showDateError(
-                    'Fecha no permitida',
-                    'Solo puedes agendar citas con hasta 1 mes de anticipación.'
-                );
-                return;
-            }
-
-
-            // Validaciones básicas
-            if (!vehiculoId && {{ $mis_vehiculos->count() }} > 1) {
+            // Validaciones
+            if (!vehiculoId) {
                 swalWithBootstrapButtons.fire({
-                    title: 'Vehículo requerido',
-                    text: 'Debes seleccionar un vehículo para la cita.',
-                    icon: 'warning'
+                    title: 'Error',
+                    text: 'Debes seleccionar un vehículo',
+                    icon: 'error'
                 });
                 return;
             }
 
             if (!fecha || !hora) {
                 swalWithBootstrapButtons.fire({
-                    title: 'Datos incompletos',
-                    text: 'Debes seleccionar fecha y hora para la cita.',
-                    icon: 'warning'
+                    title: 'Error',
+                    text: 'Debes seleccionar fecha y hora',
+                    icon: 'error'
                 });
                 return;
             }
@@ -2841,18 +2828,17 @@
 
             if (servicios.length === 0) {
                 swalWithBootstrapButtons.fire({
-                    title: 'Servicios requeridos',
-                    text: 'Debes seleccionar al menos un servicio.',
-                    icon: 'warning'
+                    title: 'Error',
+                    text: 'Debes seleccionar al menos un servicio',
+                    icon: 'error'
                 });
                 return;
             }
 
-            // Crear objeto de datos para enviar
+            // Preparar datos para enviar
             const data = {
-                vehiculo_id: vehiculoId ||
-                    {{ $mis_vehiculos->count() === 1 ? $mis_vehiculos->first()->id : 'null' }},
-                fecha_hora: `${fecha} ${hora}`,
+                vehiculo_id: vehiculoId,
+                fecha_hora: selectedDate.toISOString(),
                 servicios: servicios,
                 observaciones: formData.get('observaciones'),
                 _token: '{{ csrf_token() }}'
@@ -2878,11 +2864,11 @@
                 // Éxito
                 swalWithBootstrapButtons.fire({
                     title: '¡Éxito!',
-                    text: result.message || 'Cita creada correctamente',
+                    text: 'Cita creada correctamente',
                     icon: 'success'
                 }).then(() => {
                     closeCitaModal();
-                    location.reload(); // Recargar para mostrar la nueva cita
+                    location.reload();
                 });
 
             } catch (error) {
@@ -2894,7 +2880,6 @@
                 });
             }
         });
-
 
 
         // Funciones del modal
@@ -3037,10 +3022,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                            <tr>
-                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                            </tr>
-                                                            `).join('')}
+                                                                        <tr>
+                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                        </tr>
+                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
