@@ -63,7 +63,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [ServicioController::class, 'show'])->name('show');
     });
 
-    // Rutas para Días No Laborables
+    /*Rutas para Días No Laborables
     Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
         Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
         Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
@@ -77,7 +77,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/del-mes', [DiaNoLaborableController::class, 'delMes'])->name('del-mes');
         Route::get('/laborables', [DiaNoLaborableController::class, 'diasLaborables'])->name('laborables');
         Route::get('/motivos', [DiaNoLaborableController::class, 'motivos'])->name('motivos');
-    });
+    });*/
 });
 
 // Rutas de Admin
