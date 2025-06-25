@@ -2396,7 +2396,7 @@
                         <i class="fas fa-chart-bar"></i>
                         Reportes
                     </a>
-                     <a href="{{ route('admin.bitacora.index') }}" class="btn btn-secondary">
+                     <a href="{{ route('admin.bitacora.index') }}" class="btn btn-primary">
                         <i class="fas fa-book"></i>
                         Bitácora
                     </a>
