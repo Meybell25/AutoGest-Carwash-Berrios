@@ -9,7 +9,7 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ServicioController;
-use App\Http\Controllers\DiaNoLaborableController;
+use App\Http\Controllers\GastoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
@@ -118,6 +118,19 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
             Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
             Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
+        });
+
+
+        Route::prefix('gastos')->name('gastos.')->group(function () {
+            Route::get('/', [GastoController::class, 'index'])->name('index');
+            Route::get('/crear', [GastoController::class, 'create'])->name('create');
+            Route::post('/', [GastoController::class, 'store'])->name('store');
+            Route::get('/{id}', [GastoController::class, 'show'])->name('show');
+            Route::get('/{id}/editar', [GastoController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [GastoController::class, 'update'])->name('update');
+            Route::delete('/{id}', [GastoController::class, 'destroy'])->name('destroy');
+            Route::get('/tipo/{tipo}', [GastoController::class, 'filtrarPorTipo'])->name('tipo');
+            Route::post('/filtrar-fechas', [GastoController::class, 'filtrarPorFechas'])->name('filtrar-fechas');
         });
 
         //Rutas para horarios
