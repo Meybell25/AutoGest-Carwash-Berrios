@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard Empleado - Carwash Berríos</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
@@ -16,12 +16,12 @@
         }
 
         :root {
-            --primary: #9b59b6;
-            --primary-dark: #8e44ad;
-            --secondary: #8e44ad;
-            --accent: #00cec9;
-            --success: #55efc4;
-            --warning: #fdcb6e;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
             --danger: #ef4444;
             --dark: #0f172a;
             --light: #f8fafc;
@@ -37,11 +37,10 @@
             --gray-800: #1f2937;
             --gray-900: #111827;
 
-            --gradient-primary: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            --gradient-secondary: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%);
-            --gradient-success: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
-            --gradient-warning: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
-            --gradient-accent: linear-gradient(45deg, #00cec9 0%, #55efc4 100%);
+            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, var(--gray-700) 100%);
+            --gradient-success: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            --gradient-warning: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
 
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -56,90 +55,9 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Additional utility classes for the new color palette */
-        .text-primary {
-            color: var(--primary) !important;
-        }
-
-        .text-secondary {
-            color: var(--secondary) !important;
-        }
-
-        .text-accent {
-            color: var(--accent) !important;
-        }
-
-        .text-success {
-            color: var(--success) !important;
-        }
-
-        .text-warning {
-            color: var(--warning) !important;
-        }
-
-        .bg-primary {
-            background: var(--primary) !important;
-        }
-
-        .bg-secondary {
-            background: var(--secondary) !important;
-        }
-
-        .bg-accent {
-            background: var(--accent) !important;
-        }
-
-        .bg-success {
-            background: var(--success) !important;
-        }
-
-        .bg-warning {
-            background: var(--warning) !important;
-        }
-
-        .bg-gradient-primary {
-            background: var(--gradient-primary) !important;
-        }
-
-        .bg-gradient-secondary {
-            background: var(--gradient-secondary) !important;
-        }
-
-        .bg-gradient-success {
-            background: var(--gradient-success) !important;
-        }
-
-        .bg-gradient-warning {
-            background: var(--gradient-warning) !important;
-        }
-
-        .bg-gradient-accent {
-            background: var(--gradient-accent) !important;
-        }
-
-        .border-primary {
-            border-color: var(--primary) !important;
-        }
-
-        .border-secondary {
-            border-color: var(--secondary) !important;
-        }
-
-        .border-accent {
-            border-color: var(--accent) !important;
-        }
-
-        .border-success {
-            border-color: var(--success) !important;
-        }
-
-        .border-warning {
-            border-color: var(--warning) !important;
-        }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(315deg, #9b59b6, #00cec9, #8e44ad);
+            background: linear-gradient(315deg, #512da8, #00695c, #0d47a1);
             min-height: 100vh;
             color: var(--gray-900);
             line-height: 1.6;
@@ -147,7 +65,41 @@
             background-size: cover;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
+
+        /* Partículas flotantes de fondo con colores de la paleta del empleado */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(81, 45, 168, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 105, 92, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(13, 71, 161, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+        }
+
 
         /* Contenedor principal ajustado */
         .dashboard-container {
@@ -157,24 +109,43 @@
             min-height: calc(100vh - 200px);
         }
 
-        /* Scrollbar personalizado */
+        /* BARRA DE DESPLAZAMIENTO PERSONALIZADA  */
         ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
         }
 
+        /* FONDO BLANCO (track) */
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
+            background: #ffffff;
             border-radius: 10px;
+            box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
+        /* BARRA DESLIZANTE MORADA (thumb) */
         ::-webkit-scrollbar-thumb {
-            background: var(--primary);
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
             border-radius: 10px;
+            border: 2px solid #ffffff;
+            transition: all 0.3s ease;
         }
 
+        /* Efectos hover/interacción */
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
+            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+            transform: scaleX(1.05);
+        }
+
+        /* Efecto activo (al hacer clic) */
+        ::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        }
+
+        /* Para Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #6d28d9 #ffffff;
         }
 
         /* Header */
@@ -238,7 +209,7 @@
             color: white;
             font-size: 1.5rem;
             position: relative;
-            box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .welcome-icon i {
@@ -375,7 +346,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(155, 89, 182, 0.3);
+            box-shadow: var(--shadow-lg);
         }
 
         .btn-outline {
@@ -398,7 +369,7 @@
 
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(85, 239, 196, 0.3);
+            box-shadow: var(--shadow-lg);
         }
 
         .btn-warning {
@@ -420,7 +391,7 @@
 
         .btn-profile:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(155, 89, 182, 0.3);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
         }
 
         /* ======================
@@ -431,22 +402,17 @@
         .btn-outline i,
         .btn-primary i,
         .btn-success i,
-        .btn-warning i,
-        .btn-profile i {
+        .btn-warning i {
             color: inherit !important;
             /* Hereda el color del texto del botón */
             transition: all 0.3s ease;
         }
 
         /* Casos específicos */
-        .btn-profile i {
-            color: white !important;
-            /* Fuerza blanco en botón de perfil */
-        }
 
         .btn-outline i {
             color: var(--primary) !important;
-            /* Púrpura para botones outline */
+            /* Azul para botones outline */
         }
 
         .btn-outline:hover i {
@@ -457,12 +423,10 @@
         /* Íconos en cards (títulos) */
         .card-header .icon i {
             color: white !important;
-            /* Fuerza blanco en íconos de títulos */
-        }
-
-        /* Íconos en texto normal (como los de perfil) */
-        .profile-summary i:not(.btn i) {
-            color: white !important;
+            font-size: 1.3rem !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
         }
 
 
@@ -623,21 +587,21 @@
         }
 
         .status-pendiente {
-            background: rgba(253, 203, 110, 0.1);
+            background: rgba(251, 191, 36, 0.1);
             color: #92400e;
-            border: 1px solid rgba(253, 203, 110, 0.2);
+            border: 1px solid rgba(251, 191, 36, 0.2);
         }
 
         .status-en-proceso {
-            background: rgba(155, 89, 182, 0.1);
-            color: #8e44ad;
-            border: 1px solid rgba(155, 89, 182, 0.2);
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+            border: 1px solid rgba(59, 130, 246, 0.2);
         }
 
         .status-finalizado {
-            background: rgba(85, 239, 196, 0.1);
-            color: #00b894;
-            border: 1px solid rgba(85, 239, 196, 0.2);
+            background: rgba(16, 185, 129, 0.1);
+            color: #047857;
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
         .service-tag {
@@ -808,7 +772,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: white !important;
             font-size: 2rem;
             margin: 0 auto 1rem;
             box-shadow: var(--shadow-lg);
@@ -823,6 +787,7 @@
             background: var(--gradient-primary);
             z-index: -1;
             opacity: 0.3;
+            color: white !important;
             animation: pulse 2s infinite;
         }
 
@@ -837,6 +802,21 @@
             color: var(--gray-600);
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
+        }
+
+        .profile-summary .profile-summary-icon i.fas {
+            color: var(--primary);
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .profile-summary .profile-summary-icon  i.fa-phone {
+            color: var(--primary);
+        }
+
+        .profile-summary .profile-summary-icon i.fa-id-badge {
+            color: var(--primary);
         }
 
         /* Modales */
@@ -914,7 +894,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         /* Estados vacíos */
@@ -1057,6 +1037,7 @@
             background: var(--gray-500);
         }
 
+        /* Footer */
         .footer {
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -1143,7 +1124,7 @@
             color: white;
             border-radius: 50%;
             font-size: 10px;
-            box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
         }
 
         .location-link {
@@ -1317,7 +1298,7 @@
 
         .footer-contact-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(155, 89, 182, 0.3);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
         }
 
         .footer-contact-btn i {
@@ -1375,11 +1356,11 @@
 
             0%,
             100% {
-                box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7);
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
             }
 
             70% {
-                box-shadow: 0 0 0 10px rgba(155, 89, 182, 0);
+                box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
             }
         }
 
@@ -1387,11 +1368,11 @@
 
             0%,
             100% {
-                box-shadow: 0 0 0 0 rgba(0, 206, 201, 0.7);
+                box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7);
             }
 
             70% {
-                box-shadow: 0 0 0 10px rgba(0, 206, 201, 0);
+                box-shadow: 0 0 0 10px rgba(6, 182, 212, 0);
             }
         }
 
@@ -1667,12 +1648,14 @@
                             <div class="profile-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <div>
+                            <div class="profile-summary-icon">
                                 <h3>{{ Auth::user()->nombre ?? 'Empleado' }}</h3>
-                                <p><i class="fas fa-envelope"></i> {{ Auth::user()->email ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-phone"></i> {{ Auth::user()->telefono ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-id-badge"></i> Rol: Empleado</p>
-                                <p><i class="fas fa-calendar"></i> Miembro desde
+                                <p><i class="fas fa-envelope" style="color: var(--primary);"></i>
+                                    {{ Auth::user()->email ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-phone" style="color: var(--primary);"></i>
+                                    {{ Auth::user()->telefono ?? 'No especificado' }}</p>
+                                <p><i class="fas fa-id-badge" style="color: var(--primary);"></i> Rol: Empleado</p>
+                                <p><i class="fas fa-calendar" style="color: var(--primary);"></i> Miembro desde
                                     {{ Auth::user()->created_at->format('M Y') }}</p>
                             </div>
 

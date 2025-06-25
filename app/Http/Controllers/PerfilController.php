@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class PerfilController extends Controller
 {
@@ -64,26 +65,28 @@ class PerfilController extends Controller
     return back()->with('success', 'Contraseña actualizada correctamente');
 }
     public function updateAjax(Request $request)
-    {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'telefono' => 'nullable|string|max:20',
+{
+    $validated = $request->validate([
+        'nombre' => 'required|string|max:255',
+       'telefono' => 'nullable|string|digits:8|unique:usuarios,telefono,'.Auth::id()
+    ]);
+
+    try {
+        $user = Auth::user();
+        $user->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perfil actualizado correctamente',
+            'user' => $user->fresh() 
         ]);
-
-        try {
-            $user = Auth::user();
-            $user->update($validated);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Perfil actualizado correctamente',
-                'user' => $user
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar el perfil: ' . $e->getMessage()
-            ], 500);
-        }
+        
+    } catch (\Exception $e) {
+        Log::error('Error actualizando perfil: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al actualizar el perfil. Intente nuevamente.'
+        ], 500);
     }
+}
 }

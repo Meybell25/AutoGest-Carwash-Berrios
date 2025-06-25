@@ -134,6 +134,7 @@
         axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').content;
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     </script>
+     @stack('scripts')
 </body>
 
 </html>

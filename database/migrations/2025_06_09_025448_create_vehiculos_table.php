@@ -21,8 +21,6 @@ return new class extends Migration
         $table->string('color')->nullable();
         $table->text('descripcion')->nullable(); 
         $table->timestamp('fecha_registro')->useCurrent();
-
-        $table->timestamps();  //  created_at y updated_at
     });
     }
 

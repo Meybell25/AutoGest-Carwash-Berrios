@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('detalle');
             $table->float('monto');
             $table->timestamp('fecha_gasto')->useCurrent();
-
-            $table->timestamps(); // created_at, updated_at
+            $table->timestamps(); 
         });
 
     }

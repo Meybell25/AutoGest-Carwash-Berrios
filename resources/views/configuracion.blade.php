@@ -37,6 +37,17 @@
                             </script>
                         @endif
 
+                        @if ($errors->any())
+                            <script>
+                                swalWithBootstrapButtons.fire({
+                                    title: '¡Error!',
+                                    html: `{!! implode('<br>', $errors->all()) !!}`,
+                                    icon: 'error',
+                                    confirmButtonText: 'Entendido'
+                                });
+                            </script>
+                        @endif
+
                         <!-- Información de la cuenta -->
                         <div class="mb-4">
                             <h5 class="fw-bold mb-3">
@@ -60,7 +71,7 @@
                         </div>
 
                         <!-- Formulario de información básica -->
-                        <form method="POST" action="{{ route('perfil.update') }}">
+                        <form method="POST" action="{{ route('perfil.update') }}" id="basicInfoForm">
                             @csrf
                             <h5 class="fw-bold mb-3">
                                 <i class="fas fa-user me-2 d-none d-sm-inline"></i>
@@ -72,8 +83,13 @@
                                     <label for="nombre" class="form-label fw-semibold">
                                         <i class="fas fa-user me-1"></i>Nombre
                                     </label>
-                                    <input id="nombre" type="text" class="form-control" name="nombre"
-                                        value="{{ $user->nombre }}" required>
+                                    <input id="nombre" type="text" class="form-control @error('nombre') is-invalid @enderror" name="nombre"
+                                        value="{{ old('nombre', $user->nombre) }}" required>
+                                    @error('nombre')
+                                        <div class="invalid-feedback">
+                                            <strong>Por favor ingresa un nombre válido (solo letras y espacios).</strong>
+                                        </div>
+                                    @enderror
                                 </div>
                             </div>
 
@@ -82,8 +98,16 @@
                                     <label for="telefono" class="form-label fw-semibold">
                                         <i class="fas fa-phone me-1"></i>Teléfono
                                     </label>
-                                    <input id="telefono" type="text" class="form-control" name="telefono"
-                                        value="{{ $user->telefono }}" placeholder="Ej: +503 1234-5678">
+                                    <input id="telefono" type="text" class="form-control @error('telefono') is-invalid @enderror" name="telefono"
+                                        value="{{ old('telefono', $user->telefono) }}" placeholder="Ej: +503 1234-5678">
+                                    @error('telefono')
+                                        <div class="invalid-feedback">
+                                            <strong>Por favor ingresa un número de teléfono válido.</strong>
+                                        </div>
+                                    @enderror
+                                    <div class="form-text">
+                                        <small>Formato: +código país número (ej: +503 1234-5678)</small>
+                                    </div>
                                 </div>
                             </div>
 
@@ -99,7 +123,7 @@
                         <hr class="my-4">
 
                         <!-- Formulario de cambio de email -->
-                        <form method="POST" action="{{ route('configuracion.update-email') }}">
+                        <form method="POST" action="{{ route('configuracion.update-email') }}" id="emailForm">
                             @csrf
                             <h5 class="fw-bold mb-3">
                                 <i class="fas fa-envelope me-2 d-none d-sm-inline"></i>
@@ -122,11 +146,16 @@
                                         <i class="fas fa-envelope me-1"></i>Nuevo Email
                                     </label>
                                     <input id="email" type="email"
-                                        class="form-control @error('email') is-invalid @enderror" name="email" required
+                                        class="form-control @error('email') is-invalid @enderror" name="email" 
+                                        value="{{ old('email') }}" required
                                         placeholder="nuevo@ejemplo.com">
                                     @error('email')
                                         <div class="invalid-feedback">
-                                            <strong>{{ $message }}</strong>
+                                            @if($errors->first('email') == 'validation.unique')
+                                                <strong>Este correo electrónico ya está en uso. Por favor usa otro.</strong>
+                                            @else
+                                                <strong>Por favor ingresa un correo electrónico válido.</strong>
+                                            @endif
                                         </div>
                                     @enderror
                                 </div>
@@ -144,7 +173,7 @@
                         <hr class="my-4">
 
                         <!-- Formulario de cambio de contraseña -->
-                        <form method="POST" action="{{ route('configuracion.update-password') }}">
+                        <form method="POST" action="{{ route('configuracion.update-password') }}" id="passwordForm">
                             @csrf
                             <h5 class="fw-bold mb-3">
                                 <i class="fas fa-key me-2 d-none d-sm-inline"></i>
@@ -166,7 +195,7 @@
                                         </button>
                                         @error('current_password')
                                             <div class="invalid-feedback">
-                                                <strong>{{ $message }}</strong>
+                                                <strong>La contraseña actual no es correcta.</strong>
                                             </div>
                                         @enderror
                                     </div>
@@ -186,12 +215,20 @@
                                             onclick="togglePassword('password')">
                                             <i class="fas fa-eye" id="password_icon"></i>
                                         </button>
-                                        @error('password')
-                                            <div class="invalid-feedback d-block">
-                                                <strong>{{ $message }}</strong>
-                                            </div>
-                                        @enderror
                                     </div>
+                                    @error('password')
+                                        <div class="invalid-feedback d-block">
+                                            @if(str_contains($message, 'validation.min.string'))
+                                                <strong>La contraseña debe tener al menos 8 caracteres.</strong>
+                                            @elseif(str_contains($message, 'validation.password.mixed'))
+                                                <strong>La contraseña debe contener mayúsculas y minúsculas.</strong>
+                                            @elseif(str_contains($message, 'validation.password.numbers'))
+                                                <strong>La contraseña debe contener al menos un número.</strong>
+                                            @else
+                                                <strong>La contraseña no cumple con los requisitos de seguridad.</strong>
+                                            @endif
+                                        </div>
+                                    @enderror
                                     <div class="form-text">
                                         <small>Mínimo 8 caracteres, incluye mayúsculas, minúsculas y números</small>
                                     </div>
@@ -214,16 +251,16 @@
                                     </label>
                                     <div class="input-group">
                                         <input id="password-confirm" type="password"
-                                            class="form-control @error('password') is-invalid @enderror"
+                                            class="form-control @error('password_confirmation') is-invalid @enderror"
                                             name="password_confirmation" required>
                                         <button class="btn btn-outline-secondary" type="button"
                                             onclick="togglePassword('password-confirm')">
                                             <i class="fas fa-eye" id="password-confirm_icon"></i>
                                         </button>
                                     </div>
-                                    @error('password')
+                                    @error('password_confirmation')
                                         <div class="invalid-feedback d-block">
-                                            <strong>{{ $message }}</strong>
+                                            <strong>Las contraseñas no coinciden.</strong>
                                         </div>
                                     @enderror
                                 </div>
@@ -263,6 +300,60 @@
             }
         }
 
+        // Validación de nombre (solo letras y espacios)
+        document.getElementById('nombre').addEventListener('input', function() {
+            const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+            if (!regex.test(this.value)) {
+                this.classList.add('is-invalid');
+                const feedback = this.parentNode.querySelector('.invalid-feedback') || document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.innerHTML = '<strong>Por favor ingresa solo letras y espacios.</strong>';
+                if (!this.parentNode.querySelector('.invalid-feedback')) {
+                    this.parentNode.appendChild(feedback);
+                }
+            } else {
+                this.classList.remove('is-invalid');
+                const feedback = this.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+            }
+        });
+
+        // Validación de teléfono
+        document.getElementById('telefono').addEventListener('input', function() {
+            const regex = /^\+?[\d\s\-]+$/;
+            if (!regex.test(this.value)) {
+                this.classList.add('is-invalid');
+                const feedback = this.parentNode.querySelector('.invalid-feedback') || document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.innerHTML = '<strong>Por favor ingresa un número de teléfono válido.</strong>';
+                if (!this.parentNode.querySelector('.invalid-feedback')) {
+                    this.parentNode.appendChild(feedback);
+                }
+            } else {
+                this.classList.remove('is-invalid');
+                const feedback = this.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+            }
+        });
+
+        // Validación de email
+        document.getElementById('email').addEventListener('input', function() {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!regex.test(this.value)) {
+                this.classList.add('is-invalid');
+                const feedback = this.parentNode.querySelector('.invalid-feedback') || document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.innerHTML = '<strong>Por favor ingresa un correo electrónico válido.</strong>';
+                if (!this.parentNode.querySelector('.invalid-feedback')) {
+                    this.parentNode.appendChild(feedback);
+                }
+            } else {
+                this.classList.remove('is-invalid');
+                const feedback = this.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+            }
+        });
+
         // Validación de contraseña actual
         document.getElementById('current_password').addEventListener('input', function() {
             if (this.value.length > 0) {
@@ -279,13 +370,28 @@
             const hasUpperCase = /[A-Z]/.test(password);
             const hasLowerCase = /[a-z]/.test(password);
             const hasNumber = /\d/.test(password);
+            const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
 
             // Validación de fortaleza
             if (hasMinLength && hasUpperCase && hasLowerCase && hasNumber) {
                 this.classList.add('is-valid');
                 this.classList.remove('is-invalid');
+                const feedback = this.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
             } else {
                 this.classList.remove('is-valid');
+                
+                let errorMessage = '';
+                if (!hasMinLength) errorMessage = 'La contraseña debe tener al menos 8 caracteres.';
+                else if (!hasUpperCase || !hasLowerCase) errorMessage = 'La contraseña debe contener mayúsculas y minúsculas.';
+                else if (!hasNumber) errorMessage = 'La contraseña debe contener al menos un número.';
+                
+                const feedback = this.parentNode.querySelector('.invalid-feedback') || document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.innerHTML = `<strong>${errorMessage}</strong>`;
+                if (!this.parentNode.querySelector('.invalid-feedback')) {
+                    this.parentNode.appendChild(feedback);
+                }
             }
 
             // Indicador de fortaleza
@@ -316,6 +422,12 @@
 
             const percentage = (strength / 5) * 100;
 
+            if (password.length === 0) return {
+                percentage: 0,
+                class: '',
+                text: 'Seguridad de la contraseña',
+                textClass: 'text-muted'
+            };
             if (strength <= 1) return {
                 percentage,
                 class: 'bg-danger',
@@ -351,10 +463,124 @@
                 this.classList.add('is-invalid');
                 const feedback = document.createElement('div');
                 feedback.className = 'invalid-feedback';
-                feedback.textContent = 'Las contraseñas no coinciden';
+                feedback.innerHTML = '<strong>Las contraseñas no coinciden.</strong>';
                 this.parentNode.appendChild(feedback);
             } else {
                 this.classList.remove('is-invalid');
+                const feedback = this.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+            }
+        });
+
+        // Validación antes de enviar formularios
+        document.getElementById('basicInfoForm').addEventListener('submit', function(e) {
+            const nombre = document.getElementById('nombre');
+            const telefono = document.getElementById('telefono');
+            
+            if (nombre.value.trim() === '') {
+                e.preventDefault();
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Por favor ingresa tu nombre.',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+                nombre.focus();
+                return false;
+            }
+            
+            if (telefono.value && !/^\+?[\d\s\-]+$/.test(telefono.value)) {
+                e.preventDefault();
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Por favor ingresa un número de teléfono válido.',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+                telefono.focus();
+                return false;
+            }
+        });
+
+        document.getElementById('emailForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email');
+            
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+                e.preventDefault();
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Por favor ingresa un correo electrónico válido.',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+                email.focus();
+                return false;
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            const currentPassword = document.getElementById('current_password');
+            const password = document.getElementById('password');
+            const passwordConfirm = document.getElementById('password-confirm');
+            
+            if (currentPassword.value.trim() === '') {
+                e.preventDefault();
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Por favor ingresa tu contraseña actual.',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+                currentPassword.focus();
+                return false;
+            }
+            
+            if (password.value.length < 8) {
+                e.preventDefault();
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'La nueva contraseña debe tener al menos 8 caracteres.',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+                password.focus();
+                return false;
+            }
+            
+            if (!/[A-Z]/.test(password.value) || !/[a-z]/.test(password.value)) {
+                e.preventDefault();
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'La contraseña debe contener mayúsculas y minúsculas.',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+                password.focus();
+                return false;
+            }
+            
+            if (!/\d/.test(password.value)) {
+                e.preventDefault();
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'La contraseña debe contener al menos un número.',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+                password.focus();
+                return false;
+            }
+            
+            if (password.value !== passwordConfirm.value) {
+                e.preventDefault();
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Las contraseñas no coinciden.',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+                passwordConfirm.focus();
+                return false;
             }
         });
     </script>

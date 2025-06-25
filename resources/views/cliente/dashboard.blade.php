@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es"> 
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard Cliente - Carwash Berríos</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
@@ -27,6 +27,18 @@
             --text-secondary: #666;
             --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
             --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+            --border-radius: 0.75rem;
+            --border-radius-lg: 1rem;
+            --border-radius-xl: 1.5rem;
+
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         html,
@@ -58,11 +70,43 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /*background: var(--primary-gradient);*/
             background: linear-gradient(180deg, #bbadfd, #5b21b6, #452383);
             min-height: 100vh;
             color: var(--text-primary);
             line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Partículas flotantes de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(250, 112, 154, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
         }
 
         .dashboard-container {
@@ -73,13 +117,14 @@
 
         /* Header con bienvenida mejorada */
         .header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            padding: 25px 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid var(--glass-border);
+            background: rgba(245, 245, 245, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            border-radius: var(--border-radius-xl);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
             position: relative;
             overflow: hidden;
         }
@@ -149,20 +194,21 @@
         }
 
         .welcome-stats {
-            display: flex;
-            gap: 20px;
-            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
 
-        /* Reemplaza .welcome-stat con este */
+
         .welcome-stat {
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            padding: 15px;
-            border-radius: 10px;
+            background: white !important;
+            padding: 1rem;
+            border-radius: var(--border-radius);
             text-align: center;
             box-shadow: var(--shadow-sm);
-            border: 1px solid var(--gray-100);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
@@ -176,7 +222,7 @@
             height: 3px;
             background: var(--secondary-gradient);
             transform: scaleX(0);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .welcome-stat:hover::before {
@@ -185,13 +231,14 @@
 
         .welcome-stat:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-lg);
         }
 
         .welcome-stat .number {
             font-size: 1.2rem;
             font-weight: 700;
             color: #4facfe;
+            display: block;
         }
 
         .welcome-stat .label {
@@ -199,13 +246,15 @@
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 500;
         }
 
         .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-top: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         .btn {
@@ -388,7 +437,6 @@
         }
 
         /* Próximas Citas */
-        /* Reemplaza .next-appointment con este */
         .next-appointment {
             background: linear-gradient(135deg, #667eea20, #764ba220);
             padding: 20px;
@@ -688,10 +736,13 @@
             margin-bottom: 5px;
         }
 
-        .profile-info p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 2px;
+        .profile-info-item i {
+            background: var(--secondary-gradient) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            padding: 0 5px;
+            border-radius: 3px;
+            display: inline-block;
         }
 
         .profile-stats {
@@ -821,21 +872,52 @@
             }
 
             .sidebar-section {
-                display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 25px;
             }
+
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 10px;
+            }
         }
 
+        @media (max-width: 992px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .next-appointment {
+                flex-direction: column;
+            }
+
+            .date-badge {
+                margin-bottom: 10px;
+            }
+        }
+
+
         @media (max-width: 768px) {
+            .welcome-section {
+                text-align: center;
+            }
+
+            .welcome-section h1 {
+                align-items: center;
+            }
+
             .dashboard-container {
-                width: 100%;
-                padding: 10px;
-                box-sizing: border-box;
+                padding: 15px;
             }
 
             .header {
-                padding: 15px 20px;
+                padding: 20px;
             }
 
             .dashboard-grid {
@@ -848,22 +930,11 @@
                 text-align: center;
             }
 
-            .welcome-section h1 {
-                font-size: 2rem;
-                flex-direction: column;
-                gap: 10px;
-            }
-
             .welcome-stats {
                 justify-content: center;
                 flex-wrap: wrap;
             }
 
-            .header-actions {
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
 
             .btn {
                 flex: 1;
@@ -879,17 +950,6 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
-            }
-
-            .service-history-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .service-price {
-                text-align: left;
-                margin-top: 10px;
             }
 
             .card {
@@ -913,6 +973,107 @@
             .service-card[style*="text-align: left"] .btn-sm {
                 width: 100%;
                 margin-bottom: 5px;
+            }
+
+            .welcome-section h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .welcome-icon {
+                margin-bottom: 10px;
+            }
+
+            .header-actions {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .service-history-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .service-price {
+                margin-top: 10px;
+                align-self: flex-end;
+            }
+
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .service-card {
+                text-align: center;
+                padding: 20px 15px;
+            }
+
+            .service-card .btn {
+                width: 100%;
+            }
+
+            .notification-item {
+                padding: 12px;
+            }
+
+            .notification-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+
+            .header-actions {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 576px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .appointment-actions {
+                flex-direction: column;
+            }
+
+            .appointment-actions .btn {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .welcome-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .notification-item {
+                flex-direction: column;
+            }
+
+            .notification-time {
+                margin-top: 5px;
+                align-self: flex-start;
+            }
+
+            .service-history-item {
+                padding: 12px;
+            }
+
+            .service-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .service-card[style*="text-align: left"] {
+                text-align: center;
             }
         }
 
@@ -972,6 +1133,31 @@
                 grid-template-columns: 1fr;
             }
 
+        }
+
+        @media (max-width: 400px) {
+            .dashboard-container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .card-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .card-header .icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .date-badge {
+                min-width: 70px;
+                padding: 8px 12px;
+            }
         }
 
         @media (max-width: 360px) {
@@ -1114,7 +1300,9 @@
             color: #4facfe;
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -1122,17 +1310,7 @@
             font-size: 16px;
         }
 
-        .footer {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 25px;
-            margin-top: 30px;
-            box-shadow: var(--shadow-soft);
-            position: relative;
-            overflow: hidden;
-        }
-
+        /* Footer */
         .footer {
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -1143,14 +1321,24 @@
             position: relative;
             overflow: hidden;
             margin-top: auto;
-            border-top-left-radius: var(--border-radius-xl);
-            border-top-right-radius: var(--border-radius-xl);
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary-gradient);
         }
 
         .footer-content {
             padding: 40px 30px;
             text-align: center;
-            border-radius: var(--border-radius-xl);
+            border-radius: 25px;
         }
 
         .footer-brand {
@@ -1181,7 +1369,7 @@
             justify-content: center;
             align-items: center;
             flex-direction: row;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             gap: 30px;
             margin-bottom: 25px;
         }
@@ -1273,7 +1461,7 @@
             color: var(--text-secondary);
             text-decoration: none;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-soft);
         }
 
         .social-icon:hover {
@@ -1316,19 +1504,6 @@
             opacity: 0.8;
         }
 
-        .footer-info {
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .footer-content {
-            padding: 30px 20px;
-        }
-
-        .footer-brand h3 {
-            font-size: 24px;
-        }
-
         .sparkle {
             position: absolute;
             width: 4px;
@@ -1369,7 +1544,45 @@
                 transform: scale(1);
             }
         }
-        [x-cloak] { display: none !important; }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .footer-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .footer-content {
+                padding: 30px 20px;
+            }
+
+            .footer-brand h3 {
+                font-size: 24px;
+            }
+
+            .social-icons {
+                gap: 12px;
+            }
+
+            .social-icon {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-brand h3 {
+                font-size: 20px;
+            }
+
+            .footer-slogan {
+                font-size: 12px;
+            }
+
+            .info-item {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 
@@ -1381,7 +1594,7 @@
                 <div class="welcome-section">
                     <h1>
                         <div class="welcome-icon">
-                           <i class="fas fa-car"></i>
+                            <i class="fas fa-car"></i>
                         </div>
                         ¡Hola, {{ $user->nombre ?? 'Cliente' }}!
                     </h1>
@@ -1412,10 +1625,10 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button type="button" id="openVehiculoBtn" class="btn btn-primary" onclick="openVehiculoModal()">
-                         <i class="fas fa-plus"></i>
-                         Agregar Vehículo
-                    </button>
+                    <a href="{{ route('vehiculos.index') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Agregar Vehículo
+                    </a>
                     <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
@@ -1734,10 +1947,21 @@
                             </div>
                             <div class="profile-info">
                                 <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
-                                <p><i class="fas fa-envelope"></i> {{ $user->email ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-phone"></i> {{ $user->telefono ?? 'No especificado' }}</p>
-                                <p><i class="fas fa-calendar"></i> Cliente desde
-                                    {{ $user->created_at->format('M Y') }}</p>
+                                <p>
+                                    <i class="fas fa-envelope"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    {{ $user->email ?? 'No especificado' }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-phone"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    {{ $user->telefono ?? 'No especificado' }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-calendar"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    Cliente desde: {{ $user->created_at->format('M Y') }}
+                                </p>
                             </div>
 
                             <button onclick="openEditModal()" class="btn btn-outline"
@@ -1816,7 +2040,7 @@
                             Mis Vehículos
                         </h2>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" id="misVehiculosContainer">
                         @if (isset($mis_vehiculos) && count($mis_vehiculos) > 0)
                             @foreach ($mis_vehiculos as $vehiculo)
                                 <div class="service-history-item" style="margin-bottom: 15px;">
@@ -1859,12 +2083,11 @@
                                 <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
                             </div>
                         @endif
-
-                        <a href="{{ route('cliente.vehiculos') }}" class="btn btn-outline"
-                            style="width: 100%; margin-top: 10px;">
+                        <button type="button" id="openVehiculoBtn" class="btn btn-outline"
+                            style="width: 100%; margin-top: 10px;" onclick="openVehiculoModal()">
                             <i class="fas fa-plus"></i>
                             Agregar Vehículo
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1919,70 +2142,56 @@
     <div id="vehiculoModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeVehiculoModal()">&times;</span>
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+            <h2 style="color: #4facfe; margin-bottom: 20px;">
                 <i class="fas fa-car"></i> Nuevo Vehículo
             </h2>
 
-            <form action="{{ route('vehiculos.store') }}" method="POST">
+            <form id="vehiculoForm" action="{{ route('vehiculos.store') }}" method="POST">
                 @csrf
 
-                <div class="mb-4">
-                    <label for="marca" class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
-                    <input type="text" id="marca" name="marca" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="form-group">
+                    <label for="marca">Marca</label>
+                    <input type="text" id="marca" name="marca" required>
                 </div>
 
-                <div class="mb-4">
-                    <label for="modelo" class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
-                    <input type="text" id="modelo" name="modelo" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-
-            <div class="mb-4">
-                <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-             <select id="tipo" name="tipo" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                 <option value="">Seleccione</option>
-                 <option value="sedan">Sedán</option>
-                  <option value="pickup">Pickup</option>
-                 <option value="camion">Camión</option>
-                 <option value="moto">Moto</option>
-             </select>
-            </div>
-
-
-                <div class="mb-4">
-                    <label for="color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                    <input type="text" id="color" name="color" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="form-group">
+                    <label for="modelo">Modelo</label>
+                    <input type="text" id="modelo" name="modelo" required>
                 </div>
 
-                <div class="mb-4">
-                    <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                    <textarea id="descripcion" name="descripcion" rows="3"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="">Seleccione</option>
+                        <option value="sedan">Sedán</option>
+                        <option value="pickup">Pickup</option>
+                        <option value="camion">Camión</option>
+                        <option value="moto">Moto</option>
+                    </select>
                 </div>
 
-                <div class="mb-4">
-                    <label for="placa" class="block text-sm font-medium text-gray-700 mb-1">Placa</label>
-                    <input type="text" id="placa" name="placa" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                <div class="form-group">
+                    <label for="color">Color</label>
+                    <input type="text" id="color" name="color" required>
                 </div>
 
-                <div class="mb-4">
-                    <label for="fecha_registro" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Registro</label>
-                    <input type="date" id="fecha_registro" name="fecha_registro" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="placa">Placa</label>
+                    <input type="text" id="placa" name="placa" required>
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeVehiculoModal()"
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                    <button type="button" onclick="closeVehiculoModal()" class="btn btn-outline">
                         Cancelar
                     </button>
-                    <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    <button type="submit" class="btn btn-primary">
                         Guardar Vehículo
                     </button>
                 </div>
@@ -1991,6 +2200,7 @@
     </div>
 
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="sparkle"></div>
         <div class="sparkle"></div>
@@ -2202,11 +2412,11 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                        <tr>
-                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
-                                                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                        </tr>
-                                                                                                                                    `).join('')}
+                                                                                                                                                                                                                        <tr>
+                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>
+                                                                                                                                                                                                                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -2314,7 +2524,7 @@
         });
     </script>
 
-<script>
+    <script>
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -2323,7 +2533,7 @@
             document.getElementById('vehiculoModal').style.display = 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('vehiculoModal');
             const openBtn = document.getElementById('openVehiculoBtn');
             const closeBtn = modal?.querySelector('.close-modal');
@@ -2338,6 +2548,97 @@
             });
         });
     </script>
+
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('vehiculoForm');
+                form?.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    try {
+                        const resp = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: formData
+                        });
+                        const data = await resp.json();
+                        if (!resp.ok) throw new Error(data.message || 'Error');
+
+                        localStorage.setItem('vehiculoActualizado', Date.now());
+                        form.reset();
+                        closeVehiculoModal();
+                        await actualizarMisVehiculos();
+                        swalWithBootstrapButtons.fire({
+                            title: '¡Éxito!',
+                            text: 'Vehículo guardado correctamente',
+                            icon: 'success'
+                        });
+                    } catch (error) {
+                        swalWithBootstrapButtons.fire({
+                            title: 'Error',
+                            text: error.message || 'Error al guardar el vehículo',
+                            icon: 'error'
+                        });
+                    }
+                });
+
+                window.addEventListener('storage', function(e) {
+                    if (e.key === 'vehiculoActualizado') {
+                        actualizarMisVehiculos();
+                    }
+                });
+            });
+
+            async function actualizarMisVehiculos() {
+                try {
+                    const response = await fetch('{{ route('cliente.mis-vehiculos-ajax') }}');
+                    const data = await response.json();
+                    const container = document.getElementById('misVehiculosContainer');
+                    if (!container) return;
+
+                    if (data.vehiculos.length > 0) {
+                        container.innerHTML = '';
+                        data.vehiculos.forEach(v => {
+                            let icon = 'car';
+                            if (v.tipo === 'pickup') icon = 'truck-pickup';
+                            else if (v.tipo === 'camion') icon = 'truck';
+                            else if (v.tipo === 'moto') icon = 'motorcycle';
+
+                            container.innerHTML += `
+                            <div class="service-history-item" style="margin-bottom: 15px;">
+                                <div class="service-icon" style="background: var(--secondary-gradient);">
+                                    <i class="fas fa-${icon}"></i>
+                                </div>
+                                <div class="service-details">
+                                    <h4>${v.marca ?? ''} ${v.modelo ?? ''}</h4>
+                                    <p><i class="fas fa-palette"></i> ${v.color ?? ''}</p>
+                                    <p><i class="fas fa-id-card"></i> ${v.placa}</p>
+                                </div>
+                                <a href='{{ route('cliente.citas') }}' class="btn btn-sm btn-primary">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </a>
+                            </div>`;
+                        });
+                    } else {
+                        container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-car"></i>
+                            <h3>No tienes vehículos registrados</h3>
+                            <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
+                        </div>`;
+                    }
+                } catch (err) {
+                    console.error('Error al actualizar vehiculos', err);
+                }
+            }
+        </script>
+    @endpush
+
+
 
     <style>
         /* Efecto ripple para botones */
