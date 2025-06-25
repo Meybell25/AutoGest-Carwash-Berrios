@@ -2483,26 +2483,17 @@
                 const modal = document.getElementById('createCitaModal');
                 modal.style.display = 'block';
 
-                // Si se proporciona un vehículo, establecerlo
-                if (vehiculoId) {
-                    document.getElementById('vehiculo_id').value = vehiculoId;
-                } else {
-                    // Si no hay vehículo, verificar si el usuario tiene vehículos
-                    if ({{ $mis_vehiculos->count() }} === 0) {
-                        closeCitaModal();
-                        swalWithBootstrapButtons.fire({
-                            title: 'Sin vehículos',
-                            text: 'Debes registrar al menos un vehículo antes de agendar una cita.',
-                            icon: 'warning'
-                        }).then(() => {
-                            openVehiculoModal();
-                        });
-                        return;
-                    }
-                }
+                // Resetear el formulario
+                document.getElementById('citaForm').reset();
 
                 // Cargar datos necesarios
-                loadInitialData();
+                loadInitialData().then(() => {
+                    // Si se proporciona un vehículo, establecerlo
+                    if (vehiculoId) {
+                        document.getElementById('vehiculo_id').value = vehiculoId;
+                        cargarServiciosPorTipo();
+                    }
+                });
             });
         }
 
@@ -2548,12 +2539,14 @@
                 todosServiciosDisponibles = await serviciosRes.json();
                 diasNoLaborables = await noLaborablesRes.json();
 
-                // Configurar datepicker con validaciones
-                setupDatePicker();
+                console.log('Datos cargados:', {
+                    horarios: horariosDisponibles,
+                    servicios: todosServiciosDisponibles,
+                    diasNoLaborables: diasNoLaborables
+                });
 
-                // Mostrar estado inicial
-                document.getElementById('serviciosContainer').innerHTML =
-                    '<p>Seleccione un vehículo para ver los servicios disponibles</p>';
+                // Configurar datepicker
+                setupDatePicker();
 
             } catch (error) {
                 console.error('Error cargando datos:', error);
@@ -2567,51 +2560,48 @@
 
         // Función para cargar horas disponibles (actualizada)
         function loadAvailableHours(dayOfWeek) {
-    const horaSelect = document.getElementById('hora');
-    horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+            const horaSelect = document.getElementById('hora');
+            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
-    console.log('Horarios disponibles:', horariosDisponibles);
-    console.log('Buscando horarios para día:', dayOfWeek);
+            // Asegurarse que dayOfWeek es un número
+            const diaSemana = typeof dayOfWeek === 'string' ? parseInt(dayOfWeek) : dayOfWeek;
 
-    // Convertir dayOfWeek a número si es string
-    const diaSemana = typeof dayOfWeek === 'string' ? parseInt(dayOfWeek) : dayOfWeek;
+            // Filtrar horarios para el día seleccionado
+            const horariosDia = horariosDisponibles.filter(h => {
+                const horarioDia = typeof h.dia_semana === 'string' ? parseInt(h.dia_semana) : h.dia_semana;
+                return horarioDia === diaSemana;
+            });
 
-    const horariosDia = horariosDisponibles.filter(h => {
-        // Asegurarse de que ambos valores sean números para comparar
-        const horarioDia = typeof h.dia_semana === 'string' ? parseInt(h.dia_semana) : h.dia_semana;
-        return horarioDia === diaSemana;
-    });
-
-    if (horariosDia.length === 0) {
-        console.error('No hay horarios configurados para este día de la semana');
-        horaSelect.innerHTML = '<option value="">No hay horarios disponibles para este día</option>';
-        return;
-    }
-
-    // Generar opciones de hora cada 30 minutos dentro del horario laboral
-    horariosDia.forEach(horario => {
-        const [inicioHora, inicioMinuto] = horario.hora_inicio.split(':').map(Number);
-        const [finHora, finMinuto] = horario.hora_fin.split(':').map(Number);
-
-        let currentHora = inicioHora;
-        let currentMinuto = inicioMinuto;
-
-        while (currentHora < finHora || (currentHora === finHora && currentMinuto < finMinuto)) {
-            const horaStr = `${currentHora.toString().padStart(2, '0')}:${currentMinuto.toString().padStart(2, '0')}`;
-            const option = document.createElement('option');
-            option.value = horaStr;
-            option.textContent = horaStr;
-            horaSelect.appendChild(option);
-
-            // Incrementar 30 minutos
-            currentMinuto += 30;
-            if (currentMinuto >= 60) {
-                currentMinuto -= 60;
-                currentHora += 1;
+            if (horariosDia.length === 0) {
+                horaSelect.innerHTML = '<option value="">No hay horarios disponibles para este día</option>';
+                return;
             }
+
+            // Generar opciones de hora cada 30 minutos
+            horariosDia.forEach(horario => {
+                const [inicioHora, inicioMinuto] = horario.hora_inicio.split(':').map(Number);
+                const [finHora, finMinuto] = horario.hora_fin.split(':').map(Number);
+
+                let currentHora = inicioHora;
+                let currentMinuto = inicioMinuto;
+
+                while (currentHora < finHora || (currentHora === finHora && currentMinuto < finMinuto)) {
+                    const horaStr =
+                        `${currentHora.toString().padStart(2, '0')}:${currentMinuto.toString().padStart(2, '0')}`;
+                    const option = document.createElement('option');
+                    option.value = horaStr;
+                    option.textContent = horaStr;
+                    horaSelect.appendChild(option);
+
+                    // Incrementar 30 minutos
+                    currentMinuto += 30;
+                    if (currentMinuto >= 60) {
+                        currentMinuto -= 60;
+                        currentHora += 1;
+                    }
+                }
+            });
         }
-    });
-}
 
         // Configuración del datepicker (actualizada)
         function setupDatePicker() {
@@ -2627,34 +2617,26 @@
 
             fechaInput.addEventListener('change', function() {
                 const selectedDate = new Date(this.value);
+                const dayOfWeek = selectedDate.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+
+                // Validar día no laborable
                 const fechaStr = selectedDate.toISOString().split('T')[0];
-                const dayOfWeek = selectedDate.getDay(); // 0 = Domingo
-
-                // Validación 1: No más de 1 mes de anticipación
-                if (selectedDate > maxDate) {
-                    showDateError(
-                        'Fecha no permitida',
-                        'Solo puedes agendar citas con hasta 1 mes de anticipación.'
-                    );
-                    return;
-                }
-
-                // Validación 2: No domingos
-                if (dayOfWeek === 0) {
-                    showDateError(
-                        'Domingo no laborable',
-                        'No atendemos los domingos. Por favor selecciona otro día.'
-                    );
-                    return;
-                }
-
-                // Validación 3: Días no laborables
                 const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+
                 if (diaNoLaborable) {
                     showDateError(
                         'Día no laborable',
                         `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
                  <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
+                    );
+                    return;
+                }
+
+                // Validar domingos
+                if (dayOfWeek === 0) {
+                    showDateError(
+                        'Domingo no laborable',
+                        'No atendemos los domingos. Por favor selecciona otro día.'
                     );
                     return;
                 }
@@ -2702,50 +2684,38 @@
             const selectedOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
             const tipoVehiculo = selectedOption?.dataset.tipo;
 
-            console.log('Tipo de vehículo seleccionado:', tipoVehiculo);
-            console.log('Todos los servicios disponibles:', todosServiciosDisponibles);
-
             if (!tipoVehiculo) {
                 document.getElementById('serviciosContainer').innerHTML = '<p>Seleccione un vehículo primero</p>';
                 return;
             }
 
-            // Convertir ambos a minúsculas para comparación insensible a mayúsculas
-            serviciosFiltrados = todosServiciosDisponibles.filter(servicio => {
-                const servicioCategoria = servicio.categoria?.toLowerCase() || '';
-                const vehiculoTipo = tipoVehiculo.toLowerCase();
+            // Filtrar servicios por categoría (que debe coincidir con el tipo de vehículo)
+            const serviciosFiltrados = [];
+            for (const categoria in todosServiciosDisponibles) {
+                if (categoria.toLowerCase() === tipoVehiculo.toLowerCase()) {
+                    serviciosFiltrados.push(...todosServiciosDisponibles[categoria]);
+                }
+            }
 
-                console.log(`Servicio ${servicio.nombre}: Categoría ${servicioCategoria} vs Tipo ${vehiculoTipo}`);
-                return servicioCategoria === vehiculoTipo;
-            });
-
-            console.log('Servicios filtrados:', serviciosFiltrados);
-            renderServicios();
+            renderServicios(serviciosFiltrados);
         }
 
         // Función para renderizar servicios
-        function renderServicios() {
+        function renderServicios(servicios) {
             const container = document.getElementById('serviciosContainer');
             container.innerHTML = '';
 
-            if (serviciosFiltrados.length === 0) {
+            if (servicios.length === 0) {
                 container.innerHTML = '<p>No hay servicios disponibles para este tipo de vehículo</p>';
                 return;
             }
 
-            serviciosFiltrados.forEach(servicio => {
+            servicios.forEach(servicio => {
                 const servicioDiv = document.createElement('div');
                 servicioDiv.className = 'service-card';
-                servicioDiv.style.padding = '10px';
-                servicioDiv.style.cursor = 'pointer';
-                servicioDiv.style.border = '1px solid #ddd';
-                servicioDiv.style.borderRadius = '8px';
-                servicioDiv.style.transition = 'all 0.3s';
-
                 servicioDiv.innerHTML = `
             <div style="display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" id="servicio_${servicio.id}" name="servicios[]" value="${servicio.id}" 
-                       style="width: 18px; height: 18px;">
+                <input type="checkbox" id="servicio_${servicio.id}" name="servicios[]" value="${servicio.id}">
                 <div>
                     <h4 style="margin: 0; font-size: 1rem;">${servicio.nombre}</h4>
                     <p style="margin: 0; font-size: 0.8rem; color: #666;">
@@ -2754,14 +2724,6 @@
                 </div>
             </div>
         `;
-
-                servicioDiv.addEventListener('click', function(e) {
-                    if (e.target.tagName !== 'INPUT') {
-                        const checkbox = this.querySelector('input');
-                        checkbox.checked = !checkbox.checked;
-                    }
-                });
-
                 container.appendChild(servicioDiv);
             });
         }
@@ -3075,10 +3037,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                        <tr>
-                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                        </tr>
-                                                                                                                                        `).join('')}
+                                                            <tr>
+                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                            </tr>
+                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
