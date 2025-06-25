@@ -354,4 +354,69 @@ class ClienteController extends Controller
             ], 500);
         }
     }
+    public function getDashboardData()
+    {
+        $user = Auth::user();
+
+        try {
+            // Obtener citas futuras con estados específicos
+            $proximas_citas = $user->citas()
+                ->with(['vehiculo', 'servicios'])
+                ->where('fecha_hora', '>=', now())
+                ->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso'])
+                ->orderBy('fecha_hora')
+                ->get()
+                ->map(function ($cita) {
+                    return [
+                        'id' => $cita->id,
+                        'fecha_hora' => $cita->fecha_hora,
+                        'estado' => $cita->estado,
+                        'observaciones' => $cita->observaciones,
+                        'vehiculo' => $cita->vehiculo,
+                        'servicios' => $cita->servicios,
+                        'duracion_total' => $cita->servicios->sum('duracion_min')
+                    ];
+                });
+
+            // Obtener historial de citas
+            $historial_citas = $user->citas()
+                ->with(['vehiculo', 'servicios'])
+                ->where(function ($query) {
+                    $query->where('fecha_hora', '<', now())
+                        ->orWhereIn('estado', ['finalizada', 'cancelada']);
+                })
+                ->orderBy('fecha_hora', 'desc')
+                ->get()
+                ->map(function ($cita) {
+                    return [
+                        'id' => $cita->id,
+                        'fecha_hora' => $cita->fecha_hora,
+                        'estado' => $cita->estado,
+                        'observaciones' => $cita->observaciones,
+                        'vehiculo' => $cita->vehiculo,
+                        'servicios' => $cita->servicios,
+                        'duracion_total' => $cita->servicios->sum('duracion_min')
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'proximas_citas' => $proximas_citas,
+                'historial_citas' => $historial_citas,
+                'total_citas' => $user->citas()->count(),
+                'citas_pendientes' => $user->citas()->where('estado', 'pendiente')->count(),
+                'stats' => [
+                    'total_vehiculos' => $user->vehiculos()->count(),
+                    'total_citas' => $user->citas()->count(),
+                    'citas_pendientes' => $user->citas()->where('estado', 'pendiente')->count(),
+                    'citas_confirmadas' => $user->citas()->where('estado', 'confirmada')->count(),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener datos del dashboard: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
