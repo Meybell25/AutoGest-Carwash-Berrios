@@ -1471,6 +1471,49 @@
             margin-bottom: 15px;
         }
 
+        .swal2-popup {
+            border-radius: 15px !important;
+            padding: 25px !important;
+            box-shadow: var(--shadow-xl) !important;
+        }
+
+        .swal2-title {
+            font-size: 1.5rem !important;
+            color: #4facfe !important;
+        }
+
+        .swal2-content {
+            font-size: 1rem !important;
+        }
+
+        .swal2-confirm {
+            background: var(--secondary-gradient) !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .swal2-cancel {
+            border: 2px solid #4facfe !important;
+            color: #4facfe !important;
+        }
+
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border-color: rgba(79, 172, 254, 0.3) !important;
+        }
+
+        .swal2-icon.swal2-success [class^="swal2-success-line"] {
+            background-color: #4facfe !important;
+        }
+
+        .swal2-icon.swal2-error {
+            border-color: #ff6b6b !important;
+            color: #ff6b6b !important;
+        }
+
+        .swal2-icon.swal2-error [class^="swal2-x-mark-line"] {
+            background-color: #ff6b6b !important;
+        }
+
         /* Footer */
         .footer {
             width: 100%;
@@ -1823,9 +1866,18 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        @if (isset($mis_citas) && count($mis_citas->where('fecha_hora', '>=', now())) > 0)
-                            @foreach ($mis_citas->where('fecha_hora', '>=', now())->sortBy('fecha_hora')->take(3) as $cita)
+                        @php
+                            // Filtrar citas futuras con estados específicos
+                            $proximas_citas = $mis_citas
+                                ->where('fecha_hora', '>=', now())
+                                ->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso'])
+                                ->sortBy('fecha_hora');
+                        @endphp
+
+                        @if ($proximas_citas->count() > 0)
+                            @foreach ($proximas_citas->take(3) as $cita)
                                 <div class="next-appointment {{ $loop->first ? 'highlighted' : '' }}">
+                                    <!-- Mantener el mismo contenido de la cita -->
                                     <div class="appointment-date-time">
                                         <div class="date-badge">
                                             <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
@@ -1841,8 +1893,9 @@
                                                 {{ $cita->vehiculo->modelo }}
                                             </div>
                                         </div>
-                                        <span class="appointment-status status-{{ $cita->estado }}">
-                                            {{ ucfirst($cita->estado) }}
+                                        <span
+                                            class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}">
+                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
                                         </span>
                                     </div>
                                     <div class="appointment-actions">
@@ -1860,7 +1913,7 @@
                                 </div>
                             @endforeach
 
-                            @if ($mis_citas->where('fecha_hora', '>=', now())->count() > 3)
+                            @if ($proximas_citas->count() > 3)
                                 <div style="text-align: center; margin-top: 15px;">
                                     <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
                                         <i class="fas fa-list"></i> Ver todas las citas
@@ -1880,6 +1933,7 @@
                         @endif
                     </div>
                 </div>
+
                 <!-- Historial de Servicios -->
                 <div class="card">
                     <div class="card-header">
@@ -1891,8 +1945,18 @@
                         </h2>
                     </div>
                     <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        @if (isset($mis_citas) && count($mis_citas) > 0)
-                            @foreach ($mis_citas as $cita)
+                        @php
+                            // Filtrar citas pasadas o con estados finalizados/cancelados
+                            $historial_citas = $mis_citas
+                                ->filter(function ($cita) {
+                                    return $cita->fecha_hora < now() ||
+                                        in_array($cita->estado, ['finalizada', 'cancelada']);
+                                })
+                                ->sortByDesc('fecha_hora');
+                        @endphp
+
+                        @if ($historial_citas->count() > 0)
+                            @foreach ($historial_citas as $cita)
                                 <div class="service-history-item">
                                     <div class="service-icon">
                                         <i class="fas fa-soap"></i>
@@ -1906,12 +1970,19 @@
                                             @endif
                                         </h4>
                                         <p><i class="fas fa-calendar"></i>
-                                            {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y - h:i A') }}</p>
+                                            {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
                                         <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
                                             {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
-                                        <a href="#" class="repeat-service">
-                                            <i class="fas fa-redo"></i> Volver a agendar
-                                        </a>
+                                        <p class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}"
+                                            style="display: inline-block; margin-top: 5px;">
+                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
+                                        </p>
+                                        @if ($cita->estado == 'finalizada')
+                                            <a href="#" class="repeat-service"
+                                                onclick="repeatService({{ $cita->id }})">
+                                                <i class="fas fa-redo"></i> Volver a agendar
+                                            </a>
+                                        @endif
                                     </div>
                                     <div class="service-price">
                                         @php
@@ -2176,7 +2247,7 @@
                         </h2>
                     </div>
                     <div class="card-body" id="misVehiculosContainer">
-                       @if (isset($vehiculos_dashboard) && count($vehiculos_dashboard) > 0)
+                        @if (isset($vehiculos_dashboard) && count($vehiculos_dashboard) > 0)
                             @foreach ($vehiculos_dashboard as $vehiculo)
                                 <div class="service-history-item" style="margin-bottom: 15px;">
                                     <div class="service-icon" style="background: var(--secondary-gradient);">
@@ -2798,27 +2869,30 @@
         document.getElementById('citaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            // Mostrar loader
+            const swalInstance = swalWithBootstrapButtons.fire({
+                title: 'Procesando cita...',
+                html: 'Estamos reservando tu cita, por favor espera',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             const formData = new FormData(this);
             const vehiculoId = formData.get('vehiculo_id');
             const fecha = formData.get('fecha');
             const hora = formData.get('hora');
             const selectedDate = new Date(`${fecha}T${hora}`);
 
-            // Validaciones
-            if (!vehiculoId) {
+            // Validaciones básicas
+            if (!vehiculoId || !fecha || !hora) {
+                await swalInstance.close();
                 swalWithBootstrapButtons.fire({
-                    title: 'Error',
-                    text: 'Debes seleccionar un vehículo',
-                    icon: 'error'
-                });
-                return;
-            }
-
-            if (!fecha || !hora) {
-                swalWithBootstrapButtons.fire({
-                    title: 'Error',
-                    text: 'Debes seleccionar fecha y hora',
-                    icon: 'error'
+                    title: 'Información incompleta',
+                    text: 'Por favor completa todos los campos requeridos',
+                    icon: 'warning',
+                    confirmButtonColor: '#4facfe'
                 });
                 return;
             }
@@ -2827,22 +2901,15 @@
                 .map(el => el.value);
 
             if (servicios.length === 0) {
+                await swalInstance.close();
                 swalWithBootstrapButtons.fire({
-                    title: 'Error',
+                    title: 'Servicios requeridos',
                     text: 'Debes seleccionar al menos un servicio',
-                    icon: 'error'
+                    icon: 'warning',
+                    confirmButtonColor: '#4facfe'
                 });
                 return;
             }
-
-            // Preparar datos para enviar
-            const data = {
-                vehiculo_id: vehiculoId,
-                fecha_hora: selectedDate.toISOString(),
-                servicios: servicios,
-                observaciones: formData.get('observaciones'),
-                _token: '{{ csrf_token() }}'
-            };
 
             try {
                 const response = await fetch('{{ route('cliente.citas.store') }}', {
@@ -2850,37 +2917,152 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({
+                        vehiculo_id: vehiculoId,
+                        fecha_hora: selectedDate.toISOString(),
+                        servicios: servicios,
+                        observaciones: formData.get('observaciones')
+                    })
                 });
 
                 const result = await response.json();
+
+                await swalInstance.close();
 
                 if (!response.ok) {
                     throw new Error(result.message || 'Error al crear la cita');
                 }
 
-                // Éxito
-                swalWithBootstrapButtons.fire({
-                    title: '¡Éxito!',
-                    text: 'Cita creada correctamente',
-                    icon: 'success'
-                }).then(() => {
+                // Éxito - Mostrar alerta mejorada
+                await swalWithBootstrapButtons.fire({
+                    title: '¡Cita agendada!',
+                    html: `
+                <div style="text-align: left; margin-top: 15px;">
+                    <p><strong>Fecha:</strong> ${selectedDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p><strong>Hora:</strong> ${selectedDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
+                    <p><strong>Servicios:</strong> ${servicios.length} seleccionados</p>
+                </div>
+            `,
+                    icon: 'success',
+                    confirmButtonColor: '#4facfe',
+                    confirmButtonText: 'Ver mis citas',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cerrar'
+                }).then((result) => {
                     closeCitaModal();
-                    location.reload();
+                    if (result.isConfirmed) {
+                        window.location.href = '{{ route('cliente.citas') }}';
+                    } else {
+                        location.reload();
+                    }
                 });
 
             } catch (error) {
                 console.error('Error:', error);
+                await swalInstance.close();
+
                 swalWithBootstrapButtons.fire({
-                    title: 'Error',
-                    text: error.message || 'Error al crear la cita',
-                    icon: 'error'
+                    title: 'Error al agendar',
+                    html: `
+                <div style="text-align: left;">
+                    <p>${error.message || 'Ocurrió un error al intentar agendar tu cita.'}</p>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #666;">Por favor intenta nuevamente o contacta al soporte.</p>
+                </div>
+            `,
+                    icon: 'error',
+                    confirmButtonColor: '#ff6b6b'
                 });
             }
         });
 
+        // Función para repetir servicio desde el historial
+        function repeatService(citaId) {
+            fetch(`/cliente/citas/${citaId}/repeat`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Rellenar el modal con los datos de la cita anterior
+                        document.getElementById('vehiculo_id').value = data.vehiculo_id;
+                        cargarServiciosPorTipo().then(() => {
+                            // Seleccionar los servicios anteriores
+                            data.servicios.forEach(servicioId => {
+                                const checkbox = document.getElementById(`servicio_${servicioId}`);
+                                if (checkbox) checkbox.checked = true;
+                            });
+
+                            // Abrir el modal
+                            openCitaModal();
+
+                            swalWithBootstrapButtons.fire({
+                                title: 'Servicio cargado',
+                                text: 'Hemos cargado los detalles de tu cita anterior. Por favor revisa y confirma la nueva fecha.',
+                                icon: 'info',
+                                confirmButtonColor: '#4facfe'
+                            });
+                        });
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    swalWithBootstrapButtons.fire({
+                        title: 'Error',
+                        text: error.message || 'No se pudo cargar la cita anterior',
+                        icon: 'error'
+                    });
+                });
+        }
+
+        function editCita(citaId) {
+            fetch(`/cliente/citas/${citaId}/edit`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Rellenar el modal con los datos de la cita
+                        openCitaModal();
+                        document.getElementById('vehiculo_id').value = data.vehiculo_id;
+                        document.getElementById('fecha').value = data.fecha_hora.split('T')[0];
+
+                        // Configurar hora después de cargar los horarios
+                        const hora = data.fecha_hora.split('T')[1].substring(0, 5);
+                        setTimeout(() => {
+                            document.getElementById('hora').value = hora;
+                        }, 500);
+
+                        cargarServiciosPorTipo().then(() => {
+                            // Seleccionar los servicios
+                            data.servicios.forEach(servicioId => {
+                                const checkbox = document.getElementById(`servicio_${servicioId}`);
+                                if (checkbox) checkbox.checked = true;
+                            });
+
+                            // Cambiar el formulario para edición
+                            const form = document.getElementById('citaForm');
+                            form.action = `/cliente/citas/${citaId}`;
+                            form.method = 'PUT';
+                            form.innerHTML += `<input type="hidden" name="_method" value="PUT">`;
+
+                            swalWithBootstrapButtons.fire({
+                                title: 'Editar cita',
+                                text: 'Puedes modificar los detalles de tu cita',
+                                icon: 'info'
+                            });
+                        });
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    swalWithBootstrapButtons.fire({
+                        title: 'Error',
+                        text: error.message || 'No se pudo cargar la cita para edición',
+                        icon: 'error'
+                    });
+                });
+        }
 
         // Funciones del modal
         function openEditModal() {
@@ -3022,10 +3204,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                        <tr>
-                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                        </tr>
-                                                                        `).join('')}
+                                                                                        <tr>
+                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                        </tr>
+                                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
