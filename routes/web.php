@@ -153,7 +153,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
                 App\Models\Horario::activos()->get()->map(function ($horario) {
                     return [
                         'dia_semana' => $horario->dia_semana,
-                        'hora_inicio' => $horario->hora_inicio->format('H:i:s'), // Asegurar formato completo
+                        'hora_inicio' => $horario->hora_inicio->format('H:i:s'),
                         'hora_fin' => $horario->hora_fin->format('H:i:s')
                     ];
                 })
@@ -163,7 +163,8 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::get('/servicios-disponibles', function () {
             return response()->json(
                 App\Models\Servicio::activos()
-                    ->get(['id', 'nombre', 'precio', 'duracion_min', 'categoria'])
+                    ->get()
+                    ->groupBy('categoria')
             );
         })->name('servicios-disponibles');
 
