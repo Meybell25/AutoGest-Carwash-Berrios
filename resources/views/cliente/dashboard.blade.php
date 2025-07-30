@@ -1908,135 +1908,138 @@
             </div>
         </div>
 
-       <!-- Dashboard Grid -->
-<div class="dashboard-grid">
-    <!-- Sección Principal -->
-    <div class="main-section">
-        <!-- Próximas Citas -->
-        <div class="card">
-            <div class="card-header">
-                <h2>
-                    <div class="icon">
-                        <i class="fas fa-calendar-check"></i>
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Sección Principal -->
+            <div class="main-section">
+                <!-- Próximas Citas -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            Próximas Citas
+                        </h2>
                     </div>
-                    Próximas Citas
-                </h2>
-            </div>
-            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                @if ($proximas_citas->count() > 0)
-                    @foreach ($proximas_citas as $cita)
-                        <div class="next-appointment {{ $loop->first ? 'highlighted' : '' }}">
-                            <div class="appointment-date-time">
-                                <div class="date-badge">
-                                    <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
-                                    <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
-                                </div>
-                                <div class="time-info">
-                                    <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
-                                    <div class="service">
-                                        {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        @if ($proximas_citas->count() > 0)
+                            @foreach ($proximas_citas as $cita)
+                                <div class="next-appointment {{ $loop->first ? 'highlighted' : '' }}">
+                                    <div class="appointment-date-time">
+                                        <div class="date-badge">
+                                            <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
+                                            <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
+                                        </div>
+                                        <div class="time-info">
+                                            <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
+                                            <div class="service">
+                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                            </div>
+                                            <div class="vehicle-info">
+                                                <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                {{ $cita->vehiculo->modelo }}
+                                            </div>
+                                        </div>
+                                        <span
+                                            class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}">
+                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
+                                        </span>
                                     </div>
-                                    <div class="vehicle-info">
-                                        <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                        {{ $cita->vehiculo->modelo }}
+                                    <div class="appointment-actions">
+                                        @if ($cita->estado == 'pendiente' || $cita->estado == 'confirmada')
+                                            <button class="btn btn-sm btn-warning"
+                                                onclick="editCita({{ $cita->id }})">
+                                                <i class="fas fa-edit"></i> Modificar
+                                            </button>
+                                            <button class="btn btn-sm btn-outline"
+                                                onclick="cancelCita({{ $cita->id }})">
+                                                <i class="fas fa-times"></i> Cancelar
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
-                                <span class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}">
-                                    {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                </span>
-                            </div>
-                            <div class="appointment-actions">
-                                @if ($cita->estado == 'pendiente' || $cita->estado == 'confirmada')
-                                    <button class="btn btn-sm btn-warning" onclick="editCita({{ $cita->id }})">
-                                        <i class="fas fa-edit"></i> Modificar
-                                    </button>
-                                    <button class="btn btn-sm btn-outline" onclick="cancelCita({{ $cita->id }})">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </button>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
+                            @endforeach
 
-                    @if ($proximas_citas->count() > 3)
-                        <div style="text-align: center; margin-top: 15px;">
-                            <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
-                                <i class="fas fa-list"></i> Ver todas las citas
-                            </a>
-                        </div>
-                    @endif
-                @else
-                    <div class="empty-state">
-                        <i class="fas fa-calendar-alt"></i>
-                        <h3>No tienes citas programadas</h3>
-                        <p>Agenda tu primera cita de lavado</p>
-                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                            <i class="fas fa-calendar-plus"></i>
-                            Agendar Cita
-                        </button>
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        <!-- Historial de Servicios -->
-        <div class="card">
-            <div class="card-header">
-                <h2>
-                    <div class="icon">
-                        <i class="fas fa-history"></i>
-                    </div>
-                    Historial de Servicios
-                </h2>
-            </div>
-            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                @if ($historial_citas->count() > 0)
-                    @foreach ($historial_citas as $cita)
-                        <div class="service-history-item">
-                            <div class="service-icon">
-                                <i class="fas fa-soap"></i>
-                            </div>
-                            <div class="service-details">
-                                <h4>
-                                    @if ($cita->servicios && count($cita->servicios) > 0)
-                                        {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                    @else
-                                        Servicio no especificado
-                                    @endif
-                                </h4>
-                                <p><i class="fas fa-calendar"></i>
-                                    {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
-                                <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                    {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
-                                <p class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}"
-                                    style="display: inline-block; margin-top: 5px;">
-                                    {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                </p>
-                                @if ($cita->estado == 'finalizada')
-                                    <a href="#" class="repeat-service"
-                                        onclick="repeatService({{ $cita->id }})">
-                                        <i class="fas fa-redo"></i> Volver a agendar
+                            @if ($proximas_citas->count() > 3)
+                                <div style="text-align: center; margin-top: 15px;">
+                                    <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
+                                        <i class="fas fa-list"></i> Ver todas las citas
                                     </a>
-                                @endif
+                                </div>
+                            @endif
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-alt"></i>
+                                <h3>No tienes citas programadas</h3>
+                                <p>Agenda tu primera cita de lavado</p>
+                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    Agendar Cita
+                                </button>
                             </div>
-                            <div class="service-price">
-                                @php
-                                    $total = $cita->servicios->sum('precio');
-                                @endphp
-                                ${{ number_format($total, 2) }}
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="empty-state">
-                        <i class="fas fa-history"></i>
-                        <h3>No hay historial de servicios</h3>
-                        <p>Agenda tu primera cita para comenzar a ver tu historial</p>
+                        @endif
                     </div>
-                @endif
-            </div>
-        </div>
-   
+                </div>
+
+                <!-- Historial de Servicios -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            Historial de Servicios
+                        </h2>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        @if ($historial_citas->count() > 0)
+                            @foreach ($historial_citas as $cita)
+                                <div class="service-history-item">
+                                    <div class="service-icon">
+                                        <i class="fas fa-soap"></i>
+                                    </div>
+                                    <div class="service-details">
+                                        <h4>
+                                            @if ($cita->servicios && count($cita->servicios) > 0)
+                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                            @else
+                                                Servicio no especificado
+                                            @endif
+                                        </h4>
+                                        <p><i class="fas fa-calendar"></i>
+                                            {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
+                                        <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                            {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
+                                        <p class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}"
+                                            style="display: inline-block; margin-top: 5px;">
+                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
+                                        </p>
+                                        @if ($cita->estado == 'finalizada')
+                                            <a href="#" class="repeat-service"
+                                                onclick="repeatService({{ $cita->id }})">
+                                                <i class="fas fa-redo"></i> Volver a agendar
+                                            </a>
+                                        @endif
+                                    </div>
+                                    <div class="service-price">
+                                        @php
+                                            $total = $cita->servicios->sum('precio');
+                                        @endphp
+                                        ${{ number_format($total, 2) }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <h3>No hay historial de servicios</h3>
+                                <p>Agenda tu primera cita para comenzar a ver tu historial</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Servicios Disponibles -->
                 <div class="card">
                     <div class="card-header">
@@ -2997,11 +3000,11 @@
             <div style="text-align: left;">
                 <p>${errorMessage}</p>
                 ${showAvailableTimes ? `
-                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
-                                                                <ul style="margin-top: 5px;">
-                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                </ul>
-                                                            ` : ''}
+                                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
+                                                                    <ul style="margin-top: 5px;">
+                                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                    </ul>
+                                                                ` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3090,10 +3093,10 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                    <i class="fas fa-calendar-plus"></i>
-                                                    Agendar Cita
-                                                </button>` : ''}
+                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                        <i class="fas fa-calendar-plus"></i>
+                                                        Agendar Cita
+                                                    </button>` : ''}
             </div>
         `;
                 return;
@@ -3126,12 +3129,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                            <i class="fas fa-edit"></i> Modificar
-                                                        </button>
-                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                            <i class="fas fa-times"></i> Cancelar
-                                                        </button>` : ''}
+                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                <i class="fas fa-edit"></i> Modificar
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                <i class="fas fa-times"></i> Cancelar
+                                                            </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3164,9 +3167,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                            <i class="fas fa-redo"></i> Volver a agendar
-                                                        </a>` : ''}
+                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                <i class="fas fa-redo"></i> Volver a agendar
+                                                            </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3446,10 +3449,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                            <tr>
-                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                            </tr>
-                                                                                                                                            `).join('')}
+                                                                                                                                                <tr>
+                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                </tr>
+                                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
