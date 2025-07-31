@@ -2452,7 +2452,7 @@
                 <i class="fas fa-calendar-plus"></i> Nueva Cita
             </h2>
 
-            <form id="citaForm" method="POST" enctype="multipart/form-data">
+          <form id="citaForm" method="POST" action="{{ route('cliente.citas.store') }}" enctype="multipart/form-data">
                 @csrf
 
                 <!-- Selección de vehículo -->
