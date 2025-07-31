@@ -433,4 +433,24 @@ class ClienteController extends Controller
             'vehiculos' => Auth::user()->vehiculos
         ]);
     }
+
+    public function getHorariosOcupados(Request $request)
+{
+    $fecha = $request->query('fecha');
+    
+    if (!$fecha) {
+        return response()->json(['horariosOcupados' => []]);
+    }
+
+    $horariosOcupados = Cita::whereDate('fecha_hora', $fecha)
+        ->get()
+        ->map(function ($cita) {
+            return [
+                'hora' => Carbon::parse($cita->fecha_hora)->format('H:i'),
+                'duracion' => $cita->duracion_total
+            ];
+        });
+
+    return response()->json(['horariosOcupados' => $horariosOcupados]);
+}
 }

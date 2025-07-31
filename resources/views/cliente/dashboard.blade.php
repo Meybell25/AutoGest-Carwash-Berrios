@@ -2654,6 +2654,12 @@
                     diasNoLaborables: diasNoLaborables
                 });
 
+                // Verificar que los horarios se cargaron correctamente
+        if (!Array.isArray(horariosDisponibles)) {
+            console.error('Horarios no es un array:', horariosDisponibles);
+            horariosDisponibles = [];
+        }
+
                 // Configurar datepicker
                 setupDatePicker();
 
@@ -2667,18 +2673,25 @@
             }
         }
 
-        // Función para cargar horas disponibles (actualizada)
-        function loadAvailableHours(dayOfWeek) {
+        // Función para cargar horas disponibles 
+        async function loadAvailableHours(dayOfWeek, selectedDate) {
             const horaSelect = document.getElementById('hora');
             horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
-            // Asegurarse que dayOfWeek es un número
-            const diaSemana = typeof dayOfWeek === 'string' ? parseInt(dayOfWeek) : dayOfWeek;
+            // Obtener horarios ocupados para esta fecha
+            let horariosOcupados = [];
+            try {
+                const response = await fetch(`/cliente/citas/horarios-ocupados?fecha=${selectedDate}`);
+                const data = await response.json();
+                horariosOcupados = data.horariosOcupados || [];
+            } catch (error) {
+                console.error('Error al obtener horarios ocupados:', error);
+            }
 
             // Filtrar horarios para el día seleccionado
             const horariosDia = horariosDisponibles.filter(h => {
                 const horarioDia = typeof h.dia_semana === 'string' ? parseInt(h.dia_semana) : h.dia_semana;
-                return horarioDia === diaSemana;
+                return horarioDia === dayOfWeek;
             });
 
             if (horariosDia.length === 0) {
@@ -2700,6 +2713,16 @@
                     const option = document.createElement('option');
                     option.value = horaStr;
                     option.textContent = horaStr;
+
+                    // Marcar como ocupado si está en la lista
+                    const estaOcupado = horariosOcupados.some(ocupado => ocupado.hora === horaStr);
+                    if (estaOcupado) {
+                        option.disabled = true;
+                        option.textContent += ' (Ocupado)';
+                        option.style.color = '#ff6b6b';
+                        option.style.backgroundColor = '#fff5f5';
+                    }
+
                     horaSelect.appendChild(option);
 
                     // Incrementar 30 minutos
@@ -2712,50 +2735,43 @@
             });
         }
 
-        // Configuración del datepicker (actualizada)
+        // Configuracion del datepicker (actualizada)
         function setupDatePicker() {
             const fechaInput = document.getElementById('fecha');
-
-            // Establecer límites de fecha (hoy hasta 1 mes después)
-            const today = new Date();
-            const maxDate = new Date();
-            maxDate.setMonth(maxDate.getMonth() + 1);
-
-            fechaInput.min = formatDateForInput(today);
-            fechaInput.max = formatDateForInput(maxDate);
 
             fechaInput.addEventListener('change', function() {
                 const selectedDate = new Date(this.value);
                 const dayOfWeek = selectedDate.getDay(); // 0 = Domingo, 1 = Lunes, etc.
-
-                // Validar día no laborable
                 const fechaStr = selectedDate.toISOString().split('T')[0];
-                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
 
+                // Validar domingos primero
+                if (dayOfWeek === 0) {
+                    showDateError(
+                        'Domingo no laborable',
+                        'No atendemos los domingos. Por favor selecciona otro día.'
+                    );
+                    this.value = ''; // Limpiar selección
+                    return;
+                }
+
+                // Luego validar dia no laborable
+                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
                 if (diaNoLaborable) {
                     showDateError(
                         'Día no laborable',
                         `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
                  <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
                     );
-                    return;
-                }
-
-                // Validar domingos
-                if (dayOfWeek === 0) {
-                    showDateError(
-                        'Domingo no laborable',
-                        'No atendemos los domingos. Por favor selecciona otro día.'
-                    );
+                    this.value = ''; // Limpiar seleccion
                     return;
                 }
 
                 // Si pasa todas las validaciones, cargar horarios
-                loadAvailableHours(dayOfWeek);
+                loadAvailableHours(dayOfWeek, fechaStr);
             });
         }
 
-        // Función para formatear fecha como YYYY-MM-DD (para input date)
+        // Funcion para formatear fecha como YYYY-MM-DD (para input date)
         function formatDateForInput(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -2763,7 +2779,7 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Función para formatear fecha bonita (ej: "Lunes, 25 de Junio")
+        // Funcion para formatear fecha bonita (ej: "Lunes, 25 de Junio")
         function formatFechaBonita(date) {
             const options = {
                 weekday: 'long',
@@ -2773,7 +2789,6 @@
             return date.toLocaleDateString('es-ES', options);
         }
 
-        // Función mejorada para mostrar errores
         function showDateError(title, message) {
             swalWithBootstrapButtons.fire({
                 title: title,
@@ -2782,7 +2797,7 @@
                 confirmButtonColor: '#4facfe'
             });
 
-            // Resetear selección
+            // Resetear seleccion
             document.getElementById('fecha').value = '';
             document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
         }
@@ -2949,25 +2964,24 @@
                     throw new Error(result.message || 'Error al procesar la cita');
                 }
 
-                // Éxito - Mostrar alerta mejorada
+                // Éxito - Mostrar alerta 
                 const selectedDate = new Date(`${formData.get('fecha')}T${formData.get('hora')}`);
                 await swalWithBootstrapButtons.fire({
                     title: isEdit ? '¡Cita actualizada!' : '¡Cita agendada!',
                     html: `
-                <div style="text-align: left; margin-top: 15px;">
-                    <p><strong>Fecha:</strong> ${selectedDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                    <p><strong>Hora:</strong> ${selectedDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
-                    <p><strong>Servicios:</strong> ${result.servicios_count} seleccionados</p>
-                </div>
-            `,
+        <div style="text-align: left; margin-top: 15px;">
+            <p><strong>Fecha:</strong> ${selectedDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <p><strong>Hora:</strong> ${selectedDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
+            <p><strong>Servicios:</strong> ${result.servicios_count} seleccionados</p>
+        </div>
+    `,
                     icon: 'success',
-                    confirmButtonColor: '#4facfe',
+                    confirmButtonText: 'Aceptar',
                     showCancelButton: true,
-                    confirmButtonText: 'Ver mis citas',
-                    cancelButtonText: 'Quedarme aquí'
+                    cancelButtonText: 'Ver mis citas'
                 }).then((result) => {
                     closeCitaModal();
-                    if (result.isConfirmed) {
+                    if (result.dismiss === Swal.DismissReason.cancel) {
                         window.location.href = '{{ route('cliente.citas') }}';
                     } else {
                         // Actualizar dinámicamente sin recargar
@@ -3000,11 +3014,10 @@
             <div style="text-align: left;">
                 <p>${errorMessage}</p>
                 ${showAvailableTimes ? `
-                                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
-                                                                    <ul style="margin-top: 5px;">
-                                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                    </ul>
-                                                                ` : ''}
+                <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
+                <ul style="margin-top: 5px;">
+                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                </ul>` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3093,10 +3106,10 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                        <i class="fas fa-calendar-plus"></i>
-                                                        Agendar Cita
-                                                    </button>` : ''}
+                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                    <i class="fas fa-calendar-plus"></i>
+                                                                    Agendar Cita
+                                                                </button>` : ''}
             </div>
         `;
                 return;
@@ -3129,12 +3142,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                <i class="fas fa-edit"></i> Modificar
-                                                            </button>
-                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                <i class="fas fa-times"></i> Cancelar
-                                                            </button>` : ''}
+                                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                            <i class="fas fa-edit"></i> Modificar
+                                                                        </button>
+                                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                            <i class="fas fa-times"></i> Cancelar
+                                                                        </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3167,9 +3180,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                <i class="fas fa-redo"></i> Volver a agendar
-                                                            </a>` : ''}
+                                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                            <i class="fas fa-redo"></i> Volver a agendar
+                                                                        </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3449,10 +3462,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                <tr>
-                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                </tr>
-                                                                                                                                                `).join('')}
+                                                                                                                                                            <tr>
+                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                            </tr>
+                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>

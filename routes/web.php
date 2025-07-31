@@ -163,6 +163,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::post('/citas/{cita}/cancelar', [ClienteController::class, 'cancelarCita'])->name('citas.cancelar');
         Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('citas.dashboard-data');
         Route::get('/citas/{cita}/edit', [ClienteController::class, 'edit'])->name('citas.edit');
+        Route::get('/citas/horarios-ocupados', [ClienteController::class, 'getHorariosOcupados'])->name('citas.horarios-ocupados');
 
         // Datos para formularios
         Route::get('/horarios-disponibles', function () {
