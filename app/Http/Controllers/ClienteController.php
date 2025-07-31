@@ -143,15 +143,6 @@ class ClienteController extends Controller
 
         $fechaCita = Carbon::parse($validated['fecha_hora']);
 
-        // Verificar disponibilidad de horario
-        $citaExistente = Cita::where('fecha_hora', $fechaCita)->exists();
-        if ($citaExistente) {
-            return response()->json([
-                'message' => 'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.',
-                'available_times' => $this->getAvailableTimes($fechaCita->format('Y-m-d'))
-            ], 409);
-        }
-
         // Validar 1 mes de anticipación
         if ($fechaCita->gt(Carbon::now()->addMonth())) {
             return response()->json(['message' => 'Máximo 1 mes de anticipación.'], 400);
@@ -175,21 +166,23 @@ class ClienteController extends Controller
 
         // Validar tipo de vehículo vs servicios
         $vehiculo = Vehiculo::find($validated['vehiculo_id']);
-        $serviciosInvalidos = Servicio::whereIn('id', $validated['servicios'])
-            ->where('categoria', '!=', $vehiculo->tipo)
-            ->exists();
+        $servicios = Servicio::whereIn('id', $validated['servicios'])->get();
 
-        if ($serviciosInvalidos) {
+        $serviciosInvalidos = $servicios->where('categoria', '!=', $vehiculo->tipo)->count();
+        if ($serviciosInvalidos > 0) {
             return response()->json(['message' => 'Servicios no válidos para este vehículo.'], 400);
         }
 
-        // Validar duración total de servicios
-        $duracionTotal = Servicio::whereIn('id', $validated['servicios'])->sum('duracion_min');
+        // Calcular duración total de servicios
+        $duracionTotal = $servicios->sum('duracion_min');
         $horaFin = $fechaCita->copy()->addMinutes($duracionTotal);
 
         // Verificar si la cita termina después del horario laboral
         if ($horaFin->format('H:i') > '18:00') {
-            return response()->json(['message' => 'Los servicios seleccionados no pueden completarse antes del cierre.'], 400);
+            return response()->json([
+                'message' => 'Los servicios seleccionados no pueden completarse antes del cierre.',
+                'duracion_total' => $duracionTotal
+            ], 400);
         }
 
         // Verificar colisión con otras citas
@@ -200,12 +193,15 @@ class ClienteController extends Controller
                     $q->where('fecha_hora', '<', $fechaCita)
                         ->where(DB::raw('DATE_ADD(fecha_hora, INTERVAL duracion_total MINUTE)'), '>', $horaFin);
                 });
-        })->exists();
+        })
+            ->where('estado', '!=', 'cancelada')
+            ->exists();
 
         if ($citasSuperpuestas) {
             return response()->json([
                 'message' => 'Existe un conflicto de horario con otra cita.',
-                'available_times' => $this->getAvailableTimes($fechaCita->format('Y-m-d'))
+                'available_times' => $this->getAvailableTimes($fechaCita->format('Y-m-d')),
+                'duracion_total' => $duracionTotal
             ], 409);
         }
 
@@ -217,16 +213,15 @@ class ClienteController extends Controller
             $cita->usuario_id = Auth::id();
             $cita->vehiculo_id = $validated['vehiculo_id'];
             $cita->fecha_hora = $validated['fecha_hora'];
-            $cita->duracion_total = $duracionTotal; // Guardar duración total
+            $cita->duracion_total = $duracionTotal;
             $cita->estado = Cita::ESTADO_PENDIENTE;
             $cita->observaciones = $validated['observaciones'] ?? null;
             $cita->save();
 
             // Adjuntar servicios con sus precios actuales
             $serviciosConPrecio = [];
-            foreach ($validated['servicios'] as $servicioId) {
-                $servicio = Servicio::find($servicioId);
-                $serviciosConPrecio[$servicioId] = [
+            foreach ($servicios as $servicio) {
+                $serviciosConPrecio[$servicio->id] = [
                     'precio' => $servicio->precio,
                     'duracion' => $servicio->duracion_min
                 ];
@@ -249,11 +244,17 @@ class ClienteController extends Controller
                 'success' => true,
                 'message' => 'Cita creada exitosamente',
                 'cita' => $cita,
+                'servicios_count' => count($validated['servicios']),
                 'duracion_total' => $duracionTotal,
                 'hora_fin' => $horaFin->format('H:i')
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error al crear cita', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear la cita: ' . $e->getMessage()
@@ -272,11 +273,13 @@ class ClienteController extends Controller
 
         // Obtener horarios ocupados para esa fecha
         $horariosOcupados = Cita::whereDate('fecha_hora', $date)
+            ->where('estado', '!=', 'cancelada')
             ->get()
             ->map(function ($cita) {
+                $horaInicio = Carbon::parse($cita->fecha_hora);
                 return [
-                    'inicio' => Carbon::parse($cita->fecha_hora),
-                    'fin' => Carbon::parse($cita->fecha_hora)->addMinutes($cita->duracion_total)
+                    'inicio' => $horaInicio,
+                    'fin' => $horaInicio->copy()->addMinutes($cita->duracion_total)
                 ];
             });
 
@@ -306,6 +309,7 @@ class ClienteController extends Controller
 
         return $horariosDisponibles;
     }
+
 
     public function cancelarCita(Cita $cita)
     {
@@ -442,8 +446,9 @@ class ClienteController extends Controller
             return response()->json(['horariosOcupados' => []]);
         }
 
-        // Obtener todas las citas para esa fecha con su duracion
+        // Obtener todas las citas para esa fecha con su duración
         $citas = Cita::whereDate('fecha_hora', $fecha)
+            ->where('estado', '!=', 'cancelada')
             ->get(['fecha_hora', 'duracion_total']);
 
         // Formatear respuesta
@@ -451,8 +456,8 @@ class ClienteController extends Controller
             $horaInicio = Carbon::parse($cita->fecha_hora);
             return [
                 'hora_inicio' => $horaInicio->format('H:i'),
-                'hora_fin' => $horaInicio->addMinutes($cita->duracion_total)->format('H:i'),
-                'duracion' => $cita->duracion_total
+                'duracion' => $cita->duracion_total,
+                'hora_fin' => $horaInicio->addMinutes($cita->duracion_total)->format('H:i')
             ];
         });
 
