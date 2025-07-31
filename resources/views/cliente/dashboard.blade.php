@@ -2655,10 +2655,10 @@
                 });
 
                 // Verificar que los horarios se cargaron correctamente
-        if (!Array.isArray(horariosDisponibles)) {
-            console.error('Horarios no es un array:', horariosDisponibles);
-            horariosDisponibles = [];
-        }
+                if (!Array.isArray(horariosDisponibles)) {
+                    console.error('Horarios no es un array:', horariosDisponibles);
+                    horariosDisponibles = [];
+                }
 
                 // Configurar datepicker
                 setupDatePicker();
@@ -2678,7 +2678,19 @@
             const horaSelect = document.getElementById('hora');
             horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
-            // Obtener horarios ocupados para esta fecha
+            // Obtener horarios para este día
+            const horariosDia = horariosDisponibles.filter(h => {
+                // Asegurarse que dia_semana es número (puede venir como string de la BD)
+                const diaNum = typeof h.dia_semana === 'string' ? parseInt(h.dia_semana) : h.dia_semana;
+                return diaNum === dayOfWeek;
+            });
+
+            if (horariosDia.length === 0) {
+                horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                return;
+            }
+
+            // Obtener horarios ocupados
             let horariosOcupados = [];
             try {
                 const response = await fetch(`/cliente/citas/horarios-ocupados?fecha=${selectedDate}`);
@@ -2688,49 +2700,41 @@
                 console.error('Error al obtener horarios ocupados:', error);
             }
 
-            // Filtrar horarios para el día seleccionado
-            const horariosDia = horariosDisponibles.filter(h => {
-                const horarioDia = typeof h.dia_semana === 'string' ? parseInt(h.dia_semana) : h.dia_semana;
-                return horarioDia === dayOfWeek;
-            });
-
-            if (horariosDia.length === 0) {
-                horaSelect.innerHTML = '<option value="">No hay horarios disponibles para este día</option>';
-                return;
-            }
-
-            // Generar opciones de hora cada 30 minutos
+            // Generar slots de tiempo
             horariosDia.forEach(horario => {
-                const [inicioHora, inicioMinuto] = horario.hora_inicio.split(':').map(Number);
-                const [finHora, finMinuto] = horario.hora_fin.split(':').map(Number);
+                const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
+                const [finH, finM] = horario.hora_fin.split(':').map(Number);
 
-                let currentHora = inicioHora;
-                let currentMinuto = inicioMinuto;
+                let horaActual = new Date();
+                horaActual.setHours(inicioH, inicioM, 0, 0);
 
-                while (currentHora < finHora || (currentHora === finHora && currentMinuto < finMinuto)) {
-                    const horaStr =
-                        `${currentHora.toString().padStart(2, '0')}:${currentMinuto.toString().padStart(2, '0')}`;
+                const horaFin = new Date();
+                horaFin.setHours(finH, finM, 0, 0);
+
+                while (horaActual < horaFin) {
+                    const horaStr = horaActual.toTimeString().substring(0, 5);
+                    const horaFinSlot = new Date(horaActual.getTime() + 30 * 60000);
+                    const horaFinStr = horaFinSlot.toTimeString().substring(0, 5);
+
+                    // Verificar si el slot está ocupado
+                    const estaOcupado = horariosOcupados.some(ocupado => {
+                        const ocupadoInicio = ocupado.hora_inicio;
+                        const ocupadoFin = ocupado.hora_fin;
+                        return (horaStr < ocupadoFin && horaFinStr > ocupadoInicio);
+                    });
+
                     const option = document.createElement('option');
                     option.value = horaStr;
                     option.textContent = horaStr;
 
-                    // Marcar como ocupado si está en la lista
-                    const estaOcupado = horariosOcupados.some(ocupado => ocupado.hora === horaStr);
                     if (estaOcupado) {
                         option.disabled = true;
                         option.textContent += ' (Ocupado)';
                         option.style.color = '#ff6b6b';
-                        option.style.backgroundColor = '#fff5f5';
                     }
 
                     horaSelect.appendChild(option);
-
-                    // Incrementar 30 minutos
-                    currentMinuto += 30;
-                    if (currentMinuto >= 60) {
-                        currentMinuto -= 60;
-                        currentHora += 1;
-                    }
+                    horaActual.setMinutes(horaActual.getMinutes() + 30);
                 }
             });
         }
@@ -2741,32 +2745,33 @@
 
             fechaInput.addEventListener('change', function() {
                 const selectedDate = new Date(this.value);
-                const dayOfWeek = selectedDate.getDay(); // 0 = Domingo, 1 = Lunes, etc.
-                const fechaStr = selectedDate.toISOString().split('T')[0];
+                const dayOfWeek = selectedDate.getDay(); // 0=Domingo, 1=Lunes, etc.
+                const fechaStr = this.value;
 
-                // Validar domingos primero
+                // Validar domingos
                 if (dayOfWeek === 0) {
                     showDateError(
                         'Domingo no laborable',
                         'No atendemos los domingos. Por favor selecciona otro día.'
                     );
-                    this.value = ''; // Limpiar selección
+                    this.value = '';
                     return;
                 }
 
-                // Luego validar dia no laborable
-                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
-                if (diaNoLaborable) {
+                // Verificar dia no laborable
+                const esNoLaborable = diasNoLaborables.some(dia => dia.fecha === fechaStr);
+                if (esNoLaborable) {
+                    const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
                     showDateError(
                         'Día no laborable',
                         `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
                  <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
                     );
-                    this.value = ''; // Limpiar seleccion
+                    this.value = '';
                     return;
                 }
 
-                // Si pasa todas las validaciones, cargar horarios
+                // Si pasa validaciones, cargar horarios
                 loadAvailableHours(dayOfWeek, fechaStr);
             });
         }
@@ -3014,10 +3019,10 @@
             <div style="text-align: left;">
                 <p>${errorMessage}</p>
                 ${showAvailableTimes ? `
-                <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
-                <ul style="margin-top: 5px;">
-                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                </ul>` : ''}
+                    <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
+                    <ul style="margin-top: 5px;">
+                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                    </ul>` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3106,10 +3111,10 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                    <i class="fas fa-calendar-plus"></i>
-                                                                    Agendar Cita
-                                                                </button>` : ''}
+                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                        <i class="fas fa-calendar-plus"></i>
+                                                                        Agendar Cita
+                                                                    </button>` : ''}
             </div>
         `;
                 return;
@@ -3142,12 +3147,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                            <i class="fas fa-edit"></i> Modificar
-                                                                        </button>
-                                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                            <i class="fas fa-times"></i> Cancelar
-                                                                        </button>` : ''}
+                                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                <i class="fas fa-edit"></i> Modificar
+                                                                            </button>
+                                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                <i class="fas fa-times"></i> Cancelar
+                                                                            </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3180,9 +3185,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                            <i class="fas fa-redo"></i> Volver a agendar
-                                                                        </a>` : ''}
+                                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                <i class="fas fa-redo"></i> Volver a agendar
+                                                                            </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3462,10 +3467,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                            <tr>
-                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                            </tr>
-                                                                                                                                                            `).join('')}
+                                                                                                                                                                <tr>
+                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                </tr>
+                                                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
