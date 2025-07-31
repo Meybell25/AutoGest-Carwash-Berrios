@@ -2678,15 +2678,16 @@
             const horaSelect = document.getElementById('hora');
             horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
-            // Obtener horarios para este día
+            // Ajustar día de la semana para que coincida con tu backend (1=Lunes)
+            const backendDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Si usas 1=Lunes en backend
+
+            // Filtrar horarios para el día seleccionado
             const horariosDia = horariosDisponibles.filter(h => {
-                // Asegurarse que dia_semana es número (puede venir como string de la BD)
-                const diaNum = typeof h.dia_semana === 'string' ? parseInt(h.dia_semana) : h.dia_semana;
-                return diaNum === dayOfWeek;
+                return h.dia_semana == backendDay; // Comparación flexible
             });
 
             if (horariosDia.length === 0) {
-                horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                horaSelect.innerHTML = '<option value="">No hay horarios para este día</option>';
                 return;
             }
 
@@ -2700,7 +2701,7 @@
                 console.error('Error al obtener horarios ocupados:', error);
             }
 
-            // Generar slots de tiempo
+            // Procesar cada bloque de horario
             horariosDia.forEach(horario => {
                 const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
                 const [finH, finM] = horario.hora_fin.split(':').map(Number);
@@ -2711,16 +2712,16 @@
                 const horaFin = new Date();
                 horaFin.setHours(finH, finM, 0, 0);
 
+                // Generar slots de 30 minutos
                 while (horaActual < horaFin) {
-                    const horaStr = horaActual.toTimeString().substring(0, 5);
-                    const horaFinSlot = new Date(horaActual.getTime() + 30 * 60000);
-                    const horaFinStr = horaFinSlot.toTimeString().substring(0, 5);
+                    const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
+                        horaActual.getMinutes().toString().padStart(2, '0');
 
-                    // Verificar si el slot está ocupado
+                    // Verificar si está ocupado
                     const estaOcupado = horariosOcupados.some(ocupado => {
-                        const ocupadoInicio = ocupado.hora_inicio;
-                        const ocupadoFin = ocupado.hora_fin;
-                        return (horaStr < ocupadoFin && horaFinStr > ocupadoInicio);
+                        const [ocupadoH, ocupadoM] = ocupado.hora_inicio.split(':').map(Number);
+                        return horaActual.getHours() === ocupadoH &&
+                            horaActual.getMinutes() === ocupadoM;
                     });
 
                     const option = document.createElement('option');
@@ -2745,34 +2746,31 @@
 
             fechaInput.addEventListener('change', function() {
                 const selectedDate = new Date(this.value);
-                const dayOfWeek = selectedDate.getDay(); // 0=Domingo, 1=Lunes, etc.
-                const fechaStr = this.value;
+                const jsDayOfWeek = selectedDate.getDay(); // 0=Domingo, 1=Lunes (JS)
+
+                // Convertir a tu sistema (1=Lunes)
+                const backendDay = jsDayOfWeek === 0 ? 6 : jsDayOfWeek - 1;
 
                 // Validar domingos
-                if (dayOfWeek === 0) {
-                    showDateError(
-                        'Domingo no laborable',
-                        'No atendemos los domingos. Por favor selecciona otro día.'
-                    );
+                if (jsDayOfWeek === 0) {
+                    showDateError('Domingo no laborable', 'No atendemos los domingos');
                     this.value = '';
                     return;
                 }
 
-                // Verificar dia no laborable
+                // Verificar día no laborable
+                const fechaStr = selectedDate.toISOString().split('T')[0];
                 const esNoLaborable = diasNoLaborables.some(dia => dia.fecha === fechaStr);
+
                 if (esNoLaborable) {
-                    const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
-                    showDateError(
-                        'Día no laborable',
-                        `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
-                 <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
-                    );
+                    const motivo = diasNoLaborables.find(dia => dia.fecha === fechaStr).motivo;
+                    showDateError('Día no laborable', `Motivo: ${motivo}`);
                     this.value = '';
                     return;
                 }
 
-                // Si pasa validaciones, cargar horarios
-                loadAvailableHours(dayOfWeek, fechaStr);
+                // Cargar horarios con el día ajustado
+                loadAvailableHours(jsDayOfWeek, fechaStr);
             });
         }
 
@@ -3019,10 +3017,10 @@
             <div style="text-align: left;">
                 <p>${errorMessage}</p>
                 ${showAvailableTimes ? `
-                    <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
-                    <ul style="margin-top: 5px;">
-                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                    </ul>` : ''}
+                            <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
+                            <ul style="margin-top: 5px;">
+                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                            </ul>` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3111,10 +3109,10 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                        <i class="fas fa-calendar-plus"></i>
-                                                                        Agendar Cita
-                                                                    </button>` : ''}
+                                                                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                <i class="fas fa-calendar-plus"></i>
+                                                                                Agendar Cita
+                                                                            </button>` : ''}
             </div>
         `;
                 return;
@@ -3147,12 +3145,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                <i class="fas fa-edit"></i> Modificar
-                                                                            </button>
-                                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                <i class="fas fa-times"></i> Cancelar
-                                                                            </button>` : ''}
+                                                                                    <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                        <i class="fas fa-edit"></i> Modificar
+                                                                                    </button>
+                                                                                    <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                        <i class="fas fa-times"></i> Cancelar
+                                                                                    </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3185,9 +3183,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                <i class="fas fa-redo"></i> Volver a agendar
-                                                                            </a>` : ''}
+                                                                                    <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                        <i class="fas fa-redo"></i> Volver a agendar
+                                                                                    </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3467,10 +3465,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                <tr>
-                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                </tr>
-                                                                                                                                                                `).join('')}
+                                                                                                                                                                        <tr>
+                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                        </tr>
+                                                                                                                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
