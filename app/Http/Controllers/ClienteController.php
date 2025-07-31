@@ -135,13 +135,15 @@ class ClienteController extends Controller
 
         $validated = $request->validate([
             'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
-            'fecha_hora' => 'required|date|after:now',
+            'fecha' => 'required|date|after:now',
+            'hora' => 'required|date_format:H:i',
             'servicios' => 'required|array|min:1',
             'servicios.*' => 'exists:servicios,id',
             'observaciones' => 'nullable|string|max:500'
         ]);
 
-        $fechaCita = Carbon::parse($validated['fecha_hora']);
+        // Combinar fecha y hora correctamente
+        $fechaCita = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
 
         // Validar 1 mes de anticipación
         if ($fechaCita->gt(Carbon::now()->addMonth())) {
@@ -158,7 +160,7 @@ class ClienteController extends Controller
             return response()->json(['message' => 'No atendemos domingos.'], 400);
         }
 
-        // Validar horario laboral (ejemplo: 8AM a 6PM)
+        // Validar horario laboral (8AM a 6PM)
         $hora = $fechaCita->format('H:i');
         if ($hora < '08:00' || $hora > '18:00') {
             return response()->json(['message' => 'Horario no laboral (8:00 AM - 6:00 PM).'], 400);
@@ -185,13 +187,21 @@ class ClienteController extends Controller
             ], 400);
         }
 
-        // Verificar colisión con otras citas
+        // Verificar colisión con otras citas (versión corregida)
         $citasSuperpuestas = Cita::where(function ($query) use ($fechaCita, $horaFin) {
-            $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
-                ->orWhereBetween(DB::raw('DATE_ADD(fecha_hora, INTERVAL duracion_total MINUTE)'), [$fechaCita, $horaFin])
-                ->orWhere(function ($q) use ($fechaCita, $horaFin) {
-                    $q->where('fecha_hora', '<', $fechaCita)
-                        ->where(DB::raw('DATE_ADD(fecha_hora, INTERVAL duracion_total MINUTE)'), '>', $horaFin);
+            // Obtener citas existentes con sus servicios para calcular duración
+            $query->whereHas('servicios', function ($q) use ($fechaCita, $horaFin) {
+                $q->select(DB::raw('SUM(servicios.duracion_min) as total_duracion'))
+                    ->groupBy('cita_servicio.cita_id');
+            })
+                ->where(function ($q) use ($fechaCita, $horaFin) {
+                    $q->whereBetween('fecha_hora', [$fechaCita, $horaFin])
+                        ->orWhere(function ($q2) use ($fechaCita, $horaFin) {
+                            $q2->where('fecha_hora', '<', $fechaCita)
+                                ->where(DB::raw('fecha_hora + INTERVAL (SELECT SUM(servicios.duracion_min) FROM servicios 
+                                     INNER JOIN cita_servicio ON servicios.id = cita_servicio.servicio_id 
+                                     WHERE cita_servicio.cita_id = citas.id) MINUTE'), '>', $fechaCita);
+                        });
                 });
         })
             ->where('estado', '!=', 'cancelada')
@@ -208,24 +218,22 @@ class ClienteController extends Controller
         try {
             DB::beginTransaction();
 
-            // Crear la cita
-            $cita = new Cita();
-            $cita->usuario_id = Auth::id();
-            $cita->vehiculo_id = $validated['vehiculo_id'];
-            $cita->fecha_hora = $validated['fecha_hora'];
-            $cita->duracion_total = $duracionTotal;
-            $cita->estado = Cita::ESTADO_PENDIENTE;
-            $cita->observaciones = $validated['observaciones'] ?? null;
-            $cita->save();
+            // Crear la cita (sin duracion_total)
+            $cita = Cita::create([
+                'usuario_id' => Auth::id(),
+                'vehiculo_id' => $validated['vehiculo_id'],
+                'fecha_hora' => $fechaCita,
+                'estado' => Cita::ESTADO_PENDIENTE,
+                'observaciones' => $validated['observaciones'] ?? null
+            ]);
 
             // Adjuntar servicios con sus precios actuales
-            $serviciosConPrecio = [];
-            foreach ($servicios as $servicio) {
-                $serviciosConPrecio[$servicio->id] = [
+            $serviciosConPrecio = $servicios->mapWithKeys(function ($servicio) {
+                return [$servicio->id => [
                     'precio' => $servicio->precio,
                     'duracion' => $servicio->duracion_min
-                ];
-            }
+                ]];
+            })->all();
 
             $cita->servicios()->attach($serviciosConPrecio);
 
@@ -243,7 +251,7 @@ class ClienteController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cita creada exitosamente',
-                'cita' => $cita,
+                'cita' => $cita->load('servicios'),
                 'servicios_count' => count($validated['servicios']),
                 'duracion_total' => $duracionTotal,
                 'hora_fin' => $horaFin->format('H:i')
