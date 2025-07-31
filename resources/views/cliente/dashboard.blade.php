@@ -2674,133 +2674,143 @@
         }
 
         // Función para cargar horas disponibles 
-      async function loadAvailableHours(jsDayOfWeek, fechaStr) {
-    const horaSelect = document.getElementById('hora');
-    horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+        async function loadAvailableHours(jsDayOfWeek, fechaStr) {
+            const horaSelect = document.getElementById('hora');
+            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
-    // Convertir día JS a backend (1=Lunes, ..., 6=Sábado)
-    const backendDay = jsDayOfWeek === 0 ? 6 : jsDayOfWeek; // Ya validamos que no es domingo
+            // Convertir día JS a backend (1=Lunes, ..., 6=Sábado)
+            const backendDay = jsDayOfWeek === 0 ? 6 : jsDayOfWeek;
 
-    // Filtrar horarios para el día
-    const horariosDia = horariosDisponibles.filter(h => h.dia_semana == backendDay);
+            // Filtrar horarios para el día
+            const horariosDia = horariosDisponibles.filter(h => h.dia_semana == backendDay);
 
-    if (horariosDia.length === 0) {
-        horaSelect.innerHTML = '<option value="">No hay horarios disponibles para este día</option>';
-        return;
-    }
+            if (horariosDia.length === 0) {
+                horaSelect.innerHTML = '<option value="">No hay horarios disponibles para este día</option>';
+                return;
+            }
 
-    // Obtener citas existentes para esa fecha con su duración
-    let citasExistentes = [];
-    try {
-        const response = await fetch(`/cliente/citas/horarios-ocupados?fecha=${fechaStr}`);
-        const data = await response.json();
-        citasExistentes = data.horariosOcupados || [];
-    } catch (error) {
-        console.error('Error al obtener horarios ocupados:', error);
-    }
+            // Obtener citas existentes para esa fecha con su duración
+            let citasExistentes = [];
+            try {
+                const response = await fetch(`/cliente/citas/horarios-ocupados?fecha=${fechaStr}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
 
-    // Procesar cada bloque de horario
-    horariosDia.forEach(horario => {
-        const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
-        const [finH, finM] = horario.hora_fin.split(':').map(Number);
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
 
-        let horaActual = new Date();
-        horaActual.setHours(inicioH, inicioM, 0, 0);
+                const data = await response.json();
+                citasExistentes = data.horariosOcupados || [];
+            } catch (error) {
+                console.error('Error al obtener horarios ocupados:', error);
+                return;
+            }
 
-        const horaFin = new Date();
-        horaFin.setHours(finH, finM, 0, 0);
+            // Procesar cada bloque de horario
+            horariosDia.forEach(horario => {
+                const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
+                const [finH, finM] = horario.hora_fin.split(':').map(Number);
 
-        // Generar slots de 30 minutos
-        while (horaActual < horaFin) {
-            const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
-                horaActual.getMinutes().toString().padStart(2, '0');
+                let horaActual = new Date();
+                horaActual.setHours(inicioH, inicioM, 0, 0);
 
-            // Calcular duración total de servicios seleccionados (si hay)
-            const duracionTotal = calcularDuracionServiciosSeleccionados();
-            
-            // Verificar si este horario y duración chocan con citas existentes
-            const estaOcupado = citasExistentes.some(cita => {
-                const inicioCita = new Date(`${fechaStr}T${cita.hora_inicio}`);
-                const finCita = new Date(inicioCita.getTime() + cita.duracion * 60000);
-                
-                const inicioPropuesta = new Date(`${fechaStr}T${horaStr}`);
-                const finPropuesta = new Date(inicioPropuesta.getTime() + duracionTotal * 60000);
-                
-                return (
-                    (inicioPropuesta >= inicioCita && inicioPropuesta < finCita) ||
-                    (finPropuesta > inicioCita && finPropuesta <= finCita) ||
-                    (inicioPropuesta <= inicioCita && finPropuesta >= finCita)
-                );
+                const horaFin = new Date();
+                horaFin.setHours(finH, finM, 0, 0);
+
+                // Generar slots de 30 minutos
+                while (horaActual < horaFin) {
+                    const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
+                        horaActual.getMinutes().toString().padStart(2, '0');
+
+                    // Calcular duración total de servicios seleccionados (si hay)
+                    const duracionTotal = calcularDuracionServiciosSeleccionados();
+
+                    // Verificar si este horario y duración chocan con citas existentes
+                    const estaOcupado = citasExistentes.some(cita => {
+                        const inicioCita = new Date(`${fechaStr}T${cita.hora_inicio}`);
+                        const finCita = new Date(inicioCita.getTime() + cita.duracion * 60000);
+
+                        const inicioPropuesta = new Date(`${fechaStr}T${horaStr}`);
+                        const finPropuesta = new Date(inicioPropuesta.getTime() + duracionTotal *
+                            60000);
+
+                        return (
+                            (inicioPropuesta >= inicioCita && inicioPropuesta < finCita) ||
+                            (finPropuesta > inicioCita && finPropuesta <= finCita) ||
+                            (inicioPropuesta <= inicioCita && finPropuesta >= finCita)
+                        );
+                    });
+
+                    const option = document.createElement('option');
+                    option.value = horaStr;
+                    option.textContent = horaStr;
+
+                    if (estaOcupado) {
+                        option.disabled = true;
+                        option.textContent += ' (Horario ocupado)';
+                        option.style.color = '#ff6b6b';
+                    }
+
+                    horaSelect.appendChild(option);
+                    horaActual.setMinutes(horaActual.getMinutes() + 30);
+                }
             });
-
-            const option = document.createElement('option');
-            option.value = horaStr;
-            option.textContent = horaStr;
-
-            if (estaOcupado) {
-                option.disabled = true;
-                option.textContent += ' (Horario ocupado)';
-                option.style.color = '#ff6b6b';
-            }
-
-            horaSelect.appendChild(option);
-            horaActual.setMinutes(horaActual.getMinutes() + 30);
-        }
-    });
-}
-
-function calcularDuracionServiciosSeleccionados() {
-    // Sumar la duración de todos los servicios seleccionados
-    let total = 0;
-    document.querySelectorAll('input[name="servicios[]"]:checked').forEach(checkbox => {
-        const servicioId = checkbox.value;
-        // Buscar el servicio en todos los servicios disponibles
-        for (const categoria in todosServiciosDisponibles) {
-            const servicio = todosServiciosDisponibles[categoria].find(s => s.id == servicioId);
-            if (servicio) {
-                total += servicio.duracion_min;
-                break;
-            }
-        }
-    });
-    return total || 30; // Default 30 mins si no hay selección
-}
-
-// Configuracion del datepicker (actualizada)
-function setupDatePicker() {
-    const fechaInput = document.getElementById('fecha');
-
-    fechaInput.addEventListener('change', function() {
-        const selectedDate = new Date(this.value);
-        const dayOfWeek = selectedDate.getDay(); // JS: 0=Dom, 1=Lun,...,6=Sab
-
-        // Validar domingos
-        if (dayOfWeek === 0) {
-            showDateError('Domingo no laborable',
-                'No trabajamos los domingos. Por favor selecciona otro día.');
-            this.value = '';
-            return;
         }
 
-        // Validar días no laborables
-        const fechaStr = selectedDate.toISOString().split('T')[0];
-        const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+        // Configuracion del datepicker (actualizada)
+        function setupDatePicker() {
+            const fechaInput = document.getElementById('fecha');
 
-        if (diaNoLaborable) {
-            showDateError(
-                'Día no laborable',
-                `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
+            fechaInput.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const dayOfWeek = selectedDate.getDay(); // JS: 0=Dom, 1=Lun,...,6=Sab
+
+                // Validar domingos
+                if (dayOfWeek === 0) {
+                    showDateError('Domingo no laborable',
+                        'No trabajamos los domingos. Por favor selecciona otro día.');
+                    this.value = '';
+                    return;
+                }
+
+                // Validar días no laborables
+                const fechaStr = selectedDate.toISOString().split('T')[0];
+                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+
+                if (diaNoLaborable) {
+                    showDateError(
+                        'Día no laborable',
+                        `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
                  <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
-            );
-            this.value = '';
-            return;
+                    );
+                    this.value = '';
+                    return;
+                }
+
+                // Cargar horarios para días laborables (1-6)
+                loadAvailableHours(dayOfWeek, fechaStr);
+            });
         }
 
-        // Cargar horarios para días laborables (1-6)
-        loadAvailableHours(dayOfWeek, fechaStr);
-    });
-}
-
+        function calcularDuracionServiciosSeleccionados() {
+            let total = 0;
+            document.querySelectorAll('input[name="servicios[]"]:checked').forEach(checkbox => {
+                const servicioId = checkbox.value;
+                // Buscar el servicio en todos los servicios disponibles
+                for (const categoria in todosServiciosDisponibles) {
+                    const servicio = todosServiciosDisponibles[categoria].find(s => s.id == servicioId);
+                    if (servicio) {
+                        total += servicio.duracion_min;
+                        break;
+                    }
+                }
+            });
+            return total || 30; // Default 30 mins si no hay selección
+        }
 
         // Funcion para formatear fecha como YYYY-MM-DD (para input date)
         function formatDateForInput(date) {
@@ -2812,26 +2822,26 @@ function setupDatePicker() {
 
         // Funcion para formatear fecha bonita (ej: "Lunes, 25 de Junio")
         function formatFechaBonita(date) {
-    const options = {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long'
-    };
-    return date.toLocaleDateString('es-ES', options);
-}
+            const options = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long'
+            };
+            return date.toLocaleDateString('es-ES', options);
+        }
 
-function showDateError(title, message) {
-    swalWithBootstrapButtons.fire({
-        title: title,
-        html: message,
-        icon: 'warning',
-        confirmButtonColor: '#4facfe'
-    });
+        function showDateError(title, message) {
+            swalWithBootstrapButtons.fire({
+                title: title,
+                html: message,
+                icon: 'warning',
+                confirmButtonColor: '#4facfe'
+            });
 
-    // Resetear seleccion
-    document.getElementById('fecha').value = '';
-    document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
-}
+            // Resetear seleccion
+            document.getElementById('fecha').value = '';
+            document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
+        }
 
 
         // Función para cargar servicios según el tipo de vehículo seleccionado
@@ -3046,10 +3056,10 @@ function showDateError(title, message) {
             <div style="text-align: left;">
                 <p>${errorMessage}</p>
                 ${showAvailableTimes ? `
-                                <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
-                                <ul style="margin-top: 5px;">
-                                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                </ul>` : ''}
+                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles cercanos:</strong></p>
+                                                    <ul style="margin-top: 5px;">
+                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                    </ul>` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3138,10 +3148,10 @@ function showDateError(title, message) {
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                    <i class="fas fa-calendar-plus"></i>
-                                                                                    Agendar Cita
-                                                                                </button>` : ''}
+                                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                        <i class="fas fa-calendar-plus"></i>
+                                                                                                        Agendar Cita
+                                                                                                    </button>` : ''}
             </div>
         `;
                 return;
@@ -3174,12 +3184,12 @@ function showDateError(title, message) {
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                            <i class="fas fa-edit"></i> Modificar
-                                                                                        </button>
-                                                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                            <i class="fas fa-times"></i> Cancelar
-                                                                                        </button>` : ''}
+                                                                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                                                <i class="fas fa-edit"></i> Modificar
+                                                                                                            </button>
+                                                                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                                                <i class="fas fa-times"></i> Cancelar
+                                                                                                            </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3212,9 +3222,9 @@ function showDateError(title, message) {
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                            <i class="fas fa-redo"></i> Volver a agendar
-                                                                                        </a>` : ''}
+                                                                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                                                <i class="fas fa-redo"></i> Volver a agendar
+                                                                                                            </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3494,10 +3504,10 @@ function showDateError(title, message) {
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                            <tr>
-                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                            </tr>
-                                                                                                                                                                            `).join('')}
+                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
