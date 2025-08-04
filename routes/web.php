@@ -162,6 +162,8 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::post('/citas', [ClienteController::class, 'storeCita'])->name('citas.store');
         Route::put('/citas/{cita}', [ClienteController::class, 'updateCita'])->name('citas.update');
         Route::post('/citas/{cita}/cancelar', [ClienteController::class, 'cancelarCita'])->name('citas.cancelar');
+        Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])
+            ->name('citas.dashboard-data');
 
         // Solo una ruta para horarios ocupados
         Route::get('/citas/horarios-ocupados', [ClienteController::class, 'getHorariosOcupados'])
