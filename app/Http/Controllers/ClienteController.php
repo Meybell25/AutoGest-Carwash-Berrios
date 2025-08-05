@@ -456,7 +456,8 @@ class ClienteController extends Controller
             'success' => true,
             'cita' => $cita->load(['vehiculo', 'servicios']),
             'servicios' => Servicio::activos()->get(),
-            'vehiculos' => Auth::user()->vehiculos
+            'vehiculos' => Auth::user()->vehiculos,
+            'horarios_disponibles' => $this->getAvailableTimes($cita->fecha_hora->format('Y-m-d'))
         ]);
     }
 
