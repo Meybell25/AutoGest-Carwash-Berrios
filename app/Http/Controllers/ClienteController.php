@@ -449,16 +449,95 @@ class ClienteController extends Controller
     public function edit(Cita $cita)
     {
         if ($cita->usuario_id !== Auth::id()) {
-            abort(403);
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para editar esta cita'
+            ], 403);
+        }
+
+        if (!in_array($cita->estado, ['pendiente', 'confirmada'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden editar citas en estado pendiente o confirmada'
+            ], 400);
         }
 
         return response()->json([
             'success' => true,
-            'cita' => $cita->load(['vehiculo', 'servicios']),
-            'servicios' => Servicio::activos()->get(),
-            'vehiculos' => Auth::user()->vehiculos,
-            'horarios_disponibles' => $this->getAvailableTimes($cita->fecha_hora->format('Y-m-d'))
+            'data' => [
+                'cita' => $cita->load(['vehiculo', 'servicios']),
+                'vehiculo_id' => $cita->vehiculo_id,
+                'servicios' => $cita->servicios->pluck('id')->toArray(),
+                'fecha_hora' => $cita->fecha_hora->format('Y-m-d\TH:i'),
+                'observaciones' => $cita->observaciones,
+                'vehiculos' => Auth::user()->vehiculos,
+                'servicios_disponibles' => Servicio::activos()->get()->groupBy('categoria')
+            ]
         ]);
+    }
+
+    public function updateCita(Request $request, Cita $cita)
+    {
+        if ($cita->usuario_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para editar esta cita'
+            ], 403);
+        }
+
+        if (!in_array($cita->estado, ['pendiente', 'confirmada'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden editar citas en estado pendiente o confirmada'
+            ], 400);
+        }
+
+        // Resto de la validación igual que en storeCita
+        $validated = $request->validate([
+            'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
+            'fecha' => 'required|date|after_or_equal:today',
+            'hora' => 'required|date_format:H:i',
+            'servicios' => 'required|array|min:1',
+            'servicios.*' => 'exists:servicios,id',
+            'observaciones' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Actualizar cita
+            $fechaCita = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
+            $cita->update([
+                'vehiculo_id' => $validated['vehiculo_id'],
+                'fecha_hora' => $fechaCita,
+                'observaciones' => $validated['observaciones'] ?? null
+            ]);
+
+            // Sincronizar servicios
+            $serviciosConPrecio = [];
+            foreach ($validated['servicios'] as $servicioId) {
+                $servicio = Servicio::find($servicioId);
+                $serviciosConPrecio[$servicioId] = ['precio' => $servicio->precio];
+            }
+            $cita->servicios()->sync($serviciosConPrecio);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cita actualizada exitosamente',
+                'data' => [
+                    'cita_id' => $cita->id,
+                    'fecha_hora' => $fechaCita->format('Y-m-d H:i:s')
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar la cita: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getHorariosOcupados(Request $request)
