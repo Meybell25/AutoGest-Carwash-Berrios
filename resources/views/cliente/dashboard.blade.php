@@ -2579,38 +2579,47 @@
 
         // Funciones del modal de citas
         function openCitaModal(vehiculoId = null) {
-            // Verificar estado del usuario primero
-            checkUserStatus().then(isActive => {
-                if (!isActive) {
-                    swalWithBootstrapButtons.fire({
-                        title: 'Cuenta inactiva',
-                        text: 'Tu cuenta está inactiva. No puedes crear nuevas citas.',
-                        icon: 'error'
-                    });
-                    return;
-                }
+        // Verificar estado del usuario primero
+        checkUserStatus().then(isActive => {
+            if (!isActive) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Cuenta inactiva',
+                    text: 'Tu cuenta está inactiva. No puedes crear nuevas citas.',
+                    icon: 'error'
+                });
+                return;
+            }
 
-                const modal = document.getElementById('createCitaModal');
-                modal.style.display = 'block';
+            const modal = document.getElementById('createCitaModal');
+            if (!modal) {
+                console.error('Modal de cita no encontrado');
+                return;
+            }
+            modal.style.display = 'block';
 
-                // Resetear el formulario
-                document.getElementById('citaForm').reset();
+            // Resetear el formulario
+            const citaForm = document.getElementById('citaForm');
+            if (citaForm) citaForm.reset();
 
-                // Cargar datos necesarios
-                loadInitialData().then(() => {
-                    // Si se proporciona un vehículo, establecerlo
-                    if (vehiculoId) {
-                        document.getElementById('vehiculo_id').value = vehiculoId;
+            // Cargar datos necesarios
+            loadInitialData().then(() => {
+                // Si se proporciona un vehículo, establecerlo
+                if (vehiculoId) {
+                    const vehiculoSelect = document.getElementById('vehiculo_id');
+                    if (vehiculoSelect) {
+                        vehiculoSelect.value = vehiculoId;
                         cargarServiciosPorTipo();
                     }
-                });
+                }
             });
-        }
+        });
+    }
 
         function closeCitaModal() {
             document.getElementById('createCitaModal').style.display = 'none';
             document.getElementById('citaForm').reset();
         }
+        
         async function checkUserStatus() {
             try {
                 const response = await fetch('{{ route('cliente.check-status') }}', {
@@ -2802,7 +2811,6 @@
                 }
 
             } catch (error) {
-                console.error('Error crítico en loadAvailableHours:', error);
                 horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
 
                 // Mostrar error al usuario
@@ -3110,6 +3118,36 @@
                 if (error.message) {
                     if (typeof error.message === 'string') {
                         errorMessage = error.message;
+
+                        // Manejo de errores específicos
+                        if (error.message.includes('No atendemos domingos')) {
+                            errorMessage = 'No trabajamos los domingos. Por favor selecciona otro día.';
+                            await swalWithBootstrapButtons.fire({
+                                title: 'Domingo no laborable',
+                                text: errorMessage,
+                                icon: 'warning',
+                                confirmButtonColor: '#4facfe'
+                            });
+                            return;
+                        } else if (error.message.includes('horario ya está ocupado') || error.message.includes(
+                                'Duplicate entry')) {
+                            errorMessage =
+                                'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.';
+                            showAvailableTimes = true;
+
+                            // Obtener horarios disponibles para la fecha seleccionada
+                            const fecha = document.getElementById('fecha').value;
+                            if (fecha) {
+                                try {
+                                    const response = await fetch(
+                                        `/cliente/citas/horarios-disponibles?fecha=${fecha}`);
+                                    const data = await response.json();
+                                    availableTimes = data.horarios || [];
+                                } catch (err) {
+                                    console.error('Error al obtener horarios disponibles:', err);
+                                }
+                            }
+                        }
                     } else if (error.message.message) {
                         errorMessage = error.message.message;
                         if (error.message.errors) {
@@ -3118,59 +3156,29 @@
                     }
                 }
 
-                // Manejo  de errores de el dia domingo
-                if (error.message.includes('No atendemos domingos')) {
-                    errorMessage = 'No trabajamos los domingos. Por favor selecciona otro día.';
-                    await swalWithBootstrapButtons.fire({
-                        title: 'Domingo no laborable',
-                        text: errorMessage,
-                        icon: 'warning',
-                        confirmButtonColor: '#4facfe'
-                    });
-                    return;
-                }
-            } else if (error.message.includes('horario ya está ocupado') ||
-                error.message.includes('Duplicate entry')) {
-                errorMessage =
-                    'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.';
-                showAvailableTimes = true;
+                const errorHtml = `
+            <div style="text-align: left;">
+                <p>${errorMessage}</p>
+                ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
+                ${showAvailableTimes && availableTimes.length > 0 ? `
+                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                        </ul>
+                    ` : ''}
+                <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                    Por favor intenta nuevamente con un horario diferente.
+                </p>
+            </div>
+        `;
 
-                // Obtener horarios disponibles para la fecha seleccionada
-                const fecha = document.getElementById('fecha').value;
-                if (fecha) {
-                    try {
-                        const response = await fetch(`/cliente/citas/horarios-disponibles?fecha=${fecha}`);
-                        const data = await response.json();
-                        availableTimes = data.horarios || [];
-                    } catch (err) {
-                        console.error('Error al obtener horarios disponibles:', err);
-                    }
-                }
+                await swalWithBootstrapButtons.fire({
+                    title: 'Error al agendar',
+                    html: errorHtml,
+                    icon: 'error',
+                    confirmButtonColor: '#ff6b6b'
+                });
             }
-
-            const errorHtml = `
-        <div style="text-align: left;">
-            <p>${errorMessage}</p>
-            ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
-            ${showAvailableTimes && availableTimes.length > 0 ? `
-                                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                        </ul>
-                                    ` : ''}
-            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                Por favor intenta nuevamente con un horario diferente.
-            </p>
-        </div>
-    `;
-
-            await swalWithBootstrapButtons.fire({
-                title: 'Error al agendar',
-                html: errorHtml,
-                icon: 'error',
-                confirmButtonColor: '#ff6b6b'
-            });
-        }
         });
 
         // Función para actualizar las secciones de citas dinámicamente
@@ -3248,10 +3256,10 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                                                                                                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                Agendar Cita
-                                                                                                                                            </button>` : ''}
+                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                    <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                    Agendar Cita
+                                                                                                                                                </button>` : ''}
             </div>
         `;
                 return;
@@ -3284,12 +3292,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                                                                                    <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                                                                                        <i class="fas fa-edit"></i> Modificar
-                                                                                                                                                    </button>
-                                                                                                                                                    <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                                                                                        <i class="fas fa-times"></i> Cancelar
-                                                                                                                                                    </button>` : ''}
+                                                                                                                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                                                                                            <i class="fas fa-edit"></i> Modificar
+                                                                                                                                                        </button>
+                                                                                                                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                                                                                            <i class="fas fa-times"></i> Cancelar
+                                                                                                                                                        </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3322,9 +3330,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                                                                                                    <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                                                                                        <i class="fas fa-redo"></i> Volver a agendar
-                                                                                                                                                    </a>` : ''}
+                                                                                                                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                                                                                            <i class="fas fa-redo"></i> Volver a agendar
+                                                                                                                                                        </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3604,10 +3612,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                        `).join('')}
+                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>

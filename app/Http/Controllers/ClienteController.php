@@ -458,23 +458,20 @@ class ClienteController extends Controller
 
     public function getHorariosOcupados(Request $request)
     {
-        $fecha = $request->query('fecha');
-
-        if (!$fecha) {
-            return response()->json(['horariosOcupados' => []]);
-        }
-
         try {
-            // Obtener todas las citas para esa fecha con sus servicios
+            $fecha = $request->query('fecha');
+
+            if (!$fecha) {
+                return response()->json(['horariosOcupados' => []]);
+            }
+
             $citas = Cita::with('servicios')
                 ->whereDate('fecha_hora', $fecha)
                 ->where('estado', '!=', 'cancelada')
                 ->get();
 
-            // Formatear respuesta
             $horariosOcupados = $citas->map(function ($cita) {
                 $horaInicio = Carbon::parse($cita->fecha_hora);
-                // Calcular duración total sumando los servicios
                 $duracionTotal = $cita->servicios->sum('duracion_min');
                 return [
                     'hora_inicio' => $horaInicio->format('H:i'),
@@ -486,7 +483,7 @@ class ClienteController extends Controller
             return response()->json(['horariosOcupados' => $horariosOcupados]);
         } catch (\Exception $e) {
             Log::error('Error en getHorariosOcupados: ' . $e->getMessage());
-            return response()->json(['horariosOcupados' => []], 500);
+            return response()->json(['horariosOcupados' => []]);
         }
     }
 }
