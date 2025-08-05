@@ -248,10 +248,12 @@ class ClienteController extends Controller
                     'cita_id' => $cita->id,
                     'fecha_hora' => $fechaCita->format('Y-m-d H:i:s'),
                     'servicios_count' => count($validated['servicios']),
+                    'servicios_nombres' => $servicios->pluck('nombre')->join(', '),
                     'duracion_total' => $duracionTotal,
                     'hora_fin' => $horaFin->format('H:i'),
                     'vehiculo_marca' => $vehiculo->marca,
-                    'vehiculo_modelo' => $vehiculo->modelo
+                    'vehiculo_modelo' => $vehiculo->modelo,
+                    'vehiculo_placa' => $vehiculo->placa
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -432,8 +434,8 @@ class ClienteController extends Controller
                     'citas_confirmadas' => $todasLasCitas->where('estado', 'confirmada')->count(),
                 ],
                 'vehiculos_dashboard' => $vehiculosDashboard,
-                'proximas_citas' => $proximas_citas, // Pasar ya filtradas
-                'historial_citas' => $historial_citas, // Pasar ya filtradas
+                'proximas_citas' => $proximas_citas,
+                'historial_citas' => $historial_citas,
                 'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
                 'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count()
             ]);
