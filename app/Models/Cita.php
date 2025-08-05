@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,13 +19,13 @@ class Cita extends Model
         'estado',
         'observaciones',
         'created_at',
-        'updated_at' 
+        'updated_at'
     ];
 
     protected $casts = [
         'fecha_hora' => 'datetime',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime' 
+        'updated_at' => 'datetime'
     ];
 
     // Estados de las citas
@@ -59,7 +60,7 @@ class Cita extends Model
     public function servicios()
     {
         return $this->belongsToMany(Servicio::class, 'cita_servicio', 'cita_id', 'servicio_id')
-                    ->withPivot(['precio', 'descuento', 'observacion']);
+            ->withPivot(['precio', 'descuento', 'observacion']);
     }
 
     public function pago()

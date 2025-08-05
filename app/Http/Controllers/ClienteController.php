@@ -189,10 +189,7 @@ class ClienteController extends Controller
             // Verificar colisión con otras citas
             $citasSuperpuestas = Cita::where('estado', '!=', 'cancelada')
                 ->where(function ($query) use ($fechaCita, $horaFin) {
-                    // Citas que comienzan durante el intervalo propuesto
                     $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
-
-                        // O citas que comienzan antes pero terminan después del inicio propuesto
                         ->orWhere(function ($q) use ($fechaCita) {
                             $q->where('fecha_hora', '<', $fechaCita)
                                 ->whereHas('servicios', function ($subQuery) use ($fechaCita) {
@@ -227,8 +224,7 @@ class ClienteController extends Controller
 
             $serviciosConPrecio = $servicios->mapWithKeys(function ($servicio) {
                 return [$servicio->id => [
-                    'precio' => $servicio->precio,
-                    'duracion' => $servicio->duracion_min
+                    'precio' => $servicio->precio
                 ]];
             });
 
@@ -289,12 +285,11 @@ class ClienteController extends Controller
     {
         $date = Carbon::parse($date);
 
-        // Si es domingo o día no laborable, retornar vacío
         if ($date->isSunday() || DiaNoLaborable::whereDate('fecha', $date)->exists()) {
             return [];
         }
 
-        // Obtener horarios ocupados para esa fecha
+        // Obtener horarios ocupados calculando la duración sobre la marcha
         $horariosOcupados = Cita::whereDate('fecha_hora', $date)
             ->where('estado', '!=', 'cancelada')
             ->with('servicios')
