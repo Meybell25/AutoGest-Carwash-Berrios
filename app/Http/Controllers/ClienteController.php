@@ -267,13 +267,15 @@ class ClienteController extends Controller
                 'error' => $e->getTraceAsString()
             ]);
 
-            $statusCode = method_exists($e, 'getCode') && $e->getCode() >= 400 && $e->getCode() < 500
+            // Validar que el código de error sea un entero válido para HTTP
+            $statusCode = is_int($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600
                 ? $e->getCode()
                 : 400;
 
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'error_type' => get_class($e) //  para identificar el tipo de error
             ], $statusCode);
         }
     }
