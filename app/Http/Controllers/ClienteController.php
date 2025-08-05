@@ -187,14 +187,20 @@ class ClienteController extends Controller
             }
 
             // Verificar colisión con otras citas
-            $citasSuperpuestas = Cita::where(function ($query) use ($fechaCita, $horaFin) {
-                $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
-                    ->orWhere(function ($q) use ($fechaCita, $horaFin) {
-                        $q->where('fecha_hora', '<', $fechaCita)
-                            ->where(DB::raw('DATE_ADD(fecha_hora, INTERVAL duracion_total MINUTE)'), '>', $fechaCita);
-                    });
-            })
-                ->where('estado', '!=', 'cancelada')
+            $citasSuperpuestas = Cita::where('estado', '!=', 'cancelada')
+                ->where(function ($query) use ($fechaCita, $horaFin) {
+                    // Citas que comienzan durante el intervalo propuesto
+                    $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
+
+                        // O citas que comienzan antes pero terminan después del inicio propuesto
+                        ->orWhere(function ($q) use ($fechaCita) {
+                            $q->where('fecha_hora', '<', $fechaCita)
+                                ->whereHas('servicios', function ($subQuery) use ($fechaCita) {
+                                    $subQuery->select(DB::raw('SUM(servicios.duracion_min) as total'))
+                                        ->havingRaw('DATE_ADD(citas.fecha_hora, INTERVAL total MINUTE) > ?', [$fechaCita]);
+                                });
+                        });
+                })
                 ->exists();
 
             if ($citasSuperpuestas) {
@@ -216,8 +222,7 @@ class ClienteController extends Controller
                 'vehiculo_id' => $validated['vehiculo_id'],
                 'fecha_hora' => $fechaCita,
                 'estado' => Cita::ESTADO_PENDIENTE,
-                'observaciones' => $validated['observaciones'] ?? null,
-                'duracion_total' => $duracionTotal
+                'observaciones' => $validated['observaciones'] ?? null
             ]);
 
             $serviciosConPrecio = $servicios->mapWithKeys(function ($servicio) {
@@ -292,12 +297,14 @@ class ClienteController extends Controller
         // Obtener horarios ocupados para esa fecha
         $horariosOcupados = Cita::whereDate('fecha_hora', $date)
             ->where('estado', '!=', 'cancelada')
+            ->with('servicios')
             ->get()
             ->map(function ($cita) {
                 $horaInicio = Carbon::parse($cita->fecha_hora);
+                $duracionTotal = $cita->servicios->sum('duracion_min');
                 return [
                     'inicio' => $horaInicio,
-                    'fin' => $horaInicio->copy()->addMinutes($cita->duracion_total)
+                    'fin' => $horaInicio->copy()->addMinutes($duracionTotal)
                 ];
             });
 
