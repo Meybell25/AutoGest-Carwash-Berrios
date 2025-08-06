@@ -528,7 +528,11 @@ class ClienteController extends Controller
                 'message' => 'Cita actualizada exitosamente',
                 'data' => [
                     'cita_id' => $cita->id,
-                    'fecha_hora' => $fechaCita->format('Y-m-d H:i:s')
+                    'fecha_hora' => $fechaCita->format('Y-m-d H:i:s'),
+                    'servicios_nombres' => $cita->servicios->pluck('nombre')->join(', '),
+                    'vehiculo_marca' => $cita->vehiculo->marca,
+                    'vehiculo_modelo' => $cita->vehiculo->modelo,
+                    'vehiculo_placa' => $cita->vehiculo->placa ?? ''
                 ]
             ]);
         } catch (\Exception $e) {
