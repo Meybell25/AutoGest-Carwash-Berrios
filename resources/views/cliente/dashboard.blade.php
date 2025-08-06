@@ -3384,66 +3384,71 @@
         }
 
         function editCita(citaId) {
-            const swalInstance = swalWithBootstrapButtons.fire({
-                title: 'Cargando cita...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
+    const swalInstance = swalWithBootstrapButtons.fire({
+        title: 'Cargando cita...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
 
-            fetch(`/cliente/citas/${citaId}/edit`)
-                .then(response => {
-                    if (!response.ok) throw new Error(`Error: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    swalInstance.close();
-                    if (!data.success) throw new Error(data.message || 'Error al cargar cita');
+    fetch(`/cliente/citas/${citaId}/edit`)
+        .then(response => {
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            swalInstance.close();
+            if (!data.success) throw new Error(data.message || 'Error al cargar cita');
 
-                    // Rellenar el modal con los datos de la cita
-                    openCitaModal();
-                    const form = document.getElementById('citaForm');
-                    form.action = `/cliente/citas/${citaId}`;
+            // Abrir el modal primero
+            openCitaModal();
+            
+            const form = document.getElementById('citaForm');
+            form.action = `/cliente/citas/${citaId}`;
 
-                    // Asegurar método PUT (sin duplicados)
-                    if (!form.querySelector('[name="_method"]')) {
-                        form.insertAdjacentHTML('beforeend', '<input type="hidden" name="_method" value="PUT">');
+            // Asegurar método PUT
+            if (!form.querySelector('[name="_method"]')) {
+                form.insertAdjacentHTML('beforeend', '<input type="hidden" name="_method" value="PUT">');
+            }
+
+            // 1. Cargar vehículo (esto disparará cargarServiciosPorTipo)
+            document.getElementById('vehiculo_id').value = data.data.vehiculo_id;
+            
+            // 2. Cargar fecha y hora
+            const fechaHora = new Date(data.data.fecha_hora);
+            document.getElementById('fecha').value = fechaHora.toISOString().split('T')[0];
+            
+            // 3. Cargar observaciones
+            document.getElementById('observaciones').value = data.data.observaciones || '';
+            
+            // Esperar un breve momento para asegurar que los servicios se cargaron
+            setTimeout(() => {
+                // 4. Cargar hora después de que los servicios estén listos
+                const horaStr = fechaHora.getHours().toString().padStart(2, '0') + ':' + 
+                               fechaHora.getMinutes().toString().padStart(2, '0');
+                document.getElementById('hora').value = horaStr;
+                
+                // 5. Marcar servicios seleccionados
+                data.data.servicios.forEach(servicioId => {
+                    const checkbox = document.querySelector(`input[name="servicios[]"][value="${servicioId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        // También marcar visualmente como seleccionado
+                        checkbox.closest('.service-card').classList.add('selected');
                     }
-
-                    // Cargar datos básicos
-                    document.getElementById('vehiculo_id').value = data.data.vehiculo_id;
-                    document.getElementById('fecha').value = data.data.fecha_hora.split('T')[0];
-                    document.getElementById('observaciones').value = data.data.observaciones || '';
-
-                    // Cargar hora (con delay para asegurar renderizado)
-                    setTimeout(() => {
-                        document.getElementById('hora').value = data.data.fecha_hora.split('T')[1].substring(0,
-                            5);
-
-                        // Cargar servicios según el tipo de vehículo
-                        cargarServiciosPorTipo().then(() => {
-                            // Esperar un poco más para asegurar que los servicios se han cargado
-                            setTimeout(() => {
-                                // Marcar servicios asociados a la cita
-                                data.data.servicios.forEach(servicioId => {
-                                    const checkbox = document.querySelector(
-                                        `input[name="servicios[]"][value="${servicioId}"]`
-                                    );
-                                    if (checkbox) checkbox.checked = true;
-                                });
-                            }, 300);
-                        });
-                    }, 100);
-
-                })
-                .catch(error => {
-                    swalInstance.close();
-                    swalWithBootstrapButtons.fire({
-                        title: 'Error',
-                        text: error.message,
-                        icon: 'error'
-                    });
                 });
-        }
+            }, 500); // Aumentamos el tiempo de espera para asegurar carga
+
+        })
+        .catch(error => {
+            swalInstance.close();
+            swalWithBootstrapButtons.fire({
+                title: 'Error',
+                text: error.message,
+                icon: 'error'
+            });
+        });
+}
+
         // Funciones del modal
         function openEditModal() {
             const modal = document.getElementById('editProfileModal');
