@@ -121,7 +121,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         });
 
 
-        Route::prefix('gastos')->name('gastos.')->group(function () {
+        /*        Route::prefix('gastos')->name('gastos.')->group(function () {
             Route::get('/', [GastoController::class, 'index'])->name('index');
             Route::get('/crear', [GastoController::class, 'create'])->name('create');
             Route::post('/', [GastoController::class, 'store'])->name('store');
@@ -131,7 +131,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::delete('/{id}', [GastoController::class, 'destroy'])->name('destroy');
             Route::get('/tipo/{tipo}', [GastoController::class, 'filtrarPorTipo'])->name('tipo');
             Route::post('/filtrar-fechas', [GastoController::class, 'filtrarPorFechas'])->name('filtrar-fechas');
-        });
+        });*/
 
         //Rutas para horarios
         Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
@@ -160,11 +160,12 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
 
         // Gestión de citas
         Route::post('/citas', [ClienteController::class, 'storeCita'])->name('citas.store');
-        Route::put('/citas/{cita}', [ClienteController::class, 'updateCita'])->name('citas.update');
         Route::post('/citas/{cita}/cancelar', [ClienteController::class, 'cancelarCita'])->name('citas.cancelar');
         Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('citas.dashboard-data');
-        Route::get('/citas/{cita}/edit', [ClienteController::class, 'edit'])->name('cliente.citas.edit');        
-        Route::put('/cliente/citas/{cita}', [ClienteController::class, 'updateCita'])->name('cliente.citas.update');
+        // Ruta para mostrar el formulario de edición
+        Route::get('/citas/{cita}/edit', [ClienteController::class, 'edit'])->name('citas.edit');
+        // Ruta para procesar la actualización 
+        Route::put('/citas/{cita}', [ClienteController::class, 'updateCita'])->name('citas.update');
         Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('dashboard.data');
 
         // Solo una ruta para horarios ocupados
