@@ -446,35 +446,35 @@ class ClienteController extends Controller
             ], 500);
         }
     }
-    public function edit(Cita $cita)
-    {
-        if ($cita->usuario_id !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No tienes permiso para editar esta cita'
-            ], 403);
-        }
-
-        if (!in_array($cita->estado, ['pendiente', 'confirmada'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Solo se pueden editar citas en estado pendiente o confirmada'
-            ], 400);
-        }
-
+   public function edit(Cita $cita)
+{
+    if ($cita->usuario_id !== Auth::id()) {
         return response()->json([
-            'success' => true,
-            'data' => [
-                'cita' => $cita->load(['vehiculo', 'servicios']),
-                'vehiculo_id' => $cita->vehiculo_id,
-                'servicios' => $cita->servicios->pluck('id')->toArray(),
-                'fecha_hora' => $cita->fecha_hora->format('Y-m-d\TH:i'),
-                'observaciones' => $cita->observaciones,
-                'vehiculos' => Auth::user()->vehiculos,
-                'servicios_disponibles' => Servicio::activos()->get()->groupBy('categoria')
-            ]
-        ]);
+            'success' => false,
+            'message' => 'No tienes permiso para editar esta cita'
+        ], 403);
     }
+
+    if (!in_array($cita->estado, ['pendiente', 'confirmada'])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Solo se pueden editar citas en estado pendiente o confirmada'
+        ], 400);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'cita' => $cita->load(['vehiculo', 'servicios']),
+            'vehiculo_id' => $cita->vehiculo_id,
+            'servicios' => $cita->servicios->pluck('id')->toArray(),
+            'fecha' => $cita->fecha_hora->format('Y-m-d'),
+            'hora' => $cita->fecha_hora->format('H:i'),
+            'observaciones' => $cita->observaciones,
+            'vehiculo_tipo' => $cita->vehiculo->tipo 
+        ]
+    ]);
+}
 
     public function updateCita(Request $request, Cita $cita)
     {
