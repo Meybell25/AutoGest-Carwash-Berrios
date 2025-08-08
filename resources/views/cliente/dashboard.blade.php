@@ -2974,8 +2974,7 @@
 
                 if (servicios.length === 0) {
                     container.innerHTML = '<p>No hay servicios disponibles para este tipo de vehículo</p>';
-                    resolve();
-                    return;
+                    return resolve();
                 }
 
                 servicios.forEach(servicio => {
@@ -2992,46 +2991,14 @@
             `;
                     container.appendChild(servicioDiv);
 
-                    // Manejar cambio visual al seleccionar
                     const checkbox = servicioDiv.querySelector('input');
                     checkbox.addEventListener('change', function() {
                         servicioDiv.classList.toggle('selected', this.checked);
                     });
                 });
 
-                resolve();
-            });
-        }
-
-        // Función para renderizar servicios
-        function renderServicios(servicios) {
-            const container = document.getElementById('serviciosContainer');
-            container.innerHTML = '';
-
-            if (servicios.length === 0) {
-                container.innerHTML = '<p>No hay servicios disponibles para este tipo de vehículo</p>';
-                return;
-            }
-
-            servicios.forEach(servicio => {
-                const servicioDiv = document.createElement('label');
-                servicioDiv.className = 'service-card';
-                servicioDiv.htmlFor = `servicio_${servicio.id}`;
-                servicioDiv.innerHTML = `
-            <input type="checkbox" id="servicio_${servicio.id}" name="servicios[]" value="${servicio.id}">
-            <div>
-                <h4>${servicio.nombre}</h4>
-                <p>$${servicio.precio.toFixed(2)} • ${formatDuration(servicio.duracion_min)}</p>
-                <p class="description">${servicio.descripcion || ''}</p>
-            </div>
-        `;
-                container.appendChild(servicioDiv);
-
-                // Manejar cambio visual al seleccionar
-                const checkbox = servicioDiv.querySelector('input');
-                checkbox.addEventListener('change', function() {
-                    servicioDiv.classList.toggle('selected', this.checked);
-                });
+                // Pequeño retraso para asegurar que el DOM se actualizó
+                setTimeout(resolve, 50);
             });
         }
 
@@ -3230,11 +3197,11 @@
                 <p>${errorMessage}</p>
                 ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                 ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                    </ul>
-                                                ` : ''}
+                                                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                        </ul>
+                                                    ` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3328,10 +3295,10 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                                                                                                                                                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                                                                                                        Agendar Cita
-                                                                                                                                                                                                                                                    </button>` : ''}
+                                                                                                                                                                                                                                                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                                                                                            <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                                                                                            Agendar Cita
+                                                                                                                                                                                                                                                        </button>` : ''}
             </div>
         `;
                 return;
@@ -3364,12 +3331,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                                                                                                                                                                                                <i class="fas fa-edit"></i> Modificar
-                                                                                                                                                                                                                                                            </button>
-                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                                                                                                                                                                                                <i class="fas fa-times"></i> Cancelar
-                                                                                                                                                                                                                                                            </button>` : ''}
+                                                                                                                                                                                                                                                                <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                                                                                                                                                                                                    <i class="fas fa-edit"></i> Modificar
+                                                                                                                                                                                                                                                                </button>
+                                                                                                                                                                                                                                                                <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                                                                                                                                                                                                    <i class="fas fa-times"></i> Cancelar
+                                                                                                                                                                                                                                                                </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3402,9 +3369,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                                                                                                                                                                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                                                                                                                                                                                                <i class="fas fa-redo"></i> Volver a agendar
-                                                                                                                                                                                                                                                            </a>` : ''}
+                                                                                                                                                                                                                                                                <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                                                                                                                                                                                                    <i class="fas fa-redo"></i> Volver a agendar
+                                                                                                                                                                                                                                                                </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3683,10 +3650,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                                                                                                                                                                `).join('')}
+                                                                                                                                                                                                                                                                                                                                                    <tr>
+                                                                                                                                                                                                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                    </tr>
+                                                                                                                                                                                                                                                                                                                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -3798,8 +3765,8 @@
 
     <script>
         /*=========================================================
-                        FUNCIONAMIENTO DE MODAL VEHICULOS
-                        =========================================================*/
+                            FUNCIONAMIENTO DE MODAL VEHICULOS
+                            =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -3828,8 +3795,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                        =========================================================*/
+                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
