@@ -188,6 +188,9 @@ class ClienteController extends Controller
 
             // Verificar colisión con otras citas
             $citasSuperpuestas = Cita::where('estado', '!=', 'cancelada')
+                ->when($request->has('cita_id'), function ($query) use ($request) {
+                    $query->where('id', '!=', $request->cita_id); // Excluir la cita actual
+                })
                 ->where(function ($query) use ($fechaCita, $horaFin) {
                     $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
                         ->orWhere(function ($q) use ($fechaCita) {
@@ -199,6 +202,7 @@ class ClienteController extends Controller
                         });
                 })
                 ->exists();
+
 
             if ($citasSuperpuestas) {
                 $horariosDisponibles = $this->getAvailableTimes($fechaCita->format('Y-m-d'));
@@ -446,35 +450,35 @@ class ClienteController extends Controller
             ], 500);
         }
     }
-   public function edit(Cita $cita)
-{
-    if ($cita->usuario_id !== Auth::id()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'No tienes permiso para editar esta cita'
-        ], 403);
-    }
+    public function edit(Cita $cita)
+    {
+        if ($cita->usuario_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para editar esta cita'
+            ], 403);
+        }
 
-    if (!in_array($cita->estado, ['pendiente', 'confirmada'])) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Solo se pueden editar citas en estado pendiente o confirmada'
-        ], 400);
-    }
+        if (!in_array($cita->estado, ['pendiente', 'confirmada'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden editar citas en estado pendiente o confirmada'
+            ], 400);
+        }
 
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'cita' => $cita->load(['vehiculo', 'servicios']),
-            'vehiculo_id' => $cita->vehiculo_id,
-            'servicios' => $cita->servicios->pluck('id')->toArray(),
-            'fecha' => $cita->fecha_hora->format('Y-m-d'),
-            'hora' => $cita->fecha_hora->format('H:i'),
-            'observaciones' => $cita->observaciones,
-            'vehiculo_tipo' => $cita->vehiculo->tipo 
-        ]
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'cita' => $cita->load(['vehiculo', 'servicios']),
+                'vehiculo_id' => $cita->vehiculo_id,
+                'servicios' => $cita->servicios->pluck('id')->toArray(),
+                'fecha' => $cita->fecha_hora->format('Y-m-d'),
+                'hora' => $cita->fecha_hora->format('H:i'),
+                'observaciones' => $cita->observaciones,
+                'vehiculo_tipo' => $cita->vehiculo->tipo
+            ]
+        ]);
+    }
 
     public function updateCita(Request $request, Cita $cita)
     {

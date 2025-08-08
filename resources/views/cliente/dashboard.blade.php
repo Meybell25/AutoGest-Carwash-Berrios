@@ -2588,10 +2588,9 @@
 
 
         // Funciones del modal de citas
-        function openCitaModal(vehiculoId = null) {
+        async function openCitaModal(vehiculoId = null) {
             return new Promise((resolve) => {
-                // Verificar estado del usuario primero
-                checkUserStatus().then(isActive => {
+                checkUserStatus().then(async isActive => {
                     if (!isActive) {
                         swalWithBootstrapButtons.fire({
                             title: 'Cuenta inactiva',
@@ -2607,35 +2606,36 @@
                         return;
                     }
 
-                    // Resetear completamente el formulario
+                    // Resetear formulario
                     const citaForm = document.getElementById('citaForm');
                     if (citaForm) {
                         citaForm.reset();
                         citaForm.action = '{{ route('cliente.citas.store') }}';
-
-                        // Remover método PUT si existe (para casos de edición)
                         const methodInput = citaForm.querySelector('[name="_method"]');
                         if (methodInput) methodInput.remove();
-
-                        // Resetear visualmente los servicios seleccionados
                         document.querySelectorAll('.service-card.selected').forEach(card => {
                             card.classList.remove('selected');
                         });
-
-                        // Resetear el select de hora
-                        const horaSelect = document.getElementById('hora');
-                        if (horaSelect) {
-                            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
-                        }
+                        document.getElementById('hora').innerHTML =
+                            '<option value="">Seleccione una hora</option>';
                     }
 
-                    // Mostrar el modal
-                    modal.style.display = 'block';
-                    resolve(); // Resolver la promesa cuando el modal esté listo
+                    // Cargar datos INICIALES antes de mostrar el modal
+                    const loading = swalWithBootstrapButtons.fire({
+                        title: 'Cargando datos...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
 
-                    // Cargar datos necesarios
-                    loadInitialData().then(() => {
-                        // Si se proporciona un vehículo, establecerlo
+                    try {
+                        await loadInitialData();
+                        loading.close();
+
+                        // Mostrar modal después de cargar datos
+                        modal.style.display = 'block';
+                        resolve();
+
+                        // Establecer vehículo si se proporciona
                         if (vehiculoId) {
                             const vehiculoSelect = document.getElementById('vehiculo_id');
                             if (vehiculoSelect) {
@@ -2643,7 +2643,14 @@
                                 cargarServiciosPorTipo();
                             }
                         }
-                    });
+                    } catch (error) {
+                        loading.close();
+                        swalWithBootstrapButtons.fire({
+                            title: 'Error',
+                            text: 'No se pudieron cargar los datos necesarios',
+                            icon: 'error'
+                        });
+                    }
                 });
             });
         }
@@ -3106,7 +3113,11 @@
 
             const formData = new FormData(this);
             const isEdit = this.action.includes('edit');
-            const citaId = isEdit ? this.action.split('/').pop() : null;
+
+            if (isEdit) {
+                const citaId = this.action.split('/').pop();
+                formData.append('cita_id', citaId);
+            }
 
             try {
                 const response = await fetch(this.action, {
@@ -3211,11 +3222,11 @@
                 <p>${errorMessage}</p>
                 ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                 ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                                                    </ul>
-                                                                                                ` : ''}
+                                                                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                                </ul>
+                                                                                                            ` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3309,10 +3320,10 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                                                                                                                                                                                                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                                                                                                                                                        Agendar Cita
-                                                                                                                                                                                                                                                                                                    </button>` : ''}
+                                                                                                                                                                                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                                                                                                                                                    <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                                                                                                                                                    Agendar Cita
+                                                                                                                                                                                                                                                                                                                </button>` : ''}
             </div>
         `;
                 return;
@@ -3345,12 +3356,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                                                                                                                                                                                                                                                <i class="fas fa-edit"></i> Modificar
-                                                                                                                                                                                                                                                                                                            </button>
-                                                                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                                                                                                                                                                                                                                                <i class="fas fa-times"></i> Cancelar
-                                                                                                                                                                                                                                                                                                            </button>` : ''}
+                                                                                                                                                                                                                                                                                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                                                                                                                                                                                                                                                            <i class="fas fa-edit"></i> Modificar
+                                                                                                                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                                                                                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                                                                                                                                                                                                                                                            <i class="fas fa-times"></i> Cancelar
+                                                                                                                                                                                                                                                                                                                        </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3383,9 +3394,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                                                                                                                                                                                                                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                                                                                                                                                                                                                                                <i class="fas fa-redo"></i> Volver a agendar
-                                                                                                                                                                                                                                                                                                            </a>` : ''}
+                                                                                                                                                                                                                                                                                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                                                                                                                                                                                                                                                            <i class="fas fa-redo"></i> Volver a agendar
+                                                                                                                                                                                                                                                                                                                        </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3448,17 +3459,11 @@
                 if (!response.ok) throw new Error(`Error: ${response.status}`);
 
                 const data = await response.json();
-
-                // LOGS DE DEPURACIÓN
-                console.log('Datos recibidos al editar:', data);
-                console.log('Tipo de vehículo:', data.data.vehiculo_tipo);
-                console.log('Servicios disponibles:', todosServiciosDisponibles);
-
                 if (!data.success) throw new Error(data.message || 'Error al cargar cita');
 
                 swalInstance.close();
 
-                // Abrir el modal y esperar a que esté listo
+                // Abrir modal y esperar a que cargue todo
                 await openCitaModal();
 
                 const form = document.getElementById('citaForm');
@@ -3473,51 +3478,51 @@
                 const vehiculoSelect = document.getElementById('vehiculo_id');
                 vehiculoSelect.value = data.data.vehiculo_id;
 
-                // 2. Establecer fecha y cargar horas disponibles
+                // 2. Establecer fecha y forzar carga de horas
                 const fechaInput = document.getElementById('fecha');
                 fechaInput.value = data.data.fecha;
 
-                // Disparar evento change para cargar horas disponibles
-                fechaInput.dispatchEvent(new Event('change'));
+                // Disparar evento change para cargar horas
+                const fechaDate = new Date(data.data.fecha);
+                await loadAvailableHours(fechaDate.getDay(), data.data.fecha);
 
-                // Esperar a que las horas se carguen
-                await new Promise(resolve => {
-                    const checkHours = setInterval(() => {
-                        const horaSelect = document.getElementById('hora');
-                        if (horaSelect.options.length >
-                            1) { // Más de 1 opción (la primera es "Seleccione...")
-                            clearInterval(checkHours);
-                            resolve();
-                        }
-                    }, 100);
-                });
-
-                // Establecer hora seleccionada
+                // 3. Establecer hora
                 const horaSelect = document.getElementById('hora');
                 const hora24 = data.data.hora;
+
+                // Buscar opción que coincida con la hora (formato 24h o 12h)
                 const horaOption = Array.from(horaSelect.options).find(option =>
                     option.value === hora24 ||
                     option.value === formatTime24to12(hora24)
                 );
 
                 if (horaOption) {
-                    horaSelect.value = horaOption.value;
+                    horaOption.selected = true;
+                } else {
+                    // Si no existe, agregar la opción manualmente
+                    const option = document.createElement('option');
+                    option.value = hora24;
+                    option.textContent = hora24;
+                    horaSelect.appendChild(option);
+                    horaSelect.value = hora24;
                 }
 
-                // 3. Cargar servicios después de establecer el vehículo
+                // 4. Cargar servicios
                 await cargarServiciosPorTipo();
 
-                // 4. Marcar servicios seleccionados
-                const serviciosIds = data.data.cita.servicios.map(servicio => servicio.id);
-                serviciosIds.forEach(servicioId => {
-                    const checkbox = document.querySelector(`input[name="servicios[]"][value="${servicioId}"]`);
+                // 5. Marcar servicios seleccionados (con retraso para asegurar carga)
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                data.data.cita.servicios.forEach(servicio => {
+                    const checkbox = document.querySelector(
+                        `input[name="servicios[]"][value="${servicio.id}"]`);
                     if (checkbox) {
                         checkbox.checked = true;
                         checkbox.closest('.service-card').classList.add('selected');
                     }
                 });
 
-                // 5. Establecer observaciones
+                // 6. Establecer observaciones
                 document.getElementById('observaciones').value = data.data.observaciones || '';
 
             } catch (error) {
@@ -3680,10 +3685,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -3795,8 +3800,8 @@
 
     <script>
         /*=========================================================
-                                                                        FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                        =========================================================*/
+                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -3825,8 +3830,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                        =========================================================*/
+                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
