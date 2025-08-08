@@ -203,7 +203,6 @@ class ClienteController extends Controller
                 })
                 ->exists();
 
-
             if ($citasSuperpuestas) {
                 $horariosDisponibles = $this->getAvailableTimes($fechaCita->format('Y-m-d'));
                 return response()->json([
@@ -287,7 +286,7 @@ class ClienteController extends Controller
         }
     }
 
-    private function getAvailableTimes($date)
+    private function getAvailableTimes($date, $excludeCitaId = null)
     {
         $date = Carbon::parse($date);
 
@@ -298,6 +297,9 @@ class ClienteController extends Controller
         // Obtener horarios ocupados calculando la duración sobre la marcha
         $horariosOcupados = Cita::whereDate('fecha_hora', $date)
             ->where('estado', '!=', 'cancelada')
+            ->when($excludeCitaId, function ($query) use ($excludeCitaId) {
+                $query->where('id', '!=', $excludeCitaId); // Excluir la cita actual si se proporciona ID
+            })
             ->with('servicios')
             ->get()
             ->map(function ($cita) {
@@ -335,8 +337,6 @@ class ClienteController extends Controller
 
         return $horariosDisponibles;
     }
-
-
     public function cancelarCita(Cita $cita)
     {
         // Verificar que la cita pertenece al usuario
@@ -496,6 +496,9 @@ class ClienteController extends Controller
             ], 400);
         }
 
+        // Agregar el ID de la cita actual al request para que sea excluida en las validaciones
+        $request->merge(['cita_id' => $cita->id]);
+
         // Resto de la validación igual que en storeCita
         $validated = $request->validate([
             'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
@@ -547,7 +550,6 @@ class ClienteController extends Controller
             ], 500);
         }
     }
-
     public function getHorariosOcupados(Request $request)
     {
         try {
