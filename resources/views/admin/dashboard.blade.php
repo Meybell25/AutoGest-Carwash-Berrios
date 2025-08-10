@@ -2697,7 +2697,7 @@
                   }
                  });
                   });
- 
+
                        function eliminarHorario(id) {
                            Swal.fire({
                               title: '¿Eliminar?',
@@ -2730,144 +2730,262 @@
 
 
                 <!-- Contenedor para Días No Laborables -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="card-header-icon icon-container">
-                                <i class="fas fa-calendar-times"></i>
+<div class="card">
+    <div class="card-header">
+        <h2>
+            <div class="card-header-icon icon-container">
+                <i class="fas fa-calendar-times"></i>
+            </div>
+            Días No Laborables
+        </h2>
+    </div>
+    <div class="card-body">
+        <div class="card-header-actions"
+            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Días festivos y feriados</h3>
+            <a href="{{ route('admin.dias-no-laborables.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Agregar Día
+            </a>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Motivo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $diasNoLaborables = \App\Models\DiaNoLaborable::orderBy('fecha', 'desc')->limit(5)->get();
+                        $motivosDisponibles = \App\Models\DiaNoLaborable::getMotivosDisponibles();
+                    @endphp
+
+                    @forelse($diasNoLaborables as $dia)
+                    <tr>
+                        <td data-label="Fecha">{{ $dia->fecha->format('d/m/Y') }}</td>
+                        <td data-label="Motivo">
+                            {{ $motivosDisponibles[$dia->motivo] ?? $dia->motivo }}
+                        </td>
+                        <td data-label="Acciones">
+                            <div class="table-actions">
+                                <a href="{{ route('admin.dias-no-laborables.edit', $dia->id) }}"
+                                   class="table-btn btn-edit" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="table-btn btn-delete" title="Eliminar"
+                                        onclick="eliminarDia({{ $dia->id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
-                            Días No Laborables
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header-actions"
-                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Días festivos y feriados
-                            </h3>
-                            <button class="btn btn-primary" onclick="mostrarModalDiaNoLaborable()">
-                                <i class="fas fa-plus"></i> Agregar Día
-                            </button>
-                        </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 20px; color: #666;">
+                            No hay días no laborables registrados.
+                            <br>
+                            <a href="{{ route('admin.dias-no-laborables.create') }}" class="btn btn-primary btn-sm mt-2">
+                                Agregar el primero
+                            </a>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-                        <div style="overflow-x: auto;">
-                            <table class="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Motivo</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Ejemplo de fila -->
-                                    <tr>
-                                        <td data-label="Fecha">25/12/2025</td>
-                                        <td data-label="Motivo">Navidad</td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarDiaNoLaborable(1)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Eliminar"
-                                                    onclick="eliminarDiaNoLaborable(1)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Fin ejemplo -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        @if($diasNoLaborables->count() > 0)
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="{{ route('admin.dias-no-laborables.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-list"></i> Ver todos los días no laborables
+            </a>
+        </div>
+        @endif
+    </div>
+</div>
 
-                <!-- Contenedor para Gestión de Gastos -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="card-header-icon icon-container">
-                                <i class="fas fa-money-bill-wave"></i>
+ <!-- Contenedor para Gestión de Gastos - VERSIÓN SIMPLIFICADA -->
+<div class="card">
+    <div class="card-header">
+        <h2>
+            <div class="card-header-icon icon-container">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            Gestión de Gastos
+        </h2>
+    </div>
+    <div class="card-body">
+        <div class="card-header-actions" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Control financiero y seguimiento</h3>
+            <a href="{{ route('admin.gastos.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Registrar Gasto
+            </a>
+        </div>
+
+        <!-- Solo obtener gastos recientes para la tabla -->
+        @php
+            $gastosRecientes = \App\Models\Gasto::with(['usuario' => function($query) {
+                $query->whereIn('rol', ['admin', 'empleado']);
+            }])
+                ->where('monto', '>', 0)
+                ->whereNotNull('detalle')
+                ->where('detalle', '!=', '')
+                ->latest('fecha_gasto')
+                ->limit(10)
+                ->get();
+
+            $tiposGastos = \App\Models\Gasto::getTipos();
+        @endphp
+
+        <!-- Tabla de gastos recientes -->
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Detalle</th>
+                        <th>Monto</th>
+                        <th>Registrado por</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($gastosRecientes as $gasto)
+                    <tr>
+                        <td data-label="Fecha">
+                            {{ $gasto->fecha_gasto->format('d/m/Y') }}
+                            <br>
+                            <small style="color: #666;">{{ $gasto->fecha_gasto->diffForHumans() }}</small>
+                        </td>
+                        <td data-label="Tipo">
+                            <span class="badge" style="
+                                @if($gasto->tipo == 'stock') background: #3498db;
+                                @elseif($gasto->tipo == 'sueldos') background: #27ae60;
+                                @elseif($gasto->tipo == 'personal') background: #f39c12;
+                                @elseif($gasto->tipo == 'mantenimiento') background: #9b59b6;
+                                @else background: #95a5a6; @endif
+                                color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">
+                                {{ $tiposGastos[$gasto->tipo] ?? $gasto->tipo }}
+                            </span>
+                        </td>
+                        <td data-label="Detalle">
+                            <div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                 title="{{ $gasto->detalle }}">
+                                {{ $gasto->detalle }}
                             </div>
-                            Gestión de Gastos
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header-actions"
-                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Registro de gastos
-                                operativos</h3>
-                            <button class="btn btn-primary" onclick="mostrarModalGasto()">
-                                <i class="fas fa-plus"></i> Registrar Gasto
-                            </button>
-                        </div>
-
-                        <div class="search-filter-container">
-                            <div class="search-box">
-                                <input type="text" placeholder="Buscar gastos..." class="form-control">
+                        </td>
+                        <td data-label="Monto">
+                            <strong style="color: #e74c3c; font-size: 1.1rem;">
+                                ${{ number_format($gasto->monto, 2) }}
+                            </strong>
+                        </td>
+                        <td data-label="Realizado por">
+                            @if($gasto->usuario)
+                                <div>
+                                    <i class="fas fa-user me-1"></i>
+                                    {{ $gasto->usuario->nombre }}
+                                </div>
+                                <small style="color: #666;">{{ $gasto->usuario->email }}</small>
+                            @else
+                                <span style="color: #666;">Usuario no disponible</span>
+                            @endif
+                        </td>
+                        <td data-label="Acciones">
+                            <div class="table-actions">
+                                <a href="{{ route('admin.gastos.show', $gasto->id) }}"
+                                   class="table-btn btn-edit" title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ route('admin.gastos.edit', $gasto->id) }}"
+                                   class="table-btn btn-edit" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="table-btn btn-delete" title="Eliminar"
+                                        onclick="eliminarGasto({{ $gasto->id }}, '{{ $gasto->detalle }}', {{ $gasto->monto }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
-                            <div class="filter-select">
-                                <select class="form-control">
-                                    <option value="">Todos los tipos</option>
-                                    <option value="stock">Stock</option>
-                                    <option value="sueldos">Sueldos</option>
-                                    <option value="personal">Personal</option>
-                                    <option value="mantenimiento">Mantenimiento</option>
-                                    <option value="otro">Otro</option>
-                                </select>
-                            </div>
-                        </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+                            <i class="fas fa-receipt" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
+                            <br>
+                            <h4 style="color: #666; margin-bottom: 10px;">No hay gastos registrados</h4>
+                            <p style="margin-bottom: 20px;">Comienza registrando tu primer gasto en el sistema.</p>
+                            <a href="{{ route('admin.gastos.create') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Registrar Primer Gasto
+                            </a>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-                        <div style="overflow-x: auto;">
-                            <table class="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Tipo</th>
-                                        <th>Detalle</th>
-                                        <th>Monto</th>
-                                        <th>Registrado por</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Ejemplo de fila -->
-                                    <tr>
-                                        <td data-label="Fecha">15/06/2025</td>
-                                        <td data-label="Tipo">Stock</td>
-                                        <td data-label="Detalle">Compra de shampoo y ceras</td>
-                                        <td data-label="Monto">$125.50</td>
-                                        <td data-label="Registrado por">Admin</td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarGasto(1)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Eliminar"
-                                                    onclick="eliminarGasto(1)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Fin ejemplo -->
-                                </tbody>
-                            </table>
-                        </div>
+        <!-- Enlaces de acciones solo si hay gastos -->
+        @if($gastosRecientes->count() > 0)
+        <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ route('admin.gastos.index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-1"></i> Ver Todos los Gastos
+                </a>
+                <a href="{{ route('admin.gastos.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Registrar Nuevo Gasto
+                </a>
+            </div>
+            <small style="color: #666; margin-top: 10px; display: block;">
+                Mostrando los últimos {{ $gastosRecientes->count() }} gastos registrados
+            </small>
+        </div>
+        @endif
+    </div>
+</div>
 
-                        <div class="pagination">
-                            <a href="#" class="page-link">&laquo;</a>
-                            <a href="#" class="page-link active">1</a>
-                            <a href="#" class="page-link">2</a>
-                            <a href="#" class="page-link">3</a>
-                            <a href="#" class="page-link">&raquo;</a>
-                        </div>
-                    </div>
-                </div>
+<!-- Script para eliminar gastos -->
+<script>
+function eliminarGasto(id, detalle, monto) {
+    const confirmar = confirm(
+        `¿Estás seguro de que quieres eliminar este gasto?\n\n` +
+        `Detalle: ${detalle}\n` +
+        `Monto: $${parseFloat(monto).toFixed(2)}\n\n` +
+        `Esta acción no se puede deshacer.`
+    );
 
+    if (confirmar) {
+        // Crear formulario dinámicamente para enviar DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/gastos/${id}`;
 
+        // Token CSRF
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+        }
+
+        // Método DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
                 <!-- Gráficos -->
                 <div class="card">
                     <div class="card-header">
@@ -3290,7 +3408,7 @@
                 </div>
             </div>
 
-            
+
 
             <!-- Modal para Días No Laborables -->
             <div id="diaNoLaborableModal" class="modal">
@@ -3608,6 +3726,7 @@
             });
         });
 
+
         // =============================================
         // FUNCIONES PARA DÍAS NO LABORABLES
         // =============================================
@@ -3730,7 +3849,7 @@
                     cancelButtonText: 'Cancelar'
                 });
 
-                
+
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.message || 'Error al eliminar el día no laborable');
@@ -3842,7 +3961,7 @@
         // =============================================
 
 
-        // Función para mostrar el modal de usuario 
+        // Función para mostrar el modal de usuario
         function mostrarModalUsuario(usuarioId = null) {
             const modal = document.getElementById('usuarioModal');
             const form = document.getElementById('usuarioForm');
@@ -3969,7 +4088,7 @@
 
         }
 
-        // Función para alternar visibilidad de contraseña 
+        // Función para alternar visibilidad de contraseña
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
             let eyeIcon;
@@ -4135,7 +4254,7 @@
             }
         }
 
-        // Función para manejar envío de formulario 
+        // Función para manejar envío de formulario
         async function handleUsuarioFormSubmit(e) {
             e.preventDefault();
 
@@ -4516,7 +4635,7 @@
             closeModal('detalleCitaModal');
             mostrarModal('editarCitaModal', '<i class="fas fa-edit"></i> Editar Cita', formContent);
         }
-
+        /*
         function cancelarCita(citaId) {
             Swal.fire({
                 title: '¿Cancelar esta cita?',
@@ -4537,7 +4656,7 @@
                 }
             });
         }
-
+        */
         // Gestión de servicios
         function nuevoServicio() {
             const formContent = `
@@ -4773,7 +4892,7 @@
                         title: 'Perfil actualizado correctamente'
                     });
 
-                    // ACTUALIZACIÓN DEL SIDEBAR 
+                    // ACTUALIZACIÓN DEL SIDEBAR
                     // 1. Actualizar el nombre en el perfil
                     const profileName = document.querySelector('.profile-name');
                     if (profileName) profileName.textContent = formData.nombre;
@@ -4940,6 +5059,37 @@
 
         // Botón para editar perfil
         document.getElementById('btnEditarPerfil')?.addEventListener('click', editarPerfil);
+
+
+        function eliminarDia(id) {
+    if (confirm('¿Estás seguro de que quieres eliminar este día no laborable?')) {
+        // Crear formulario dinámicamente para enviar DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/dias-no-laborables/${id}`;
+
+        // Token CSRF
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+        }
+
+        // Método DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
     </script>
 </body>
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\GastoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\DiaNoLaborableController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,22 +63,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/categoria/{categoria}', [ServicioController::class, 'porCategoria'])->name('categoria');
         Route::get('/{id}', [ServicioController::class, 'show'])->name('show');
     });
-
-    /*Rutas para Días No Laborables
-    Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
-        Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
-        Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
-        Route::post('/', [DiaNoLaborableController::class, 'store'])->name('store');
-        Route::get('/{id}', [DiaNoLaborableController::class, 'show'])->name('show');
-        Route::get('/{id}/editar', [DiaNoLaborableController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [DiaNoLaborableController::class, 'update'])->name('update');
-        Route::delete('/{id}', [DiaNoLaborableController::class, 'destroy'])->name('destroy');
-
-        Route::get('/proximos', [DiaNoLaborableController::class, 'proximos'])->name('proximos');
-        Route::get('/del-mes', [DiaNoLaborableController::class, 'delMes'])->name('del-mes');
-        Route::get('/laborables', [DiaNoLaborableController::class, 'diasLaborables'])->name('laborables');
-        Route::get('/motivos', [DiaNoLaborableController::class, 'motivos'])->name('motivos');
-    });*/
 });
 
 // Rutas de Admin
@@ -120,7 +105,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
         });
 
-
         Route::prefix('gastos')->name('gastos.')->group(function () {
             Route::get('/', [GastoController::class, 'index'])->name('index');
             Route::get('/crear', [GastoController::class, 'create'])->name('create');
@@ -129,11 +113,33 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::get('/{id}/editar', [GastoController::class, 'edit'])->name('edit');
             Route::put('/{id}', [GastoController::class, 'update'])->name('update');
             Route::delete('/{id}', [GastoController::class, 'destroy'])->name('destroy');
+
+            // Rutas adicionales para filtros
             Route::get('/tipo/{tipo}', [GastoController::class, 'filtrarPorTipo'])->name('tipo');
             Route::post('/filtrar-fechas', [GastoController::class, 'filtrarPorFechas'])->name('filtrar-fechas');
+
+            // Rutas para estadísticas
+            Route::get('/estadisticas/resumen', [GastoController::class, 'resumen'])->name('resumen');
+            Route::get('/estadisticas/por-tipo', [GastoController::class, 'estadisticasPorTipo'])->name('estadisticas-tipo');
         });
 
-        //Rutas para horarios
+        // Rutas para Días No Laborables (MOVIDAS AQUÍ - DENTRO DEL GRUPO ADMIN)
+        Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
+            Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
+            Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
+            Route::post('/', [DiaNoLaborableController::class, 'store'])->name('store');
+            Route::get('/{id}', [DiaNoLaborableController::class, 'show'])->name('show');
+            Route::get('/{id}/editar', [DiaNoLaborableController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [DiaNoLaborableController::class, 'update'])->name('update');
+            Route::delete('/{id}', [DiaNoLaborableController::class, 'destroy'])->name('destroy');
+
+            Route::get('/proximos', [DiaNoLaborableController::class, 'proximos'])->name('proximos');
+            Route::get('/del-mes', [DiaNoLaborableController::class, 'delMes'])->name('del-mes');
+            Route::get('/laborables', [DiaNoLaborableController::class, 'diasLaborables'])->name('laborables');
+            Route::get('/motivos', [DiaNoLaborableController::class, 'motivos'])->name('motivos');
+        });
+
+        // Rutas para horarios
         Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
     });
 
