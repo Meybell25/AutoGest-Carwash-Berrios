@@ -548,7 +548,9 @@ class ClienteController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Error al actualizar la cita: ' . $e->getMessage()
+                'message' => 'Error al actualizar la cita: ' . $e->getMessage(),
+                'received_data' => $request->all(),
+                'is_valid' => $request->has('servicios') && is_array($request->servicios)
             ], 500);
         }
     }
