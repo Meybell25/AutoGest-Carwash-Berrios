@@ -39,6 +39,9 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
+            // Obtener servicios disponibles
+            $servicios = Servicio::activos()->get();
+
             // Filtrar citas próximas (futuras y con estados específicos)
             $proximas_citas = $citas->filter(function ($cita) {
                 return $cita->fecha_hora >= now() &&
@@ -64,7 +67,8 @@ class ClienteController extends Controller
                 'proximas_citas' => $proximas_citas->take(5),
                 'historial_citas' => $historial_citas->take(5),
                 'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
-                'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count()
+                'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count(),
+                'servicios' => $servicios // Añade esta línea
             ]);
         } catch (\Exception $e) {
             Log::error('Dashboard error', [
@@ -83,7 +87,8 @@ class ClienteController extends Controller
                 'mis_vehiculos' => collect(),
                 'mis_citas' => collect(),
                 'notificaciones' => collect(),
-                'notificacionesNoLeidas' => 0
+                'notificacionesNoLeidas' => 0,
+                'servicios' => collect() 
             ]);
         }
     }
