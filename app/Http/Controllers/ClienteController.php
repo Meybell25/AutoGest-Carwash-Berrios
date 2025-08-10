@@ -482,6 +482,7 @@ class ClienteController extends Controller
 
     public function updateCita(Request $request, Cita $cita)
     {
+        Log::debug('Datos recibidos para actualizar cita:', $request->all());
         if ($cita->usuario_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
@@ -496,17 +497,18 @@ class ClienteController extends Controller
             ], 400);
         }
 
-        // Agregar el ID de la cita actual al request para que sea excluida en las validaciones
-          $request->merge(['cita_id' => $cita->id]);
+        // Agregar el ID de la cita actual al request para validación
+        $request->merge(['cita_id' => $cita->id]);
 
-        // Resto de la validación igual que en storeCita
+        // Validación
         $validated = $request->validate([
             'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
             'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required|date_format:H:i',
             'servicios' => 'required|array|min:1',
             'servicios.*' => 'exists:servicios,id',
-            'observaciones' => 'nullable|string|max:500'
+            'observaciones' => 'nullable|string|max:500',
+            'cita_id' => 'required|exists:citas,id' // Asegurar que la cita existe
         ]);
 
         try {
