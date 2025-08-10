@@ -497,7 +497,7 @@ class ClienteController extends Controller
         }
 
         // Agregar el ID de la cita actual al request para que sea excluida en las validaciones
-        $request->merge(['cita_id' => $cita->id]);
+          $request->merge(['cita_id' => $cita->id]);
 
         // Resto de la validación igual que en storeCita
         $validated = $request->validate([
