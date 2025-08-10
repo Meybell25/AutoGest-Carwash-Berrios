@@ -482,7 +482,11 @@ class ClienteController extends Controller
 
     public function updateCita(Request $request, Cita $cita)
     {
+        // Forzar servicios como array (incluso si viene como string)
+        $request->merge(['servicios' => (array)$request->input('servicios', [])]);
+
         Log::debug('Datos recibidos para actualizar cita:', $request->all());
+
         if ($cita->usuario_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
@@ -506,9 +510,9 @@ class ClienteController extends Controller
             'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required|date_format:H:i',
             'servicios' => 'required|array|min:1',
-            'servicios.*' => 'exists:servicios,id',
+            'servicios.*' => 'required|integer|exists:servicios,id',
             'observaciones' => 'nullable|string|max:500',
-            'cita_id' => 'required|exists:citas,id' // Asegurar que la cita existe
+            'cita_id' => 'required|exists:citas,id'
         ]);
 
         try {
@@ -549,8 +553,7 @@ class ClienteController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar la cita: ' . $e->getMessage(),
-                'received_data' => $request->all(),
-                'is_valid' => $request->has('servicios') && is_array($request->servicios)
+                'received_data' => $request->all()
             ], 500);
         }
     }
