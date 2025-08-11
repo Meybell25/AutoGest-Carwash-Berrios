@@ -13,6 +13,7 @@ use App\Http\Controllers\GastoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -317,3 +318,15 @@ Route::get('/debug-fechas', [ClienteController::class, 'debugFechas'])->name('de
 Route::get('/debug/citas-usuario/{usuarioId}', [ClienteController::class, 'debugCitasUsuarioJson'])
     ->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
     ->name('debug.citas-usuario-json');
+
+    Route::get('/check-timezone', function() {
+    // Verificar configuración de la base de datos
+    $dbTime = DB::select(DB::raw("SELECT @@global.time_zone, @@session.time_zone, NOW() as current_time"));
+    
+    return response()->json([
+        'app_timezone' => config('app.timezone'),
+        'db_timezone' => $dbTime[0],
+        'php_time' => now()->format('Y-m-d H:i:s'),
+        'db_time' => $dbTime[0]->current_time
+    ]);
+});

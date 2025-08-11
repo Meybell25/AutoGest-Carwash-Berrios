@@ -147,7 +147,11 @@ class ClienteController extends Controller
             ]);
 
             // Combinar fecha y hora
-            $fechaCita = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
+            $fechaCita = Carbon::createFromFormat(
+                'Y-m-d H:i',
+                $validated['fecha'] . ' ' . $validated['hora'],
+                config('app.timezone') // America/El_Salvador
+            );
 
             // Validar que la fecha y hora no sean en el pasado
             if ($fechaCita->lt(now())) {
@@ -304,7 +308,7 @@ class ClienteController extends Controller
     private function getAvailableTimes($date, $excludeCitaId = null)
     {
         // Crear fecha usando Carbon sin problemas de timezone
-        $date = \Carbon\Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+        $date = Carbon::createFromFormat('Y-m-d', $date, config('app.timezone'))->startOfDay();
 
         // Obtener día de la semana ISO (1=Lunes, 7=Domingo)
         $dayOfWeekISO = $date->dayOfWeekIso;
@@ -366,7 +370,9 @@ class ClienteController extends Controller
         $horariosLibres = [];
 
         foreach ($horariosDisponibles as $horario) {
-            $horaActual = $date->copy()->setTimeFromTimeString($horario->hora_inicio->format('H:i:s'));
+            $horaActual = $date->copy()
+                ->setTimezone(config('app.timezone'))
+                ->setTimeFromTimeString($horario->hora_inicio->format('H:i:s'));
             $horaCierre = $date->copy()->setTimeFromTimeString($horario->hora_fin->format('H:i:s'));
 
             while ($horaActual->lt($horaCierre)) {
@@ -908,8 +914,8 @@ class ClienteController extends Controller
                 'citas' => $citas->map(function ($cita) {
                     return [
                         'id' => $cita->id,
-                        'fecha_hora' => $cita->fecha_hora->format('Y-m-d H:i:s'),
-                        'fecha_hora_formateada' => $cita->fecha_hora->isoFormat('dddd D [de] MMMM [de] YYYY, h:mm A'),
+                        'fecha_hora' => $cita->fecha_hora->setTimezone(config('app.timezone'))->format('Y-m-d H:i:s'),
+                        'fecha_hora_formateada' => $cita->fecha_hora->setTimezone(config('app.timezone'))->isoFormat('dddd D [de] MMMM [de] YYYY, h:mm A'),
                         'estado' => $cita->estado,
                         'vehiculo' => [
                             'id' => $cita->vehiculo->id,

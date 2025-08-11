@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Pago;
+use Carbon\Carbon;
 
 class Cita extends Model
 {
@@ -23,7 +24,7 @@ class Cita extends Model
     ];
 
     protected $casts = [
-        'fecha_hora' => 'datetime',
+        'fecha_hora' => 'datetime:Y-m-d H:i:s',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
