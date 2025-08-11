@@ -2465,8 +2465,7 @@
             <form id="citaForm" method="POST" action="{{ route('cliente.citas.store') }}"
                 enctype="multipart/form-data">
                 @csrf
-                <!-- Campos ocultos necesarios -->
-               <!-- <input type="hidden" id="form_method" name="_method" value="POST">-->
+                <!-- Campo oculto para ID de cita (solo en edición) -->
                 <input type="hidden" id="form_cita_id" name="cita_id" value="">
 
                 <!-- Selección de vehículo -->
@@ -2579,8 +2578,8 @@
 
     <script>
         /*=========================================================
-                        FUNCIONAMIENTO DE CREAR CITAS
-            =========================================================*/
+                                        FUNCIONAMIENTO DE CREAR CITAS
+                            =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3469,7 +3468,6 @@
                             throw new Error(`Error ${response.status}: ${response.statusText}`);
                         }
 
-                        // Verificar que la respuesta es JSON
                         const contentType = response.headers.get('content-type');
                         if (!contentType || !contentType.includes('application/json')) {
                             throw new Error('Respuesta no es JSON');
@@ -3484,7 +3482,6 @@
                         citas = tipo === 'próximas' ? data.proximas_citas : data.historial_citas;
                     } catch (error) {
                         console.error('Error al obtener datos de citas:', error);
-                        // Mostrar mensaje al usuario y recargar
                         await swalWithBootstrapButtons.fire({
                             title: 'Error',
                             text: 'No se pudieron cargar los datos actualizados. Recargando página...',
@@ -3511,10 +3508,10 @@
                     <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                     <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                     ${tipo === 'próximas' ? `
-                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                        <i class="fas fa-calendar-plus"></i>
-                                        Agendar Cita
-                                    </button>` : ''}
+                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    Agendar Cita
+                                </button>` : ''}
                 </div>
             `;
                     return;
@@ -3524,16 +3521,20 @@
 
                 if (tipo === 'próximas') {
                     citas.forEach((cita, index) => {
-                        const fecha = new Date(cita.fecha_hora);
+                        // CORREGIDO: Usar funciones de formateo seguras
+                        const dia = obtenerDiaDelMes(cita.fecha_hora);
+                        const mes = obtenerMesAbreviado(cita.fecha_hora);
+                        const hora = formatearSoloHora(cita.fecha_hora);
+
                         html += `
                 <div class="next-appointment ${index === 0 ? 'highlighted' : ''}">
                     <div class="appointment-date-time">
                         <div class="date-badge">
-                            <span class="day">${fecha.getDate()}</span>
-                            <span class="month">${fecha.toLocaleString('es-ES', { month: 'short' })}</span>
+                            <span class="day">${dia}</span>
+                            <span class="month">${mes}</span>
                         </div>
                         <div class="time-info">
-                            <div class="time">${fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</div>
+                            <div class="time">${hora}</div>
                             <div class="service">
                                 ${cita.servicios.map(s => s.nombre).join(', ')}
                             </div>
@@ -3547,12 +3548,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                            <i class="fas fa-edit"></i> Modificar
-                                        </button>
-                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                            <i class="fas fa-times"></i> Cancelar
-                                        </button>` : ''}
+                                    <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                        <i class="fas fa-edit"></i> Modificar
+                                    </button>
+                                    <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>` : ''}
                     </div>
                 </div>
                 `;
@@ -3569,7 +3570,8 @@
                     }
                 } else { // Historial
                     citas.forEach(cita => {
-                        const fecha = new Date(cita.fecha_hora);
+                        // CORREGIDO: Usar función de formateo segura
+                        const fechaCompleta = formatearFechaCompleta(cita.fecha_hora);
                         const total = cita.servicios.reduce((sum, servicio) => sum + servicio.precio, 0);
 
                         html += `
@@ -3579,15 +3581,15 @@
                     </div>
                     <div class="service-details">
                         <h4>${cita.servicios.map(s => s.nombre).join(', ')}</h4>
-                        <p><i class="fas fa-calendar"></i> ${fecha.toLocaleString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                        <p><i class="fas fa-calendar"></i> ${fechaCompleta}</p>
                         <p><i class="fas fa-car"></i> ${cita.vehiculo.marca} ${cita.vehiculo.modelo} - ${cita.vehiculo.placa}</p>
                         <span class="appointment-status status-${cita.estado.replace('_', '-')}" style="display: inline-block; margin-top: 5px;">
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                            <i class="fas fa-redo"></i> Volver a agendar
-                                        </a>` : ''}
+                                    <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                        <i class="fas fa-redo"></i> Volver a agendar
+                                    </a>` : ''}
                     </div>
                     <div class="service-price">
                         ${total.toFixed(2)}
@@ -3598,6 +3600,9 @@
                 }
 
                 container.innerHTML = html;
+
+                console.log(` Sección de citas "${tipo}" actualizada correctamente con ${citas.length} elementos`);
+
             } catch (error) {
                 console.error('Error al actualizar secciones de citas:', error);
                 await swalWithBootstrapButtons.fire({
@@ -3729,6 +3734,100 @@
         function createLocalDate(dateString) {
             const [year, month, day] = dateString.split('-').map(Number);
             return new Date(year, month - 1, day); // month - 1 porque los meses en JS van de 0-11
+        }
+
+        /**
+         * Formatea una fecha/hora del servidor para mostrar correctamente
+         * Maneja tanto timestamps como strings de fecha
+         */
+        function formatearFechaHoraFromServer(fechaHora) {
+            try {
+                let fecha;
+
+                if (typeof fechaHora === 'string') {
+                    // Si viene como string del servidor (formato: "2025-08-13 15:30:00" o ISO)
+                    if (fechaHora.includes('T')) {
+                        // Formato ISO: remover timezone para evitar conversión
+                        fecha = new Date(fechaHora.split('T')[0] + 'T' + fechaHora.split('T')[1].split('.')[0]);
+                    } else {
+                        // Formato "YYYY-MM-DD HH:mm:ss" - crear fecha local
+                        const [datePart, timePart] = fechaHora.split(' ');
+                        const [year, month, day] = datePart.split('-').map(Number);
+                        const [hour, minute] = (timePart || '00:00').split(':').map(Number);
+                        fecha = new Date(year, month - 1, day, hour, minute);
+                    }
+                } else {
+                    // Si ya es un objeto Date
+                    fecha = new Date(fechaHora);
+                }
+
+                return fecha;
+            } catch (error) {
+                console.error('Error al formatear fecha del servidor:', error, fechaHora);
+                return new Date(); // Fallback a fecha actual
+            }
+        }
+
+        /**
+         * Formatea solo la fecha (sin hora)
+         */
+        function formatearSoloFecha(fechaHora, opciones = {}) {
+            const fecha = formatearFechaHoraFromServer(fechaHora);
+
+            const opcionesDefault = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
+
+            return fecha.toLocaleDateString('es-ES', {
+                ...opcionesDefault,
+                ...opciones
+            });
+        }
+        /**
+         * Formatea solo la hora
+         */
+        function formatearSoloHora(fechaHora) {
+            const fecha = formatearFechaHoraFromServer(fechaHora);
+            return fecha.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        /**
+         * Formatea fecha completa (fecha + hora)
+         */
+        function formatearFechaCompleta(fechaHora) {
+            const fecha = formatearFechaHoraFromServer(fechaHora);
+            return fecha.toLocaleString('es-ES', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        /**
+         * Obtiene solo el día del mes
+         */
+        function obtenerDiaDelMes(fechaHora) {
+            const fecha = formatearFechaHoraFromServer(fechaHora);
+            return fecha.getDate();
+        }
+
+        /**
+         * Obtiene el mes abreviado
+         */
+        function obtenerMesAbreviado(fechaHora) {
+            const fecha = formatearFechaHoraFromServer(fechaHora);
+            return fecha.toLocaleDateString('es-ES', {
+                month: 'short'
+            });
         }
 
         // Manejar envío del formulario
@@ -3893,11 +3992,11 @@
                     <p>${errorMessage}</p>
                     ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                     ${showAvailableTimes && availableTimes.length > 0 ? `
-                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                    </ul>
-                                ` : ''}
+                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                    </ul>
+                                                ` : ''}
                     <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                         Por favor intenta nuevamente con un horario diferente.
                     </p>
@@ -4023,181 +4122,6 @@
         window.debugFechas = debugFechas;
         window.testProximos7Dias = testProximos7Dias;
         window.testFechaRapido = testFechaRapido;
-
-        /*=========================================================
-
-            // Manejar envío del formulario
-            document.getElementById('citaForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                // Validar que al menos un servicio esté seleccionado
-                const serviciosSeleccionados = document.querySelectorAll('input[name="servicios[]"]:checked');
-                if (serviciosSeleccionados.length === 0) {
-                    swalWithBootstrapButtons.fire('Error', 'Debes seleccionar al menos un servicio', 'error');
-                    return;
-                }
-
-                const isEdit = document.getElementById('form_cita_id').value;
-
-                // Mostrar loader
-                const swalInstance = swalWithBootstrapButtons.fire({
-                    title: isEdit ? 'Actualizando cita...' : 'Procesando cita...',
-                    html: isEdit ? 'Estamos actualizando tu cita, por favor espera' :
-                        'Estamos reservando tu cita, por favor espera',
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading()
-                });
-
-                const form = this;
-                const formData = new FormData(form);
-
-                // IMPORTANTE: Agregar el ID de la cita si es edición
-                if (isEdit) {
-                    formData.append('cita_id', isEdit);
-                }
-
-                // Configurar método HTTP correcto
-                const method = isEdit ? 'PUT' : 'POST';
-
-                // Para PUT necesitamos agregar _method
-                if (method === 'PUT') {
-                    formData.append('_method', 'PUT');
-                }
-
-                console.log('Enviando formulario:', {
-                    url: form.action,
-                    method: method,
-                    isEdit: isEdit,
-                    citaId: isEdit
-                });
-
-                try {
-                    const response = await fetch(form.action, {
-                        method: 'POST', // Siempre POST, Laravel maneja _method
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: formData
-                    });
-
-                    const result = await response.json();
-                    await swalInstance.close();
-
-                    if (!response.ok) {
-                        throw new Error(result.message || 'Error al procesar la cita');
-                    }
-
-                    // Éxito
-                    closeCitaModal();
-
-                    await swalWithBootstrapButtons.fire({
-                        title: isEdit ? '¡Cita actualizada!' : '¡Cita agendada!',
-                        html: `
-            <div style="text-align: left; margin-top: 15px;">
-                <p><strong>Fecha:</strong> ${new Date(result.data.fecha_hora).toLocaleDateString('es-ES', { 
-                    weekday: 'long', 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric' 
-                })}</p>
-                <p><strong>Hora:</strong> ${new Date(result.data.fecha_hora).toLocaleTimeString('es-ES', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                })}</p>
-                <p><strong>Servicios:</strong> ${result.data.servicios_nombres}</p>
-                <p><strong>Vehículo:</strong> ${result.data.vehiculo_marca} ${result.data.vehiculo_modelo}</p>
-                ${result.data.vehiculo_placa ? `<p><strong>Placa:</strong> ${result.data.vehiculo_placa}</p>` : ''}
-            </div>
-        `,
-                        icon: 'success',
-                        confirmButtonText: 'Aceptar'
-                    });
-
-                    await updateCitasSections();
-
-                } catch (error) {
-                    console.error('Error:', error);
-                    await swalInstance.close();
-
-                    let errorMessage = 'Ocurrió un error al procesar tu cita.';
-                    let errorDetails = '';
-                    let showAvailableTimes = false;
-                    let availableTimes = [];
-
-                    if (error.message) {
-                        if (typeof error.message === 'string') {
-                            errorMessage = error.message;
-
-                            if (error.message.includes('No atendemos domingos')) {
-                                errorMessage = 'No trabajamos los domingos. Por favor selecciona otro día.';
-                                await swalWithBootstrapButtons.fire({
-                                    title: 'Domingo no laborable',
-                                    text: errorMessage,
-                                    icon: 'warning',
-                                    confirmButtonColor: '#4facfe'
-                                });
-                                return;
-                            } else if (error.message.includes('horario ya está ocupado') ||
-                                error.message.includes('horario seleccionado está ocupado')) {
-                                errorMessage =
-                                    'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.';
-                                showAvailableTimes = true;
-
-                                const fecha = document.getElementById('fecha').value;
-                                const citaId = document.getElementById('form_cita_id').value;
-                                if (fecha) {
-                                    try {
-                                        const url =
-                                            `/cliente/citas/horarios-ocupados?fecha=${fecha}${citaId ? `&exclude=${citaId}` : ''}`;
-                                        const response = await fetch(url);
-                                        const data = await response.json();
-
-                                        // Extraer horarios disponibles de la respuesta
-                                        if (data.horariosOcupados) {
-                                            // Generar horarios disponibles
-                                            availableTimes = await generateAvailableTimesFromOccupied(fecha, data
-                                                .horariosOcupados);
-                                        }
-                                    } catch (err) {
-                                        console.error('Error al obtener horarios disponibles:', err);
-                                    }
-                                }
-                            }
-                        } else if (error.message.message) {
-                            errorMessage = error.message.message;
-                            if (error.message.errors) {
-                                errorDetails = Object.values(error.message.errors).join('<br>');
-                            }
-                        }
-                    }
-
-                    const errorHtml = `
-        <div style="text-align: left;">
-            <p>${errorMessage}</p>
-            ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
-            ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                                                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                                                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                                                        </ul>
-                                                                                                    ` : ''}
-            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                Por favor intenta nuevamente con un horario diferente.
-            </p>
-        </div>
-    `;
-
-                    await swalWithBootstrapButtons.fire({
-                        title: isEdit ? 'Error al actualizar' : 'Error al agendar',
-                        html: errorHtml,
-                        icon: 'error',
-                        confirmButtonColor: '#ff6b6b'
-                    });
-                }
-            }); =========================================================*/
-
 
         /*=========================================================
             FUNCIONAMIENTO DE PERFIL DEL CLIENTE
@@ -4343,10 +4267,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4458,8 +4382,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                    =========================================================*/
+                                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4488,8 +4412,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

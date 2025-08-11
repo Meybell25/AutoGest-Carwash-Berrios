@@ -762,75 +762,74 @@ class ClienteController extends Controller
 
 
     public function debugFechas(Request $request)
-{
-    $fecha = $request->query('fecha', now()->format('Y-m-d'));
-    
-    try {
-        // Crear fecha con Carbon
-        $fechaCarbon = \Carbon\Carbon::createFromFormat('Y-m-d', $fecha)->startOfDay();
-        
-        // Información de debug
-        $debug = [
-            'fecha_original' => $fecha,
-            'fecha_carbon' => $fechaCarbon->toDateString(),
-            'fecha_carbon_iso' => $fechaCarbon->toISOString(),
-            'dia_semana_js' => $fechaCarbon->dayOfWeek, // 0=Domingo, 1=Lunes... 6=Sábado
-            'dia_semana_iso' => $fechaCarbon->dayOfWeekIso, // 1=Lunes, 2=Martes... 7=Domingo
-            'nombre_dia' => $fechaCarbon->locale('es')->dayName,
-            'es_domingo_js' => $fechaCarbon->dayOfWeek === 0,
-            'es_domingo_iso' => $fechaCarbon->dayOfWeekIso === 7,
-            'timezone' => $fechaCarbon->timezone->getName()
-        ];
-        
-        // Obtener horarios programados
-        $horariosDisponibles = \App\Models\Horario::where('activo', true)->get();
-        
-        $debug['horarios_bd'] = $horariosDisponibles->map(function($horario) {
-            return [
-                'id' => $horario->id,
-                'dia_semana' => $horario->dia_semana,
-                'nombre_dia' => $this->getNombreDiaISO($horario->dia_semana),
-                'hora_inicio' => $horario->hora_inicio->format('H:i'),
-                'hora_fin' => $horario->hora_fin->format('H:i'),
-                'activo' => $horario->activo
-            ];
-        });
-        
-        // Verificar qué horarios coinciden con la fecha seleccionada
-        $horariosCoincidentes = $horariosDisponibles->where('dia_semana', $fechaCarbon->dayOfWeekIso);
-        
-        $debug['horarios_coincidentes'] = $horariosCoincidentes->map(function($horario) {
-            return [
-                'id' => $horario->id,
-                'dia_semana' => $horario->dia_semana,
-                'hora_inicio' => $horario->hora_inicio->format('H:i'),
-                'hora_fin' => $horario->hora_fin->format('H:i')
-            ];
-        });
-        
-        return response()->json($debug);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => true,
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ], 500);
-    }
-}
+    {
+        $fecha = $request->query('fecha', now()->format('Y-m-d'));
 
-private function getNombreDiaISO($diaISO)
-{
-    $dias = [
-        1 => 'Lunes',
-        2 => 'Martes', 
-        3 => 'Miércoles',
-        4 => 'Jueves',
-        5 => 'Viernes',
-        6 => 'Sábado',
-        7 => 'Domingo'
-    ];
-    
-    return $dias[$diaISO] ?? 'Desconocido';
-}
+        try {
+            // Crear fecha con Carbon en timezone local
+            $fechaCarbon = \Carbon\Carbon::createFromFormat('Y-m-d', $fecha, config('app.timezone', 'America/El_Salvador'))->startOfDay();
+
+            // Información de debug
+            $debug = [
+                'fecha_original' => $fecha,
+                'fecha_carbon' => $fechaCarbon->toDateString(),
+                'fecha_carbon_formatted' => $fechaCarbon->format('Y-m-d H:i:s'), // SIN timezone para frontend
+                'dia_semana_js' => $fechaCarbon->dayOfWeek, // 0=Domingo, 1=Lunes... 6=Sábado
+                'dia_semana_iso' => $fechaCarbon->dayOfWeekIso, // 1=Lunes, 2=Martes... 7=Domingo
+                'nombre_dia' => $fechaCarbon->locale('es')->dayName,
+                'es_domingo_js' => $fechaCarbon->dayOfWeek === 0,
+                'es_domingo_iso' => $fechaCarbon->dayOfWeekIso === 7,
+                'timezone' => $fechaCarbon->timezone->getName()
+            ];
+
+            // Obtener horarios programados
+            $horariosDisponibles = \App\Models\Horario::where('activo', true)->get();
+
+            $debug['horarios_bd'] = $horariosDisponibles->map(function ($horario) {
+                return [
+                    'id' => $horario->id,
+                    'dia_semana' => $horario->dia_semana,
+                    'nombre_dia' => $this->getNombreDiaISO($horario->dia_semana),
+                    'hora_inicio' => $horario->hora_inicio->format('H:i'),
+                    'hora_fin' => $horario->hora_fin->format('H:i'),
+                    'activo' => $horario->activo
+                ];
+            });
+
+            // Verificar qué horarios coinciden con la fecha seleccionada
+            $horariosCoincidentes = $horariosDisponibles->where('dia_semana', $fechaCarbon->dayOfWeekIso);
+
+            $debug['horarios_coincidentes'] = $horariosCoincidentes->map(function ($horario) {
+                return [
+                    'id' => $horario->id,
+                    'dia_semana' => $horario->dia_semana,
+                    'hora_inicio' => $horario->hora_inicio->format('H:i'),
+                    'hora_fin' => $horario->hora_fin->format('H:i')
+                ];
+            });
+
+            return response()->json($debug);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
+    }
+
+    private function getNombreDiaISO($diaISO)
+    {
+        $dias = [
+            1 => 'Lunes',
+            2 => 'Martes',
+            3 => 'Miércoles',
+            4 => 'Jueves',
+            5 => 'Viernes',
+            6 => 'Sábado',
+            7 => 'Domingo'
+        ];
+
+        return $dias[$diaISO] ?? 'Desconocido';
+    }
 }
