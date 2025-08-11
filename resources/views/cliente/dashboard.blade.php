@@ -2466,7 +2466,7 @@
                 enctype="multipart/form-data">
                 @csrf
                 <!-- Campos ocultos necesarios -->
-                <input type="hidden" id="form_method" name="_method" value="POST">
+               <!-- <input type="hidden" id="form_method" name="_method" value="POST">-->
                 <input type="hidden" id="form_cita_id" name="cita_id" value="">
 
                 <!-- Selección de vehículo -->
@@ -2579,7 +2579,7 @@
 
     <script>
         /*=========================================================
-                    FUNCIONAMIENTO DE CREAR CITAS
+                        FUNCIONAMIENTO DE CREAR CITAS
             =========================================================*/
 
         // Variables globales
@@ -3511,10 +3511,10 @@
                     <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                     <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                     ${tipo === 'próximas' ? `
-                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Cita
-                                </button>` : ''}
+                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Agendar Cita
+                                    </button>` : ''}
                 </div>
             `;
                     return;
@@ -3547,12 +3547,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                    <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                        <i class="fas fa-edit"></i> Modificar
-                                    </button>
-                                    <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </button>` : ''}
+                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                            <i class="fas fa-edit"></i> Modificar
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>` : ''}
                     </div>
                 </div>
                 `;
@@ -3585,9 +3585,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                    <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                        <i class="fas fa-redo"></i> Volver a agendar
-                                    </a>` : ''}
+                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                            <i class="fas fa-redo"></i> Volver a agendar
+                                        </a>` : ''}
                     </div>
                     <div class="service-price">
                         ${total.toFixed(2)}
@@ -3893,11 +3893,11 @@
                     <p>${errorMessage}</p>
                     ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                     ${showAvailableTimes && availableTimes.length > 0 ? `
-                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                </ul>
-                            ` : ''}
+                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                    </ul>
+                                ` : ''}
                     <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                         Por favor intenta nuevamente con un horario diferente.
                     </p>
@@ -4026,75 +4026,75 @@
 
         /*=========================================================
 
-        // Manejar envío del formulario
-        document.getElementById('citaForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+            // Manejar envío del formulario
+            document.getElementById('citaForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-            // Validar que al menos un servicio esté seleccionado
-            const serviciosSeleccionados = document.querySelectorAll('input[name="servicios[]"]:checked');
-            if (serviciosSeleccionados.length === 0) {
-                swalWithBootstrapButtons.fire('Error', 'Debes seleccionar al menos un servicio', 'error');
-                return;
-            }
-
-            const isEdit = document.getElementById('form_cita_id').value;
-
-            // Mostrar loader
-            const swalInstance = swalWithBootstrapButtons.fire({
-                title: isEdit ? 'Actualizando cita...' : 'Procesando cita...',
-                html: isEdit ? 'Estamos actualizando tu cita, por favor espera' :
-                    'Estamos reservando tu cita, por favor espera',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
-
-            const form = this;
-            const formData = new FormData(form);
-
-            // IMPORTANTE: Agregar el ID de la cita si es edición
-            if (isEdit) {
-                formData.append('cita_id', isEdit);
-            }
-
-            // Configurar método HTTP correcto
-            const method = isEdit ? 'PUT' : 'POST';
-
-            // Para PUT necesitamos agregar _method
-            if (method === 'PUT') {
-                formData.append('_method', 'PUT');
-            }
-
-            console.log('Enviando formulario:', {
-                url: form.action,
-                method: method,
-                isEdit: isEdit,
-                citaId: isEdit
-            });
-
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST', // Siempre POST, Laravel maneja _method
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: formData
-                });
-
-                const result = await response.json();
-                await swalInstance.close();
-
-                if (!response.ok) {
-                    throw new Error(result.message || 'Error al procesar la cita');
+                // Validar que al menos un servicio esté seleccionado
+                const serviciosSeleccionados = document.querySelectorAll('input[name="servicios[]"]:checked');
+                if (serviciosSeleccionados.length === 0) {
+                    swalWithBootstrapButtons.fire('Error', 'Debes seleccionar al menos un servicio', 'error');
+                    return;
                 }
 
-                // Éxito
-                closeCitaModal();
+                const isEdit = document.getElementById('form_cita_id').value;
 
-                await swalWithBootstrapButtons.fire({
-                    title: isEdit ? '¡Cita actualizada!' : '¡Cita agendada!',
-                    html: `
+                // Mostrar loader
+                const swalInstance = swalWithBootstrapButtons.fire({
+                    title: isEdit ? 'Actualizando cita...' : 'Procesando cita...',
+                    html: isEdit ? 'Estamos actualizando tu cita, por favor espera' :
+                        'Estamos reservando tu cita, por favor espera',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                const form = this;
+                const formData = new FormData(form);
+
+                // IMPORTANTE: Agregar el ID de la cita si es edición
+                if (isEdit) {
+                    formData.append('cita_id', isEdit);
+                }
+
+                // Configurar método HTTP correcto
+                const method = isEdit ? 'PUT' : 'POST';
+
+                // Para PUT necesitamos agregar _method
+                if (method === 'PUT') {
+                    formData.append('_method', 'PUT');
+                }
+
+                console.log('Enviando formulario:', {
+                    url: form.action,
+                    method: method,
+                    isEdit: isEdit,
+                    citaId: isEdit
+                });
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST', // Siempre POST, Laravel maneja _method
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    await swalInstance.close();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Error al procesar la cita');
+                    }
+
+                    // Éxito
+                    closeCitaModal();
+
+                    await swalWithBootstrapButtons.fire({
+                        title: isEdit ? '¡Cita actualizada!' : '¡Cita agendada!',
+                        html: `
             <div style="text-align: left; margin-top: 15px;">
                 <p><strong>Fecha:</strong> ${new Date(result.data.fecha_hora).toLocaleDateString('es-ES', { 
                     weekday: 'long', 
@@ -4111,92 +4111,92 @@
                 ${result.data.vehiculo_placa ? `<p><strong>Placa:</strong> ${result.data.vehiculo_placa}</p>` : ''}
             </div>
         `,
-                    icon: 'success',
-                    confirmButtonText: 'Aceptar'
-                });
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    });
 
-                await updateCitasSections();
+                    await updateCitasSections();
 
-            } catch (error) {
-                console.error('Error:', error);
-                await swalInstance.close();
+                } catch (error) {
+                    console.error('Error:', error);
+                    await swalInstance.close();
 
-                let errorMessage = 'Ocurrió un error al procesar tu cita.';
-                let errorDetails = '';
-                let showAvailableTimes = false;
-                let availableTimes = [];
+                    let errorMessage = 'Ocurrió un error al procesar tu cita.';
+                    let errorDetails = '';
+                    let showAvailableTimes = false;
+                    let availableTimes = [];
 
-                if (error.message) {
-                    if (typeof error.message === 'string') {
-                        errorMessage = error.message;
+                    if (error.message) {
+                        if (typeof error.message === 'string') {
+                            errorMessage = error.message;
 
-                        if (error.message.includes('No atendemos domingos')) {
-                            errorMessage = 'No trabajamos los domingos. Por favor selecciona otro día.';
-                            await swalWithBootstrapButtons.fire({
-                                title: 'Domingo no laborable',
-                                text: errorMessage,
-                                icon: 'warning',
-                                confirmButtonColor: '#4facfe'
-                            });
-                            return;
-                        } else if (error.message.includes('horario ya está ocupado') ||
-                            error.message.includes('horario seleccionado está ocupado')) {
-                            errorMessage =
-                                'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.';
-                            showAvailableTimes = true;
+                            if (error.message.includes('No atendemos domingos')) {
+                                errorMessage = 'No trabajamos los domingos. Por favor selecciona otro día.';
+                                await swalWithBootstrapButtons.fire({
+                                    title: 'Domingo no laborable',
+                                    text: errorMessage,
+                                    icon: 'warning',
+                                    confirmButtonColor: '#4facfe'
+                                });
+                                return;
+                            } else if (error.message.includes('horario ya está ocupado') ||
+                                error.message.includes('horario seleccionado está ocupado')) {
+                                errorMessage =
+                                    'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.';
+                                showAvailableTimes = true;
 
-                            const fecha = document.getElementById('fecha').value;
-                            const citaId = document.getElementById('form_cita_id').value;
-                            if (fecha) {
-                                try {
-                                    const url =
-                                        `/cliente/citas/horarios-ocupados?fecha=${fecha}${citaId ? `&exclude=${citaId}` : ''}`;
-                                    const response = await fetch(url);
-                                    const data = await response.json();
+                                const fecha = document.getElementById('fecha').value;
+                                const citaId = document.getElementById('form_cita_id').value;
+                                if (fecha) {
+                                    try {
+                                        const url =
+                                            `/cliente/citas/horarios-ocupados?fecha=${fecha}${citaId ? `&exclude=${citaId}` : ''}`;
+                                        const response = await fetch(url);
+                                        const data = await response.json();
 
-                                    // Extraer horarios disponibles de la respuesta
-                                    if (data.horariosOcupados) {
-                                        // Generar horarios disponibles
-                                        availableTimes = await generateAvailableTimesFromOccupied(fecha, data
-                                            .horariosOcupados);
+                                        // Extraer horarios disponibles de la respuesta
+                                        if (data.horariosOcupados) {
+                                            // Generar horarios disponibles
+                                            availableTimes = await generateAvailableTimesFromOccupied(fecha, data
+                                                .horariosOcupados);
+                                        }
+                                    } catch (err) {
+                                        console.error('Error al obtener horarios disponibles:', err);
                                     }
-                                } catch (err) {
-                                    console.error('Error al obtener horarios disponibles:', err);
                                 }
                             }
-                        }
-                    } else if (error.message.message) {
-                        errorMessage = error.message.message;
-                        if (error.message.errors) {
-                            errorDetails = Object.values(error.message.errors).join('<br>');
+                        } else if (error.message.message) {
+                            errorMessage = error.message.message;
+                            if (error.message.errors) {
+                                errorDetails = Object.values(error.message.errors).join('<br>');
+                            }
                         }
                     }
-                }
 
-                const errorHtml = `
+                    const errorHtml = `
         <div style="text-align: left;">
             <p>${errorMessage}</p>
             ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
             ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                                                    </ul>
-                                                                                                ` : ''}
+                                                                                                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                        </ul>
+                                                                                                    ` : ''}
             <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                 Por favor intenta nuevamente con un horario diferente.
             </p>
         </div>
     `;
 
-                await swalWithBootstrapButtons.fire({
-                    title: isEdit ? 'Error al actualizar' : 'Error al agendar',
-                    html: errorHtml,
-                    icon: 'error',
-                    confirmButtonColor: '#ff6b6b'
-                });
-            }
-        }); =========================================================*/
+                    await swalWithBootstrapButtons.fire({
+                        title: isEdit ? 'Error al actualizar' : 'Error al agendar',
+                        html: errorHtml,
+                        icon: 'error',
+                        confirmButtonColor: '#ff6b6b'
+                    });
+                }
+            }); =========================================================*/
 
 
         /*=========================================================
@@ -4343,10 +4343,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4458,8 +4458,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4488,8 +4488,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

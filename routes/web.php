@@ -310,3 +310,5 @@ Route::get('/debug/servicios', function () {
         })
     ]);
 });
+
+Route::get('/debug-fechas', [ClienteController::class, 'debugFechas'])->name('debug-fechas');
