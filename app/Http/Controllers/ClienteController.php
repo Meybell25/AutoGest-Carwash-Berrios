@@ -39,14 +39,14 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
-            //  Filtrar citas próximas (futuras, con estados específicos Y dentro de los próximos 15 días)
+            // MODIFICADO: Filtrar citas próximas (futuras, con estados específicos Y dentro de los próximos 15 días)
             $fechaLimite = now()->addDays(15); // 15 días desde hoy
 
             $proximas_citas = $citas->filter(function ($cita) use ($fechaLimite) {
                 return $cita->fecha_hora >= now() && // Cita futura
                     $cita->fecha_hora <= $fechaLimite && // Dentro de los próximos 15 días
                     in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
-            });
+            })->sortBy('fecha_hora'); // Ordenar de la más cercana a la más lejana
 
             // Filtrar historial (pasadas o con estados finalizados)
             $historial_citas = $citas->filter(function ($cita) {
@@ -64,7 +64,7 @@ class ClienteController extends Controller
                 ],
                 'mis_vehiculos' => $vehiculos,
                 'vehiculos_dashboard' => $vehiculosDashboard,
-                'proximas_citas' => $proximas_citas->take(5),
+                'proximas_citas' => $proximas_citas->values()->take(5), // values() para reindexar después del sort
                 'historial_citas' => $historial_citas->take(5),
                 'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
                 'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count()
@@ -90,7 +90,6 @@ class ClienteController extends Controller
             ]);
         }
     }
-
 
     public function vehiculos(): View
     {
@@ -190,7 +189,7 @@ class ClienteController extends Controller
                 throw new \Exception('Los servicios seleccionados exceden el horario de cierre.', 400);
             }
 
-            // CORREGIDO: Verificar colisión con otras citas (excluir cita actual si existe)
+            // Verificar colisión con otras citas (excluir cita actual si existe)
             $citasQuery = Cita::where('estado', '!=', 'cancelada')
                 ->where(function ($query) use ($fechaCita, $horaFin) {
                     $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
@@ -477,14 +476,14 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
-            // MODIFICADO: Filtrar citas próximas con límite de 15 días
+            //  Filtrar citas próximas con límite de 15 días
             $fechaLimite = now()->addDays(15);
 
             $proximas_citas = $todasLasCitas->filter(function ($cita) use ($fechaLimite) {
                 return $cita->fecha_hora >= now() && // Cita futura
                     $cita->fecha_hora <= $fechaLimite && // Dentro de los próximos 15 días
                     in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
-            });
+            })->sortBy('fecha_hora')->values(); // Ordenar de la más cercana a la más lejana y reindexar
 
             // Filtrar historial
             $historial_citas = $todasLasCitas->filter(function ($cita) {
@@ -494,7 +493,7 @@ class ClienteController extends Controller
 
             return response()->json([
                 'success' => true,
-                'proximas_citas' => $proximas_citas->values(), // values() para reindexar el array
+                'proximas_citas' => $proximas_citas, // Ya viene ordenado y con values()
                 'historial_citas' => $historial_citas->values(),
                 'stats' => [
                     'total_vehiculos' => $vehiculos->count(),
@@ -615,7 +614,7 @@ class ClienteController extends Controller
                 throw new \Exception('Los servicios seleccionados exceden el horario de cierre.', 400);
             }
 
-            // CORREGIDO: Verificar colisión excluyendo esta cita
+            // Verificar colisión excluyendo esta cita
             $citasSuperpuestas = Cita::where('estado', '!=', 'cancelada')
                 ->where('id', '!=', $cita->id) // EXCLUSIÓN EXPLÍCITA
                 ->where(function ($query) use ($fechaCita, $horaFin) {
