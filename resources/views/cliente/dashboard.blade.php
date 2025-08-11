@@ -850,28 +850,77 @@
         }
 
         /* Estilos para indicadores de urgencia en las citas próximas */
-
         .next-appointment:first-child {
-            border: 2px solid #007bff;
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+            border: 2px solid transparent;
+            box-shadow: var(--shadow-lg);
             position: relative;
+            border-left: 4px solid transparent;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
         }
 
-        .next-appointment:first-child::before {
-            content: "Próxima";
-            position: absolute;
-            top: -8px;
-            right: 10px;
-            background: linear-gradient(135deg, #007bff, #0056b3);
+        .next-appointment:first-child .date-badge {
+            background: var(--primary-gradient) !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .next-appointment:nth-child(2) .date-badge {
+            background: var(--secondary-gradient) !important;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+            animation: none;
+        }
+
+        .next-appointment:first-child:hover,
+        .next-appointment:nth-child(2):hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .next-appointment:first-child .date-badge,
+        .next-appointment:nth-child(2) .date-badge {
             color: white;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 2px 8px;
-            border-radius: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
+        .next-appointment:first-child .date-badge .days-remaining,
+        .next-appointment:nth-child(2) .date-badge .days-remaining {
+            background-color: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 4px;
+            padding: 2px 6px;
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        .next-appointment:nth-child(2) {
+            border-left: 4px solid transparent;
+            background: linear-gradient(45deg, rgba(79, 172, 254, 0.05), rgba(27, 233, 244, 0.05));
+        }
+
+        /* Animación suave para la primera cita */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            }
+
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        /* Responsive: ajustes para móviles */
+        @media (max-width: 768px) {
+
+            .next-appointment:first-child .date-badge .days-remaining,
+            .next-appointment:nth-child(2) .date-badge .days-remaining {
+                font-size: 9px;
+                padding: 1px 4px;
+            }
+        }
 
         /* Indicador de días restantes en el badge de fecha */
         .date-badge .days-remaining {
@@ -2758,8 +2807,8 @@
 
     <script>
         /*=========================================================
-                                                        FUNCIONAMIENTO DE CREAR CITAS
-                                                    =========================================================*/
+                                                                                    FUNCIONAMIENTO DE CREAR CITAS
+                                                                                =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3779,10 +3828,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Cita
-                                </button>` : ''}
+                                                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                <i class="fas fa-calendar-plus"></i>
+                                                                Agendar Cita
+                                                            </button>` : ''}
                 </div>
             `;
                     return;
@@ -3843,12 +3892,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                    <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                        <i class="fas fa-edit"></i> Modificar
-                                    </button>
-                                    <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </button>` : ''}
+                                                                <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                    <i class="fas fa-edit"></i> Modificar
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                    <i class="fas fa-times"></i> Cancelar
+                                                                </button>` : ''}
                     </div>
                 </div>
                 `;
@@ -3892,9 +3941,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                    <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                        <i class="fas fa-redo"></i> Volver a agendar
-                                    </a>` : ''}
+                                                                <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                    <i class="fas fa-redo"></i> Volver a agendar
+                                                                </a>` : ''}
                     </div>
                     <div class="service-price">
                         ${total.toFixed(2)}
@@ -4296,11 +4345,11 @@
                     <p>${errorMessage}</p>
                     ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                     ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                                                </ul>
-                                                                                            ` : ''}
+                                                                                                                            <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                                            <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                                                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                                            </ul>
+                                                                                                                        ` : ''}
                     <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                         Por favor intenta nuevamente con un horario diferente.
                     </p>
@@ -4571,10 +4620,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4686,8 +4735,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                            FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                            =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4716,8 +4765,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
