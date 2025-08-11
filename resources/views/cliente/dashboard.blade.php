@@ -3386,11 +3386,11 @@
                 <p>${errorMessage}</p>
                 ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                 ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                        </ul>
-                                                                    ` : ''}
+                                                                            <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                            <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                            </ul>
+                                                                        ` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3406,14 +3406,47 @@
             }
         });
 
-        // Función para actualizar una sección específica de citas
+        // Función mejorada para actualizar las secciones de citas
         async function updateCitasSections(tipo = 'próximas', citas = []) {
             try {
                 // Si no se proporcionan citas, obtenerlas del servidor
                 if (citas.length === 0) {
-                    const response = await fetch('/cliente/dashboard-data');
-                    const data = await response.json();
-                    citas = tipo === 'próximas' ? data.proximas_citas : data.historial_citas;
+                    try {
+                        const response = await fetch('/cliente/dashboard-data', {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Error ${response.status}: ${response.statusText}`);
+                        }
+
+                        // Verificar que la respuesta es JSON
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error('Respuesta no es JSON');
+                        }
+
+                        const data = await response.json();
+
+                        if (!data.success) {
+                            throw new Error(data.message || 'Error en los datos recibidos');
+                        }
+
+                        citas = tipo === 'próximas' ? data.proximas_citas : data.historial_citas;
+                    } catch (error) {
+                        console.error('Error al obtener datos de citas:', error);
+                        // Mostrar mensaje al usuario y recargar
+                        await swalWithBootstrapButtons.fire({
+                            title: 'Error',
+                            text: 'No se pudieron cargar los datos actualizados. Recargando página...',
+                            icon: 'error'
+                        });
+                        location.reload();
+                        return;
+                    }
                 }
 
                 const container = tipo === 'próximas' ?
@@ -3521,6 +3554,12 @@
                 container.innerHTML = html;
             } catch (error) {
                 console.error('Error al actualizar secciones de citas:', error);
+                await swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Ocurrió un problema al actualizar la vista. Recargando página...',
+                    icon: 'error'
+                });
+                location.reload();
             }
         }
 
@@ -4074,10 +4113,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4189,8 +4228,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                =========================================================*/
+                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4219,8 +4258,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

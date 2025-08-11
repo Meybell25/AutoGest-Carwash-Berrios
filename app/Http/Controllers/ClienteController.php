@@ -408,21 +408,23 @@ class ClienteController extends Controller
     }
     public function getDashboardData()
     {
-        $user = Auth::user();
-
-        if (!$user || !$user->isCliente()) {
-            abort(403, 'Acceso no autorizado');
-        }
-
         try {
+            $user = Auth::user();
+
+            if (!$user || !$user->isCliente()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acceso no autorizado'
+                ], 403);
+            }
+
+            // Obtener datos
             $vehiculos = $user->vehiculos()
                 ->withCount('citas')
                 ->orderByDesc('citas_count')
                 ->get();
 
-            $vehiculosDashboard = $vehiculos->take(3);
-
-            // Obtener TODAS las citas del usuario (esto reemplaza $mis_citas)
+            // Obtener todas las citas del usuario
             $todasLasCitas = $user->citas()
                 ->with(['vehiculo', 'servicios'])
                 ->orderBy('fecha_hora', 'desc')
@@ -438,24 +440,23 @@ class ClienteController extends Controller
                     in_array($cita->estado, ['finalizada', 'cancelada']);
             });
 
-            return view('cliente.dashboard', [
-                'user' => $user,
+            return response()->json([
+                'success' => true,
+                'proximas_citas' => $proximas_citas->values(), // values() para reindexar el array
+                'historial_citas' => $historial_citas->values(),
                 'stats' => [
                     'total_vehiculos' => $vehiculos->count(),
                     'total_citas' => $todasLasCitas->count(),
                     'citas_pendientes' => $todasLasCitas->where('estado', 'pendiente')->count(),
                     'citas_confirmadas' => $todasLasCitas->where('estado', 'confirmada')->count(),
                 ],
-                'vehiculos_dashboard' => $vehiculosDashboard,
-                'proximas_citas' => $proximas_citas,
-                'historial_citas' => $historial_citas,
-                'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
                 'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count()
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener datos del dashboard: ' . $e->getMessage()
+                'message' => 'Error al cargar datos del dashboard',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
