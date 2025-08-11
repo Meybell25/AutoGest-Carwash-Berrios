@@ -2811,8 +2811,8 @@
 
     <script>
         /*=========================================================
-                                                                                                        FUNCIONAMIENTO DE CREAR CITAS
-                                                                                                    =========================================================*/
+                                                                                                            FUNCIONAMIENTO DE CREAR CITAS
+                                                                                                        =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3832,10 +3832,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                    <i class="fas fa-calendar-plus"></i>
-                                                                                    Agendar Cita
-                                                                                </button>` : ''}
+                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                        <i class="fas fa-calendar-plus"></i>
+                                                                                        Agendar Cita
+                                                                                    </button>` : ''}
                 </div>
             `;
                     return;
@@ -3850,7 +3850,7 @@
                         const hoy = new Date();
                         const diasRestantes = Math.ceil((fechaCita - hoy) / (1000 * 60 * 60 * 24));
 
-                        // CORREGIDO: Usar funciones de formateo seguras
+                        // Usar funciones de formateo seguras
                         const dia = obtenerDiaDelMes(cita.fecha_hora);
                         const mes = obtenerMesAbreviado(cita.fecha_hora);
                         const hora = formatearSoloHora(cita.fecha_hora);
@@ -3896,12 +3896,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                    <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                        <i class="fas fa-edit"></i> Modificar
-                                                                                    </button>
-                                                                                    <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                        <i class="fas fa-times"></i> Cancelar
-                                                                                    </button>` : ''}
+                                                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                            <i class="fas fa-edit"></i> Modificar
+                                                                                        </button>
+                                                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                            <i class="fas fa-times"></i> Cancelar
+                                                                                        </button>` : ''}
                     </div>
                 </div>
                 `;
@@ -3928,7 +3928,7 @@
                     }
                 } else { // Historial
                     citas.forEach(cita => {
-                        // CORREGIDO: Usar función de formateo segura
+                        //  Usar función de formateo segura
                         const fechaCompleta = formatearFechaCompleta(cita.fecha_hora);
                         const total = cita.servicios.reduce((sum, servicio) => sum + servicio.precio, 0);
 
@@ -3945,9 +3945,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                                    <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                        <i class="fas fa-redo"></i> Volver a agendar
-                                                                                    </a>` : ''}
+                                                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                            <i class="fas fa-redo"></i> Volver a agendar
+                                                                                        </a>` : ''}
                     </div>
                     <div class="service-price">
                         ${total.toFixed(2)}
@@ -4204,6 +4204,21 @@
                         return;
                     }
 
+                    // Validar fecha y hora no sean en el pasado
+                    const fechaInput = document.getElementById('fecha');
+                    const horaInput = document.getElementById('hora');
+                    const fechaHoraCita = new Date(`${fechaInput.value}T${horaInput.value}`);
+                    const ahora = new Date();
+
+                    if (fechaHoraCita < ahora) {
+                        swalWithBootstrapButtons.fire({
+                            title: 'Error',
+                            text: 'No puedes agendar citas en fechas u horas pasadas',
+                            icon: 'error'
+                        });
+                        return;
+                    }
+
                     const isEdit = document.getElementById('form_cita_id').value;
 
                     // Mostrar loader
@@ -4218,7 +4233,7 @@
                     const form = this;
                     const formData = new FormData(form);
 
-                    // IMPORTANTE: Agregar el ID de la cita si es edición
+                    // Agregar el ID de la cita si es edición
                     if (isEdit) {
                         formData.append('cita_id', isEdit);
                     }
@@ -4263,22 +4278,22 @@
                         await swalWithBootstrapButtons.fire({
                             title: isEdit ? '¡Cita actualizada!' : '¡Cita agendada!',
                             html: `
-                    <div style="text-align: left; margin-top: 15px;">
-                        <p><strong>Fecha:</strong> ${new Date(result.data.fecha_hora).toLocaleDateString('es-ES', { 
-                            weekday: 'long', 
-                            day: 'numeric', 
-                            month: 'long', 
-                            year: 'numeric' 
-                        })}</p>
-                        <p><strong>Hora:</strong> ${new Date(result.data.fecha_hora).toLocaleTimeString('es-ES', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                        })}</p>
-                        <p><strong>Servicios:</strong> ${result.data.servicios_nombres}</p>
-                        <p><strong>Vehículo:</strong> ${result.data.vehiculo_marca} ${result.data.vehiculo_modelo}</p>
-                        ${result.data.vehiculo_placa ? `<p><strong>Placa:</strong> ${result.data.vehiculo_placa}</p>` : ''}
-                    </div>
-                `,
+                        <div style="text-align: left; margin-top: 15px;">
+                            <p><strong>Fecha:</strong> ${new Date(result.data.fecha_hora).toLocaleDateString('es-ES', { 
+                                weekday: 'long', 
+                                day: 'numeric', 
+                                month: 'long', 
+                                year: 'numeric' 
+                            })}</p>
+                            <p><strong>Hora:</strong> ${new Date(result.data.fecha_hora).toLocaleTimeString('es-ES', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                            })}</p>
+                            <p><strong>Servicios:</strong> ${result.data.servicios_nombres}</p>
+                            <p><strong>Vehículo:</strong> ${result.data.vehiculo_marca} ${result.data.vehiculo_modelo}</p>
+                            ${result.data.vehiculo_placa ? `<p><strong>Placa:</strong> ${result.data.vehiculo_placa}</p>` : ''}
+                        </div>
+                    `,
                             icon: 'success',
                             confirmButtonText: 'Aceptar'
                         });
@@ -4345,20 +4360,20 @@
                         }
 
                         const errorHtml = `
-                <div style="text-align: left;">
-                    <p>${errorMessage}</p>
-                    ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
-                    ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                                                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                                                                                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                                                                                                </ul>
-                                                                                                                                            ` : ''}
-                    <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                        Por favor intenta nuevamente con un horario diferente.
-                    </p>
-                </div>
-            `;
+                    <div style="text-align: left;">
+                        <p>${errorMessage}</p>
+                        ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
+                        ${showAvailableTimes && availableTimes.length > 0 ? `
+                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                            Por favor intenta nuevamente con un horario diferente.
+                        </p>
+                    </div>
+                `;
 
                         await swalWithBootstrapButtons.fire({
                             title: isEdit ? 'Error al actualizar' : 'Error al agendar',
@@ -4624,10 +4639,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4739,8 +4754,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4769,8 +4784,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

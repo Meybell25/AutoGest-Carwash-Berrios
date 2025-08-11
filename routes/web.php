@@ -312,3 +312,8 @@ Route::get('/debug/servicios', function () {
 });
 
 Route::get('/debug-fechas', [ClienteController::class, 'debugFechas'])->name('debug-fechas');
+
+/// Ruta para debug de citas por usuario (JSON)
+Route::get('/debug/citas-usuario/{usuarioId}', [ClienteController::class, 'debugCitasUsuarioJson'])
+    ->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
+    ->name('debug.citas-usuario-json');

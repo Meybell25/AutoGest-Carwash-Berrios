@@ -149,6 +149,11 @@ class ClienteController extends Controller
             // Combinar fecha y hora
             $fechaCita = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
 
+            // Validar que la fecha y hora no sean en el pasado
+            if ($fechaCita->lt(now())) {
+                throw new \Exception('No puedes agendar citas en fechas u horas pasadas.', 400);
+            }
+
             // Validar que no sea domingo
             if ($fechaCita->isSunday()) {
                 throw new \Exception('No atendemos domingos.', 400);
@@ -384,6 +389,23 @@ class ClienteController extends Controller
             }
         }
 
+        // Si la fecha es hoy, filtrar horarios que ya pasaron
+        if ($date->isToday()) {
+            $horaActual = \Carbon\Carbon::now();
+            $horariosLibres = array_filter($horariosLibres, function ($hora) use ($horaActual) {
+                $horaCita = \Carbon\Carbon::createFromFormat('H:i', $hora);
+                return $horaCita->gt($horaActual);
+            });
+
+            // Reindexar el array
+            $horariosLibres = array_values($horariosLibres);
+
+            Log::info("Horarios disponibles después de filtrar los pasados para hoy:", [
+                'count' => count($horariosLibres),
+                'horarios' => $horariosLibres
+            ]);
+        }
+
         Log::info("Horarios libres generados:", [
             'count' => count($horariosLibres),
             'horarios' => $horariosLibres
@@ -391,7 +413,6 @@ class ClienteController extends Controller
 
         return $horariosLibres;
     }
-
     public function cancelarCita(Cita $cita)
     {
         // Verificar que la cita pertenece al usuario
@@ -577,6 +598,11 @@ class ClienteController extends Controller
 
             // Combinar fecha y hora
             $fechaCita = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
+
+            // Validar que la nueva fecha/hora no sea en el pasado
+            if ($fechaCita->lt(now())) {
+                throw new \Exception('No puedes cambiar la cita a una fecha u hora pasada.', 400);
+            }
 
             // Validaciones básicas
             if ($fechaCita->isSunday()) {
@@ -839,5 +865,87 @@ class ClienteController extends Controller
         ];
 
         return $dias[$diaISO] ?? 'Desconocido';
+    }
+    /**
+     * Método para debugging - Mostrar citas de cualquier usuario en JSON
+     */
+    public function debugCitasUsuarioJson($usuarioId)
+    {
+        // Validar que el usuario que hace la solicitud sea admin
+        if (!Auth::user() || !Auth::user()->isAdmin()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Acceso no autorizado'
+            ], 403);
+        }
+
+        try {
+            // Obtener el usuario
+            $usuario = Usuario::findOrFail($usuarioId);
+
+            // Obtener todas las citas del usuario con relaciones
+            $citas = Cita::where('usuario_id', $usuarioId)
+                ->with(['vehiculo', 'servicios', 'usuario'])
+                ->orderBy('fecha_hora', 'desc')
+                ->get();
+
+            // Formatear los datos para la respuesta JSON
+            $response = [
+                'usuario' => [
+                    'id' => $usuario->id,
+                    'nombre' => $usuario->nombre,
+                    'email' => $usuario->email,
+                    'estado' => $usuario->estado,
+                ],
+                'estadisticas' => [
+                    'total_citas' => $citas->count(),
+                    'pendientes' => $citas->where('estado', 'pendiente')->count(),
+                    'confirmadas' => $citas->where('estado', 'confirmada')->count(),
+                    'en_proceso' => $citas->where('estado', 'en_proceso')->count(),
+                    'finalizadas' => $citas->where('estado', 'finalizada')->count(),
+                    'canceladas' => $citas->where('estado', 'cancelada')->count(),
+                ],
+                'citas' => $citas->map(function ($cita) {
+                    return [
+                        'id' => $cita->id,
+                        'fecha_hora' => $cita->fecha_hora->format('Y-m-d H:i:s'),
+                        'fecha_hora_formateada' => $cita->fecha_hora->isoFormat('dddd D [de] MMMM [de] YYYY, h:mm A'),
+                        'estado' => $cita->estado,
+                        'vehiculo' => [
+                            'id' => $cita->vehiculo->id,
+                            'marca' => $cita->vehiculo->marca,
+                            'modelo' => $cita->vehiculo->modelo,
+                            'placa' => $cita->vehiculo->placa,
+                            'tipo' => $cita->vehiculo->tipo,
+                        ],
+                        'servicios' => $cita->servicios->map(function ($servicio) {
+                            return [
+                                'id' => $servicio->id,
+                                'nombre' => $servicio->nombre,
+                                'precio' => $servicio->precio,
+                                'duracion_min' => $servicio->duracion_min,
+                            ];
+                        }),
+                        'duracion_total' => $cita->servicios->sum('duracion_min'),
+                        'precio_total' => $cita->servicios->sum('precio'),
+                        'observaciones' => $cita->observaciones,
+                        'created_at' => $cita->created_at->format('Y-m-d H:i:s'),
+                        'updated_at' => $cita->updated_at->format('Y-m-d H:i:s'),
+                    ];
+                }),
+                'meta' => [
+                    'fecha_consulta' => now()->toDateTimeString(),
+                    'total_registros' => $citas->count(),
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
     }
 }
