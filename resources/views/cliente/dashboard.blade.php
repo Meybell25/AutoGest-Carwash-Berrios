@@ -3398,7 +3398,7 @@
         });
 
         // Función para actualizar una sección específica de citas
-        function updateCitasSection(tipo, citas) {
+        function updateCitasSections(tipo, citas) {
             const container = tipo === 'próximas' ?
                 document.querySelector('.card:first-child .card-body') :
                 document.querySelector('.card:nth-child(2) .card-body');
