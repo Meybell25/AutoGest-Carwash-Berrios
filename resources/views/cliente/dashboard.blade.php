@@ -2578,6 +2578,117 @@
     </footer>
 
     <script>
+        // Script para debug - agregar temporalmente al dashboard
+        // Función para probar el manejo de fechas
+
+        async function debugFechas(fechaStr = null) {
+            const hoy = new Date();
+            const fechaTest = fechaStr || getLocalDateString(hoy);
+
+            console.group('🔍 DEBUG DE FECHAS');
+            console.log('📅 Fecha de prueba:', fechaTest);
+
+            // Test 1: Crear fecha local
+            const fechaLocal = createLocalDate(fechaTest);
+            console.log('📅 Fecha local creada:', fechaLocal);
+            console.log('📅 getDay() (JS):', fechaLocal.getDay(), '- Nombre:', fechaLocal.toLocaleDateString('es-ES', {
+                weekday: 'long'
+            }));
+            console.log('📅 Día backend convertido:', getBackendDayFromJSDay(fechaLocal.getDay()));
+
+            // Test 2: Verificar con servidor
+            try {
+                const response = await fetch(`/cliente/debug-fechas?fecha=${fechaTest}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('🗄️ Información del servidor:', data);
+
+                    // Comparar
+                    console.log('🔄 COMPARACIÓN:');
+                    console.log('   JS dayOfWeek:', fechaLocal.getDay());
+                    console.log('   Servidor dayOfWeek (JS format):', data.dia_semana_js);
+                    console.log('   JS convertido a backend:', getBackendDayFromJSDay(fechaLocal.getDay()));
+                    console.log('   Servidor dayOfWeekIso:', data.dia_semana_iso);
+                    console.log('   ✅ Coinciden?', getBackendDayFromJSDay(fechaLocal.getDay()) === data.dia_semana_iso);
+
+                    // Mostrar horarios disponibles
+                    if (data.horarios_coincidentes && data.horarios_coincidentes.length > 0) {
+                        console.log('⏰ Horarios disponibles:', data.horarios_coincidentes);
+                    } else {
+                        console.log('❌ No hay horarios para este día');
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Error al consultar servidor:', error);
+            }
+
+            console.groupEnd();
+        }
+
+        // Test automático para los próximos 7 días
+        async function testProximos7Dias() {
+            console.group('🧪 TEST PRÓXIMOS 7 DÍAS');
+
+            for (let i = 0; i < 7; i++) {
+                const fecha = new Date();
+                fecha.setDate(fecha.getDate() + i);
+                const fechaStr = getLocalDateString(fecha);
+
+                console.log(`\n--- DÍA ${i + 1}: ${fechaStr} ---`);
+                await debugFechas(fechaStr);
+
+                // Pequeña pausa para no saturar
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            console.groupEnd();
+        }
+
+        // Función para test rápido en consola
+        function testFechaRapido() {
+            const hoy = new Date();
+            console.log('Hoy es:', hoy.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long'
+            }));
+            console.log('getDay():', hoy.getDay());
+            console.log('Convertido a backend:', getBackendDayFromJSDay(hoy.getDay()));
+
+            // Test crear fecha desde string
+            const fechaStr = getLocalDateString(hoy);
+            const fechaRecreada = createLocalDate(fechaStr);
+            console.log('Fecha string:', fechaStr);
+            console.log('Fecha recreada:', fechaRecreada);
+            console.log('¿Son el mismo día?',
+                hoy.getDate() === fechaRecreada.getDate() &&
+                hoy.getMonth() === fechaRecreada.getMonth() &&
+                hoy.getFullYear() === fechaRecreada.getFullYear()
+            );
+        }
+
+        // Auto-ejecutar test básico cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Sistema de fechas cargado');
+
+            // Test básico
+            setTimeout(() => {
+                console.log('\n🔧 Ejecutando test básico de fechas...');
+                testFechaRapido();
+            }, 1000);
+        });
+
+        // Exponer funciones globalmente para uso en consola
+        window.debugFechas = debugFechas;
+        window.testProximos7Dias = testProximos7Dias;
+        window.testFechaRapido = testFechaRapido;
+
         // Configuración global de SweetAlert
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
@@ -2794,29 +2905,37 @@
         }
 
         // Función para cargar horas disponibles 
-        async function loadAvailableHours(jsDayOfWeek, fechaStr, excludeCitaId = null) {
+        async function loadAvailableHours(selectedDate, excludeCitaId = null) {
             const horaSelect = document.getElementById('hora');
             horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
 
             try {
+                // Usar la fecha local correctamente
+                const fechaLocal = createLocalDate(selectedDate);
+                const dayOfWeekJS = fechaLocal.getDay(); // 0=Domingo, 1=Lunes, etc.
+                const dayOfWeekBackend = getBackendDayFromJSDay(dayOfWeekJS);
+
+                console.log('Fecha seleccionada:', selectedDate);
+                console.log('Día JS:', dayOfWeekJS, 'Día Backend:', dayOfWeekBackend);
+
                 // Validar si es domingo
-                if (jsDayOfWeek === 0) {
+                if (dayOfWeekJS === 0) {
                     horaSelect.innerHTML = '<option value="">No hay horarios (No atendemos domingos)</option>';
                     return;
                 }
 
                 // Verificar día no laborable
-                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === selectedDate);
                 if (diaNoLaborable) {
                     horaSelect.innerHTML = `<option value="">${diaNoLaborable.motivo || 'Día no laborable'}</option>`;
                     return;
                 }
 
-                // Obtener horarios ocupados (excluyendo cita actual si se especifica)
+                // Obtener horarios ocupados
                 let citasExistentes = [];
                 try {
                     const url =
-                        `/cliente/citas/horarios-ocupados?fecha=${fechaStr}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
+                        `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
                     console.log('Consultando horarios ocupados:', url);
 
                     const response = await fetch(url, {
@@ -2840,8 +2959,10 @@
                 // Generar opciones de horario
                 horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
-                const backendDay = jsDayOfWeek;
-                const horariosDia = horariosDisponibles.filter(h => h.dia_semana == backendDay);
+                // CORREGIDO: Usar el día del backend convertido
+                const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeekBackend);
+
+                console.log('Horarios disponibles para día', dayOfWeekBackend, ':', horariosDia);
 
                 if (horariosDia.length === 0) {
                     horaSelect.innerHTML = '<option value="">No hay horarios programados</option>';
@@ -2867,11 +2988,11 @@
                         // Verificar colisión con citas existentes
                         const estaOcupado = citasExistentes.some(cita => {
                             try {
-                                const inicioCita = new Date(`${fechaStr}T${cita.hora_inicio}`);
+                                const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
                                 const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
                                     60000);
 
-                                const inicioPropuesta = new Date(`${fechaStr}T${horaStr}`);
+                                const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
                                 const finPropuesta = new Date(inicioPropuesta.getTime() +
                                     calcularDuracionServiciosSeleccionados() * 60000);
 
@@ -2915,40 +3036,217 @@
             }
         }
 
-        // Configuracion del datepicker (actualizada)
+        // Configuracion del datepicker
         function setupDatePicker() {
             const fechaInput = document.getElementById('fecha');
 
-            fechaInput.addEventListener('change', function() {
-                const selectedDate = new Date(this.value);
-                const dayOfWeek = selectedDate.getDay(); // JS: 0=Dom, 1=Lun,...,6=Sab
+            // Establecer fechas mínima y máxima correctamente
+            const hoy = new Date();
+            const unMesAdelante = new Date();
+            unMesAdelante.setMonth(unMesAdelante.getMonth() + 1);
 
-                // Validar domingos primero
-                if (dayOfWeek === 0) {
-                    showDateError('Domingo no laborable',
-                        'No trabajamos los domingos. Por favor selecciona otro día.');
-                    this.value = '';
+            fechaInput.min = getLocalDateString(hoy);
+            fechaInput.max = getLocalDateString(unMesAdelante);
+
+            console.log('Datepicker configurado:', {
+                min: fechaInput.min,
+                max: fechaInput.max,
+                today: getLocalDateString(hoy)
+            });
+
+            fechaInput.addEventListener('change', function() {
+                console.log('Fecha cambiada:', this.value);
+
+                if (!this.value) {
                     document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
                     return;
                 }
 
-                // Validar días no laborables
-                const fechaStr = selectedDate.toISOString().split('T')[0];
-                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+                try {
+                    // Usar createLocalDate para evitar problemas de timezone
+                    const selectedDate = createLocalDate(this.value);
+                    const dayOfWeekJS = selectedDate.getDay();
 
-                if (diaNoLaborable) {
-                    showDateError(
-                        'Día no laborable',
-                        `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
-                 <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
-                    );
+                    console.log('Fecha parseada:', selectedDate);
+                    console.log('Día de la semana JS:', dayOfWeekJS);
+
+                    // Validar domingos primero
+                    if (dayOfWeekJS === 0) {
+                        showDateError('Domingo no laborable',
+                            'No trabajamos los domingos. Por favor selecciona otro día.');
+                        this.value = '';
+                        document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
+                        return;
+                    }
+
+                    // Verificar días no laborables
+                    const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === this.value);
+                    if (diaNoLaborable) {
+                        showDateError(
+                            'Día no laborable',
+                            `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
+                             <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
+                        );
+                        this.value = '';
+                        return;
+                    }
+
+                    // Cargar horarios para días laborables
+                    const citaId = document.getElementById('form_cita_id')?.value;
+                    loadAvailableHours(this.value, citaId);
+
+                } catch (error) {
+                    console.error('Error al procesar fecha:', error);
+                    showDateError('Error', 'Fecha inválida. Por favor selecciona una fecha válida.');
                     this.value = '';
+                }
+            });
+        }
+
+        // Validar días no laborables
+        const fechaStr = selectedDate.toISOString().split('T')[0];
+        const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+
+        if (diaNoLaborable) {
+            showDateError(
+                'Día no laborable',
+                `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
+                 <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
+            );
+            this.value = '';
+            return;
+        }
+
+        // Cargar horarios para días laborables (1-6)
+        async function loadAvailableHours(selectedDate, excludeCitaId = null) {
+            const horaSelect = document.getElementById('hora');
+            horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
+
+            try {
+                // Usar la fecha local correctamente
+                const fechaLocal = createLocalDate(selectedDate);
+                const dayOfWeekJS = fechaLocal.getDay(); // 0=Domingo, 1=Lunes, etc.
+                const dayOfWeekBackend = getBackendDayFromJSDay(dayOfWeekJS);
+
+                console.log('Fecha seleccionada:', selectedDate);
+                console.log('Día JS:', dayOfWeekJS, 'Día Backend:', dayOfWeekBackend);
+
+                // Validar si es domingo
+                if (dayOfWeekJS === 0) {
+                    horaSelect.innerHTML = '<option value="">No hay horarios (No atendemos domingos)</option>';
                     return;
                 }
 
-                // Cargar horarios para días laborables (1-6)
-                loadAvailableHours(dayOfWeek, fechaStr);
-            });
+                // Verificar día no laborable
+                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === selectedDate);
+                if (diaNoLaborable) {
+                    horaSelect.innerHTML = `<option value="">${diaNoLaborable.motivo || 'Día no laborable'}</option>`;
+                    return;
+                }
+
+                // Obtener horarios ocupados
+                let citasExistentes = [];
+                try {
+                    const url =
+                        `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
+                    console.log('Consultando horarios ocupados:', url);
+
+                    const response = await fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) throw new Error(`Error ${response.status}`);
+
+                    const data = await response.json();
+                    citasExistentes = data.horariosOcupados || [];
+
+                    console.log('Horarios ocupados recibidos:', citasExistentes);
+                } catch (error) {
+                    console.error('Error al obtener horarios ocupados:', error);
+                    // Continuar sin horarios ocupados
+                }
+
+                // Generar opciones de horario
+                horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+
+                // CORREGIDO: Usar el día del backend convertido
+                const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeekBackend);
+
+                console.log('Horarios disponibles para día', dayOfWeekBackend, ':', horariosDia);
+
+                if (horariosDia.length === 0) {
+                    horaSelect.innerHTML = '<option value="">No hay horarios programados</option>';
+                    return;
+                }
+
+                let horariosGenerados = 0;
+
+                horariosDia.forEach(horario => {
+                    const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
+                    const [finH, finM] = horario.hora_fin.split(':').map(Number);
+
+                    let horaActual = new Date();
+                    horaActual.setHours(inicioH, inicioM, 0, 0);
+
+                    const horaFin = new Date();
+                    horaFin.setHours(finH, finM, 0, 0);
+
+                    while (horaActual < horaFin) {
+                        const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
+                            horaActual.getMinutes().toString().padStart(2, '0');
+
+                        // Verificar colisión con citas existentes
+                        const estaOcupado = citasExistentes.some(cita => {
+                            try {
+                                const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
+                                const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
+                                    60000);
+
+                                const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
+                                const finPropuesta = new Date(inicioPropuesta.getTime() +
+                                    calcularDuracionServiciosSeleccionados() * 60000);
+
+                                return (
+                                    (inicioPropuesta >= inicioCita && inicioPropuesta < finCita) ||
+                                    (finPropuesta > inicioCita && finPropuesta <= finCita) ||
+                                    (inicioPropuesta <= inicioCita && finPropuesta >= finCita)
+                                );
+                            } catch (e) {
+                                console.error('Error al verificar colisión:', e);
+                                return false;
+                            }
+                        });
+
+                        const option = document.createElement('option');
+                        option.value = horaStr;
+                        option.textContent = horaStr;
+
+                        if (estaOcupado) {
+                            option.disabled = true;
+                            option.textContent += ' (Ocupado)';
+                            option.style.color = '#ff6b6b';
+                        } else {
+                            horariosGenerados++;
+                        }
+
+                        horaSelect.appendChild(option);
+                        horaActual.setMinutes(horaActual.getMinutes() + 30);
+                    }
+                });
+
+                if (horariosGenerados === 0 && horaSelect.options.length > 1) {
+                    horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                }
+
+                console.log(`Horarios generados: ${horariosGenerados}`);
+
+            } catch (error) {
+                console.error('Error en loadAvailableHours:', error);
+                horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+            }
         }
 
         function calcularDuracionServiciosSeleccionados() {
@@ -3386,11 +3684,11 @@
                 <p>${errorMessage}</p>
                 ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                 ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                            <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                            <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                            </ul>
-                                                                        ` : ''}
+                                                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                </ul>
+                                                                                            ` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3406,7 +3704,7 @@
             }
         });
 
-        // Función mejorada para actualizar las secciones de citas
+        // Función para actualizar las secciones de citas
         async function updateCitasSections(tipo = 'próximas', citas = []) {
             try {
                 // Si no se proporcionan citas, obtenerlas del servidor
@@ -3465,10 +3763,10 @@
                     <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                     <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                     ${tipo === 'próximas' ? `
-                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                <i class="fas fa-calendar-plus"></i>
-                                Agendar Cita
-                            </button>` : ''}
+                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                    <i class="fas fa-calendar-plus"></i>
+                                                    Agendar Cita
+                                                </button>` : ''}
                 </div>
             `;
                     return;
@@ -3501,12 +3799,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                    <i class="fas fa-edit"></i> Modificar
-                                </button>
-                                <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                    <i class="fas fa-times"></i> Cancelar
-                                </button>` : ''}
+                                                    <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                        <i class="fas fa-edit"></i> Modificar
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                        <i class="fas fa-times"></i> Cancelar
+                                                    </button>` : ''}
                     </div>
                 </div>
                 `;
@@ -3539,9 +3837,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                    <i class="fas fa-redo"></i> Volver a agendar
-                                </a>` : ''}
+                                                    <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                        <i class="fas fa-redo"></i> Volver a agendar
+                                                    </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3602,7 +3900,6 @@
         }
 
         async function editCita(citaId) {
-
             console.log('Elementos DOM disponibles:', {
                 modal: !!document.getElementById('createCitaModal'),
                 form: !!document.getElementById('citaForm'),
@@ -3650,7 +3947,7 @@
                 // Esperar un poco más para asegurar que el DOM esté listo
                 await new Promise(resolve => setTimeout(resolve, 300));
 
-                // 3. Verificar que todos los elementos existen antes de usarlos
+                // 3. Configurar formulario para edición
                 const form = document.getElementById('citaForm');
                 const vehiculoSelect = document.getElementById('vehiculo_id');
                 const fechaInput = document.getElementById('fecha');
@@ -3678,43 +3975,34 @@
                 // Configurar ID de cita
                 if (formCitaId) {
                     formCitaId.value = citaId;
-                } else {
-                    console.error('Campo form_cita_id no encontrado');
                 }
 
                 // 5. Rellenar vehículo
                 if (vehiculoSelect && data.data.vehiculo_id) {
                     vehiculoSelect.value = data.data.vehiculo_id;
-                } else {
-                    console.error('Select de vehículo no encontrado o sin datos');
                 }
 
-                // 6. Rellenar fecha
+                // 6. Rellenar fecha CORREGIDA
                 if (fechaInput && data.data.fecha) {
                     fechaInput.value = data.data.fecha;
-                } else {
-                    console.error('Campo de fecha no encontrado o sin datos');
+                    console.log('Fecha establecida:', data.data.fecha);
                 }
 
-                // 7. Cargar servicios por tipo de vehículo y esperar
+                // 7. Cargar servicios por tipo de vehículo
                 if (vehiculoSelect && data.data.vehiculo_id) {
                     await cargarServiciosPorTipo();
-                    // Esperar a que los servicios se rendericen
                     await new Promise(resolve => setTimeout(resolve, 500));
                 }
 
-                // 8. Cargar horas disponibles
+                // 8. Cargar horas disponibles CORREGIDA
                 if (data.data.fecha) {
-                    const fechaDate = new Date(data.data.fecha);
-                    await loadAvailableHours(fechaDate.getDay(), data.data.fecha, citaId);
-
-                    // Esperar a que las horas se carguen
+                    await loadAvailableHours(data.data.fecha, citaId);
                     await new Promise(resolve => setTimeout(resolve, 300));
                 }
 
-                // 9. Configurar hora seleccionada con múltiples intentos
+                // 9. Configurar hora seleccionada
                 if (data.data.hora) {
-                    await setSelectedHour(data.data.hora, 3); // 3 intentos máximo
+                    await setSelectedHour(data.data.hora, 3);
                 }
 
                 // 10. Seleccionar servicios
@@ -3962,6 +4250,30 @@
             console.error('No se pudieron seleccionar todos los servicios después de', maxAttempts, 'intentos');
         }
 
+        // FUNCIÓN  para convertir día de JavaScript a formato backend
+        function getBackendDayFromJSDay(jsDay) {
+            // JavaScript: 0=Domingo, 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado
+            // Backend: 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado, 7=Domingo
+
+            if (jsDay === 0) {
+                return 7; // Domingo
+            }
+            return jsDay; // Lunes=1, Martes=2, etc.
+        }
+
+        // FUNCIÓN  para obtener fecha en timezone local
+        function getLocalDateString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // FUNCIÓN para crear fecha desde string sin problemas de timezone
+        function createLocalDate(dateString) {
+            const [year, month, day] = dateString.split('-').map(Number);
+            return new Date(year, month - 1, day); // month - 1 porque los meses en JS van de 0-11
+        }
 
         function formatTime24to12(time24) {
             const [hours, minutes] = time24.split(':');
@@ -4113,10 +4425,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4228,8 +4540,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                    =========================================================*/
+                                                                                                                                                                        FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                        =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4258,8 +4570,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                        =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

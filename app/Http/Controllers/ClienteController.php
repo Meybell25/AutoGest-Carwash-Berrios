@@ -295,9 +295,28 @@ class ClienteController extends Controller
     }
     private function getAvailableTimes($date, $excludeCitaId = null)
     {
-        $date = Carbon::parse($date);
+        // Crear fecha usando Carbon sin problemas de timezone
+        $date = \Carbon\Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
 
-        if ($date->isSunday() || DiaNoLaborable::whereDate('fecha', $date)->exists()) {
+        // Obtener día de la semana ISO (1=Lunes, 7=Domingo)
+        $dayOfWeekISO = $date->dayOfWeekIso;
+
+        Log::info("getAvailableTimes:", [
+            'fecha' => $date->toDateString(),
+            'dia_semana_iso' => $dayOfWeekISO,
+            'nombre_dia' => $date->locale('es')->dayName,
+            'exclude_cita_id' => $excludeCitaId
+        ]);
+
+        // Verificar si es domingo (ISO = 7)
+        if ($dayOfWeekISO === 7) {
+            Log::info("Domingo detectado, no hay horarios disponibles");
+            return [];
+        }
+
+        // Verificar días no laborables
+        if (DiaNoLaborable::whereDate('fecha', $date)->exists()) {
+            Log::info("Día no laborable detectado");
             return [];
         }
 
@@ -308,10 +327,11 @@ class ClienteController extends Controller
 
         if ($excludeCitaId) {
             $query->where('id', '!=', $excludeCitaId);
+            Log::info("Excluyendo cita ID: {$excludeCitaId}");
         }
 
         $horariosOcupados = $query->get()->map(function ($cita) {
-            $horaInicio = Carbon::parse($cita->fecha_hora);
+            $horaInicio = \Carbon\Carbon::parse($cita->fecha_hora);
             $duracionTotal = $cita->servicios->sum('duracion_min');
             return [
                 'inicio' => $horaInicio,
@@ -319,32 +339,55 @@ class ClienteController extends Controller
             ];
         });
 
-        // Generar horarios disponibles
-        $horariosDisponibles = [];
-        $horaActual = $date->copy()->setTime(8, 0);
-        $horaCierre = $date->copy()->setTime(18, 0);
+        // Obtener horarios programados para este día ISO
+        $horariosDisponibles = \App\Models\Horario::where('dia_semana', $dayOfWeekISO)
+            ->where('activo', true)
+            ->get();
 
-        while ($horaActual <= $horaCierre) {
-            $horaFin = $horaActual->copy()->addMinutes(30);
+        Log::info("Horarios programados para día ISO {$dayOfWeekISO}:", [
+            'count' => $horariosDisponibles->count(),
+            'horarios' => $horariosDisponibles->pluck('hora_inicio', 'hora_fin')->toArray()
+        ]);
 
-            $disponible = true;
-            foreach ($horariosOcupados as $ocupado) {
-                if ($horaActual < $ocupado['fin'] && $horaFin > $ocupado['inicio']) {
-                    $disponible = false;
-                    break;
-                }
-            }
-
-            if ($disponible) {
-                $horariosDisponibles[] = $horaActual->format('H:i');
-            }
-
-            $horaActual->addMinutes(30);
+        if ($horariosDisponibles->isEmpty()) {
+            Log::info("No hay horarios programados para este día");
+            return [];
         }
 
-        return $horariosDisponibles;
-    }
+        // Generar horarios disponibles
+        $horariosLibres = [];
 
+        foreach ($horariosDisponibles as $horario) {
+            $horaActual = $date->copy()->setTimeFromTimeString($horario->hora_inicio->format('H:i:s'));
+            $horaCierre = $date->copy()->setTimeFromTimeString($horario->hora_fin->format('H:i:s'));
+
+            while ($horaActual->lt($horaCierre)) {
+                $horaFin = $horaActual->copy()->addMinutes(30);
+
+                // Verificar si hay colisión con horarios ocupados
+                $disponible = true;
+                foreach ($horariosOcupados as $ocupado) {
+                    if ($horaActual->lt($ocupado['fin']) && $horaFin->gt($ocupado['inicio'])) {
+                        $disponible = false;
+                        break;
+                    }
+                }
+
+                if ($disponible && $horaFin->lte($horaCierre)) {
+                    $horariosLibres[] = $horaActual->format('H:i');
+                }
+
+                $horaActual->addMinutes(30);
+            }
+        }
+
+        Log::info("Horarios libres generados:", [
+            'count' => count($horariosLibres),
+            'horarios' => $horariosLibres
+        ]);
+
+        return $horariosLibres;
+    }
 
     public function cancelarCita(Cita $cita)
     {
@@ -660,10 +703,18 @@ class ClienteController extends Controller
                 return response()->json(['horariosOcupados' => []]);
             }
 
-            // Validar formato de fecha
+            // Validar formato de fecha y crear Carbon instance sin problemas de timezone
             try {
-                $fechaCarbon = Carbon::parse($fecha);
+                $fechaCarbon = \Carbon\Carbon::createFromFormat('Y-m-d', $fecha)->startOfDay();
+                Log::info("Fecha procesada correctamente:", [
+                    'fecha_input' => $fecha,
+                    'fecha_carbon' => $fechaCarbon->toDateString(),
+                    'dia_semana' => $fechaCarbon->dayOfWeek,
+                    'dia_semana_iso' => $fechaCarbon->dayOfWeekIso,
+                    'nombre_dia' => $fechaCarbon->locale('es')->dayName
+                ]);
             } catch (\Exception $e) {
+                Log::error("Error al parsear fecha:", ['fecha' => $fecha, 'error' => $e->getMessage()]);
                 return response()->json(['horariosOcupados' => []], 400);
             }
 
@@ -671,7 +722,7 @@ class ClienteController extends Controller
                 ->whereDate('fecha_hora', $fechaCarbon)
                 ->where('estado', '!=', 'cancelada');
 
-            // CORREGIDO: Excluir cita específica si se proporciona
+            // Excluir cita específica si se proporciona
             if ($excludeCitaId) {
                 $query->where('id', '!=', $excludeCitaId);
                 Log::info("Excluyendo cita ID: {$excludeCitaId} para fecha: {$fecha}");
@@ -680,7 +731,7 @@ class ClienteController extends Controller
             $citas = $query->get();
 
             $horariosOcupados = $citas->map(function ($cita) {
-                $horaInicio = Carbon::parse($cita->fecha_hora);
+                $horaInicio = \Carbon\Carbon::parse($cita->fecha_hora);
                 $duracionTotal = $cita->servicios->sum('duracion_min') ?: 30; // Default 30 min
 
                 return [
@@ -708,4 +759,78 @@ class ClienteController extends Controller
             return response()->json(['horariosOcupados' => []], 500);
         }
     }
+
+
+    public function debugFechas(Request $request)
+{
+    $fecha = $request->query('fecha', now()->format('Y-m-d'));
+    
+    try {
+        // Crear fecha con Carbon
+        $fechaCarbon = \Carbon\Carbon::createFromFormat('Y-m-d', $fecha)->startOfDay();
+        
+        // Información de debug
+        $debug = [
+            'fecha_original' => $fecha,
+            'fecha_carbon' => $fechaCarbon->toDateString(),
+            'fecha_carbon_iso' => $fechaCarbon->toISOString(),
+            'dia_semana_js' => $fechaCarbon->dayOfWeek, // 0=Domingo, 1=Lunes... 6=Sábado
+            'dia_semana_iso' => $fechaCarbon->dayOfWeekIso, // 1=Lunes, 2=Martes... 7=Domingo
+            'nombre_dia' => $fechaCarbon->locale('es')->dayName,
+            'es_domingo_js' => $fechaCarbon->dayOfWeek === 0,
+            'es_domingo_iso' => $fechaCarbon->dayOfWeekIso === 7,
+            'timezone' => $fechaCarbon->timezone->getName()
+        ];
+        
+        // Obtener horarios programados
+        $horariosDisponibles = \App\Models\Horario::where('activo', true)->get();
+        
+        $debug['horarios_bd'] = $horariosDisponibles->map(function($horario) {
+            return [
+                'id' => $horario->id,
+                'dia_semana' => $horario->dia_semana,
+                'nombre_dia' => $this->getNombreDiaISO($horario->dia_semana),
+                'hora_inicio' => $horario->hora_inicio->format('H:i'),
+                'hora_fin' => $horario->hora_fin->format('H:i'),
+                'activo' => $horario->activo
+            ];
+        });
+        
+        // Verificar qué horarios coinciden con la fecha seleccionada
+        $horariosCoincidentes = $horariosDisponibles->where('dia_semana', $fechaCarbon->dayOfWeekIso);
+        
+        $debug['horarios_coincidentes'] = $horariosCoincidentes->map(function($horario) {
+            return [
+                'id' => $horario->id,
+                'dia_semana' => $horario->dia_semana,
+                'hora_inicio' => $horario->hora_inicio->format('H:i'),
+                'hora_fin' => $horario->hora_fin->format('H:i')
+            ];
+        });
+        
+        return response()->json($debug);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => true,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+}
+
+private function getNombreDiaISO($diaISO)
+{
+    $dias = [
+        1 => 'Lunes',
+        2 => 'Martes', 
+        3 => 'Miércoles',
+        4 => 'Jueves',
+        5 => 'Viernes',
+        6 => 'Sábado',
+        7 => 'Domingo'
+    ];
+    
+    return $dias[$diaISO] ?? 'Desconocido';
+}
 }
