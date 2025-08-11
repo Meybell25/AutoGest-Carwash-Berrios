@@ -2454,21 +2454,24 @@
         </div>
     </div>
 
-    <!-- Modal para crear cita -->
+    <!-- Modal para crear/editar cita  -->
     <div id="createCitaModal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
             <span class="close-modal" onclick="closeCitaModal()">&times;</span>
             <h2 style="color: #4facfe; margin-bottom: 20px;">
-                <i class="fas fa-calendar-plus"></i> Nueva Cita
+                <i class="fas fa-calendar-plus"></i> <span id="modalTitle">Nueva Cita</span>
             </h2>
 
             <form id="citaForm" method="POST" action="{{ route('cliente.citas.store') }}"
                 enctype="multipart/form-data">
                 @csrf
+                <!-- Campos ocultos necesarios -->
+                <input type="hidden" id="form_method" name="_method" value="POST">
+                <input type="hidden" id="form_cita_id" name="cita_id" value="">
 
                 <!-- Selección de vehículo -->
                 <div class="form-group">
-                    <label for="vehiculo_id">Vehículo:</label>
+                    <label for="vehiculo_id">Vehículo: <span style="color: red;">*</span></label>
                     <select id="vehiculo_id" name="vehiculo_id" required onchange="cargarServiciosPorTipo()">
                         <option value="">Seleccione un vehículo</option>
                         @foreach ($mis_vehiculos as $vehiculo)
@@ -2480,43 +2483,50 @@
                     </select>
                 </div>
 
+                <!-- Fecha -->
                 <div class="form-group">
-                    <label for="fecha">Fecha:</label>
-                    <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}">
+                    <label for="fecha">Fecha: <span style="color: red;">*</span></label>
+                    <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}"
+                        max="{{ date('Y-m-d', strtotime('+1 month')) }}">
                 </div>
 
+                <!-- Hora -->
                 <div class="form-group">
-                    <label for="hora">Hora:</label>
+                    <label for="hora">Hora: <span style="color: red;">*</span></label>
                     <select id="hora" name="hora" required>
                         <option value="">Seleccione una hora</option>
                         <!-- Las opciones se llenarán dinámicamente con JavaScript -->
                     </select>
                 </div>
 
+                <!-- Servicios -->
                 <div class="form-group">
-                    <label>Servicios Disponibles:</label>
+                    <label>Servicios Disponibles: <span style="color: red;">*</span></label>
                     <div id="serviciosContainer"
-                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
-                        <!-- Los servicios se cargarán dinámicamente según el tipo de vehículo -->
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; min-height: 100px;">
+                        <p>Seleccione un vehículo primero</p>
                     </div>
                 </div>
 
+                <!-- Observaciones -->
                 <div class="form-group">
                     <label for="observaciones">Observaciones:</label>
-                    <textarea id="observaciones" name="observaciones" rows="3"></textarea>
+                    <textarea id="observaciones" name="observaciones" rows="3" maxlength="500"
+                        placeholder="Información adicional sobre su vehículo o servicio requerido..."></textarea>
                 </div>
 
+                <!-- Botones -->
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button type="button" class="btn btn-outline" onclick="closeCitaModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Guardar Cita
+                    <button type="button" class="btn btn-outline" onclick="closeCitaModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitButton">
+                        <i class="fas fa-save"></i> <span id="submitText">Guardar Cita</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
-
-
 
     <!-- Footer -->
     <footer class="footer">
@@ -2586,24 +2596,36 @@
         let serviciosFiltrados = [];
         let diasNoLaborables = [];
 
+        function setModalMode(isEdit = false) {
+            const modalTitle = document.getElementById('modalTitle');
+            const submitText = document.getElementById('submitText');
+
+            if (modalTitle) {
+                modalTitle.textContent = isEdit ? 'Editar Cita' : 'Nueva Cita';
+            }
+
+            if (submitText) {
+                submitText.textContent = isEdit ? 'Actualizar Cita' : 'Guardar Cita';
+            }
+        }
 
         // Funciones del modal de citas
         async function openCitaModal(vehiculoId = null) {
-            return new Promise((resolve) => {
-                checkUserStatus().then(async isActive => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const isActive = await checkUserStatus();
                     if (!isActive) {
                         swalWithBootstrapButtons.fire({
                             title: 'Cuenta inactiva',
                             text: 'Tu cuenta está inactiva. No puedes crear nuevas citas.',
                             icon: 'error'
                         });
-                        return;
+                        return reject('Cuenta inactiva');
                     }
 
                     const modal = document.getElementById('createCitaModal');
                     if (!modal) {
-                        console.error('Modal de cita no encontrado');
-                        return;
+                        return reject('Modal de cita no encontrado');
                     }
 
                     // Resetear formulario
@@ -2613,16 +2635,22 @@
                         citaForm.action = '{{ route('cliente.citas.store') }}';
                         const methodInput = citaForm.querySelector('[name="_method"]');
                         if (methodInput) methodInput.remove();
+
+                        // Limpiar servicios seleccionados
                         document.querySelectorAll('.service-card.selected').forEach(card => {
                             card.classList.remove('selected');
                         });
-                        document.getElementById('hora').innerHTML =
-                            '<option value="">Seleccione una hora</option>';
+
+                        // Resetear select de hora
+                        const horaSelect = document.getElementById('hora');
+                        if (horaSelect) {
+                            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+                        }
                     }
 
-                    // Cargar datos INICIALES antes de mostrar el modal
+                    // Cargar datos iniciales
                     const loading = swalWithBootstrapButtons.fire({
-                        title: 'Cargando datos...',
+                        title: 'Preparando formulario...',
                         allowOutsideClick: false,
                         didOpen: () => Swal.showLoading()
                     });
@@ -2631,27 +2659,29 @@
                         await loadInitialData();
                         loading.close();
 
-                        // Mostrar modal después de cargar datos
+                        // Mostrar modal
                         modal.style.display = 'block';
-                        resolve();
+
+                        // Esperar a que el modal sea visible
+                        await new Promise(resolve => setTimeout(resolve, 100));
 
                         // Establecer vehículo si se proporciona
                         if (vehiculoId) {
                             const vehiculoSelect = document.getElementById('vehiculo_id');
                             if (vehiculoSelect) {
                                 vehiculoSelect.value = vehiculoId;
-                                cargarServiciosPorTipo();
+                                await cargarServiciosPorTipo();
                             }
                         }
+
+                        resolve();
                     } catch (error) {
                         loading.close();
-                        swalWithBootstrapButtons.fire({
-                            title: 'Error',
-                            text: 'No se pudieron cargar los datos necesarios',
-                            icon: 'error'
-                        });
+                        reject(error);
                     }
-                });
+                } catch (error) {
+                    reject(error);
+                }
             });
         }
 
@@ -2681,47 +2711,75 @@
         // Función para cargar datos iniciales
         async function loadInitialData() {
             try {
+                console.log('Iniciando carga de datos...');
+
                 // Cargar datos en paralelo
                 const [horariosRes, serviciosRes, noLaborablesRes] = await Promise.all([
-                    fetch('{{ route('cliente.horarios-disponibles') }}'),
-                    fetch('{{ route('cliente.servicios-disponibles') }}'),
-                    fetch('{{ route('cliente.dias-no-laborables') }}')
+                    fetch('{{ route('cliente.horarios-disponibles') }}').catch(e => {
+                        console.error('Error cargando horarios:', e);
+                        return {
+                            ok: false
+                        };
+                    }),
+                    fetch('{{ route('cliente.servicios-disponibles') }}').catch(e => {
+                        console.error('Error cargando servicios:', e);
+                        return {
+                            ok: false
+                        };
+                    }),
+                    fetch('{{ route('cliente.dias-no-laborables') }}').catch(e => {
+                        console.error('Error cargando días no laborables:', e);
+                        return {
+                            ok: false
+                        };
+                    })
                 ]);
 
-                // Verificar respuestas
-                if (!horariosRes.ok || !serviciosRes.ok || !noLaborablesRes.ok) {
-                    throw new Error('Error al cargar datos iniciales');
+                // Verificar respuestas y procesar
+                if (horariosRes.ok) {
+                    horariosDisponibles = await horariosRes.json();
+                    console.log('Horarios cargados:', horariosDisponibles.length);
+                } else {
+                    horariosDisponibles = [];
+                    console.error('Error cargando horarios disponibles');
                 }
 
-                // Procesar respuestas
-                horariosDisponibles = await horariosRes.json();
-                todosServiciosDisponibles = await serviciosRes.json();
-                diasNoLaborables = await noLaborablesRes.json();
+                if (serviciosRes.ok) {
+                    todosServiciosDisponibles = await serviciosRes.json();
+                    console.log('Servicios cargados:', Object.keys(todosServiciosDisponibles));
+                } else {
+                    todosServiciosDisponibles = {};
+                    console.error('Error cargando servicios disponibles');
+                }
 
-                console.log('Datos cargados:', {
-                    horarios: horariosDisponibles,
-                    servicios: todosServiciosDisponibles,
-                    diasNoLaborables: diasNoLaborables
-                });
-
-                // Verificar que los horarios se cargaron correctamente
-                if (!Array.isArray(horariosDisponibles)) {
-                    console.error('Horarios no es un array:', horariosDisponibles);
-                    horariosDisponibles = [];
+                if (noLaborablesRes.ok) {
+                    diasNoLaborables = await noLaborablesRes.json();
+                    console.log('Días no laborables cargados:', diasNoLaborables.length);
+                } else {
+                    diasNoLaborables = [];
+                    console.error('Error cargando días no laborables');
                 }
 
                 // Configurar datepicker
                 setupDatePicker();
 
-                return true; // Indicar que los datos se cargaron correctamente
+                console.log('Datos iniciales cargados completamente');
+                return true;
 
             } catch (error) {
-                console.error('Error cargando datos:', error);
+                console.error('Error crítico cargando datos iniciales:', error);
+
+                // Configurar valores por defecto
+                horariosDisponibles = horariosDisponibles || [];
+                todosServiciosDisponibles = todosServiciosDisponibles || {};
+                diasNoLaborables = diasNoLaborables || [];
+
                 swalWithBootstrapButtons.fire({
-                    title: 'Error',
-                    text: 'No se pudieron cargar los datos necesarios. Por favor recarga la página.',
-                    icon: 'error'
+                    title: 'Error de conexión',
+                    text: 'Hubo problemas cargando algunos datos. Algunas funciones pueden estar limitadas.',
+                    icon: 'warning'
                 });
+
                 return false;
             }
         }
@@ -2934,35 +2992,130 @@
 
         // Función para cargar servicios según el tipo de vehículo seleccionado
         async function cargarServiciosPorTipo() {
-            const vehiculoSelect = document.getElementById('vehiculo_id');
-            const selectedOption = vehiculoSelect?.options[vehiculoSelect.selectedIndex];
-            const tipoVehiculo = selectedOption?.dataset.tipo?.toLowerCase();
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const vehiculoSelect = document.getElementById('vehiculo_id');
+                    const serviciosContainer = document.getElementById('serviciosContainer');
 
-            if (!tipoVehiculo) {
-                document.getElementById('serviciosContainer').innerHTML =
-                    '<p>Seleccione un vehículo primero</p>';
-                return;
-            }
+                    if (!vehiculoSelect) {
+                        console.error('Select de vehículo no encontrado');
+                        return reject('Select de vehículo no encontrado');
+                    }
 
-            // Si no tenemos los servicios disponibles, cargarlos
-            if (!todosServiciosDisponibles || Object.keys(todosServiciosDisponibles).length === 0) {
-                await loadInitialData();
-            }
+                    if (!serviciosContainer) {
+                        console.error('Container de servicios no encontrado');
+                        return reject('Container de servicios no encontrado');
+                    }
 
-            const serviciosFiltrados = [];
-            for (const categoria in todosServiciosDisponibles) {
-                if (categoria.toLowerCase() === tipoVehiculo) {
-                    serviciosFiltrados.push(...todosServiciosDisponibles[categoria]);
+                    const selectedOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
+                    const tipoVehiculo = selectedOption?.dataset.tipo?.toLowerCase();
+
+                    if (!tipoVehiculo) {
+                        serviciosContainer.innerHTML = '<p>Seleccione un vehículo primero</p>';
+                        return resolve();
+                    }
+
+                    // Mostrar loading
+                    serviciosContainer.innerHTML = '<p>Cargando servicios...</p>';
+
+                    // Si no tenemos los servicios disponibles, cargarlos
+                    if (!todosServiciosDisponibles || Object.keys(todosServiciosDisponibles).length === 0) {
+                        console.log('Cargando servicios desde servidor...');
+                        await loadInitialData();
+                    }
+
+                    // Filtrar servicios por tipo
+                    const serviciosFiltrados = [];
+                    for (const categoria in todosServiciosDisponibles) {
+                        if (categoria.toLowerCase() === tipoVehiculo) {
+                            serviciosFiltrados.push(...todosServiciosDisponibles[categoria]);
+                        }
+                    }
+
+                    console.log('Servicios filtrados para', tipoVehiculo, ':', serviciosFiltrados);
+
+                    if (serviciosFiltrados.length === 0) {
+                        console.error('No se encontraron servicios para:', tipoVehiculo);
+                        console.log('Todos los servicios disponibles:', todosServiciosDisponibles);
+                        serviciosContainer.innerHTML =
+                            '<p>No hay servicios disponibles para este tipo de vehículo</p>';
+                        return resolve();
+                    }
+
+                    await renderServicios(serviciosFiltrados);
+                    resolve();
+
+                } catch (error) {
+                    console.error('Error en cargarServiciosPorTipo:', error);
+                    const serviciosContainer = document.getElementById('serviciosContainer');
+                    if (serviciosContainer) {
+                        serviciosContainer.innerHTML = '<p>Error al cargar servicios</p>';
+                    }
+                    reject(error);
                 }
-            }
-
-            if (serviciosFiltrados.length === 0) {
-                console.error('No se encontraron servicios para:', tipoVehiculo);
-                console.log('Todos los servicios disponibles:', todosServiciosDisponibles);
-            }
-
-            await renderServicios(serviciosFiltrados);
+            });
         }
+
+        // Función renderServicios mejorada
+        function renderServicios(servicios) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const container = document.getElementById('serviciosContainer');
+
+                    if (!container) {
+                        return reject('Container de servicios no encontrado');
+                    }
+
+                    container.innerHTML = '';
+
+                    if (servicios.length === 0) {
+                        container.innerHTML = '<p>No hay servicios disponibles para este tipo de vehículo</p>';
+                        return resolve();
+                    }
+
+                    servicios.forEach(servicio => {
+                        const servicioDiv = document.createElement('label');
+                        servicioDiv.className = 'service-card';
+                        servicioDiv.htmlFor = `servicio_${servicio.id}`;
+                        servicioDiv.innerHTML = `
+                    <input type="checkbox" id="servicio_${servicio.id}" name="servicios[]" value="${servicio.id}">
+                    <div>
+                        <h4>${servicio.nombre}</h4>
+                        <p>$${servicio.precio.toFixed(2)} • ${formatDuration(servicio.duracion_min)}</p>
+                        <p class="description">${servicio.descripcion || ''}</p>
+                    </div>
+                `;
+                        container.appendChild(servicioDiv);
+
+                        const checkbox = servicioDiv.querySelector('input');
+                        if (checkbox) {
+                            checkbox.addEventListener('change', function() {
+                                servicioDiv.classList.toggle('selected', this.checked);
+
+                                // Recalcular horarios si hay fecha seleccionada
+                                const fechaInput = document.getElementById('fecha');
+                                if (fechaInput && fechaInput.value) {
+                                    const fechaDate = new Date(fechaInput.value);
+                                    const citaId = document.getElementById('form_cita_id')?.value;
+                                    loadAvailableHours(fechaDate.getDay(), fechaInput.value,
+                                        citaId);
+                                }
+                            });
+                        }
+                    });
+
+                    console.log('Servicios renderizados exitosamente:', servicios.length);
+
+                    // Pequeño retraso para asegurar que el DOM se actualizó
+                    setTimeout(() => resolve(), 50);
+
+                } catch (error) {
+                    console.error('Error en renderServicios:', error);
+                    reject(error);
+                }
+            });
+        }
+
 
         function renderServicios(servicios) {
             return new Promise((resolve) => {
@@ -3224,11 +3377,11 @@
                 <p>${errorMessage}</p>
                 ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                 ${showAvailableTimes && availableTimes.length > 0 ? `
-                            <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                            <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                            </ul>
-                        ` : ''}
+                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                </ul>
+                                                            ` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3257,10 +3410,10 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                                                                                                                                                                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                                                                                                                                                                    <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                                                                                                                                                                                    Agendar Cita
-                                                                                                                                                                                                                                                                                                                                </button>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                                                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                                                                                                                                                                                                        Agendar Cita
+                                                                                                                                                                                                                                                                                                                                                                    </button>` : ''}
             </div>
         `;
                 return;
@@ -3293,12 +3446,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                                                                                                                                                                                                                                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-edit"></i> Modificar
-                                                                                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                                                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-times"></i> Cancelar
-                                                                                                                                                                                                                                                                                                                                        </button>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-edit"></i> Modificar
+                                                                                                                                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-times"></i> Cancelar
+                                                                                                                                                                                                                                                                                                                                                                            </button>` : ''}
                     </div>
                 </div>
             `;
@@ -3331,9 +3484,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                                                                                                                                                                                                                                                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-redo"></i> Volver a agendar
-                                                                                                                                                                                                                                                                                                                                        </a>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-redo"></i> Volver a agendar
+                                                                                                                                                                                                                                                                                                                                                                            </a>` : ''}
                     </div>
                     <div class="service-price">
                         $${total.toFixed(2)}
@@ -3385,6 +3538,18 @@
         }
 
         async function editCita(citaId) {
+
+            console.log('Elementos DOM disponibles:', {
+                modal: !!document.getElementById('createCitaModal'),
+                form: !!document.getElementById('citaForm'),
+                vehiculo: !!document.getElementById('vehiculo_id'),
+                fecha: !!document.getElementById('fecha'),
+                hora: !!document.getElementById('hora'),
+                formCitaId: !!document.getElementById('form_cita_id'),
+                servicios: !!document.getElementById('serviciosContainer'),
+                observaciones: !!document.getElementById('observaciones')
+            });
+
             const swalInstance = swalWithBootstrapButtons.fire({
                 title: 'Cargando cita...',
                 allowOutsideClick: false,
@@ -3394,7 +3559,7 @@
             try {
                 // 1. Obtener datos de la cita
                 const response = await fetch(`/cliente/citas/${citaId}/edit`, {
-                    method: 'GET', // EXPLÍCITAMENTE GET
+                    method: 'GET',
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
@@ -3412,16 +3577,31 @@
 
                 swalInstance.close();
 
-                // 2. Abrir modal y configurar formulario
+                // 2. Abrir modal y esperar a que esté completamente cargado
                 await openCitaModal();
 
-                const form = document.getElementById('citaForm');
-                form.reset();
+                // Cambiar modo del modal a edición
+                setModalMode(true);
 
-                // CORREGIDO: Configurar acción y método correctamente
+                // Esperar un poco más para asegurar que el DOM esté listo
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                // 3. Verificar que todos los elementos existen antes de usarlos
+                const form = document.getElementById('citaForm');
+                const vehiculoSelect = document.getElementById('vehiculo_id');
+                const fechaInput = document.getElementById('fecha');
+                const formCitaId = document.getElementById('form_cita_id');
+                const observacionesInput = document.getElementById('observaciones');
+
+                if (!form) {
+                    throw new Error('Formulario no encontrado');
+                }
+
+                // 4. Resetear y configurar formulario
+                form.reset();
                 form.action = `/cliente/citas/${citaId}`;
 
-                // Asegurar que el método PUT esté configurado
+                // Configurar método PUT
                 let methodInput = form.querySelector('[name="_method"]');
                 if (!methodInput) {
                     methodInput = document.createElement('input');
@@ -3431,70 +3611,64 @@
                 }
                 methodInput.value = 'PUT';
 
-                // Configurar el ID de la cita
-                document.getElementById('form_cita_id').value = citaId;
+                // Configurar ID de cita
+                if (formCitaId) {
+                    formCitaId.value = citaId;
+                } else {
+                    console.error('Campo form_cita_id no encontrado');
+                }
 
-                // 3. Rellenar datos del formulario
-                const vehiculoSelect = document.getElementById('vehiculo_id');
-                if (vehiculoSelect) vehiculoSelect.value = data.data.vehiculo_id;
+                // 5. Rellenar vehículo
+                if (vehiculoSelect && data.data.vehiculo_id) {
+                    vehiculoSelect.value = data.data.vehiculo_id;
+                } else {
+                    console.error('Select de vehículo no encontrado o sin datos');
+                }
 
-                const fechaInput = document.getElementById('fecha');
-                if (fechaInput) fechaInput.value = data.data.fecha;
+                // 6. Rellenar fecha
+                if (fechaInput && data.data.fecha) {
+                    fechaInput.value = data.data.fecha;
+                } else {
+                    console.error('Campo de fecha no encontrado o sin datos');
+                }
 
-                // 4. Cargar servicios por tipo de vehículo
-                await cargarServiciosPorTipo();
+                // 7. Cargar servicios por tipo de vehículo y esperar
+                if (vehiculoSelect && data.data.vehiculo_id) {
+                    await cargarServiciosPorTipo();
+                    // Esperar a que los servicios se rendericen
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
 
-                // 5. Cargar horas disponibles (excluyendo esta cita)
-                const fechaDate = new Date(data.data.fecha);
-                await loadAvailableHours(fechaDate.getDay(), data.data.fecha, citaId);
+                // 8. Cargar horas disponibles
+                if (data.data.fecha) {
+                    const fechaDate = new Date(data.data.fecha);
+                    await loadAvailableHours(fechaDate.getDay(), data.data.fecha, citaId);
 
-                // 6. Configurar hora seleccionada
-                setTimeout(() => {
-                    const horaSelect = document.getElementById('hora');
-                    const hora24 = data.data.hora;
-                    if (horaSelect) {
-                        // Buscar si la hora existe en las opciones
-                        let horaEncontrada = false;
-                        for (let option of horaSelect.options) {
-                            if (option.value === hora24) {
-                                horaSelect.value = hora24;
-                                horaEncontrada = true;
-                                break;
-                            }
-                        }
+                    // Esperar a que las horas se carguen
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
 
-                        // Si no se encontró la hora, agregarla como opción disponible
-                        if (!horaEncontrada) {
-                            const option = document.createElement('option');
-                            option.value = hora24;
-                            option.textContent = hora24;
-                            option.selected = true;
-                            horaSelect.appendChild(option);
-                            horaSelect.value = hora24;
-                        }
-                    }
-                }, 500);
+                // 9. Configurar hora seleccionada con múltiples intentos
+                if (data.data.hora) {
+                    await setSelectedHour(data.data.hora, 3); // 3 intentos máximo
+                }
 
-                // 7. Esperar a que los servicios se carguen y seleccionar los correctos
-                setTimeout(() => {
-                    data.data.cita.servicios.forEach(servicio => {
-                        const checkbox = document.querySelector(
-                            `input[name="servicios[]"][value="${servicio.id}"]`);
-                        if (checkbox) {
-                            checkbox.checked = true;
-                            checkbox.closest('.service-card').classList.add('selected');
-                        }
-                    });
-                }, 700);
+                // 10. Seleccionar servicios
+                if (data.data.cita && data.data.cita.servicios) {
+                    await selectServices(data.data.cita.servicios);
+                }
 
-                // 8. Observaciones
-                const observacionesInput = document.getElementById('observaciones');
-                if (observacionesInput) observacionesInput.value = data.data.observaciones || '';
+                // 11. Rellenar observaciones
+                if (observacionesInput) {
+                    observacionesInput.value = data.data.observaciones || '';
+                }
 
-                console.log('Cita cargada para edición:', {
+                console.log('Cita cargada exitosamente para edición:', {
                     citaId: citaId,
-                    form_action: form.action,
-                    method: form.querySelector('[name="_method"]').value
+                    vehiculo_id: data.data.vehiculo_id,
+                    fecha: data.data.fecha,
+                    hora: data.data.hora,
+                    servicios_count: data.data.cita ? data.data.cita.servicios.length : 0
                 });
 
             } catch (error) {
@@ -3506,6 +3680,85 @@
                     icon: 'error'
                 });
             }
+        }
+
+        // Función auxiliar para configurar la hora seleccionada con reintentos
+        async function setSelectedHour(hora24, maxAttempts = 3) {
+            let attempts = 0;
+
+            while (attempts < maxAttempts) {
+                const horaSelect = document.getElementById('hora');
+
+                if (!horaSelect) {
+                    console.error('Select de hora no encontrado, intento:', attempts + 1);
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    attempts++;
+                    continue;
+                }
+
+                // Verificar si la hora ya existe en las opciones
+                let horaEncontrada = false;
+                for (let option of horaSelect.options) {
+                    if (option.value === hora24) {
+                        horaSelect.value = hora24;
+                        horaEncontrada = true;
+                        console.log('Hora configurada exitosamente:', hora24);
+                        return; // Éxito
+                    }
+                }
+
+                // Si no se encontró la hora, agregarla como disponible
+                if (!horaEncontrada) {
+                    const option = document.createElement('option');
+                    option.value = hora24;
+                    option.textContent = hora24;
+                    option.selected = true;
+                    horaSelect.appendChild(option);
+                    horaSelect.value = hora24;
+                    console.log('Hora agregada y configurada:', hora24);
+                    return; // Éxito
+                }
+
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            console.error('No se pudo configurar la hora después de', maxAttempts, 'intentos');
+        }
+
+        // Función auxiliar para seleccionar servicios con validación
+        async function selectServices(servicios) {
+            let attempts = 0;
+            const maxAttempts = 5;
+
+            while (attempts < maxAttempts) {
+                let serviciosEncontrados = 0;
+
+                servicios.forEach(servicio => {
+                    const checkbox = document.querySelector(
+                        `input[name="servicios[]"][value="${servicio.id}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        const serviceCard = checkbox.closest('.service-card');
+                        if (serviceCard) {
+                            serviceCard.classList.add('selected');
+                        }
+                        serviciosEncontrados++;
+                    }
+                });
+
+                if (serviciosEncontrados === servicios.length) {
+                    console.log('Todos los servicios seleccionados exitosamente:', serviciosEncontrados);
+                    return; // Éxito
+                }
+
+                console.log(
+                    `Intento ${attempts + 1}: ${serviciosEncontrados}/${servicios.length} servicios encontrados`);
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+
+            console.error('No se pudieron seleccionar todos los servicios después de', maxAttempts, 'intentos');
         }
 
         async function generateAvailableTimesFromOccupied(fecha, horariosOcupados) {
@@ -3566,6 +3819,85 @@
                 return [];
             }
         }
+
+        async function setSelectedHour(hora24, maxAttempts = 3) {
+            let attempts = 0;
+
+            while (attempts < maxAttempts) {
+                const horaSelect = document.getElementById('hora');
+
+                if (!horaSelect) {
+                    console.error('Select de hora no encontrado, intento:', attempts + 1);
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    attempts++;
+                    continue;
+                }
+
+                // Verificar si la hora ya existe en las opciones
+                let horaEncontrada = false;
+                for (let option of horaSelect.options) {
+                    if (option.value === hora24) {
+                        horaSelect.value = hora24;
+                        horaEncontrada = true;
+                        console.log('Hora configurada exitosamente:', hora24);
+                        return; // Éxito
+                    }
+                }
+
+                // Si no se encontró la hora, agregarla como disponible
+                if (!horaEncontrada) {
+                    const option = document.createElement('option');
+                    option.value = hora24;
+                    option.textContent = hora24;
+                    option.selected = true;
+                    horaSelect.appendChild(option);
+                    horaSelect.value = hora24;
+                    console.log('Hora agregada y configurada:', hora24);
+                    return; // Éxito
+                }
+
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            console.error('No se pudo configurar la hora después de', maxAttempts, 'intentos');
+        }
+
+        // Función auxiliar para seleccionar servicios con validación
+        async function selectServices(servicios) {
+            let attempts = 0;
+            const maxAttempts = 5;
+
+            while (attempts < maxAttempts) {
+                let serviciosEncontrados = 0;
+
+                servicios.forEach(servicio => {
+                    const checkbox = document.querySelector(
+                        `input[name="servicios[]"][value="${servicio.id}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        const serviceCard = checkbox.closest('.service-card');
+                        if (serviceCard) {
+                            serviceCard.classList.add('selected');
+                        }
+                        serviciosEncontrados++;
+                    }
+                });
+
+                if (serviciosEncontrados === servicios.length) {
+                    console.log('Todos los servicios seleccionados exitosamente:', serviciosEncontrados);
+                    return; // Éxito
+                }
+
+                console.log(
+                    `Intento ${attempts + 1}: ${serviciosEncontrados}/${servicios.length} servicios encontrados`);
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+
+            console.error('No se pudieron seleccionar todos los servicios después de', maxAttempts, 'intentos');
+        }
+
 
         function formatTime24to12(time24) {
             const [hours, minutes] = time24.split(':');
@@ -3717,10 +4049,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -3832,8 +4164,8 @@
 
     <script>
         /*=========================================================
-                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                    =========================================================*/
+                                                                                                                                        FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                        =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -3862,8 +4194,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                        =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
