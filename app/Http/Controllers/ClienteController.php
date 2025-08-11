@@ -39,9 +39,12 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
-            // Filtrar citas próximas (futuras y con estados específicos)
-            $proximas_citas = $citas->filter(function ($cita) {
-                return $cita->fecha_hora >= now() &&
+            //  Filtrar citas próximas (futuras, con estados específicos Y dentro de los próximos 15 días)
+            $fechaLimite = now()->addDays(15); // 15 días desde hoy
+
+            $proximas_citas = $citas->filter(function ($cita) use ($fechaLimite) {
+                return $cita->fecha_hora >= now() && // Cita futura
+                    $cita->fecha_hora <= $fechaLimite && // Dentro de los próximos 15 días
                     in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
             });
 
@@ -87,6 +90,7 @@ class ClienteController extends Controller
             ]);
         }
     }
+
 
     public function vehiculos(): View
     {
@@ -473,9 +477,14 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
-            // Filtrar citas próximas
-            $proximas_citas = $todasLasCitas->where('fecha_hora', '>=', now())
-                ->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso']);
+            // MODIFICADO: Filtrar citas próximas con límite de 15 días
+            $fechaLimite = now()->addDays(15);
+
+            $proximas_citas = $todasLasCitas->filter(function ($cita) use ($fechaLimite) {
+                return $cita->fecha_hora >= now() && // Cita futura
+                    $cita->fecha_hora <= $fechaLimite && // Dentro de los próximos 15 días
+                    in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
+            });
 
             // Filtrar historial
             $historial_citas = $todasLasCitas->filter(function ($cita) {
