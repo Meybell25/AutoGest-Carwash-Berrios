@@ -158,19 +158,21 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::get('/mis-vehiculos', [ClienteController::class, 'misVehiculosAjax'])->name('mis-vehiculos-ajax');
         Route::get('/check-status', [ClienteController::class, 'checkStatus'])->name('check-status');
 
-        // Gestión de citas
-        Route::post('/citas', [ClienteController::class, 'storeCita'])->name('citas.store');
-        Route::post('/citas/{cita}/cancelar', [ClienteController::class, 'cancelarCita'])->name('citas.cancelar');
-        Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('citas.dashboard-data');
-        // Ruta para mostrar el formulario de edición
-        Route::get('/citas/{cita}/edit', [ClienteController::class, 'edit'])->name('citas.edit');
-        // Ruta para procesar la actualización 
-        Route::put('/citas/{cita}', [ClienteController::class, 'updateCita'])->name('citas.update');
-        Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('dashboard.data');
-
-        // Solo una ruta para horarios ocupados
+        // Gestión de citas - ORDEN IMPORTANTE
+        // Rutas específicas PRIMERO (antes de las rutas con parámetros)
         Route::get('/citas/horarios-ocupados', [ClienteController::class, 'getHorariosOcupados'])
             ->name('citas.horarios-ocupados');
+        
+        // Rutas con parámetros DESPUÉS
+        Route::get('/citas/{cita}/edit', [ClienteController::class, 'edit'])->name('citas.edit');
+        Route::put('/citas/{cita}', [ClienteController::class, 'updateCita'])->name('citas.update');
+        Route::post('/citas/{cita}/cancelar', [ClienteController::class, 'cancelarCita'])->name('citas.cancelar');
+        
+        // Ruta de creación al final
+        Route::post('/citas', [ClienteController::class, 'storeCita'])->name('citas.store');
+
+        // Datos para el dashboard
+        Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('dashboard.data');
 
         // Datos para formularios
         Route::get('/horarios-disponibles', function () {
