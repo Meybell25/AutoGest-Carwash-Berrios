@@ -3494,60 +3494,60 @@
             return false;
         }
 
-        function cancelCita(citaId) {
-            swalWithBootstrapButtons.fire({
-                title: '¿Cancelar cita?',
-                text: "Esta acción no se puede deshacer",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, cancelar',
-                cancelButtonText: 'No, mantener'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/cliente/citas/${citaId}/cancelar`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(err => {
-                                    throw err;
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                swalWithBootstrapButtons.fire({
-                                    title: 'Cancelada',
-                                    text: data.message,
-                                    icon: 'success'
-                                }).then(() => {
-                                    // Recargar solo si fue exitoso
-                                    location.reload();
-                                });
-                            } else {
-                                throw new Error(data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            let errorMsg = typeof error === 'string' ? error :
-                                (error.message || 'Error al cancelar la cita');
-
-                            swalWithBootstrapButtons.fire({
-                                title: 'Error',
-                                text: errorMsg,
-                                icon: 'error'
-                            });
+       function cancelCita(citaId) {
+    swalWithBootstrapButtons.fire({
+        title: '¿Cancelar cita?',
+        text: "Esta acción no se puede deshacer",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No, mantener'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/cliente/citas/${citaId}/cancelar`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin' // Asegura que las cookies se incluyan
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw err;
                         });
-                }
-            });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        swalWithBootstrapButtons.fire({
+                            title: 'Cancelada',
+                            text: data.message,
+                            icon: 'success'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let errorMsg = typeof error === 'string' ? error : 
+                        (error.message || 'Error al cancelar la cita');
+                    
+                    swalWithBootstrapButtons.fire({
+                        title: 'Error',
+                        text: errorMsg,
+                        icon: 'error'
+                    });
+                });
         }
+    });
+}
 
         // Función para editar citas
         async function editCita(citaId) {
