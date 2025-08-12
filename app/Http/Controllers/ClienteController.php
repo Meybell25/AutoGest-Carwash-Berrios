@@ -102,12 +102,33 @@ class ClienteController extends Controller
         return view('VehiculosViews.index', compact('vehiculos'));
     }
 
-    public function citas(): View
+    public function citas(Request $request): View
     {
-        $citas = Cita::where('usuario_id', Auth::id())
-            ->with(['vehiculo', 'servicios'])
-            ->orderBy('fecha_hora', 'desc')
-            ->paginate(10);
+        $query = Cita::where('usuario_id', Auth::id())
+            ->with(['vehiculo', 'servicios']);
+
+        // Aplicar filtros
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('fecha_hora', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('fecha_hora', '<=', $request->fecha_hasta);
+        }
+
+        if ($request->filled('vehiculo_id')) {
+            $query->where('vehiculo_id', $request->vehiculo_id);
+        }
+
+        // Ordenar por fecha más reciente primero
+        $citas = $query->orderBy('fecha_hora', 'desc')->paginate(10);
+
+        // Mantener los parámetros de filtro en la paginación
+        $citas->appends($request->query());
 
         return view('cliente.citas', compact('citas'));
     }
