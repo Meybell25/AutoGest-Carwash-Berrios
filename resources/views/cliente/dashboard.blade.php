@@ -641,7 +641,6 @@
         }
 
         .service-details p {
-            color: var(--text-secondary);
             font-size: 0.85rem;
             margin-bottom: 3px;
         }
