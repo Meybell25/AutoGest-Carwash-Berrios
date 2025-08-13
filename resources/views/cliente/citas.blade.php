@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,9 +53,19 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(30px, -30px) rotate(120deg); }
-            66% { transform: translate(-20px, 20px) rotate(240deg); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
         }
 
         .container {
@@ -454,28 +465,90 @@
             letter-spacing: 0.5px;
         }
 
+        /* Estilos para el selector de vista */
+        .view-switcher {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            background: var(--glass-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 10px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .view-switch-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            border-radius: var(--border-radius);
+        }
+
+        .view-switch-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .view-switch-btn:first-child {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .view-switch-btn:last-child {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        /* Estilos para citas urgentes */
+        .cita-card.urgent {
+            border-left: 4px solid #dc3545;
+            animation: pulseBorder 2s infinite;
+        }
+
+        @keyframes pulseBorder {
+            0% {
+                border-left-color: #dc3545;
+            }
+
+            50% {
+                border-left-color: #ff6b6b;
+            }
+
+            100% {
+                border-left-color: #dc3545;
+            }
+        }
+
+        .cita-card.coming-soon {
+            border-left: 4px solid #fd7e14;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
             }
-            
+
             .header h1 {
                 font-size: 2rem;
             }
-            
+
             .filters-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .cita-header {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .cita-details {
                 grid-template-columns: 1fr;
             }
-            
+
             .back-button {
                 position: relative;
                 top: auto;
@@ -483,19 +556,65 @@
                 margin-bottom: 20px;
                 display: inline-block;
             }
+            
+            .view-switcher {
+                flex-direction: column;
+            }
+            
+            .view-switch-btn {
+                border-radius: var(--border-radius);
+                margin: 2px 0;
+            }
+            
+            .view-switch-btn:first-child,
+            .view-switch-btn:last-child {
+                border-radius: var(--border-radius);
+            }
         }
     </style>
 </head>
+
 <body>
-    <a href="{{ route('cliente.dashboard') }}" class="back-button">
+   <a href="{{ route('cliente.dashboard') }}" class="back-button">
         <i class="fas fa-arrow-left"></i> Volver al Dashboard
     </a>
 
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <h1><i class="fas fa-calendar-alt"></i> Mis Citas</h1>
-            <p>Administra y consulta todas tus citas programadas</p>
+            <h1><i class="fas fa-calendar-alt"></i> 
+                @if(request('tipo') == 'proximas')
+                    Próximas Citas
+                @elseif(request('tipo') == 'pasadas')
+                    Historial de Citas
+                @else
+                    Todas mis Citas
+                @endif
+            </h1>
+            <p>
+                @if(request('tipo') == 'proximas')
+                    Citas programadas para los próximos días
+                @elseif(request('tipo') == 'pasadas')
+                    Registro de citas anteriores
+                @else
+                    Todas tus citas, pasadas y futuras
+                @endif
+            </p>
+        </div>
+        
+        <!-- Selector de vista mejorado -->
+        <div class="view-switcher">
+            <button class="view-switch-btn {{ request('tipo') == 'proximas' ? 'active' : '' }}"
+                onclick="window.location.href='{{ route('cliente.citas', ['tipo' => 'futuras']) }}'">
+                <i class="fas fa-clock"></i> Próximas
+            </button>
+            <button class="view-switch-btn {{ request('tipo') == 'pasadas' ? 'active' : '' }}"
+                onclick="window.location.href='{{ route('cliente.citas', ['tipo' => 'pasadas']) }}'">
+                <i class="fas fa-history"></i> Historial
+            </button>
+            <button class="view-switch-btn {{ !request('tipo') ? 'active' : '' }}"
+                onclick="window.location.href='{{ route('cliente.citas') }}'">
+                <i class="fas fa-list"></i> Todas
+            </button>
         </div>
 
         <!-- Filtros -->
@@ -536,10 +655,12 @@
                         </label>
                         <select name="vehiculo_id" id="vehiculo_id">
                             <option value="">Todos los vehículos</option>
-                            @foreach(auth()->user()->vehiculos as $vehiculo)
+                            @foreach (auth()->user()->vehiculos as $vehiculo)
                                 <option value="{{ $vehiculo->id }}">
-                                    {{ $vehiculo->marca }} {{ $vehiculo->modelo }} 
-                                    @if($vehiculo->placa) - {{ $vehiculo->placa }} @endif
+                                    {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                    @if ($vehiculo->placa)
+                                        - {{ $vehiculo->placa }}
+                                    @endif
                                 </option>
                             @endforeach
                         </select>
@@ -570,11 +691,13 @@
                     <span class="stat-label">Pendientes</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number" id="confirmadas">{{ $citas->where('estado', 'confirmada')->count() }}</span>
+                    <span class="stat-number"
+                        id="confirmadas">{{ $citas->where('estado', 'confirmada')->count() }}</span>
                     <span class="stat-label">Confirmadas</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number" id="finalizadas">{{ $citas->where('estado', 'finalizada')->count() }}</span>
+                    <span class="stat-number"
+                        id="finalizadas">{{ $citas->where('estado', 'finalizada')->count() }}</span>
                     <span class="stat-label">Finalizadas</span>
                 </div>
             </div>
@@ -582,10 +705,22 @@
 
         <!-- Lista de citas -->
         <div id="citas-container">
-            @if($citas->count() > 0)
+            @if ($citas->count() > 0)
                 <div class="citas-grid">
-                    @foreach($citas as $cita)
-                        <div class="cita-card" data-cita-id="{{ $cita->id }}">
+                    @foreach ($citas as $cita)
+                        @php
+                            $isFuture = $cita->fecha_hora > now();
+                            $daysDiff = $isFuture ? now()->diffInDays($cita->fecha_hora) : null;
+                            
+                            $cardClass = '';
+                            if ($isFuture && $daysDiff <= 1) {
+                                $cardClass = 'urgent';
+                            } elseif ($isFuture && $daysDiff <= 3) {
+                                $cardClass = 'coming-soon';
+                            }
+                        @endphp
+                        
+                        <div class="cita-card {{ $cardClass }}" data-cita-id="{{ $cita->id }}">
                             <div class="cita-header">
                                 <div class="cita-date-time">
                                     <div class="date-badge">
@@ -595,13 +730,13 @@
                                     <div class="time-info">
                                         <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
                                         <div class="duration">
-                                            <i class="fas fa-clock"></i> 
+                                            <i class="fas fa-clock"></i>
                                             Duración: {{ $cita->servicios->sum('duracion_min') }} min
                                         </div>
                                         <div class="vehicle-info">
                                             <i class="fas fa-car"></i>
                                             {{ $cita->vehiculo->marca }} {{ $cita->vehiculo->modelo }}
-                                            @if($cita->vehiculo->placa)
+                                            @if ($cita->vehiculo->placa)
                                                 - {{ $cita->vehiculo->placa }}
                                             @endif
                                         </div>
@@ -616,35 +751,37 @@
                                 <div class="detail-section">
                                     <h4><i class="fas fa-tools"></i> Servicios</h4>
                                     <ul class="service-list">
-                                        @foreach($cita->servicios as $servicio)
+                                        @foreach ($cita->servicios as $servicio)
                                             <li class="service-item">
                                                 <span class="service-name">{{ $servicio->nombre }}</span>
-                                                <span class="service-price">${{ number_format($servicio->precio, 2) }}</span>
+                                                <span
+                                                    class="service-price">${{ number_format($servicio->precio, 2) }}</span>
                                             </li>
                                         @endforeach
                                     </ul>
                                     <div style="border-top: 2px solid #667eea; margin-top: 10px; padding-top: 10px;">
-                                        <strong>Total: ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
+                                        <strong>Total:
+                                            ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
                                     </div>
                                 </div>
 
-                                @if($cita->observaciones)
-                                <div class="detail-section">
-                                    <h4><i class="fas fa-comment"></i> Observaciones</h4>
-                                    <p>{{ $cita->observaciones }}</p>
-                                </div>
+                                @if ($cita->observaciones)
+                                    <div class="detail-section">
+                                        <h4><i class="fas fa-comment"></i> Observaciones</h4>
+                                        <p>{{ $cita->observaciones }}</p>
+                                    </div>
                                 @endif
                             </div>
 
-                            @if(in_array($cita->estado, ['pendiente', 'confirmada']))
-                            <div class="cita-actions">
-                                <button class="btn btn-sm btn-warning" onclick="editCita({{ $cita->id }})">
-                                    <i class="fas fa-edit"></i> Modificar
-                                </button>
-                                <button class="btn btn-sm btn-outline" onclick="cancelCita({{ $cita->id }})">
-                                    <i class="fas fa-times"></i> Cancelar
-                                </button>
-                            </div>
+                            @if (in_array($cita->estado, ['pendiente', 'confirmada']))
+                                <div class="cita-actions">
+                                    <button class="btn btn-sm btn-warning" onclick="editCita({{ $cita->id }})">
+                                        <i class="fas fa-edit"></i> Modificar
+                                    </button>
+                                    <button class="btn btn-sm btn-outline" onclick="cancelCita({{ $cita->id }})">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                </div>
                             @endif
                         </div>
                     @endforeach
@@ -670,34 +807,82 @@
     <script>
         // Funciones para manejar las citas (editar, cancelar)
         function editCita(citaId) {
-            // Esta función debería abrir el modal de edición
-            // Puedes implementar la misma lógica que usas en el dashboard
-            console.log('Editar cita:', citaId);
-            // Aquí iría la lógica para abrir el modal de edición
+            fetch(`/cliente/citas/${citaId}/edit`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Abrir modal con los datos de la cita
+                    openCitaModal();
+                    
+                    // Rellenar formulario con data.data
+                    document.getElementById('form_cita_id').value = citaId;
+                    document.getElementById('vehiculo_id').value = data.data.vehiculo_id;
+                    // ... resto de campos
+                    
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        title: 'Cita cargada',
+                        text: 'Puedes modificar los detalles de tu cita',
+                        icon: 'success'
+                    });
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: 'Error',
+                    text: error.message,
+                    icon: 'error'
+                });
+            });
         }
 
         function cancelCita(citaId) {
-            if (confirm('¿Estás seguro de que deseas cancelar esta cita?')) {
-                fetch(`/cliente/citas/${citaId}/cancelar`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload(); // Recargar la página para mostrar los cambios
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al cancelar la cita');
-                });
-            }
+            Swal.fire({
+                title: '¿Cancelar cita?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cancelar',
+                cancelButtonText: 'No, mantener'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/cliente/citas/${citaId}/cancelar`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Cancelada',
+                                text: data.message,
+                                icon: 'success'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            title: 'Error',
+                            text: error.message,
+                            icon: 'error'
+                        });
+                    });
+                }
+            });
         }
 
         function limpiarFiltros() {
@@ -709,12 +894,12 @@
         // Envío del formulario de filtros con AJAX
         document.getElementById('filtrosForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             const params = new URLSearchParams(formData);
-            
+
             // Recargar la página con los nuevos parámetros
-            window.location.href = '{{ route("cliente.citas") }}?' + params.toString();
+            window.location.href = '{{ route('cliente.citas') }}?' + params.toString();
         });
 
         // Auto-filtrado cuando cambian los selects
@@ -724,6 +909,12 @@
                 document.getElementById('filtrosForm').dispatchEvent(new Event('submit'));
             });
         });
+        
+        // Función para abrir modal de cita (compatible con ambas vistas)
+        function openCitaModal(vehiculoId = null) {
+            // Implementación igual que en el dashboard
+        }
     </script>
 </body>
+
 </html>

@@ -39,20 +39,20 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
-            // MODIFICADO: Filtrar citas próximas (futuras, con estados específicos Y dentro de los próximos 15 días)
+            //  Filtrar citas próximas (futuras, con estados específicos Y dentro de los próximos 15 días)
             $fechaLimite = now()->addDays(15); // 15 días desde hoy
 
             $proximas_citas = $citas->filter(function ($cita) use ($fechaLimite) {
-                return $cita->fecha_hora >= now() && // Cita futura
-                    $cita->fecha_hora <= $fechaLimite && // Dentro de los próximos 15 días
+                return $cita->fecha_hora >= now() &&
+                    $cita->fecha_hora <= $fechaLimite &&
                     in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
-            })->sortBy('fecha_hora'); // Ordenar de la más cercana a la más lejana
+            })->sortByDesc('fecha_hora');
 
             // Filtrar historial (pasadas o con estados finalizados)
             $historial_citas = $citas->filter(function ($cita) {
                 return $cita->fecha_hora < now() ||
                     in_array($cita->estado, ['finalizada', 'cancelada']);
-            });
+            })->sortByDesc('fecha_hora');
 
             return view('cliente.dashboard', [
                 'user' => $user,
@@ -102,12 +102,37 @@ class ClienteController extends Controller
         return view('VehiculosViews.index', compact('vehiculos'));
     }
 
-    public function citas(Request $request): View
-    {
-        $query = Cita::where('usuario_id', Auth::id())
-            ->with(['vehiculo', 'servicios']);
+    // En tu ClienteController.php
 
-        // Aplicar filtros
+    public function citas(Request $request)
+    {
+        $user = Auth::user();
+
+        $query = Cita::where('usuario_id', $user->id)
+            ->with(['vehiculo', 'servicios'])
+            ->orderBy('fecha_hora', 'desc');
+
+        // Filtro por tipo (futuras/pasadas)
+        if ($request->filled('tipo')) {
+            if ($request->tipo == 'proximas') {
+                $query->where('fecha_hora', '>=', now())
+                    ->whereIn('estado', [
+                        Cita::ESTADO_PENDIENTE,
+                        Cita::ESTADO_CONFIRMADA,
+                        Cita::ESTADO_EN_PROCESO
+                    ]);
+            } elseif ($request->tipo == 'pasadas') {
+                $query->where(function ($q) {
+                    $q->where('fecha_hora', '<', now())
+                        ->orWhereIn('estado', [
+                            Cita::ESTADO_FINALIZADA,
+                            Cita::ESTADO_CANCELADA
+                        ]);
+                });
+            }
+        }
+
+        // Filtros adicionales
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
@@ -124,13 +149,11 @@ class ClienteController extends Controller
             $query->where('vehiculo_id', $request->vehiculo_id);
         }
 
-        // Ordenar por fecha más reciente primero
-        $citas = $query->orderBy('fecha_hora', 'desc')->paginate(10);
-
-        // Mantener los parámetros de filtro en la paginación
-        $citas->appends($request->query());
-
-        return view('cliente.citas', compact('citas'));
+        return view('cliente.citas', [
+            'citas' => $query->paginate(10),
+            'vehiculos' => $user->vehiculos,
+            'filters' => $request->only(['tipo', 'estado', 'fecha_desde', 'fecha_hasta', 'vehiculo_id'])
+        ]);
     }
 
     public function misVehiculosAjax()

@@ -102,4 +102,20 @@ class Cita extends Model
             return $servicio->pivot->precio - $servicio->pivot->descuento;
         });
     }
+    public static function getEstadosFuturos()
+    {
+        return [
+            self::ESTADO_PENDIENTE,
+            self::ESTADO_CONFIRMADA,
+            self::ESTADO_EN_PROCESO
+        ];
+    }
+
+    public static function getEstadosHistorial()
+    {
+        return [
+            self::ESTADO_FINALIZADA,
+            self::ESTADO_CANCELADA
+        ];
+    }
 }
