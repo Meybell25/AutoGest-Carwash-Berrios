@@ -11,9 +11,9 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
+            line-height: 1.6;
         }
 
         .container {
@@ -77,7 +77,7 @@
             display: block;
         }
 
-         .pagination {
+        .pagination {
             margin-top: 1rem;
         }
 
@@ -93,18 +93,17 @@
             vertical-align: middle;
         }
     </style>
+    @stack('styles')
 </head>
 
-<body>
+<body class="@yield('body-class')">
     <div class="container py-4">
         @yield('content')
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Configuración global de SweetAlert
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
                 confirmButton: 'btn btn-primary',
@@ -113,7 +112,6 @@
             buttonsStyling: false
         });
 
-        // Esto va al final de tu layout principal (app.blade.php o similar)
         document.addEventListener('DOMContentLoaded', function() {
             @if (session('success'))
                 swalWithBootstrapButtons.fire({
@@ -145,12 +143,10 @@
             @endif
         });
 
-
-        // Configurar Axios para enviar CSRF token
         axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').content;
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     </script>
-     @stack('scripts')
+    @stack('scripts')
 </body>
 
 </html>
