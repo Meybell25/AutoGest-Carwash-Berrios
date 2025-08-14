@@ -93,6 +93,7 @@
             vertical-align: middle;
         }
     </style>
+     @yield('styles')
 </head>
 
 <body>
