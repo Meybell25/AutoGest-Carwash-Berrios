@@ -2234,8 +2234,7 @@
                                     }
                                 @endphp
 
-                                <div <div
-                                    class="next-appointment {{ $loop->first ? 'highlighted' : '' }} {{ $urgenciaClass }} {{ str_replace('_', '-', $cita->estado) }}">
+                                <div class="next-appointment {{ $loop->first ? 'highlighted' : '' }} {{ $urgenciaClass }} {{ str_replace('_', '-', $cita->estado) }}">
                                     <div class="appointment-date-time">
                                         <div class="date-badge">
                                             <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
