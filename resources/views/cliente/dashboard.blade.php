@@ -524,12 +524,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .status-pendiente {
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            color: #ef6c00;
-            border: 1px solid #ffcc80;
-        }
-
+        
         .status-confirmado,
         .status-confirmada {
             background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
