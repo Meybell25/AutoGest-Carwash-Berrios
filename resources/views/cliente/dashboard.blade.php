@@ -475,7 +475,7 @@
         }
 
         .date-badge {
-            background: linear-gradient(135deg, #81c784, #66bb6a) !important
+            background: linear-gradient(135deg, #81c784, #66bb6a) !important;
             color: white;
             padding: 10px 15px;
             border-radius: 10px;
