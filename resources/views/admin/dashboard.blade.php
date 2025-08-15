@@ -2349,6 +2349,107 @@
     </style>
 </head>
 
+<script>
+    document.addEventListener('DOMContentLoaded', fetchHorarios);
+
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+    function fetchHorarios() {
+        fetch('/horarios')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('tablaHorariosBody');
+                tbody.innerHTML = '';
+                data.forEach(h => {
+                    const fila = `
+                        <tr>
+                            <td>${dias[h.dia_semana]}</td>
+                            <td>${h.hora_inicio}</td>
+                            <td>${h.hora_fin}</td>
+                            <td><span class="badge ${h.activo ? 'bg-success' : 'bg-danger'}">${h.activo ? 'Activo' : 'Inactivo'}</span></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editHorario(${h.id})"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteHorario(${h.id})"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', fila);
+                });
+            });
+    }
+
+    function openCreateModal() {
+        document.getElementById('horarioForm').reset();
+        document.getElementById('horario_id').value = '';
+        document.getElementById('horarioModalTitle').innerText = 'Agregar Horario';
+        openModal();
+    }
+
+    function openModal() {
+        document.getElementById('horarioModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('horarioModal').style.display = 'none';
+    }
+
+    function editHorario(id) {
+        fetch(`/horarios/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('horario_id').value = data.id;
+                document.getElementById('horario_dia').value = data.dia_semana;
+                document.getElementById('horario_inicio').value = data.hora_inicio;
+                document.getElementById('horario_fin').value = data.hora_fin;
+                document.getElementById('horario_activo').value = data.activo ? 1 : 0;
+
+                document.getElementById('horarioModalTitle').innerText = 'Editar Horario';
+                openModal();
+            });
+    }
+
+    document.getElementById('horarioForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const id = document.getElementById('horario_id').value;
+        const formData = new FormData(this);
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/horarios/${id}` : '/horarios';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.errors) {
+                alert(Object.values(data.errors).flat().join('\n'));
+            } else {
+                fetchHorarios();
+                closeModal();
+            }
+        });
+    });
+
+    function deleteHorario(id) {
+        if (!confirm('¿Eliminar este horario?')) return;
+        fetch(`/horarios/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            fetchHorarios();
+        });
+    }
+</script>
+
+
 <body>
     <div class="dashboard-container">
         <!-- Header con bienvenida personalizada -->
@@ -2448,20 +2549,21 @@
             <div class="card-header-icon icon-container">
                 <i class="fas fa-briefcase"></i>
             </div>
-            Gestión de Horarios
-        </h2>
+                
+            <div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-clock"></i> Gestión de Horarios</h2>
     </div>
-
     <div class="card-body">
-        <div class="card-header-actions" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Configuración de horarios de trabajo</h3>
+        <div class="d-flex justify-content-between mb-3">
+            <h5>Horarios registrados</h5>
             <button class="btn btn-primary" onclick="openCreateModal()">
                 <i class="fas fa-plus"></i> Agregar Horario
             </button>
         </div>
 
         <div style="overflow-x: auto;">
-            <table class="admin-table">
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Día</th>
@@ -2471,144 +2573,13 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse ($horarios as $horario)
-                        <tr>
-                            <td>{{ \App\Models\Horario::NOMBRES_DIAS[$horario->dia_semana] }}</td>
-                            <td>{{ \Carbon\Carbon::parse($horario->hora_inicio)->format('h:i A') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($horario->hora_fin)->format('h:i A') }}</td>
-                            <td>
-                                @if ($horario->activo)
-                                    <span class="badge badge-success">Activo</span>
-                                @else
-                                    <span class="badge badge-danger">Inactivo</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn btn-warning" title="Editar"
-                                        onclick="openEditModal({{ $horario->id }})">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger" title="Eliminar"
-                                        onclick="eliminarHorario({{ $horario->id }})">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center">No hay horarios registrados aún.</td>
-                        </tr>
-                    @endforelse
+                <tbody id="tablaHorariosBody">
+                    <!-- Las filas se cargan con JS -->
                 </tbody>
             </table>
         </div>
     </div>
-   </div>
-
-
-
-                <script>
-                   document.addEventListener('DOMContentLoaded', function () {
-                   const horarioForm = document.getElementById('horarioForm');
-                   const horarioModal = document.getElementById('horarioModal');
-                   const modalTitle = document.getElementById('horarioModalTitle');
-
-                  function openCreateModal() {
-                   horarioForm.reset();
-                   document.getElementById('horario_id').value = "";
-                   modalTitle.innerHTML = '<i class="fas fa-clock"></i> Agregar Horario';
-                   openModal('horarioModal');
-                  }
-
-                  function openEditModal(id) {
-                    fetch(`/horarios/${id}`)
-                    .then(response => response.json())
-                    .then(data => {
-                    document.getElementById('horario_id').value = data.id;
-                    document.getElementById('horario_dia').value = data.dia_semana;
-                    document.getElementById('horario_inicio').value = data.hora_inicio.substring(0, 5);
-                    document.getElementById('horario_fin').value = data.hora_fin.substring(0, 5);
-                    document.getElementById('horario_activo').value = data.activo ? 1 : 0;
-                    modalTitle.innerHTML = '<i class="fas fa-clock"></i> Editar Horario';
-                    openModal('horarioModal');
-                   });
-                  }
-
-                  horarioForm.addEventListener('submit', function (e) {
-                     e.preventDefault();
-
-                   const id = document.getElementById('horario_id').value;
-                   const method = id ? 'PUT' : 'POST';
-                   const url = id ? `/horarios/${id}` : '/horarios';
-
-                  const formData = {
-                    dia_semana: document.getElementById('horario_dia').value,
-                    hora_inicio: document.getElementById('horario_inicio').value,
-                    hora_fin: document.getElementById('horario_fin').value,
-                    activo: document.getElementById('horario_activo').value
-                  };
-
-                   fetch(url, {
-                       method: method,
-                     headers: {
-                       'Content-Type': 'application/json',
-                       'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                     },
-                      body: JSON.stringify(formData)
-                    })
-                   .then(response => {
-                   if (!response.ok)
-                    return response.json().then(err => Promise.reject(err));
-                    return response.json();
-                   })
-                   .then(data => {
-                   Swal.fire('Éxito', data.message, 'success');
-                   closeModal('horarioModal');
-                   location.reload();
-                  })
-                  .catch(err => {
-                  if (err.errors) {
-                    let errorMsg = '';
-                    for (let campo in err.errors) {
-                        errorMsg += err.errors[campo][0] + '<br>';
-                    }
-                    Swal.fire('Error', errorMsg, 'error');
-                  }
-                 });
-                  });
- 
-                       function eliminarHorario(id) {
-                           Swal.fire({
-                              title: '¿Eliminar?',
-                              text: 'Esta acción no se puede deshacer',
-                              icon: 'warning',
-                              showCancelButton: true,
-                              confirmButtonText: 'Sí, eliminar'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                   fetch(`/horarios/${id}`, {
-                                   method: 'DELETE',
-                                   headers: {
-                                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                }
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                             Swal.fire('Eliminado', data.message, 'success');
-                             location.reload();
-                            });
-                        }
-                      });
-                    }
-
-                      window.openCreateModal = openCreateModal;
-                      window.openEditModal = openEditModal;
-                      .eliminarHorario = eliminarHorario;
-                    });
-                </script>
+</div>
 
 
                 <!-- Contenedor para Días No Laborables -->
@@ -3121,56 +3092,56 @@
                 </div>
             </div>
 
-            <!-- Modal para gestión de horarios -->
-            <div id="horarioModal" class="modal">
-                <div class="modal-content" style="max-width: 500px;">
-                    <span class="close-modal" onclick="closeModal('horarioModal')">&times;</span>
-                    <h2 id="horarioModalTitle">
-                        <i class="fas fa-clock"></i> Agregar Horario
-                    </h2>
-                    <form id="horarioForm">
-                        <input type="hidden" id="horario_id" name="id">
+                     <!-- Modal para gestión de horarios -->
+<div id="horarioModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h2 id="horarioModalTitle">
+            <i class="fas fa-clock"></i> Agregar Horario
+        </h2>
+        <form id="horarioForm">
+            <input type="hidden" id="horario_id" name="id">
+            @csrf
 
-                        <div class="form-group">
-                            <label for="horario_dia">Día de la semana:</label>
-                            <select id="horario_dia" class="form-control" required>
-                                <option value="">Seleccione un día</option>
-                                <option value="0">Domingo</option>
-                                <option value="1">Lunes</option>
-                                <option value="2">Martes</option>
-                                <option value="3">Miércoles</option>
-                                <option value="4">Jueves</option>
-                                <option value="5">Viernes</option>
-                                <option value="6">Sábado</option>
-                            </select>
-                        </div>
+            <div class="form-group">
+                <label for="horario_dia">Día de la semana:</label>
+                <select id="horario_dia" name="dia_semana" class="form-control" required>
+                    <option value="">Seleccione un día</option>
+                    <option value="0">Domingo</option>
+                    <option value="1">Lunes</option>
+                    <option value="2">Martes</option>
+                    <option value="3">Miércoles</option>
+                    <option value="4">Jueves</option>
+                    <option value="5">Viernes</option>
+                    <option value="6">Sábado</option>
+                </select>
+            </div>
 
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="horario_inicio">Hora de inicio:</label>
-                                <input type="time" id="horario_inicio" class="form-control" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="horario_fin">Hora de fin:</label>
-                                <input type="time" id="horario_fin" class="form-control" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="horario_activo">Estado:</label>
-                            <select id="horario_activo" class="form-control">
-                                <option value="1" selected>Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-save"></i> Guardar Horario
-                        </button>
-                    </form>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="horario_inicio">Hora de inicio:</label>
+                    <input type="time" id="horario_inicio" name="hora_inicio" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="horario_fin">Hora de fin:</label>
+                    <input type="time" id="horario_fin" name="hora_fin" class="form-control" required>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label for="horario_activo">Estado:</label>
+                <select id="horario_activo" name="activo" class="form-control">
+                    <option value="1" selected>Activo</option>
+                    <option value="0">Inactivo</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i class="fas fa-save"></i> Guardar Horario
+            </button>
+        </form>
+    </div>
+</div>
 
             
 

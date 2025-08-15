@@ -11,18 +11,17 @@ class HorarioController extends Controller
     public function index()
     {
         $horarios = Horario::ordenadoPorDia()->get();
-        // Si es AJAX, devolver JSON
+
         if (request()->ajax()) {
             return response()->json($horarios);
         }
+
         return view('HorariosViews.index', compact('horarios'));
     }
 
     public function store(Request $request)
     {
-        $data = $request->all();
-
-        $validator = Validator::make($data, [
+        $validator = Validator::make($request->all(), [
             'dia_semana' => 'required|integer|between:0,6',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
@@ -33,15 +32,15 @@ class HorarioController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $existe = Horario::where('dia_semana', $data['dia_semana'])
-            ->where('hora_inicio', $data['hora_inicio'])
+        $exists = Horario::where('dia_semana', $request->dia_semana)
+            ->where('hora_inicio', $request->hora_inicio)
             ->exists();
 
-        if ($existe) {
-            return response()->json(['errors' => ['dia_semana' => 'Ya existe un horario con este día y hora de inicio.']], 422);
+        if ($exists) {
+            return response()->json(['errors' => ['duplicado' => 'Ya existe un horario con ese día y hora de inicio.']], 422);
         }
 
-        $horario = Horario::create($data);
+        $horario = Horario::create($request->all());
         return response()->json(['message' => 'Horario creado exitosamente.', 'horario' => $horario]);
     }
 
@@ -54,9 +53,8 @@ class HorarioController extends Controller
     public function update(Request $request, $id)
     {
         $horario = Horario::findOrFail($id);
-        $data = $request->all();
 
-        $validator = Validator::make($data, [
+        $validator = Validator::make($request->all(), [
             'dia_semana' => 'required|integer|between:0,6',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
@@ -67,16 +65,16 @@ class HorarioController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $existe = Horario::where('dia_semana', $data['dia_semana'])
-            ->where('hora_inicio', $data['hora_inicio'])
+        $exists = Horario::where('dia_semana', $request->dia_semana)
+            ->where('hora_inicio', $request->hora_inicio)
             ->where('id', '!=', $id)
             ->exists();
 
-        if ($existe) {
-            return response()->json(['errors' => ['dia_semana' => 'Ya existe un horario con este día y hora de inicio.']], 422);
+        if ($exists) {
+            return response()->json(['errors' => ['duplicado' => 'Ya existe un horario con ese día y hora de inicio.']], 422);
         }
 
-        $horario->update($data);
+        $horario->update($request->all());
         return response()->json(['message' => 'Horario actualizado exitosamente.', 'horario' => $horario]);
     }
 
@@ -87,5 +85,17 @@ class HorarioController extends Controller
 
         return response()->json(['message' => 'Horario eliminado correctamente.']);
     }
+
+  
+     public function porDia($dia)
+    {
+       $horarios = Horario::byDia($dia)->ordenadoPorDia()->get();
+
+        return response()->json([
+           'horarios' => $horarios,
+           'nombre_dia' => Horario::NOMBRES_DIAS[$dia] ?? 'Día desconocido'
+       ]);
+    }
+
 }
 

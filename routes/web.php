@@ -91,7 +91,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
     // Ruta para datos del dashboard (AJAX)
     Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
 
-            Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
+        Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
 
             // Rutas para acciones masivas
             Route::post('/bulk-activate', [AdminController::class, 'bulkActivate'])->name('bulk-activate');
@@ -119,8 +119,9 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         });
 
         //Rutas para horarios
-        Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
-        Route::get('/admin/horarios', [HorarioController::class, 'index']);
+        Route::get('/horarios/dia/{dia}', [HorarioController::class, 'porDia'])->name('horarios.porDia');
+
+        
 
     });
 
