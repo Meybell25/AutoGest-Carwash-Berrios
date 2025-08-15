@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use App\Events\UsuarioCreado;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -136,6 +137,8 @@ class AdminController extends Controller
 
             // Limpiar caché de estadísticas
             Cache::forget('dashboard_stats');
+
+            event(new UsuarioCreado($usuario));
 
             return response()->json([
                 'success' => true,
@@ -510,24 +513,23 @@ class AdminController extends Controller
             'citas' => $usuario->citas
         ]);
     }
+
     public function checkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email']);
 
-        // Excluir el email del usuario actual si estamos editando
         $excludeId = $request->input('exclude_id');
-
         $query = Usuario::where('email', $request->email);
 
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);
         }
 
-        $exists = $query->exists();
-
         return response()->json([
-            'available' => !$exists,
-            'message' => $exists ? 'Este correo electrónico ya está registrado' : 'Email disponible'
+            'available' => !$query->exists(),
+            'message' => $query->exists()
+                ? 'Este correo electrónico ya está registrado'
+                : 'Email disponible'
         ]);
     }
 }

@@ -2396,8 +2396,8 @@
                         <i class="fas fa-chart-bar"></i>
                         Reportes
                     </a>
-                     <a href="{{ route('admin.bitacora.index') }}" class="btn btn-primary">
-                        <i class="fas fa-book"></i>
+                     <a href="{{ route('admin.bitacora.index') }}" class="btn btn-success">
+                        <i class="fas fa-chart-bar"></i>
                         Bitácora
                     </a>
                     <a href="{{ route('configuracion.index') }}" class="btn btn-info">
@@ -3089,7 +3089,7 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline" style="width: 100%;">
+                        <a href="{{ route('admin.usuarios') }}" class="btn btn-outline" style="width: 100%;">
                             <i class="fas fa-list"></i> Ver Todos los Usuarios
                         </a>
                     </div>
@@ -3613,10 +3613,10 @@
         // =============================================
 
         // Cargar días no laborables desde la API
-        /* async function cargarDiasNoLaborables() {
-                                                         try {
-                                                             const response = await fetch('/dias-no-laborables');
-                                                             if (!response.ok) throw new Error('Error al cargar días no laborables');
+        async function cargarDiasNoLaborables() {
+            try {
+                const response = await fetch('/dias-no-laborables');
+                if (!response.ok) throw new Error('Error al cargar días no laborables');
 
                                                              diasNoLaborables = await response.json();
                                                              actualizarTablaDiasNoLaborables();

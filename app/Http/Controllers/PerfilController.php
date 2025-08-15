@@ -48,7 +48,7 @@ class PerfilController extends Controller
         ]);
 
         Auth::user()->update(['email' => $request->email]);
-        Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_EMAIL, null, $request->ip());
+        Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_EMAIL, null, $request->ip(), $request->path());
 
         return back()->with('success', 'Email actualizado correctamente');
     }
@@ -64,7 +64,7 @@ class PerfilController extends Controller
     ]);
 
     Auth::user()->update(['password' => Hash::make($request->password)]);
-    Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_PASSWORD, null, $request->ip());
+     Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_PASSWORD, null, $request->ip(), $request->path());
 
     return back()->with('success', 'Contraseña actualizada correctamente');
 }

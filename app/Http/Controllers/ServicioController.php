@@ -74,7 +74,7 @@ class ServicioController extends Controller
 
         try {
             $servicio = Servicio::create($request->all());
-            Bitacora::registrar(Bitacora::ACCION_CREAR_SERVICIO, null, $request->ip());
+            Bitacora::registrar(Bitacora::ACCION_CREAR_SERVICIO, null, $request->ip(), $request->path());
 
             return response()->json([
                 'success' => true,
@@ -140,7 +140,7 @@ class ServicioController extends Controller
             }
 
             $servicio->update($request->all());
-            Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_SERVICIO, null, $request->ip());
+             Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_SERVICIO, null, $request->ip(), $request->path());
 
             return response()->json([
                 'success' => true,
@@ -174,8 +174,7 @@ class ServicioController extends Controller
             }
 
             $servicio->delete();
-            Bitacora::registrar(Bitacora::ACCION_ELIMINAR_SERVICIO, null, request()->ip());
-
+             Bitacora::registrar(Bitacora::ACCION_ELIMINAR_SERVICIO, null, request()->ip(), request()->path());
 
             return response()->json([
                 'success' => true,

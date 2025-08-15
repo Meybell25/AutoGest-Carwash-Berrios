@@ -237,23 +237,22 @@
             display: block;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .card {
-                margin: 10px 0;
-            }
 
-            .back-button {
-                position: relative;
-                top: auto;
-                left: auto;
-                margin-bottom: 20px;
-                display: inline-flex;
-            }
+         /* Paginas Styles */
+        .pagination {
+            margin-top: 1rem;Add commentMore actions
+        }
+
+        .pagination .page-item .page-link,
+        .pagination .page-item span {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .pagination svg {
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
         }
     </style>
     @stack('styles')
