@@ -57,9 +57,10 @@
             animation: float 20s ease-in-out infinite;
         }
 
-        /* ADMIN - Fondo Verde/Azul */
+        /* ADMIN - Fondo Verde/Azul/Naranja exacto del dashboard */
         body.user-admin {
-            background: linear-gradient(135deg, #2e7d32 0%, #00695c 50%, #0277bd 100%);
+            background: linear-gradient(135deg, #3498db, #27ae60, #f39c12);
+            background-attachment: fixed;
         }
 
         body.user-admin::before {
@@ -70,16 +71,18 @@
             width: 100%;
             height: 100%;
             background:
-                radial-gradient(circle at 20% 80%, rgba(46, 125, 50, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(0, 105, 92, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(2, 119, 189, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(39, 174, 96, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(243, 156, 18, 0.05) 0%, transparent 50%);
             z-index: -1;
             animation: float 20s ease-in-out infinite;
         }
 
-        /* EMPLEADO - Fondo Azul/Verde Oscuro */
+        /* EMPLEADO - Fondo exacto del dashboard */
         body.user-empleado {
-            background: linear-gradient(135deg, #2563eb 0%, #00695c 50%, #0d47a1 100%);
+            background: linear-gradient(315deg, #512da8, #00695c, #0d47a1);
+            background-attachment: fixed;
+            background-size: cover;
         }
 
         body.user-empleado::before {
@@ -90,9 +93,9 @@
             width: 100%;
             height: 100%;
             background:
-                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(0, 105, 92, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(13, 71, 161, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(81, 45, 168, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 105, 92, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(13, 71, 161, 0.05) 0%, transparent 50%);
             z-index: -1;
             animation: float 20s ease-in-out infinite;
         }
@@ -152,7 +155,7 @@
         }
 
         .btn-warning {
-            background: linear-gradient(45deg, #e98f12 0%, #dec11e 100%);
+            background: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
             border: none;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -163,7 +166,7 @@
         }
 
         .btn-danger {
-            background: linear-gradient(45deg, #c95165 0%, #d0407c 100%);
+            background: linear-gradient(45deg, #ff758c 0%, #ff7eb3 100%);
             border: none;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
