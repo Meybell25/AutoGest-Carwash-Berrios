@@ -1825,25 +1825,49 @@
             }
         }
 
+        .scroll-container {
+            position: relative;
+            height: 400px;
+        }
+
         .card-body.scrollable {
             max-height: 400px;
             overflow-y: auto;
             padding-right: 10px;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE/Edge */
         }
 
-        /* Personalizar scrollbar */
         .card-body.scrollable::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari/Opera */
+        }
+
+        .custom-scrollbar {
+            position: absolute;
+            right: 2px;
+            top: 0;
+            bottom: 0;
             width: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            z-index: 10;
         }
 
-        .card-body.scrollable::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+        .custom-scrollbar-thumb {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .card-body.scrollable::-webkit-scrollbar-thumb {
-            background: #4facfe;
-            border-radius: 10px;
+        .custom-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #3d8bfd, #00d9e8);
         }
 
         /* Footer */
@@ -2200,107 +2224,175 @@
                             </small>
                         </h2>
                     </div>
-                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        @if ($proximas_citas->count() > 0)
-                            @foreach ($proximas_citas as $cita)
-                                @php
-                                    $diasRestantes = now()->diffInDays($cita->fecha_hora, false);
-                                    $diasRestantes = $diasRestantes < 0 ? 0 : ceil($diasRestantes);
-                                    $urgenciaClass = '';
-                                    $urgenciaText = '';
+                    <div class="scroll-container">
+                        <div class="card-body scrollable" id="proximas-citas-container">
+                            @if ($proximas_citas->count() > 0)
+                                @foreach ($proximas_citas as $cita)
+                                    @php
+                                        $diasRestantes = now()->diffInDays($cita->fecha_hora, false);
+                                        $diasRestantes = $diasRestantes < 0 ? 0 : ceil($diasRestantes);
+                                        $urgenciaClass = '';
+                                        $urgenciaText = '';
 
-                                    // SOLO aplicamos urgencia a confirmadas
-                                    if ($cita->estado == 'confirmada') {
-                                        if ($diasRestantes <= 1) {
-                                            $urgenciaClass = 'urgent-soon';
-                                            $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
-                                        } elseif ($diasRestantes <= 3) {
-                                            $urgenciaClass = 'urgent-close';
-                                            $urgenciaText = "En {$diasRestantes} días";
-                                        } elseif ($diasRestantes <= 7) {
-                                            $urgenciaClass = 'coming-soon';
-                                            $urgenciaText = "En {$diasRestantes} días";
+                                        // SOLO aplicamos urgencia a confirmadas
+                                        if ($cita->estado == 'confirmada') {
+                                            if ($diasRestantes <= 1) {
+                                                $urgenciaClass = 'urgent-soon';
+                                                $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
+                                            } elseif ($diasRestantes <= 3) {
+                                                $urgenciaClass = 'urgent-close';
+                                                $urgenciaText = "En {$diasRestantes} días";
+                                            } elseif ($diasRestantes <= 7) {
+                                                $urgenciaClass = 'coming-soon';
+                                                $urgenciaText = "En {$diasRestantes} días";
+                                            } else {
+                                                $urgenciaText = "En {$diasRestantes} días";
+                                            }
                                         } else {
                                             $urgenciaText = "En {$diasRestantes} días";
                                         }
-                                    } else {
-                                        $urgenciaText = "En {$diasRestantes} días";
-                                    }
-                                @endphp
-                                <div
-                                    class="next-appointment status-{{ str_replace('_', '-', $cita->estado) }} {{ $urgenciaClass }}">
-                                    <div class="appointment-date-time">
-                                        <div class="date-badge">
-                                            <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
-                                            <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
-                                            @if ($diasRestantes <= 7)
-                                                <span class="days-remaining">{{ $urgenciaText }}</span>
-                                            @endif
-                                        </div>
-                                        <div class="time-info">
-                                            <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
-                                            <div class="service">
-                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                    @endphp
+                                    <div
+                                        class="next-appointment status-{{ str_replace('_', '-', $cita->estado) }} {{ $urgenciaClass }}">
+                                        <div class="appointment-date-time">
+                                            <div class="date-badge">
+                                                <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
+                                                <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
+                                                @if ($diasRestantes <= 7)
+                                                    <span class="days-remaining">{{ $urgenciaText }}</span>
+                                                @endif
                                             </div>
-                                            <div class="vehicle-info">
-                                                <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                                {{ $cita->vehiculo->modelo }}
-                                            </div>
-                                            @if ($diasRestantes > 7)
-                                                <div class="days-info">
-                                                    <i class="fas fa-clock"></i> {{ $urgenciaText }}
+                                            <div class="time-info">
+                                                <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
+                                                <div class="service">
+                                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
                                                 </div>
+                                                <div class="vehicle-info">
+                                                    <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                    {{ $cita->vehiculo->modelo }}
+                                                </div>
+                                                @if ($diasRestantes > 7)
+                                                    <div class="days-info">
+                                                        <i class="fas fa-clock"></i> {{ $urgenciaText }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <span
+                                                class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}">
+                                                {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
+                                            </span>
+                                        </div>
+                                        <div class="appointment-actions">
+                                            @if ($cita->estado == 'pendiente' || $cita->estado == 'confirmada')
+                                                <button class="btn btn-sm btn-warning"
+                                                    onclick="editCita({{ $cita->id }})">
+                                                    <i class="fas fa-edit"></i> Modificar
+                                                </button>
+                                                <button class="btn btn-sm btn-outline"
+                                                    onclick="cancelCita({{ $cita->id }})">
+                                                    <i class="fas fa-times"></i> Cancelar
+                                                </button>
                                             @endif
                                         </div>
-                                        <span
-                                            class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}">
-                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                        </span>
                                     </div>
-                                    <div class="appointment-actions">
-                                        @if ($cita->estado == 'pendiente' || $cita->estado == 'confirmada')
-                                            <button class="btn btn-sm btn-warning"
-                                                onclick="editCita({{ $cita->id }})">
-                                                <i class="fas fa-edit"></i> Modificar
-                                            </button>
-                                            <button class="btn btn-sm btn-outline"
-                                                onclick="cancelCita({{ $cita->id }})">
-                                                <i class="fas fa-times"></i> Cancelar
-                                            </button>
-                                        @endif
-                                    </div>
+                                @endforeach
+
+                                <!-- Mensaje informativo sobre el filtro -->
+                                <div class="info-message">
+                                    <small>
+                                        <i class="fas fa-info-circle"></i>
+                                        Se muestran solo las citas de los próximos 15 días
+                                    </small>
                                 </div>
-                            @endforeach
 
-                            <!-- Mensaje informativo sobre el filtro -->
-                            <div class="info-message">
-                                <small>
-                                    <i class="fas fa-info-circle"></i>
-                                    Se muestran solo las citas de los próximos 15 días
-                                </small>
-                            </div>
-
-                            @if ($proximas_citas->count() > 3)
-                                <div style="text-align: center; margin-top: 15px;">
-                                    <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
-                                        <i class="fas fa-list"></i> Ver todas las citas
-                                    </a>
+                                @if ($proximas_citas->count() > 3)
+                                    <div style="text-align: center; margin-top: 15px;">
+                                        <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
+                                            <i class="fas fa-list"></i> Ver todas las citas
+                                        </a>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <h3>No tienes citas programadas</h3>
+                                    <p>En los próximos 15 días</p>
+                                    <small style="color: #6c757d; display: block; margin-top: 5px;">
+                                        Agenda una cita y aparecerá aquí si está dentro de este período
+                                    </small>
+                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Agendar Cita
+                                    </button>
                                 </div>
                             @endif
-                        @else
-                            <div class="empty-state">
-                                <i class="fas fa-calendar-alt"></i>
-                                <h3>No tienes citas programadas</h3>
-                                <p>En los próximos 15 días</p>
-                                <small style="color: #6c757d; display: block; margin-top: 5px;">
-                                    Agenda una cita y aparecerá aquí si está dentro de este período
-                                </small>
-                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Cita
-                                </button>
+                        </div>
+                        <div class="custom-scrollbar" id="proximas-citas-scrollbar">
+                            <div class="custom-scrollbar-thumb" id="proximas-citas-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de Servicios -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-history"></i>
                             </div>
-                        @endif
+                            Historial de Servicios
+                        </h2>
+                    </div>
+                    <div class="scroll-container">
+                        <div class="card-body scrollable" id="historial-container">
+                            @if ($historial_citas->count() > 0)
+                                @foreach ($historial_citas as $cita)
+                                    <div class="service-history-item">
+                                        <div class="service-icon">
+                                            <i class="fas fa-soap"></i>
+                                        </div>
+                                        <div class="service-details">
+                                            <h4>
+                                                @if ($cita->servicios && count($cita->servicios) > 0)
+                                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                                @else
+                                                    Servicio no especificado
+                                                @endif
+                                            </h4>
+                                            <p><i class="fas fa-calendar"></i>
+                                                {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
+                                            <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
+                                            <p class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}"
+                                                style="display: inline-block; margin-top: 5px;">
+                                                {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
+                                            </p>
+                                            @if ($cita->estado == 'finalizada')
+                                                <a href="#" class="repeat-service"
+                                                    onclick="repeatService({{ $cita->id }})">
+                                                    <i class="fas fa-redo"></i> Volver a agendar
+                                                </a>
+                                            @endif
+                                        </div>
+                                        <div class="service-price">
+                                            @php
+                                                $total = $cita->servicios->sum('precio');
+                                            @endphp
+                                            ${{ number_format($total, 2) }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="empty-state">
+                                    <i class="fas fa-history"></i>
+                                    <h3>No hay historial de servicios</h3>
+                                    <p>Agenda tu primera cita para comenzar a ver tu historial</p>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="custom-scrollbar" id="historial-scrollbar">
+                            <div class="custom-scrollbar-thumb" id="historial-thumb"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -2890,8 +2982,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                    FUNCIONAMIENTO DE CREAR CITAS
-                                                                                                                                                =========================================================*/
+                                                                                                                                                            FUNCIONAMIENTO DE CREAR CITAS
+                                                                                                                                                        =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3911,10 +4003,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                <i class="fas fa-calendar-plus"></i>
-                                                                                                                                Agendar Cita
-                                                                                                                            </button>` : ''}
+                                                                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                        <i class="fas fa-calendar-plus"></i>
+                                                                                                                                        Agendar Cita
+                                                                                                                                    </button>` : ''}
                 </div>
             `;
                     return;
@@ -3975,12 +4067,12 @@
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                                                                <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                                                                    <i class="fas fa-edit"></i> Modificar
-                                                                                                                                </button>
-                                                                                                                                <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                                                                    <i class="fas fa-times"></i> Cancelar
-                                                                                                                                </button>` : ''}
+                                                                                                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                                                                            <i class="fas fa-edit"></i> Modificar
+                                                                                                                                        </button>
+                                                                                                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                                                                            <i class="fas fa-times"></i> Cancelar
+                                                                                                                                        </button>` : ''}
                     </div>
                 </div>
                 `;
@@ -4024,9 +4116,9 @@
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                                                                                <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                                                                    <i class="fas fa-redo"></i> Volver a agendar
-                                                                                                                                </a>` : ''}
+                                                                                                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                                                                            <i class="fas fa-redo"></i> Volver a agendar
+                                                                                                                                        </a>` : ''}
                     </div>
                     <div class="service-price">
                         ${total.toFixed(2)}
@@ -4443,11 +4535,11 @@
                         <p>${errorMessage}</p>
                         ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                         ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                        </ul>
-                                                                    ` : ''}
+                                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                </ul>
+                                                                            ` : ''}
                         <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                             Por favor intenta nuevamente con un horario diferente.
                         </p>
@@ -4464,6 +4556,98 @@
                 });
             }
         });
+
+          // Codigo para el scroll personalizado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar scroll personalizado para Próximas Citas
+            setupCustomScroll('proximas-citas-container', 'proximas-citas-scrollbar', 'proximas-citas-thumb');
+            
+            // Configurar scroll personalizado para Historial
+            setupCustomScroll('historial-container', 'historial-scrollbar', 'historial-thumb');
+        });
+
+        function setupCustomScroll(containerId, scrollbarId, thumbId) {
+            const container = document.getElementById(containerId);
+            const scrollbar = document.getElementById(scrollbarId);
+            const thumb = document.getElementById(thumbId);
+            
+            if (!container || !scrollbar || !thumb) return;
+            
+            // Calcular la relación entre el tamaño del thumb y el contenido
+            function updateThumb() {
+                const scrollRatio = container.clientHeight / container.scrollHeight;
+                const thumbHeight = Math.max(scrollRatio * scrollbar.clientHeight, 30);
+                thumb.style.height = `${thumbHeight}px`;
+                
+                const maxScroll = container.scrollHeight - container.clientHeight;
+                const thumbPosition = (container.scrollTop / maxScroll) * (scrollbar.clientHeight - thumbHeight);
+                thumb.style.top = `${thumbPosition}px`;
+            }
+            
+            // Actualizar al cargar y al redimensionar
+            updateThumb();
+            window.addEventListener('resize', updateThumb);
+            
+            // Mover el scroll al arrastrar el thumb
+            let isDragging = false;
+            
+            thumb.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                const startY = e.clientY;
+                const startTop = parseFloat(thumb.style.top) || 0;
+                
+                function moveThumb(e) {
+                    if (!isDragging) return;
+                    
+                    const deltaY = e.clientY - startY;
+                    let newTop = startTop + deltaY;
+                    
+                    const maxTop = scrollbar.clientHeight - thumb.clientHeight;
+                    newTop = Math.max(0, Math.min(maxTop, newTop));
+                    
+                    thumb.style.top = `${newTop}px`;
+                    
+                    // Mover el contenido
+                    const scrollRatio = newTop / (scrollbar.clientHeight - thumb.clientHeight);
+                    container.scrollTop = scrollRatio * (container.scrollHeight - container.clientHeight);
+                }
+            
+                function stopDrag() {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', moveThumb);
+                    document.removeEventListener('mouseup', stopDrag);
+                }
+                
+                document.addEventListener('mousemove', moveThumb);
+                document.addEventListener('mouseup', stopDrag);
+                e.preventDefault();
+            });
+            
+            // Mover el thumb al hacer scroll con la rueda del mouse
+            container.addEventListener('scroll', function() {
+                if (!isDragging) {
+                    updateThumb();
+                }
+            });
+            
+            // Permitir hacer clic en la barra para mover el scroll
+            scrollbar.addEventListener('click', function(e) {
+                if (e.target === thumb) return;
+                
+                const clickPosition = e.clientY - scrollbar.getBoundingClientRect().top;
+                const thumbHeight = parseFloat(thumb.style.height);
+                const newTop = clickPosition - (thumbHeight / 2);
+                
+                const maxTop = scrollbar.clientHeight - thumbHeight;
+                const adjustedTop = Math.max(0, Math.min(maxTop, newTop));
+                
+                thumb.style.top = `${adjustedTop}px`;
+                
+                // Mover el contenido
+                const scrollRatio = adjustedTop / (scrollbar.clientHeight - thumbHeight);
+                container.scrollTop = scrollRatio * (container.scrollHeight - container.clientHeight);
+            });
+        }
 
         // Script para debug - funciones para probar el manejo de fechas
         async function debugFechas(fechaStr = null) {
@@ -4718,10 +4902,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4833,8 +5017,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                                            FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                                            =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4863,8 +5047,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
