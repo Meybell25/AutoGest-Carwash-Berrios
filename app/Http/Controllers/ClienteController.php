@@ -42,11 +42,10 @@ class ClienteController extends Controller
             // MODIFICADO: Filtrar citas próximas (futuras, con estados específicos Y dentro de los próximos 15 días)
             $fechaLimite = now()->addDays(15); // 15 días desde hoy
 
-            $proximas_citas = $citas->filter(function ($cita) use ($fechaLimite) {
+            $proximas_citas = $citas->filter(function ($cita) {
                 return $cita->fecha_hora >= now() && // Cita futura
-                    $cita->fecha_hora <= $fechaLimite && // Dentro de los próximos 15 días
-                    in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
-            })->sortBy('fecha_hora'); // Ordenar de la más cercana a la más lejana
+                    in_array($cita->estado, ['confirmada']); // Solo confirmadas
+            })->sortBy('fecha_hora');
 
             // Filtrar historial (pasadas o con estados finalizados)
             $historial_citas = $citas->filter(function ($cita) {
