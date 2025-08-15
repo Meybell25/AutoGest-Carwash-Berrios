@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="user-{{ Auth::check() ? Auth::user()->rol : 'guest' }}">
 
 <head>
     <meta charset="UTF-8">
@@ -9,11 +9,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* ========== ESTILOS BASE COMUNES ========== */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            color: #333;
             line-height: 1.6;
+            background-attachment: fixed;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
 
         .container {
@@ -27,8 +32,90 @@
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
         }
 
+        /* ========== FONDOS ESPECÍFICOS POR ROL ========== */
+        
+        /* CLIENTE - Fondo Morado */
+        body.user-cliente {
+            background: linear-gradient(135deg, #bbadfd 0%, #5b21b6 50%, #452383 100%);
+        }
+        
+        body.user-cliente::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(187, 173, 253, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(91, 33, 182, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(69, 35, 131, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        /* ADMIN - Fondo Verde/Azul */
+        body.user-admin {
+            background: linear-gradient(135deg, #2e7d32 0%, #00695c 50%, #0277bd 100%);
+        }
+        
+        body.user-admin::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(46, 125, 50, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 105, 92, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(2, 119, 189, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        /* EMPLEADO - Fondo Azul/Verde Oscuro */
+        body.user-empleado {
+            background: linear-gradient(135deg, #2563eb 0%, #00695c 50%, #0d47a1 100%);
+        }
+        
+        body.user-empleado::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 105, 92, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(13, 71, 161, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        /* INVITADO (No logueado) - Fondo Morado Claro */
+        body.user-guest {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6b46c1 100%);
+        }
+
+        /* ========== ANIMACIÓN DE PARTÍCULAS FLOTANTES ========== */
+        @keyframes float {
+            0%, 100% { 
+                transform: translate(0, 0) rotate(0deg); 
+            }
+            33% { 
+                transform: translate(30px, -30px) rotate(120deg); 
+            }
+            66% { 
+                transform: translate(-20px, 20px) rotate(240deg); 
+            }
+        }
+
+        /* ========== ESTILOS PARA COMPONENTES ========== */
         .card-header {
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             padding: 20px;
@@ -41,6 +128,19 @@
         .btn-primary {
             background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
             border: none;
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
+            border: none;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff758c 0%, #ff7eb3 100%);
+            border: none;
+            color: white;
         }
 
         .is-valid {
@@ -76,27 +176,11 @@
         .is-invalid~.invalid-tooltip {
             display: block;
         }
-
-        .pagination {
-            margin-top: 1rem;
-        }
-
-        .pagination .page-item .page-link,
-        .pagination .page-item span {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .pagination svg {
-            width: 1em;
-            height: 1em;
-            vertical-align: middle;
-        }
     </style>
     @stack('styles')
 </head>
 
-<body class="@yield('body-class')">
+<body>
     <div class="container py-4">
         @yield('content')
     </div>
@@ -131,22 +215,18 @@
                 });
             @endif
 
-            @if ($errors->any())
+            @if ($errors->any()))
                 swalWithBootstrapButtons.fire({
                     title: 'Error',
                     html: `@foreach ($errors->all() as $error)
-               • {{ $error }}<br>
-               @endforeach`,
+                        • {{ $error }}<br>
+                    @endforeach`,
                     icon: 'error',
                     confirmButtonText: 'Entendido'
                 });
             @endif
         });
-
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').content;
-        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     </script>
     @stack('scripts')
 </body>
-
 </html>
