@@ -129,22 +129,19 @@
             padding: 20px;
         }
 
-        .btn-primary {
+        . .btn-primary {
             background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
             border: none;
-            color: white;
         }
 
         .btn-warning {
             background: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
             border: none;
-            color: #333;
         }
 
         .btn-danger {
             background: linear-gradient(45deg, #ff758c 0%, #ff7eb3 100%);
             border: none;
-            color: white;
         }
 
         .is-valid {
