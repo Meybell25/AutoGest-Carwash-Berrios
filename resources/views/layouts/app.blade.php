@@ -36,12 +36,12 @@
         }
 
         /* ========== FONDOS ESPECÍFICOS POR ROL ========== */
-        
+
         /* CLIENTE - Fondo Morado */
         body.user-cliente {
             background: linear-gradient(135deg, #bbadfd 0%, #5b21b6 50%, #452383 100%);
         }
-        
+
         body.user-cliente::before {
             content: '';
             position: fixed;
@@ -61,7 +61,7 @@
         body.user-admin {
             background: linear-gradient(135deg, #2e7d32 0%, #00695c 50%, #0277bd 100%);
         }
-        
+
         body.user-admin::before {
             content: '';
             position: fixed;
@@ -81,7 +81,7 @@
         body.user-empleado {
             background: linear-gradient(135deg, #2563eb 0%, #00695c 50%, #0d47a1 100%);
         }
-        
+
         body.user-empleado::before {
             content: '';
             position: fixed;
@@ -104,14 +104,18 @@
 
         /* ========== ANIMACIÓN DE PARTÍCULAS FLOTANTES ========== */
         @keyframes float {
-            0%, 100% { 
-                transform: translate(0, 0) rotate(0deg); 
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
             }
-            33% { 
-                transform: translate(30px, -30px) rotate(120deg); 
+
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
             }
-            66% { 
-                transform: translate(-20px, 20px) rotate(240deg); 
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
             }
         }
 
@@ -215,12 +219,12 @@
                 });
             @endif
 
-            @if ($errors->any()))
+            @if ($errors->any())
                 swalWithBootstrapButtons.fire({
                     title: 'Error',
                     html: `@foreach ($errors->all() as $error)
-                        • {{ $error }}<br>
-                    @endforeach`,
+                    • {{ $error }}<br>
+                @endforeach`,
                     icon: 'error',
                     confirmButtonText: 'Entendido'
                 });
