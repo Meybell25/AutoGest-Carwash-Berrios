@@ -586,22 +586,79 @@
             letter-spacing: 0.05em;
         }
 
+        /* Estados estilo badges  */
+        .appointment-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
         .status-pendiente {
-            background: rgba(251, 191, 36, 0.1);
-            color: #92400e;
-            border: 1px solid rgba(251, 191, 36, 0.2);
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            color: #ef6c00;
+            border: 1px solid #ffcc80;
         }
 
-        .status-en-proceso {
-            background: rgba(59, 130, 246, 0.1);
-            color: #1e40af;
-            border: 1px solid rgba(59, 130, 246, 0.2);
+        .status-confirmado,
+        .status-confirmada {
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+            color: #0277bd;
+            border: 1px solid #81d4fa;
         }
 
-        .status-finalizado {
-            background: rgba(16, 185, 129, 0.1);
-            color: #047857;
-            border: 1px solid rgba(16, 185, 129, 0.2);
+        .status-en-proceso,
+        .status-en_proceso {
+            background: linear-gradient(135deg, #f1e6ff, #e1bee7);
+            color: #6a1b9a;
+            border: 1px solid #ce93d8;
+        }
+
+        .status-finalizado,
+        .status-finalizada {
+            background: linear-gradient(135deg, #e0f2e0, #c8e6c9);
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .status-cancelada {
+            background: linear-gradient(135deg, #fde7f3, #f8bbd9);
+            color: #ad1457;
+            border: 1px solid #f48fb1;
+        }
+
+        /* Efectos hover para los badges */
+        .appointment-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-pendiente:hover {
+            background: linear-gradient(135deg, #ffe0b2, #ffcc80);
+        }
+
+        .status-confirmado:hover,
+        .status-confirmada:hover {
+            background: linear-gradient(135deg, #b3e5fc, #81d4fa);
+        }
+
+        .status-en-proceso:hover,
+        .status-en_proceso:hover {
+            background: linear-gradient(135deg, #e1bee7, #ce93d8);
+        }
+
+        .status-finalizado:hover,
+        .status-finalizada:hover {
+            background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+        }
+
+        .status-cancelada:hover {
+            background: linear-gradient(135deg, #f8bbd9, #f48fb1);
         }
 
         .service-tag {
@@ -811,7 +868,7 @@
             text-align: center;
         }
 
-        .profile-summary .profile-summary-icon  i.fa-phone {
+        .profile-summary .profile-summary-icon i.fa-phone {
             color: var(--primary);
         }
 
