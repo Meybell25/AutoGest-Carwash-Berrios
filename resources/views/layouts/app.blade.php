@@ -102,18 +102,29 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6b46c1 100%);
         }
 
+        body.user-guest::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(107, 70, 193, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
         /* ========== ANIMACIÓN DE PARTÍCULAS FLOTANTES ========== */
         @keyframes float {
-
-            0%,
-            100% {
+            0%, 100% {
                 transform: translate(0, 0) rotate(0deg);
             }
-
             33% {
                 transform: translate(30px, -30px) rotate(120deg);
             }
-
             66% {
                 transform: translate(-20px, 20px) rotate(240deg);
             }
@@ -129,19 +140,37 @@
             padding: 20px;
         }
 
-        . .btn-primary {
+        .btn-primary {
             background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
             border: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
         }
 
         .btn-warning {
-            background: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
+            background: linear-gradient(45deg, #e98f12 0%, #dec11e 100%);
             border: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
         }
 
         .btn-danger {
-            background: linear-gradient(45deg, #ff758c 0%, #ff7eb3 100%);
+            background: linear-gradient(45deg, #c95165 0%, #d0407c 100%);
             border: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
         }
 
         .is-valid {
@@ -177,11 +206,22 @@
         .is-invalid~.invalid-tooltip {
             display: block;
         }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                margin: 10px 0;
+            }
+        }
     </style>
     @stack('styles')
 </head>
 
-<body>
+<body class="@yield('body-class', '')">
     <div class="container py-4">
         @yield('content')
     </div>

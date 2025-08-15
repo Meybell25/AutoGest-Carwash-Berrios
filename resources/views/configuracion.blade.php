@@ -1,10 +1,12 @@
 @extends('layouts.app')
 
-@section('body-class', 'configuracion-bg')
+@section('body-class')
+user-{{ Auth::check() ? Auth::user()->rol : 'guest' }}
+@endsection
 
 @section('content')
     <div class="container py-4">
-        <!-- Botón de regreso mejorado -->
+        <!-- Botón de regreso  -->
         <div class="row mb-4">
             <div class="col-12">
                 <a href="{{ route('dashboard') }}" class="btn btn-primary btn-lg">
@@ -39,7 +41,7 @@
                             </script>
                         @endif
 
-                        @if ($errors->any()))
+                        @if ($errors->any())
                             <script>
                                 swalWithBootstrapButtons.fire({
                                     title: '¡Error!',
