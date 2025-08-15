@@ -82,61 +82,41 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rutas de Admin
-Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Rutas principales
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
+    Route::post('/usuarios', [AdminController::class, 'storeUsuario'])->name('usuarios.store');
+    Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
 
-        Route::prefix('usuarios')->name('usuarios.')->group(function () {
-            Route::get('/', [AdminController::class, 'usuarios'])->name('index');
-            Route::post('/', [AdminController::class, 'storeUsuario'])->name('store');
-            Route::get('/all', [AdminController::class, 'getAllUsers'])->name('all');
-            Route::put('/{usuario}', [AdminController::class, 'update'])->name('update');
-            Route::delete('/{usuario}', [AdminController::class, 'destroy'])->name('destroy');
-            Route::get('/{usuario}/registros', [AdminController::class, 'getUserRecords'])->name('registros');
-            Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
+    // Ruta para datos del dashboard (AJAX)
+    Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
 
-            // Rutas para acciones masivas
-            Route::post('/bulk-activate', [AdminController::class, 'bulkActivate'])->name('bulk-activate');
-            Route::post('/bulk-deactivate', [AdminController::class, 'bulkDeactivate'])->name('bulk-deactivate');
-            Route::delete('/bulk-delete', [AdminController::class, 'bulkDelete'])->name('bulk-delete');
-        });
-
-        Route::prefix('citas')->name('citas.')->group(function () {
-            Route::get('/create', [AdminController::class, 'createCita'])->name('create');
-            Route::post('/', [AdminController::class, 'storeCita'])->name('store');
-        });
-
-        Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
-        Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
-
-        Route::prefix('servicios')->name('servicios.')->group(function () {
-            Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
-            Route::get('/crear', [ServicioController::class, 'create'])->name('create');
-            Route::post('/', [ServicioController::class, 'store'])->name('store');
-            Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
-            Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
-        });
-
-
-        /*        Route::prefix('gastos')->name('gastos.')->group(function () {
-            Route::get('/', [GastoController::class, 'index'])->name('index');
-            Route::get('/crear', [GastoController::class, 'create'])->name('create');
-            Route::post('/', [GastoController::class, 'store'])->name('store');
-            Route::get('/{id}', [GastoController::class, 'show'])->name('show');
-            Route::get('/{id}/editar', [GastoController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [GastoController::class, 'update'])->name('update');
-            Route::delete('/{id}', [GastoController::class, 'destroy'])->name('destroy');
-            Route::get('/tipo/{tipo}', [GastoController::class, 'filtrarPorTipo'])->name('tipo');
-            Route::post('/filtrar-fechas', [GastoController::class, 'filtrarPorFechas'])->name('filtrar-fechas');
-        });*/
-
-        //Rutas para horarios
-        Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
+    // Rutas de citas
+    Route::prefix('citas')->name('citas.')->group(function () {
+        Route::get('/create', [AdminController::class, 'createCita'])->name('create');
+        Route::post('/', [AdminController::class, 'storeCita'])->name('store');
     });
+
+    // Rutas de usuarios (moví este grupo para que esté completo antes de continuar)
+    Route::prefix('usuarios')->name('usuarios.')->group(function () {
+        Route::get('/', [AdminController::class, 'usuarios'])->name('index');
+        Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
+    }); // <-- Este cierre estaba faltando
+
+    // Rutas de reportes
+    Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
+
+    // Rutas de servicios
+    Route::prefix('servicios')->name('servicios.')->group(function () {
+        Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
+        Route::get('/crear', [ServicioController::class, 'create'])->name('create');
+        Route::post('/', [ServicioController::class, 'store'])->name('store');
+        Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
+    });
+});
 
 // Rutas de Empleado
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])->prefix('empleado')->name('empleado.')->group(function () {
