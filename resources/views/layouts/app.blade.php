@@ -134,6 +134,33 @@
         }
 
         /* ========== ESTILOS PARA COMPONENTES ========== */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #333;
+            padding: 12px 16px;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            color: #333;
+            text-decoration: none;
+        }
+
         .card-header {
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             padding: 20px;
@@ -218,6 +245,14 @@
             
             .card {
                 margin: 10px 0;
+            }
+
+            .back-button {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 20px;
+                display: inline-flex;
             }
         }
     </style>

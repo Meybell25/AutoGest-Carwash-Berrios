@@ -6,16 +6,10 @@ user-{{ Auth::check() ? Auth::user()->rol : 'guest' }}
 
 @section('content')
     <div class="container py-4">
-        <!-- Botón de regreso  -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <a href="{{ route('dashboard') }}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-arrow-left me-2"></i>
-                    <span class="d-none d-sm-inline fs-6">Volver al Dashboard</span>
-                    <span class="d-sm-none fs-6">Volver</span>
-                </a>
-            </div>
-        </div>
+        <!-- Botón de regreso con diseño flotante -->
+        <a href="{{ route('dashboard') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        </a>
 
         <!-- Tarjeta principal -->
         <div class="row justify-content-center">
