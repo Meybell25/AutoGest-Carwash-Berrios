@@ -1,164 +1,113 @@
 @extends('layouts.app')
 
-@section('title', 'Vehiculos')
+@section('title', 'Vehículos')
 
 @section('content')
-    <div class="mb-3">
-        <a href="{{ route('dashboard') }}" class="btn btn-primary btn-sm">
-            <i class="fas fa-arrow-left me-2"></i>
-            Volver al Dashboard
-        </a>
-    </div>
-
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Lista de Vehículos</h5>
-            <a href="{{ route('vehiculos.create') }}" class="btn btn-sm btn-primary">
-                <i class="fas fa-plus me-1"></i> Agregar nuevo
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Gestión de Vehículos</h1>
+            <p class="mb-0 text-muted">Administra todos los vehículos registrados en el sistema</p>
+        </div>
+        <div>
+            <a href="{{ route('dashboard') }}" class="btn btn-primary me-2">
+                <i class="fas fa-arrow-left"></i> Volver al Dashboard
+            </a>
+            <a href="{{ route('vehiculos.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Agregar Vehículo
             </a>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-            <table class="table mb-0" id="vehiculosIndexTable">
-                <thead>
-                    <tr>
-                        <th>Marca</th>
-                        <th>Modelo</th>
-                        <th>Tipo</th>
-                        <th>Color</th>
-                        <th>Descripción</th>
-                        <th>Fecha de Registro</th>
-                        <th>Placa</th>
-                        <th class="text-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($vehiculos as $vehiculo)
-                        <tr>
-                            <td data-label="Marca">{{ $vehiculo->marca }}</td>
-                            <td data-label="Modelo">{{ $vehiculo->modelo }}</td>
-                            <td data-label="Tipo">{{ $vehiculo->tipo_formatted }}</td>
-                            <td data-label="Color">{{ $vehiculo->color }}</td>
-                            <td data-label="Descripción">{{ $vehiculo->descripcion }}</td>
-                            <td data-label="Fecha de Registro">{{ optional($vehiculo->fecha_registro)->format('d/m/Y') }}</td>
-                            <td data-label="Placa">{{ $vehiculo->placa }}</td>
-                            <td data-label="Acciones" class="text-end">
-                                @if(auth()->user()->rol === 'admin' || (auth()->user()->rol === 'cliente' && $vehiculo->usuario_id === auth()->id()))
-                                    <a href="{{ route('vehiculos.edit', $vehiculo) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-                                   <form action="{{ route('vehiculos.destroy', $vehiculo) }}" method="POST" class="d-inline-block vehiculo-delete-form" onsubmit="return confirm('¿Eliminar este vehículo?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                    </form>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="text-center">No hay vehículos registrados.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
     </div>
 
-    <style>
-        @media (max-width: 768px) {
-            #vehiculosIndexTable {
-                min-width: 100%;
-            }
+    <hr class="my-4">
 
-            #vehiculosIndexTable thead {
-                display: none;
-            }
+    <!-- Contenido principal -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <h2 class="h5 mb-4">Lista de Vehículos</h2>
 
-            #vehiculosIndexTable tr {
-                display: block;
-                margin-bottom: 15px;
-                border: 1px solid #eee;
-                border-radius: 8px;
-                padding: 10px;
-            }
+            <!-- Tabla -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr class="bg-light">
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Tipo</th>
+                            <th>Color</th>
+                            <th>Descripción</th>
+                            <th>Fecha Registro</th>
+                            <th>Placa</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($vehiculos as $vehiculo)
+                        <tr>
+                            <td>{{ $vehiculo->marca }}</td>
+                            <td>{{ $vehiculo->modelo }}</td>
+                            <td><span class="badge bg-primary">{{ $vehiculo->tipo_formatted }}</span></td>
+                            <td>{{ $vehiculo->color }}</td>
+                            <td>{{ $vehiculo->descripcion }}</td>
+                            <td>{{ optional($vehiculo->fecha_registro)->format('d/m/Y') }}</td>
+                            <td>{{ $vehiculo->placa }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    @if(auth()->user()->rol === 'admin' || (auth()->user()->rol === 'cliente' && $vehiculo->usuario_id === auth()->id()))
+                                    <a href="{{ route('vehiculos.edit', $vehiculo) }}" class="btn btn-sm btn-edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('vehiculos.destroy', $vehiculo) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-delete" onclick="return confirm('¿Eliminar este vehículo?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-car fa-2x mb-3"></i>
+                                    <h5 class="mb-1">No hay vehículos registrados</h5>
+                                    <p class="mb-0">Agrega un nuevo vehículo para comenzar</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-            #vehiculosIndexTable td {
-                padding-left: 45%;
-                position: relative;
-                min-height: 40px;
-                display: flex;
-                align-items: center;
-                word-break: break-word;
-                white-space: normal;
-                border: none;
-            }
-
-            #vehiculosIndexTable td:before {
-                content: attr(data-label);
-                position: absolute;
-                left: 15px;
-                width: 40%;
-                padding-right: 10px;
-                font-weight: 600;
-                color: #2e7d32;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #vehiculosIndexTable td {
-                padding-left: 40%;
-            }
-
-            #vehiculosIndexTable td:before {
-                width: 35%;
-            }
-        }
-    </style>
+<style>
+    /* Estilos para los botones de acción */
+    .btn-edit {
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 5px 10px;
+    }
+    
+    .btn-delete {
+        background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 5px 10px;
+    }
+    
+    .btn-edit:hover, .btn-delete:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+</style>
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        function initResponsiveTables() {
-            document.querySelectorAll('.table-responsive').forEach(tableContainer => {
-                if (window.innerWidth < 768) {
-                    tableContainer.classList.add('force-responsive');
-                }
-            });
-        }
-
-        window.addEventListener('resize', initResponsiveTables);
-        initResponsiveTables();
-        
-        document.querySelectorAll('.vehiculo-delete-form').forEach(form => {
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-                if (!confirm('¿Eliminar este vehículo?')) return;
-                const formData = new FormData(this);
-                try {
-                    const resp = await fetch(this.action, {
-                        method: 'POST',
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                        body: formData
-                    });
-                    const data = await resp.json();
-                    if (!resp.ok) throw new Error(data.message || 'Error');
-
-                    localStorage.setItem('vehiculoActualizado', Date.now());
-                    this.closest('tr').remove();
-                    swalWithBootstrapButtons.fire({
-                        title: '¡Éxito!',
-                        text: 'Vehículo eliminado correctamente',
-                        icon: 'success'
-                    });
-                } catch (error) {
-                    swalWithBootstrapButtons.fire({
-                        title: 'Error',
-                        text: error.message || 'Error al eliminar el vehículo',
-                        icon: 'error'
-                    });
-                }
-            });
-        });
-    });
-</script>
-@endpush
