@@ -430,11 +430,34 @@
             margin-bottom: 20px;
         }
 
+        /* COLORES DE BORDE IZQUIERDO PARA SECCIONES SEGÚN ESTADO DE LA CITA */
+        .cita-card.pendiente .detail-section {
+            border-left: 4px solid #4facfe !important;
+        }
+
+        .cita-card.confirmada .detail-section,
+        .cita-card.confirmado .detail-section {
+            border-left: 4px solid #66bb6a !important;
+        }
+
+        .cita-card.en_proceso .detail-section,
+        .cita-card.en-proceso .detail-section {
+            border-left: 4px solid #1b5e20 !important;
+        }
+
+        .cita-card.finalizada .detail-section,
+        .cita-card.finalizado .detail-section {
+            border-left: 4px solid #764ba2 !important;
+        }
+
+        .cita-card.cancelada .detail-section {
+            border-left: 4px solid #dc3545 !important;
+        }
+
         .detail-section {
             background: rgba(255, 255, 255, 0.5);
             padding: 20px;
             border-radius: var(--border-radius);
-            border-left: 4px solid #667eea;
         }
 
         .detail-section h4 {
@@ -680,6 +703,63 @@
             border: 1px solid #f48fb1;
         }
 
+        /* Nuevos estilos para los contadores en la sección de filtros */
+        .counters-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: var(--border-radius);
+        }
+
+        .counter-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .counter-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .counter-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .counter-total .counter-value {
+            color: #667eea;
+        }
+
+        .counter-pendiente .counter-value {
+            color: #ef6c00;
+        }
+
+        .counter-confirmada .counter-value {
+            color: #0277bd;
+        }
+
+        .counter-en_proceso .counter-value {
+            color: #6a1b9a;
+        }
+
+        .counter-finalizada .counter-value {
+            color: #2e7d32;
+        }
+
+        .counter-cancelada .counter-value {
+            color: #ad1457;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -732,6 +812,23 @@
                 padding: 6px 12px;
                 font-size: 0.8rem;
             }
+
+            .counters-container {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .counter-item {
+                flex-direction: row;
+                justify-content: space-between;
+                min-width: auto;
+                padding: 5px 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .counter-item:last-child {
+                border-bottom: none;
+            }
         }
     </style>
 </head>
@@ -761,30 +858,6 @@
                     Todas tus citas, pasadas y futuras
                 @endif
             </p>
-
-            <!-- Contadores de estado -->
-            <div class="status-counters">
-                <div class="status-counter pendiente">
-                    <span>{{ $citas->where('estado', 'pendiente')->count() }}</span>
-                    <span>Pendientes</span>
-                </div>
-                <div class="status-counter confirmada">
-                    <span>{{ $citas->where('estado', 'confirmada')->count() }}</span>
-                    <span>Confirmadas</span>
-                </div>
-                <div class="status-counter en_proceso">
-                    <span>{{ $citas->where('estado', 'en_proceso')->count() }}</span>
-                    <span>En Proceso</span>
-                </div>
-                <div class="status-counter finalizada">
-                    <span>{{ $citas->where('estado', 'finalizada')->count() }}</span>
-                    <span>Finalizadas</span>
-                </div>
-                <div class="status-counter cancelada">
-                    <span>{{ $citas->where('estado', 'cancelada')->count() }}</span>
-                    <span>Canceladas</span>
-                </div>
-            </div>
         </div>
 
         <!-- Selector de vista mejorado -->
@@ -805,6 +878,34 @@
 
         <!-- Filtros -->
         <div class="filters-section">
+            <!-- Contadores de estado -->
+            <div class="counters-container">
+                <div class="counter-item counter-total">
+                    <span class="counter-value" id="total-counter">{{ $citas->total() }}</span>
+                    <span class="counter-label">Total</span>
+                </div>
+                <div class="counter-item counter-pendiente">
+                    <span class="counter-value" id="pendiente-counter">{{ $citas->where('estado', 'pendiente')->count() }}</span>
+                    <span class="counter-label">Pendientes</span>
+                </div>
+                <div class="counter-item counter-confirmada">
+                    <span class="counter-value" id="confirmada-counter">{{ $citas->where('estado', 'confirmada')->count() }}</span>
+                    <span class="counter-label">Confirmadas</span>
+                </div>
+                <div class="counter-item counter-en_proceso">
+                    <span class="counter-value" id="en-proceso-counter">{{ $citas->where('estado', 'en_proceso')->count() }}</span>
+                    <span class="counter-label">En Proceso</span>
+                </div>
+                <div class="counter-item counter-finalizada">
+                    <span class="counter-value" id="finalizada-counter">{{ $citas->where('estado', 'finalizada')->count() }}</span>
+                    <span class="counter-label">Finalizadas</span>
+                </div>
+                <div class="counter-item counter-cancelada">
+                    <span class="counter-value" id="cancelada-counter">{{ $citas->where('estado', 'cancelada')->count() }}</span>
+                    <span class="counter-label">Canceladas</span>
+                </div>
+            </div>
+
             <form id="filtrosForm">
                 <div class="filters-grid">
                     <div class="filter-group">
@@ -871,29 +972,6 @@
                     </div>
                 </div>
             </form>
-
-            <!-- Resumen de estadísticas -->
-            <div class="stats-summary">
-                <div class="stat-item">
-                    <span class="stat-number" id="total-citas">{{ $citas->total() }}</span>
-                    <span class="stat-label">Total Citas</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number"
-                        id="pendientes">{{ $citas->where('estado', 'pendiente')->count() }}</span>
-                    <span class="stat-label">Pendientes</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number"
-                        id="confirmadas">{{ $citas->where('estado', 'confirmada')->count() }}</span>
-                    <span class="stat-label">Confirmadas</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number"
-                        id="finalizadas">{{ $citas->where('estado', 'finalizada')->count() }}</span>
-                    <span class="stat-label">Finalizadas</span>
-                </div>
-            </div>
         </div>
 
         <!-- Lista de citas -->
@@ -1003,9 +1081,9 @@
 
 
     <!-- Modal para crear/editar cita-->
-    <div id="createCitaModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <span class="close-modal" onclick="closeCitaModal()">&times;</span>
+    <div id="createCitaModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: white; margin: 5% auto; padding: 20px; border-radius: 10px; max-width: 600px;">
+            <span class="close-modal" onclick="closeCitaModal()" style="float: right; font-size: 28px; cursor: pointer;">&times;</span>
             <h2 style="color: #4facfe; margin-bottom: 20px;">
                 <i class="fas fa-calendar-plus"></i> <span id="modalTitle">Nueva Cita</span>
             </h2>
@@ -1017,35 +1095,38 @@
                 <input type="hidden" id="form_cita_id" name="cita_id" value="">
 
                 <!-- Selección de vehículo -->
-                <select id="vehiculo_id" name="vehiculo_id" required onchange="cargarServiciosPorTipo()">
-                    <option value="">Seleccione un vehículo</option>
-                    @foreach (auth()->user()->vehiculos as $vehiculo)
-                        <option value="{{ $vehiculo->id }}" data-tipo="{{ $vehiculo->tipo }}">
-                            {{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->placa }}
-                            ({{ ucfirst($vehiculo->tipo) }})
-                        </option>
-                    @endforeach
-                </select>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="modal_vehiculo_id" style="display: block; margin-bottom: 5px;">Vehículo:</label>
+                    <select id="modal_vehiculo_id" name="vehiculo_id" required onchange="cargarServiciosPorTipo()" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                        <option value="">Seleccione un vehículo</option>
+                        @foreach (auth()->user()->vehiculos as $vehiculo)
+                            <option value="{{ $vehiculo->id }}" data-tipo="{{ $vehiculo->tipo }}">
+                                {{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->placa }}
+                                ({{ ucfirst($vehiculo->tipo) }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <!-- Fecha -->
-                <div class="form-group">
-                    <label for="fecha">Fecha: <span style="color: red;">*</span></label>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="fecha" style="display: block; margin-bottom: 5px;">Fecha: <span style="color: red;">*</span></label>
                     <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}"
-                        max="{{ date('Y-m-d', strtotime('+1 month')) }}">
+                        max="{{ date('Y-m-d', strtotime('+1 month')) }}" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
                 </div>
 
                 <!-- Hora -->
-                <div class="form-group">
-                    <label for="hora">Hora: <span style="color: red;">*</span></label>
-                    <select id="hora" name="hora" required>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="hora" style="display: block; margin-bottom: 5px;">Hora: <span style="color: red;">*</span></label>
+                    <select id="hora" name="hora" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
                         <option value="">Seleccione una hora</option>
                         <!-- Las opciones se llenarán dinámicamente con JavaScript -->
                     </select>
                 </div>
 
                 <!-- Servicios -->
-                <div class="form-group">
-                    <label>Servicios Disponibles: <span style="color: red;">*</span></label>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Servicios Disponibles: <span style="color: red;">*</span></label>
                     <div id="serviciosContainer"
                         style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; min-height: 100px;">
                         <p>Seleccione un vehículo primero</p>
@@ -1053,10 +1134,10 @@
                 </div>
 
                 <!-- Observaciones -->
-                <div class="form-group">
-                    <label for="observaciones">Observaciones:</label>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="observaciones" style="display: block; margin-bottom: 5px;">Observaciones:</label>
                     <textarea id="observaciones" name="observaciones" rows="3" maxlength="500"
-                        placeholder="Información adicional sobre su vehículo o servicio requerido..."></textarea>
+                        placeholder="Información adicional sobre su vehículo o servicio requerido..." style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
                 </div>
 
                 <!-- Botones -->
@@ -1155,7 +1236,7 @@
 
                         // Establecer vehículo si se proporciona (NO carga horarios aún)
                         if (vehiculoId) {
-                            const vehiculoSelect = document.getElementById('vehiculo_id');
+                            const vehiculoSelect = document.getElementById('modal_vehiculo_id');
                             if (vehiculoSelect) {
                                 vehiculoSelect.value = vehiculoId;
                                 await cargarServiciosPorTipo();
@@ -1537,7 +1618,7 @@
         async function cargarServiciosPorTipo() {
             return new Promise(async (resolve, reject) => {
                 try {
-                    const vehiculoSelect = document.getElementById('vehiculo_id');
+                    const vehiculoSelect = document.getElementById('modal_vehiculo_id');
                     const serviciosContainer = document.getElementById('serviciosContainer');
 
                     if (!vehiculoSelect) {
@@ -1815,7 +1896,7 @@
             console.log('Elementos DOM disponibles:', {
                 modal: !!document.getElementById('createCitaModal'),
                 form: !!document.getElementById('citaForm'),
-                vehiculo: !!document.getElementById('vehiculo_id'),
+                vehiculo: !!document.getElementById('modal_vehiculo_id'),
                 fecha: !!document.getElementById('fecha'),
                 hora: !!document.getElementById('hora'),
                 formCitaId: !!document.getElementById('form_cita_id'),
@@ -1859,7 +1940,7 @@
 
                 // 3. Configurar formulario
                 const form = document.getElementById('citaForm');
-                const vehiculoSelect = document.getElementById('vehiculo_id');
+                const vehiculoSelect = document.getElementById('modal_vehiculo_id');
                 const fechaInput = document.getElementById('fecha');
                 const formCitaId = document.getElementById('form_cita_id');
                 const observacionesInput = document.getElementById('observaciones');
