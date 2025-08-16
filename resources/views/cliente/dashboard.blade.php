@@ -2189,7 +2189,6 @@
         <div class="dashboard-grid">
             <!-- Sección Principal -->
             <div class="main-section">
-                <!-- Próximas Citas -->
                 <!-- Próximas Citas Confirmadas -->
                 <div class="card">
                     <div class="card-header">
@@ -2360,64 +2359,6 @@
                         <div class="custom-scrollbar" id="historial-scrollbar">
                             <div class="custom-scrollbar-thumb" id="historial-thumb"></div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Historial de Servicios -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            Historial de Servicios
-                        </h2>
-                    </div>
-                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        @if ($historial_citas->count() > 0)
-                            @foreach ($historial_citas as $cita)
-                                <div class="service-history-item">
-                                    <div class="service-icon">
-                                        <i class="fas fa-soap"></i>
-                                    </div>
-                                    <div class="service-details">
-                                        <h4>
-                                            @if ($cita->servicios && count($cita->servicios) > 0)
-                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                            @else
-                                                Servicio no especificado
-                                            @endif
-                                        </h4>
-                                        <p><i class="fas fa-calendar"></i>
-                                            {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
-                                        <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                            {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
-                                        <p class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}"
-                                            style="display: inline-block; margin-top: 5px;">
-                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                        </p>
-                                        @if ($cita->estado == 'finalizada')
-                                            <a href="#" class="repeat-service"
-                                                onclick="repeatService({{ $cita->id }})">
-                                                <i class="fas fa-redo"></i> Volver a agendar
-                                            </a>
-                                        @endif
-                                    </div>
-                                    <div class="service-price">
-                                        @php
-                                            $total = $cita->servicios->sum('precio');
-                                        @endphp
-                                        ${{ number_format($total, 2) }}
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="empty-state">
-                                <i class="fas fa-history"></i>
-                                <h3>No hay historial de servicios</h3>
-                                <p>Agenda tu primera cita para comenzar a ver tu historial</p>
-                            </div>
-                        @endif
                     </div>
                 </div>
 
