@@ -1017,18 +1017,15 @@
                 <input type="hidden" id="form_cita_id" name="cita_id" value="">
 
                 <!-- Selección de vehículo -->
-                <div class="form-group">
-                    <label for="vehiculo_id">Vehículo: <span style="color: red;">*</span></label>
-                    <select id="vehiculo_id" name="vehiculo_id" required onchange="cargarServiciosPorTipo()">
-                        <option value="">Seleccione un vehículo</option>
-                        @foreach ($mis_vehiculos as $vehiculo)
-                            <option value="{{ $vehiculo->id }}" data-tipo="{{ $vehiculo->tipo }}">
-                                {{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->placa }}
-                                ({{ ucfirst($vehiculo->tipo) }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                <select id="vehiculo_id" name="vehiculo_id" required onchange="cargarServiciosPorTipo()">
+                    <option value="">Seleccione un vehículo</option>
+                    @foreach (auth()->user()->vehiculos as $vehiculo)
+                        <option value="{{ $vehiculo->id }}" data-tipo="{{ $vehiculo->tipo }}">
+                            {{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->placa }}
+                            ({{ ucfirst($vehiculo->tipo) }})
+                        </option>
+                    @endforeach
+                </select>
 
                 <!-- Fecha -->
                 <div class="form-group">
@@ -1075,7 +1072,8 @@
         </div>
     </div>
 
-     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Configuración global de SweetAlert
         const swalWithBootstrapButtons = Swal.mixin({
@@ -1221,15 +1219,21 @@
                 const [horariosRes, serviciosRes, noLaborablesRes] = await Promise.all([
                     fetch('{{ route('cliente.horarios-disponibles') }}').catch(e => {
                         console.error('Error cargando horarios:', e);
-                        return { ok: false };
+                        return {
+                            ok: false
+                        };
                     }),
                     fetch('{{ route('cliente.servicios-disponibles') }}').catch(e => {
                         console.error('Error cargando servicios:', e);
-                        return { ok: false };
+                        return {
+                            ok: false
+                        };
                     }),
                     fetch('{{ route('cliente.dias-no-laborables') }}').catch(e => {
                         console.error('Error cargando días no laborables:', e);
-                        return { ok: false };
+                        return {
+                            ok: false
+                        };
                     })
                 ]);
 
@@ -1315,7 +1319,8 @@
                 // Obtener horarios ocupados
                 let citasExistentes = [];
                 try {
-                    const url = `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
+                    const url =
+                        `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
                     console.log('Consultando horarios ocupados:', url);
 
                     const response = await fetch(url, {
@@ -1361,17 +1366,18 @@
                     horaFin.setHours(finH, finM, 0, 0);
 
                     while (horaActual < horaFin) {
-                        const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' + 
-                                      horaActual.getMinutes().toString().padStart(2, '0');
+                        const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
+                            horaActual.getMinutes().toString().padStart(2, '0');
 
                         // Verificar colisión con citas existentes
                         const estaOcupado = citasExistentes.some(cita => {
                             try {
                                 const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
-                                const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) * 60000);
+                                const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
+                                    60000);
 
                                 const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
-                                const finPropuesta = new Date(inicioPropuesta.getTime() + 
+                                const finPropuesta = new Date(inicioPropuesta.getTime() +
                                     calcularDuracionServiciosSeleccionados() * 60000);
 
                                 return (
@@ -1449,7 +1455,7 @@
 
                     // Validar domingos primero
                     if (dayOfWeekJS === 0) {
-                        showDateError('Domingo no laborable', 
+                        showDateError('Domingo no laborable',
                             'No trabajamos los domingos. Por favor selecciona otro día.');
                         this.value = '';
                         document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
@@ -1574,7 +1580,7 @@
                     if (serviciosFiltrados.length === 0) {
                         console.error('No se encontraron servicios para:', tipoVehiculo);
                         console.log('Todos los servicios disponibles:', todosServiciosDisponibles);
-                        serviciosContainer.innerHTML = 
+                        serviciosContainer.innerHTML =
                             '<p>No hay servicios disponibles para este tipo de vehículo</p>';
                         return resolve();
                     }
@@ -1760,46 +1766,46 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch(`/cliente/citas/${citaId}/cancelar`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        credentials: 'same-origin' // Asegura que las cookies se incluyan
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(err => {
-                                throw err;
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            swalWithBootstrapButtons.fire({
-                                title: 'Cancelada',
-                                text: data.message,
-                                icon: 'success'
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            throw new Error(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        let errorMsg = typeof error === 'string' ? error : 
-                                      (error.message || 'Error al cancelar la cita');
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            credentials: 'same-origin' // Asegura que las cookies se incluyan
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => {
+                                    throw err;
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                swalWithBootstrapButtons.fire({
+                                    title: 'Cancelada',
+                                    text: data.message,
+                                    icon: 'success'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                throw new Error(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            let errorMsg = typeof error === 'string' ? error :
+                                (error.message || 'Error al cancelar la cita');
 
-                        swalWithBootstrapButtons.fire({
-                            title: 'Error',
-                            text: errorMsg,
-                            icon: 'error'
+                            swalWithBootstrapButtons.fire({
+                                title: 'Error',
+                                text: errorMsg,
+                                icon: 'error'
+                            });
                         });
-                    });
                 }
             });
         }
@@ -2003,7 +2009,8 @@
                     return; // Éxito
                 }
 
-                console.log(`Intento ${attempts + 1}: ${serviciosEncontrados}/${servicios.length} servicios encontrados`);
+                console.log(
+                    `Intento ${attempts + 1}: ${serviciosEncontrados}/${servicios.length} servicios encontrados`);
                 attempts++;
                 await new Promise(resolve => setTimeout(resolve, 200));
             }
@@ -2048,7 +2055,7 @@
                     const serviciosSeleccionados = document.querySelectorAll(
                         'input[name="servicios[]"]:checked');
                     if (serviciosSeleccionados.length === 0) {
-                        swalWithBootstrapButtons.fire('Error', 'Debes seleccionar al menos un servicio', 
+                        swalWithBootstrapButtons.fire('Error', 'Debes seleccionar al menos un servicio',
                             'error');
                         return;
                     }
@@ -2073,8 +2080,8 @@
                     // Mostrar loader
                     const swalInstance = swalWithBootstrapButtons.fire({
                         title: isEdit ? 'Actualizando cita...' : 'Procesando cita...',
-                        html: isEdit ? 'Estamos actualizando tu cita, por favor espera' : 
-                                      'Estamos reservando tu cita, por favor espera',
+                        html: isEdit ? 'Estamos actualizando tu cita, por favor espera' :
+                            'Estamos reservando tu cita, por favor espera',
                         allowOutsideClick: false,
                         didOpen: () => Swal.showLoading()
                     });
@@ -2164,7 +2171,7 @@
                                 errorMessage = error.message;
 
                                 if (error.message.includes('No atendemos domingos')) {
-                                    errorMessage = 
+                                    errorMessage =
                                         'No trabajamos los domingos. Por favor selecciona otro día.';
                                     await swalWithBootstrapButtons.fire({
                                         title: 'Domingo no laborable',
@@ -2173,9 +2180,9 @@
                                         confirmButtonColor: '#4facfe'
                                     });
                                     return;
-                                } else if (error.message.includes('horario ya está ocupado') || 
-                                          error.message.includes('horario seleccionado está ocupado')) {
-                                    errorMessage = 
+                                } else if (error.message.includes('horario ya está ocupado') ||
+                                    error.message.includes('horario seleccionado está ocupado')) {
+                                    errorMessage =
                                         'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.';
                                     showAvailableTimes = true;
 
@@ -2183,7 +2190,7 @@
                                     const citaId = document.getElementById('form_cita_id').value;
                                     if (fecha) {
                                         try {
-                                            const url = 
+                                            const url =
                                                 `/cliente/citas/horarios-ocupados?fecha=${fecha}${citaId ? `&exclude=${citaId}` : ''}`;
                                             const response = await fetch(url);
                                             const data = await response.json();
@@ -2191,11 +2198,13 @@
                                             // Extraer horarios disponibles de la respuesta
                                             if (data.horariosOcupados) {
                                                 // Generar horarios disponibles
-                                                availableTimes = 
-                                                    await generateAvailableTimesFromOccupied(fecha, data.horariosOcupados);
+                                                availableTimes =
+                                                    await generateAvailableTimesFromOccupied(fecha, data
+                                                        .horariosOcupados);
                                             }
                                         } catch (err) {
-                                            console.error('Error al obtener horarios disponibles:', err);
+                                            console.error('Error al obtener horarios disponibles:',
+                                            err);
                                         }
                                     }
                                 }
@@ -2212,11 +2221,11 @@
                                 <p>${errorMessage}</p>
                                 ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                                 ${showAvailableTimes && availableTimes.length > 0 ? `
-                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                    </ul>
-                                ` : ''}
+                                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                        </ul>
+                                    ` : ''}
                                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                                     Por favor intenta nuevamente con un horario diferente.
                                 </p>
@@ -2261,4 +2270,5 @@
         });
     </script>
 </body>
+
 </html>
