@@ -49,9 +49,8 @@ class ClienteController extends Controller
 
             // Filtrar historial (pasadas o con estados finalizados)
             $historial_citas = $citas->filter(function ($cita) {
-                return $cita->fecha_hora < now() ||
-                    in_array($cita->estado, ['finalizada', 'cancelada']);
-            });
+                return in_array($cita->estado, ['finalizada', 'cancelada']);
+            })->sortByDesc('fecha_hora')->take(5);
 
             return view('cliente.dashboard', [
                 'user' => $user,
@@ -574,6 +573,14 @@ class ClienteController extends Controller
             ], 400);
         }
 
+        // Validar que no sea una cita confirmada dentro de las últimas 24 horas
+        if ($cita->estado == 'confirmada' && $cita->fecha_hora <= now()->addHours(24)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes editar citas confirmadas dentro de las próximas 24 horas'
+            ], 400);
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -604,6 +611,24 @@ class ClienteController extends Controller
                 'message' => 'Solo se pueden editar citas en estado pendiente o confirmada'
             ], 400);
         }
+        $cambios = $request->only(['fecha', 'hora']);
+        $original = [
+        'fecha' => $cita->fecha_hora->format('Y-m-d'),
+        'hora' => $cita->fecha_hora->format('H:i')
+        ];
+
+        if ($cita->estado == 'confirmada' && array_diff($cambios, $original)) {
+            $nuevoEstado = 'pendiente';
+        
+            // Notificar al usuario
+            $cita->usuario->notificaciones()->create([
+                'titulo' => 'Cita requiere confirmación',
+                'mensaje' => 'Tu cita ha sido modificada y requiere nueva confirmación.',
+                'tipo' => 'actualizacion',
+                'fecha_envio' => now()
+        ]); } else {
+        $nuevoEstado = $cita->estado;
+    }
 
         try {
             $validated = $request->validate([
@@ -703,7 +728,8 @@ class ClienteController extends Controller
             $cita->update([
                 'vehiculo_id' => $validated['vehiculo_id'],
                 'fecha_hora' => $fechaCita,
-                'observaciones' => $validated['observaciones'] ?? null
+                'observaciones' => $validated['observaciones'] ?? null,
+                'estado' => $nuevoEstado
             ]);
 
             // Sincronizar servicios
