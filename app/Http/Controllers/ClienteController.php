@@ -618,6 +618,25 @@ class ClienteController extends Controller
                 'observaciones' => 'nullable|string|max:500'
             ]);
 
+            // Bloquear cambios de fecha/hora/vehículo si faltan menos de 24 horas para cita confirmada
+            $fechaActual = now();
+            $fechaCitaOriginal = Carbon::parse($cita->fecha_hora);
+            $horasRestantes = $fechaActual->diffInHours($fechaCitaOriginal, false);
+
+            if ($cita->estado === 'confirmada' && $horasRestantes < 24) {
+                // Verificar qué campos intentan modificar
+                $fechaCitaNueva = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
+                $haCambiadoFechaHora = !$fechaCitaOriginal->equalTo($fechaCitaNueva);
+                $haCambiadoVehiculo = $cita->vehiculo_id != $validated['vehiculo_id'];
+
+                if ($haCambiadoFechaHora || $haCambiadoVehiculo) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No puedes cambiar la fecha, hora o vehículo cuando faltan menos de 24 horas para la cita confirmada. Solo puedes modificar servicios u observaciones.'
+                    ], 400);
+                }
+            }
+
             // Crear request temporal para usar storeCita con exclusión
             $tempRequest = new Request();
             $tempRequest->replace($validated);
@@ -687,11 +706,11 @@ class ClienteController extends Controller
                         ->orWhere(function ($q) use ($fechaCita, $horaFin) {
                             $q->where('fecha_hora', '<', $fechaCita)
                                 ->whereRaw('DATE_ADD(fecha_hora, INTERVAL (
-                            SELECT SUM(servicios.duracion_min) 
-                            FROM cita_servicio 
-                            JOIN servicios ON cita_servicio.servicio_id = servicios.id 
-                            WHERE cita_servicio.cita_id = citas.id
-                        ) MINUTE) > ?', [$fechaCita]);
+                        SELECT SUM(servicios.duracion_min) 
+                        FROM cita_servicio 
+                        JOIN servicios ON cita_servicio.servicio_id = servicios.id 
+                        WHERE cita_servicio.cita_id = citas.id
+                    ) MINUTE) > ?', [$fechaCita]);
                         })
                         ->orWhere(function ($q) use ($fechaCita, $horaFin) {
                             $q->where('fecha_hora', '>', $fechaCita)
