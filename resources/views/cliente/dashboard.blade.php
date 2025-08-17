@@ -2331,12 +2331,6 @@
                                 style="display: inline-block; margin-top: 5px;">
                                 {{ ucfirst($cita->estado) }}
                             </span>
-                            @if ($cita->estado == 'finalizada')
-                                <a href="#" class="repeat-service"
-                                    onclick="repeatService({{ $cita->id }})">
-                                    <i class="fas fa-redo"></i> Volver a agendar
-                                </a>
-                            @endif
                         </div>
                         <div class="service-price">
                             ${{ number_format($cita->servicios->sum('precio'), 2) }}
@@ -4006,10 +4000,6 @@
                         <span class="appointment-status status-${cita.estado}" style="display: inline-block; margin-top: 5px;">
                             ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)}
                         </span>
-                        ${cita.estado === 'finalizada' ? `
-                                <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                    <i class="fas fa-redo"></i> Volver a agendar
-                                </a>` : ''}
                     </div>
                     <div class="service-price">
                         ${total.toFixed(2)}
@@ -4031,43 +4021,6 @@
                 });
                 location.reload();
             }
-        }
-        // Función para repetir servicio desde el historial
-        function repeatService(citaId) {
-            fetch(`/cliente/citas/${citaId}/repeat`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Rellenar el modal con los datos de la cita anterior
-                        document.getElementById('vehiculo_id').value = data.vehiculo_id;
-                        cargarServiciosPorTipo().then(() => {
-                            // Seleccionar los servicios anteriores
-                            data.servicios.forEach(servicioId => {
-                                const checkbox = document.getElementById(`servicio_${servicioId}`);
-                                if (checkbox) checkbox.checked = true;
-                            });
-
-                            // Abrir el modal
-                            openCitaModal();
-
-                            swalWithBootstrapButtons.fire({
-                                title: 'Servicio cargado',
-                                text: 'Hemos cargado los detalles de tu cita anterior. Por favor revisa y confirma la nueva fecha.',
-                                icon: 'info',
-                                confirmButtonColor: '#4facfe'
-                            });
-                        });
-                    } else {
-                        throw new Error(data.message);
-                    }
-                })
-                .catch(error => {
-                    swalWithBootstrapButtons.fire({
-                        title: 'Error',
-                        text: error.message || 'No se pudo cargar la cita anterior',
-                        icon: 'error'
-                    });
-                });
         }
 
         async function generateAvailableTimesFromOccupied(fecha, horariosOcupados) {

@@ -747,6 +747,8 @@
                     @foreach ($citas as $cita)
                         @php
                             $diasTranscurridos = now()->diffInDays($cita->fecha_hora);
+                            $diasTranscurridos = (int) $diasTranscurridos;
+
                             $tiempoTranscurrido =
                                 $diasTranscurridos > 0
                                     ? 'Hace ' . $diasTranscurridos . ' día' . ($diasTranscurridos != 1 ? 's' : '')
@@ -856,14 +858,23 @@
     <script>
         // Función para limpiar filtros
         function limpiarFiltros() {
+            // Resetear el formulario
             document.getElementById('filtrosForm').reset();
-            document.getElementById('filtrosForm').submit();
+
+            // Redirigir a la URL base sin parámetros
+            window.location.href = '{{ route('cliente.citas.historial') }}';
         }
 
-        // Envío del formulario de filtros
+
         // Envío del formulario de filtros
         document.getElementById('filtrosForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Mostrar overlay de carga
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.className = 'loading-overlay';
+            loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
+            document.body.appendChild(loadingOverlay);
 
             // Obtener valores actuales
             const estado = document.getElementById('estado').value;
@@ -886,14 +897,7 @@
             window.location.href = url;
         });
 
-        document.getElementById('filtrosForm').addEventListener('submit', function(e) {
-            const loadingOverlay = document.createElement('div');
-            loadingOverlay.className = 'loading-overlay';
-            loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
-            document.body.appendChild(loadingOverlay);
-        });
-
-        // Auto-filtrado cuando cambian los selects
+        // Auto-filtrado cuando cambian los selects - VERSIÓN SIN DUPLICADOS
         const filters = ['estado', 'vehiculo_id', 'fecha_desde', 'fecha_hasta'];
         filters.forEach(filterId => {
             const element = document.getElementById(filterId);
@@ -904,15 +908,7 @@
             }
         });
 
-        // Auto-filtrado cuando cambian los selects
-        const filters = ['estado', 'vehiculo_id'];
-        filters.forEach(filterId => {
-            document.getElementById(filterId).addEventListener('change', function() {
-                document.getElementById('filtrosForm').dispatchEvent(new Event('submit'));
-            });
-        });
-
-        // Función para mostrar detalles adicionales (opcional para futuras mejoras)
+        // Función para mostrar detalles adicionales
         function mostrarDetallesCita(citaId) {
             console.log('Mostrando detalles de la cita:', citaId);
             // Aquí podrías implementar un modal con más detalles si es necesario
