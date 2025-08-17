@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Próximas Citas - Cliente</title>
+    <title>Citas - Cliente</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
@@ -102,6 +102,8 @@
             justify-content: center;
             margin-bottom: 25px;
             background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
             border-radius: var(--border-radius-lg);
             padding: 10px;
             box-shadow: var(--shadow-soft);
@@ -871,8 +873,8 @@
 
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-clock"></i> Próximas Citas</h1>
-            <p>Gestiona tus citas programadas y próximos servicios</p>
+            <h1><i class="fas fa-clock"></i> Mis Citas</h1>
+            <p>Gestiona tus citas pendientes, confirmadas y en proceso</p>
         </div>
 
         <!-- Filtros -->
@@ -881,7 +883,7 @@
             <div class="counters-container">
                 <div class="counter-item counter-total">
                     <span class="counter-value" id="total-counter">{{ $citas->total() }}</span>
-                    <span class="counter-label">Total Próximas</span>
+                    <span class="counter-label">Total Citas</span>
                 </div>
                 <div class="counter-item counter-pendiente">
                     <span class="counter-value" id="pendiente-counter">{{ $citas->where('estado', 'pendiente')->count() }}</span>
@@ -947,7 +949,7 @@
                     </div>
 
                     <div class="filter-group">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="btn btn-primary" onclick="aplicarFiltros()">
                             <i class="fas fa-search"></i> Filtrar
                         </button>
                     </div>
@@ -961,7 +963,7 @@
             </form>
         </div>
 
-        <!-- Lista de próximas citas -->
+        <!-- Lista de citas -->
         <div id="citas-container">
             @if ($citas->count() > 0)
                 <div class="citas-grid">
@@ -1072,7 +1074,7 @@
                                 @endif
                             </div>
 
-                            <!-- Acciones disponibles para próximas citas -->
+                            <!-- Acciones disponibles para citas pendientes y confirmadas -->
                             @if (in_array($cita->estado, ['pendiente', 'confirmada']))
                                 <div class="cita-actions">
                                     <button class="btn btn-sm btn-warning" onclick="editCita({{ $cita->id }})">
@@ -1094,7 +1096,7 @@
             @else
                 <div class="empty-state">
                     <i class="fas fa-calendar-plus"></i>
-                    <h3>No tienes citas próximas</h3>
+                    <h3>No tienes citas programadas</h3>
                     <p>¿Necesitas agendar un servicio para tu vehículo?</p>
                     <button class="btn btn-primary" onclick="openCitaModal()">
                         <i class="fas fa-calendar-plus"></i> Agendar Nueva Cita
@@ -2187,31 +2189,54 @@
 
         // Función para limpiar filtros
         function limpiarFiltros() {
+            // Resetear el formulario
             document.getElementById('filtrosForm').reset();
-            document.getElementById('filtrosForm').submit();
+            
+            // Redirigir a la URL base sin parámetros
+            window.location.href = '{{ route('cliente.citas.proximas') }}';
         }
 
-        // Envío del formulario de filtros
-        document.getElementById('filtrosForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Función para aplicar filtros automáticamente
+        function aplicarFiltros() {
+            // Mostrar overlay de carga
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.className = 'loading-overlay';
+            loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
+            document.body.appendChild(loadingOverlay);
 
-            const formData = new FormData(this);
-            const params = new URLSearchParams(formData);
+            // Obtener valores actuales
+            const estado = document.getElementById('estado').value;
+            const fecha_desde = document.getElementById('fecha_desde').value;
+            const fecha_hasta = document.getElementById('fecha_hasta').value;
+            const vehiculo_id = document.getElementById('vehiculo_id').value;
+
+            // Construir URL con parámetros
+            let url = '{{ route('cliente.citas.proximas') }}?';
+
+            if (estado) url += `estado=${estado}&`;
+            if (fecha_desde) url += `fecha_desde=${fecha_desde}&`;
+            if (fecha_hasta) url += `fecha_hasta=${fecha_hasta}&`;
+            if (vehiculo_id) url += `vehiculo_id=${vehiculo_id}&`;
+
+            // Eliminar el último & si existe
+            url = url.replace(/&$/, '');
 
             // Recargar la página con los nuevos parámetros
-            window.location.href = '{{ route('cliente.citas.proximas') }}?' + params.toString();
-        });
+            window.location.href = url;
+        }
 
-        // Auto-filtrado cuando cambian los selects
-        const filters = ['estado', 'vehiculo_id'];
-        filters.forEach(filterId => {
-            document.getElementById(filterId).addEventListener('change', function() {
-                document.getElementById('filtrosForm').dispatchEvent(new Event('submit'));
-            });
-        });
-
-        // Animación de entrada para las cards
+        // Configurar event listeners para los filtros
         document.addEventListener('DOMContentLoaded', function() {
+            const filters = ['estado', 'vehiculo_id', 'fecha_desde', 'fecha_hasta'];
+            
+            filters.forEach(filterId => {
+                const element = document.getElementById(filterId);
+                if (element) {
+                    element.addEventListener('change', aplicarFiltros);
+                }
+            });
+
+            // Animación de entrada para las cards
             const citaCards = document.querySelectorAll('.cita-card');
             citaCards.forEach((card, index) => {
                 card.style.opacity = '0';
