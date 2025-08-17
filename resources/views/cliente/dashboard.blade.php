@@ -2195,8 +2195,7 @@
                                 </div>
                                 Próximas Citas Confirmadas
                             </h2>
-                            <a href="{{ route('cliente.citas.historial') }}" class="btn btn-outline"
-                                style="padding: 8px 12px;">
+                            <a href="{{ route('cliente.citas') }}" class="btn btn-outline" style="padding: 8px 12px;">
                                 <i class="fas fa-list"></i> Ver Todas Las Citas
                             </a>
                         </div>
