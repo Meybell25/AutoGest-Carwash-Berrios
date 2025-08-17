@@ -2297,61 +2297,65 @@
     </div>
 
     <!-- Historial de Servicios -->
-    <div class="card">
-        <div class="card-header">
+<div class="card">
+    <div class="card-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2>
                 <div class="icon">
                     <i class="fas fa-history"></i>
                 </div>
                 Historial de Servicios
             </h2>
-        </div>
-        <div class="scroll-container">
-            <div class="card-body scrollable" id="historial-container">
-                @if ($historial_citas->count() > 0)
-                    @foreach ($historial_citas as $cita)
-                        <div class="service-history-item">
-                            <div class="service-icon">
-                                <i class="fas fa-{{ $cita->estado === 'finalizada' ? 'check-circle' : 'times-circle' }}"></i>
-                            </div>
-                            <div class="service-details">
-                                <h4>
-                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                </h4>
-                                <p><i class="fas fa-calendar"></i>
-                                    {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
-                                <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                    {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
-                                <span class="appointment-status status-{{ $cita->estado }}"
-                                    style="display: inline-block; margin-top: 5px;">
-                                    {{ ucfirst($cita->estado) }}
-                                </span>
-                                @if ($cita->estado == 'finalizada')
-                                    <a href="#" class="repeat-service"
-                                        onclick="repeatService({{ $cita->id }})">
-                                        <i class="fas fa-redo"></i> Volver a agendar
-                                    </a>
-                                @endif
-                            </div>
-                            <div class="service-price">
-                                ${{ number_format($cita->servicios->sum('precio'), 2) }}
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="empty-state">
-                        <i class="fas fa-history"></i>
-                        <h3>No hay historial de servicios</h3>
-                        <p>Agenda tu primera cita para comenzar a ver tu historial</p>
-                    </div>
-                @endif
-            </div>
-            <div class="custom-scrollbar" id="historial-scrollbar">
-                <div class="custom-scrollbar-thumb" id="historial-thumb"></div>
-            </div>
+            <a href="{{ route('cliente.historial') }}" class="btn btn-outline" style="padding: 8px 12px;">
+                <i class="fas fa-list"></i> Ver Historial Completo
+            </a>
         </div>
     </div>
-
+    <div class="scroll-container">
+        <div class="card-body scrollable" id="historial-container">
+            @if ($historial_citas->count() > 0)
+                @foreach ($historial_citas as $cita)
+                    <div class="service-history-item">
+                        <div class="service-icon">
+                            <i class="fas fa-{{ $cita->estado === 'finalizada' ? 'check-circle' : 'times-circle' }}"></i>
+                        </div>
+                        <div class="service-details">
+                            <h4>
+                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                            </h4>
+                            <p><i class="fas fa-calendar"></i>
+                                {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
+                            <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
+                            <span class="appointment-status status-{{ $cita->estado }}"
+                                style="display: inline-block; margin-top: 5px;">
+                                {{ ucfirst($cita->estado) }}
+                            </span>
+                            @if ($cita->estado == 'finalizada')
+                                <a href="#" class="repeat-service"
+                                    onclick="repeatService({{ $cita->id }})">
+                                    <i class="fas fa-redo"></i> Volver a agendar
+                                </a>
+                            @endif
+                        </div>
+                        <div class="service-price">
+                            ${{ number_format($cita->servicios->sum('precio'), 2) }}
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="empty-state">
+                    <i class="fas fa-history"></i>
+                    <h3>No hay historial de servicios</h3>
+                    <p>Agenda tu primera cita para comenzar a ver tu historial</p>
+                </div>
+            @endif
+        </div>
+        <div class="custom-scrollbar" id="historial-scrollbar">
+            <div class="custom-scrollbar-thumb" id="historial-thumb"></div>
+        </div>
+    </div>
+</div>
 
                 <!-- Servicios Disponibles -->
                 <div class="card">
