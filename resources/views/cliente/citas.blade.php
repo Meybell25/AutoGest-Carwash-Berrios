@@ -2193,7 +2193,7 @@
             document.getElementById('filtrosForm').reset();
             
             // Redirigir a la URL base sin parámetros
-            window.location.href = '{{ route('cliente.citas.proximas') }}';
+            window.location.href = '{{ route('cliente.citas') }}';
         }
 
         // Función para aplicar filtros automáticamente
