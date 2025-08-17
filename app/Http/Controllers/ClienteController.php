@@ -618,7 +618,7 @@ class ClienteController extends Controller
                 'observaciones' => 'nullable|string|max:500'
             ]);
 
-            // IMPORTANTE: Crear request temporal para usar storeCita con exclusión
+            // Crear request temporal para usar storeCita con exclusión
             $tempRequest = new Request();
             $tempRequest->replace($validated);
             $tempRequest->merge(['cita_id' => $cita->id]); // Agregar ID para exclusión
@@ -627,6 +627,16 @@ class ClienteController extends Controller
 
             // Combinar fecha y hora
             $fechaCita = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
+
+            // Verificar si la fecha/hora ha cambiado
+            $fechaOriginal = Carbon::parse($cita->fecha_hora);
+            $haCambiadoFecha = !$fechaOriginal->equalTo($fechaCita);
+
+            // Si la cita estaba confirmada y cambió la fecha, cambiar a pendiente
+            $nuevoEstado = $cita->estado;
+            if ($cita->estado === 'confirmada' && $haCambiadoFecha) {
+                $nuevoEstado = 'pendiente';
+            }
 
             // Validar que la nueva fecha/hora no sea en el pasado
             if ($fechaCita->lt(now())) {
@@ -677,11 +687,11 @@ class ClienteController extends Controller
                         ->orWhere(function ($q) use ($fechaCita, $horaFin) {
                             $q->where('fecha_hora', '<', $fechaCita)
                                 ->whereRaw('DATE_ADD(fecha_hora, INTERVAL (
-                                SELECT SUM(servicios.duracion_min) 
-                                FROM cita_servicio 
-                                JOIN servicios ON cita_servicio.servicio_id = servicios.id 
-                                WHERE cita_servicio.cita_id = citas.id
-                            ) MINUTE) > ?', [$fechaCita]);
+                            SELECT SUM(servicios.duracion_min) 
+                            FROM cita_servicio 
+                            JOIN servicios ON cita_servicio.servicio_id = servicios.id 
+                            WHERE cita_servicio.cita_id = citas.id
+                        ) MINUTE) > ?', [$fechaCita]);
                         })
                         ->orWhere(function ($q) use ($fechaCita, $horaFin) {
                             $q->where('fecha_hora', '>', $fechaCita)
@@ -706,6 +716,7 @@ class ClienteController extends Controller
             $cita->update([
                 'vehiculo_id' => $validated['vehiculo_id'],
                 'fecha_hora' => $fechaCita,
+                'estado' => $nuevoEstado,
                 'observaciones' => $validated['observaciones'] ?? null
             ]);
 
@@ -731,7 +742,8 @@ class ClienteController extends Controller
                     'servicios_nombres' => $cita->servicios->pluck('nombre')->join(', '),
                     'vehiculo_marca' => $cita->vehiculo->marca,
                     'vehiculo_modelo' => $cita->vehiculo->modelo,
-                    'vehiculo_placa' => $cita->vehiculo->placa ?? ''
+                    'vehiculo_placa' => $cita->vehiculo->placa ?? '',
+                    'nuevo_estado' => $nuevoEstado
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
