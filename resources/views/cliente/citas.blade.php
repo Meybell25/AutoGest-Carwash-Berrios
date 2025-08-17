@@ -273,6 +273,7 @@
             align-items: center;
             gap: 8px;
             text-decoration: none;
+            pointer-events: auto;
         }
 
         .btn-primary {
@@ -709,6 +710,7 @@
         .pagination a:hover {
             background: rgba(102, 126, 234, 0.1);
             transform: translateY(-2px);
+            color: white;
         }
 
         .pagination .active span {
