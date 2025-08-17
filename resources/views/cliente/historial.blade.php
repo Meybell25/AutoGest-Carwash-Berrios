@@ -659,7 +659,7 @@
 
 
         <!-- Filtros -->
-        <div class="filters-section">
+           <div class="filters-section">
             <!-- Contadores específicos para historial -->
             <div class="counters-container">
                 <div class="counter-item counter-total">
@@ -725,21 +725,16 @@
                         </select>
                     </div>
 
-                    <div class="filter-group">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Filtrar
-                        </button>
-                    </div>
-
+                    <!-- el botón de limpiar -->
                     <div class="filter-group">
                         <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
-                            <i class="fas fa-times"></i> Limpiar
+                            <i class="fas fa-times"></i> Limpiar Filtros
                         </button>
                     </div>
                 </div>
             </form>
         </div>
-
+          
         <!-- Lista de citas del historial -->
         <div id="citas-container">
             @if ($citas->count() > 0)
@@ -856,20 +851,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Función para limpiar filtros
+       // Función para limpiar filtros
         function limpiarFiltros() {
             // Resetear el formulario
             document.getElementById('filtrosForm').reset();
-
+            
             // Redirigir a la URL base sin parámetros
             window.location.href = '{{ route('cliente.citas.historial') }}';
         }
 
-
-        // Envío del formulario de filtros
-        document.getElementById('filtrosForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
+        // Función para aplicar filtros automáticamente
+        function aplicarFiltros() {
             // Mostrar overlay de carga
             const loadingOverlay = document.createElement('div');
             loadingOverlay.className = 'loading-overlay';
@@ -895,27 +887,20 @@
 
             // Recargar la página con los nuevos parámetros
             window.location.href = url;
-        });
-
-        // Auto-filtrado cuando cambian los selects - VERSIÓN SIN DUPLICADOS
-        const filters = ['estado', 'vehiculo_id', 'fecha_desde', 'fecha_hasta'];
-        filters.forEach(filterId => {
-            const element = document.getElementById(filterId);
-            if (element) {
-                element.addEventListener('change', function() {
-                    document.getElementById('filtrosForm').dispatchEvent(new Event('submit'));
-                });
-            }
-        });
-
-        // Función para mostrar detalles adicionales
-        function mostrarDetallesCita(citaId) {
-            console.log('Mostrando detalles de la cita:', citaId);
-            // Aquí podrías implementar un modal con más detalles si es necesario
         }
 
-        // Animación de entrada para las cards
+        // Configurar event listeners para los filtros
         document.addEventListener('DOMContentLoaded', function() {
+            const filters = ['estado', 'vehiculo_id', 'fecha_desde', 'fecha_hasta'];
+            
+            filters.forEach(filterId => {
+                const element = document.getElementById(filterId);
+                if (element) {
+                    element.addEventListener('change', aplicarFiltros);
+                }
+            });
+
+            // Animación de entrada para las cards
             const citaCards = document.querySelectorAll('.cita-card');
             citaCards.forEach((card, index) => {
                 card.style.opacity = '0';

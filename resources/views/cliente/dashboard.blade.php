@@ -2167,10 +2167,6 @@
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
                     </a>
-                    <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
-                        <i class="fas fa-list"></i>
-                        Ver Citas
-                    </a>
                     <a href="{{ route('configuracion.index') }}" class="btn btn-profile">
                         <i class="fas fa-cog"></i> Configurar Cuenta
                     </a>
@@ -2191,13 +2187,16 @@
             <div class="main-section">
                 <!-- Próximas Citas Confirmadas -->
                 <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h2>
                 <div class="icon">
                     <i class="fas fa-calendar-check"></i>
                 </div>
                 Próximas Citas Confirmadas
             </h2>
+            <a href="{{ route('cliente.citas') }}" class="btn btn-sm btn-primary">
+            Ver todas las citas
+        </a>
         </div>
         <div class="scroll-container">
             <div class="card-body scrollable" id="proximas-citas-container">
