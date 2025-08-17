@@ -2211,7 +2211,7 @@
             const vehiculo_id = document.getElementById('vehiculo_id').value;
 
             // Construir URL con parámetros
-            let url = '{{ route('cliente.citas.proximas') }}?';
+               let url = '{{ route('cliente.citas') }}?';
 
             if (estado) url += `estado=${estado}&`;
             if (fecha_desde) url += `fecha_desde=${fecha_desde}&`;
