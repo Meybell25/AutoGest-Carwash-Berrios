@@ -875,16 +875,6 @@
             <p>Gestiona tus citas programadas y próximos servicios</p>
         </div>
 
-        <!-- Navegación entre vistas -->
-        <div class="view-nav">
-            <a href="{{ route('cliente.citas.proximas') }}" class="nav-btn active">
-                <i class="fas fa-clock"></i> Próximas Citas
-            </a>
-            <a href="{{ route('cliente.citas.historial') }}" class="nav-btn">
-                <i class="fas fa-history"></i> Historial
-            </a>
-        </div>
-
         <!-- Filtros -->
         <div class="filters-section">
             <!-- Contadores específicos para próximas citas -->
