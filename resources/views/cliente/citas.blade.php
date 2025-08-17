@@ -674,6 +674,55 @@
             justify-content: center;
         }
 
+        /* Estilos mejorados para la paginación */
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .pagination li {
+            display: inline-block;
+        }
+
+        .pagination a, .pagination span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 12px;
+            border-radius: var(--border-radius);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .pagination a:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .pagination .active span {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .pagination .disabled span {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         /* Estilos para el modal */
         .modal {
             display: none;
@@ -857,6 +906,18 @@
             #serviciosContainer {
                 grid-template-columns: 1fr !important;
             }
+
+            /* Paginación responsiva */
+            .pagination {
+                gap: 4px;
+            }
+
+            .pagination a, .pagination span {
+                min-width: 32px;
+                height: 32px;
+                padding: 0 8px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -949,12 +1010,6 @@
                     </div>
 
                     <div class="filter-group">
-                        <button type="button" class="btn btn-primary" onclick="aplicarFiltros()">
-                            <i class="fas fa-search"></i> Filtrar
-                        </button>
-                    </div>
-
-                    <div class="filter-group">
                         <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
                             <i class="fas fa-times"></i> Limpiar
                         </button>
@@ -970,8 +1025,9 @@
                     @foreach ($citas as $cita)
                         @php
                             $isFuture = $cita->fecha_hora > now();
-                            $daysDiff = $isFuture ? now()->diffInDays($cita->fecha_hora) : null;
-                            $hoursRemaining = $isFuture ? now()->diffInHours($cita->fecha_hora) : null;
+                            // Cambio aquí: usar floor() para redondear hacia abajo y mostrar solo números enteros
+                            $daysDiff = $isFuture ? floor(now()->diffInDays($cita->fecha_hora)) : null;
+                            $hoursRemaining = $isFuture ? floor(now()->diffInHours($cita->fecha_hora)) : null;
 
                             $cardClass = $cita->estado;
                             if ($isFuture && $daysDiff <= 1 && $cita->estado == 'confirmada') {
@@ -1089,9 +1145,50 @@
                     @endforeach
                 </div>
 
-                <!-- Paginación -->
+                <!-- Paginación mejorada -->
                 <div class="pagination-wrapper">
-                    {{ $citas->appends(request()->query())->links() }}
+                    @if ($citas->hasPages())
+                        <ul class="pagination">
+                            {{-- Previous Page Link --}}
+                            @if ($citas->onFirstPage())
+                                <li class="disabled" aria-disabled="true">
+                                    <span><i class="fas fa-chevron-left"></i></span>
+                                </li>
+                            @else
+                                <li>
+                                    <a href="{{ $citas->previousPageUrl() }}" rel="prev">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @foreach ($citas->getUrlRange(1, $citas->lastPage()) as $page => $url)
+                                @if ($page == $citas->currentPage())
+                                    <li class="active" aria-current="page">
+                                        <span>{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a href="{{ $url }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+
+                            {{-- Next Page Link --}}
+                            @if ($citas->hasMorePages())
+                                <li>
+                                    <a href="{{ $citas->nextPageUrl() }}" rel="next">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="disabled" aria-disabled="true">
+                                    <span><i class="fas fa-chevron-right"></i></span>
+                                </li>
+                            @endif
+                        </ul>
+                    @endif
                 </div>
             @else
                 <div class="empty-state">
