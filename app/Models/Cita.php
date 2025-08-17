@@ -105,8 +105,8 @@ class Cita extends Model
     public function marcarComoExpirada()
     {
         $motivo = ($this->estado == self::ESTADO_PENDIENTE)
-            ? 'Cita expirada por inacción'
-            : 'Cita expirada - No atendida';
+            ? '. Cita expirada por inacción'
+            : '. Cita expirada - No atendida';
 
         $observaciones = $this->observaciones
             ? $this->observaciones . "\n" . $motivo
