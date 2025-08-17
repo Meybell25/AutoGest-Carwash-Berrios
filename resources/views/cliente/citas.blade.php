@@ -53,12 +53,16 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0, 0) rotate(0deg);
             }
+
             33% {
                 transform: translate(30px, -30px) rotate(120deg);
             }
+
             66% {
                 transform: translate(-20px, 20px) rotate(240deg);
             }
@@ -273,7 +277,6 @@
             align-items: center;
             gap: 8px;
             text-decoration: none;
-            pointer-events: auto;
         }
 
         .btn-primary {
@@ -382,9 +385,11 @@
             0% {
                 border-left-color: #dc3545;
             }
+
             50% {
                 border-left-color: #ff6b6b;
             }
+
             100% {
                 border-left-color: #dc3545;
             }
@@ -690,7 +695,8 @@
             display: inline-block;
         }
 
-        .pagination a, .pagination span {
+        .pagination a,
+        .pagination span {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -839,6 +845,12 @@
             margin-top: 5px;
         }
 
+        .cita-actions .btn {
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -914,7 +926,8 @@
                 gap: 4px;
             }
 
-            .pagination a, .pagination span {
+            .pagination a,
+            .pagination span {
                 min-width: 32px;
                 height: 32px;
                 padding: 0 8px;
@@ -949,15 +962,18 @@
                     <span class="counter-label">Total Citas</span>
                 </div>
                 <div class="counter-item counter-pendiente">
-                    <span class="counter-value" id="pendiente-counter">{{ $citas->where('estado', 'pendiente')->count() }}</span>
+                    <span class="counter-value"
+                        id="pendiente-counter">{{ $citas->where('estado', 'pendiente')->count() }}</span>
                     <span class="counter-label">Pendientes</span>
                 </div>
                 <div class="counter-item counter-confirmada">
-                    <span class="counter-value" id="confirmada-counter">{{ $citas->where('estado', 'confirmada')->count() }}</span>
+                    <span class="counter-value"
+                        id="confirmada-counter">{{ $citas->where('estado', 'confirmada')->count() }}</span>
                     <span class="counter-label">Confirmadas</span>
                 </div>
                 <div class="counter-item counter-en_proceso">
-                    <span class="counter-value" id="en-proceso-counter">{{ $citas->where('estado', 'en_proceso')->count() }}</span>
+                    <span class="counter-value"
+                        id="en-proceso-counter">{{ $citas->where('estado', 'en_proceso')->count() }}</span>
                     <span class="counter-label">En Proceso</span>
                 </div>
             </div>
@@ -1037,7 +1053,7 @@
                             } elseif ($isFuture && $daysDiff <= 3 && $cita->estado == 'confirmada') {
                                 $cardClass .= ' coming-soon';
                             }
-                            
+
                             $timeRemaining = '';
                             if ($isFuture) {
                                 if ($daysDiff == 0) {
@@ -1091,12 +1107,14 @@
                                         @foreach ($cita->servicios as $servicio)
                                             <li class="service-item">
                                                 <span class="service-name">{{ $servicio->nombre }}</span>
-                                                <span class="service-price">${{ number_format($servicio->precio, 2) }}</span>
+                                                <span
+                                                    class="service-price">${{ number_format($servicio->precio, 2) }}</span>
                                             </li>
                                         @endforeach
                                     </ul>
                                     <div style="border-top: 2px solid #667eea; margin-top: 10px; padding-top: 10px;">
-                                        <strong>Total a Pagar: ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
+                                        <strong>Total a Pagar:
+                                            ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
                                     </div>
                                 </div>
 
@@ -1111,12 +1129,14 @@
                                 @if ($cita->estado == 'pendiente')
                                     <div class="detail-section">
                                         <h4><i class="fas fa-info-circle"></i> Estado de la Cita</h4>
-                                        <p>Tu cita está <strong>pendiente de confirmación</strong>. Recibirás una notificación cuando sea confirmada.</p>
+                                        <p>Tu cita está <strong>pendiente de confirmación</strong>. Recibirás una
+                                            notificación cuando sea confirmada.</p>
                                     </div>
                                 @elseif ($cita->estado == 'confirmada')
                                     <div class="detail-section">
                                         <h4><i class="fas fa-check-circle"></i> Cita Confirmada</h4>
-                                        <p>Tu cita ha sido <strong>confirmada</strong>. Por favor llega 10 minutos antes de la hora programada.</p>
+                                        <p>Tu cita ha sido <strong>confirmada</strong>. Por favor llega 10 minutos antes
+                                            de la hora programada.</p>
                                         @if ($daysDiff <= 1)
                                             <p style="color: #dc3545; font-weight: 600;">
                                                 <i class="fas fa-exclamation-triangle"></i>
@@ -1138,7 +1158,7 @@
                                     <button class="btn btn-sm btn-warning" onclick="editCita({{ $cita->id }})">
                                         <i class="fas fa-edit"></i> Modificar
                                     </button>
-                                    <button class="btn btn-sm btn-outline" onclick="cancelCita({{ $cita->id }})">
+                                    <button class="btn btn-sm btn-outline" onclick="editCita({{ $cita->id }})">
                                         <i class="fas fa-times"></i> Cancelar
                                     </button>
                                 </div>
@@ -1213,7 +1233,8 @@
                 <i class="fas fa-calendar-plus"></i> <span id="modalTitle">Nueva Cita</span>
             </h2>
 
-            <form id="citaForm" method="POST" action="{{ route('cliente.citas.store') }}" enctype="multipart/form-data">
+            <form id="citaForm" method="POST" action="{{ route('cliente.citas.store') }}"
+                enctype="multipart/form-data">
                 @csrf
                 <!-- Campo oculto para ID de cita (solo en edición) -->
                 <input type="hidden" id="form_cita_id" name="cita_id" value="">
@@ -1235,7 +1256,8 @@
                 <!-- Fecha -->
                 <div class="form-group">
                     <label for="fecha">Fecha: <span style="color: red;">*</span></label>
-                    <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}" max="{{ date('Y-m-d', strtotime('+1 month')) }}">
+                    <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}"
+                        max="{{ date('Y-m-d', strtotime('+1 month')) }}">
                 </div>
 
                 <!-- Hora -->
@@ -1249,7 +1271,8 @@
                 <!-- Servicios -->
                 <div class="form-group">
                     <label>Servicios Disponibles: <span style="color: red;">*</span></label>
-                    <div id="serviciosContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; min-height: 100px;">
+                    <div id="serviciosContainer"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; min-height: 100px;">
                         <p>Seleccione un vehículo primero</p>
                     </div>
                 </div>
@@ -1257,7 +1280,8 @@
                 <!-- Observaciones -->
                 <div class="form-group">
                     <label for="observaciones">Observaciones:</label>
-                    <textarea id="observaciones" name="observaciones" rows="3" maxlength="500" placeholder="Información adicional sobre su vehículo o servicio requerido..."></textarea>
+                    <textarea id="observaciones" name="observaciones" rows="3" maxlength="500"
+                        placeholder="Información adicional sobre su vehículo o servicio requerido..."></textarea>
                 </div>
 
                 <!-- Botones -->
@@ -1419,15 +1443,21 @@
                 const [horariosRes, serviciosRes, noLaborablesRes] = await Promise.all([
                     fetch('{{ route('cliente.horarios-disponibles') }}').catch(e => {
                         console.error('Error cargando horarios:', e);
-                        return { ok: false };
+                        return {
+                            ok: false
+                        };
                     }),
                     fetch('{{ route('cliente.servicios-disponibles') }}').catch(e => {
                         console.error('Error cargando servicios:', e);
-                        return { ok: false };
+                        return {
+                            ok: false
+                        };
                     }),
                     fetch('{{ route('cliente.dias-no-laborables') }}').catch(e => {
                         console.error('Error cargando días no laborables:', e);
-                        return { ok: false };
+                        return {
+                            ok: false
+                        };
                     })
                 ]);
 
@@ -1513,7 +1543,8 @@
                 // Obtener horarios ocupados
                 let citasExistentes = [];
                 try {
-                    const url = `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
+                    const url =
+                        `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
                     console.log('Consultando horarios ocupados:', url);
 
                     const response = await fetch(url, {
@@ -1566,10 +1597,12 @@
                         const estaOcupado = citasExistentes.some(cita => {
                             try {
                                 const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
-                                const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) * 60000);
+                                const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
+                                    60000);
 
                                 const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
-                                const finPropuesta = new Date(inicioPropuesta.getTime() + calcularDuracionServiciosSeleccionados() * 60000);
+                                const finPropuesta = new Date(inicioPropuesta.getTime() +
+                                    calcularDuracionServiciosSeleccionados() * 60000);
 
                                 return (
                                     (inicioPropuesta >= inicioCita && inicioPropuesta < finCita) ||
@@ -1646,7 +1679,8 @@
 
                     // Validar domingos primero
                     if (dayOfWeekJS === 0) {
-                        showDateError('Domingo no laborable', 'No trabajamos los domingos. Por favor selecciona otro día.');
+                        showDateError('Domingo no laborable',
+                            'No trabajamos los domingos. Por favor selecciona otro día.');
                         this.value = '';
                         document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
                         return;
@@ -1762,7 +1796,8 @@
                     if (serviciosFiltrados.length === 0) {
                         console.error('No se encontraron servicios para:', tipoVehiculo);
                         console.log('Todos los servicios disponibles:', todosServiciosDisponibles);
-                        serviciosContainer.innerHTML = '<p>No hay servicios disponibles para este tipo de vehículo</p>';
+                        serviciosContainer.innerHTML =
+                            '<p>No hay servicios disponibles para este tipo de vehículo</p>';
                         return resolve();
                     }
 
@@ -1819,7 +1854,9 @@
 
                                 // Log para debug (opcional)
                                 const duracionTotal = calcularDuracionServiciosSeleccionados();
-                                console.log(`Servicio ${this.checked ? 'seleccionado' : 'deseleccionado'}: ${servicio.nombre}`);
+                                console.log(
+                                    `Servicio ${this.checked ? 'seleccionado' : 'deseleccionado'}: ${servicio.nombre}`
+                                );
                                 console.log(`Duración total actualizada: ${duracionTotal} minutos`);
 
                                 // Opcional: Validar que la duración no exceda el horario laboral
@@ -1938,45 +1975,46 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch(`/cliente/citas/${citaId}/cancelar`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        credentials: 'same-origin'
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(err => {
-                                throw err;
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            swalWithBootstrapButtons.fire({
-                                title: 'Cancelada',
-                                text: data.message,
-                                icon: 'success'
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            throw new Error(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        let errorMsg = typeof error === 'string' ? error : (error.message || 'Error al cancelar la cita');
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            credentials: 'same-origin'
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => {
+                                    throw err;
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                swalWithBootstrapButtons.fire({
+                                    title: 'Cancelada',
+                                    text: data.message,
+                                    icon: 'success'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                throw new Error(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            let errorMsg = typeof error === 'string' ? error : (error.message ||
+                                'Error al cancelar la cita');
 
-                        swalWithBootstrapButtons.fire({
-                            title: 'Error',
-                            text: errorMsg,
-                            icon: 'error'
+                            swalWithBootstrapButtons.fire({
+                                title: 'Error',
+                                text: errorMsg,
+                                icon: 'error'
+                            });
                         });
-                    });
                 }
             });
         }
@@ -2075,7 +2113,8 @@
                 // 8. Seleccionar servicios
                 if (data.data.cita && data.data.cita.servicios) {
                     data.data.cita.servicios.forEach(servicio => {
-                        const checkbox = document.querySelector(`input[name="servicios[]"][value="${servicio.id}"]`);
+                        const checkbox = document.querySelector(
+                            `input[name="servicios[]"][value="${servicio.id}"]`);
                         if (checkbox) {
                             checkbox.checked = true;
                             const serviceCard = checkbox.closest('.service-card');
@@ -2133,9 +2172,11 @@
                     e.preventDefault();
 
                     // Validar que al menos un servicio esté seleccionado
-                    const serviciosSeleccionados = document.querySelectorAll('input[name="servicios[]"]:checked');
+                    const serviciosSeleccionados = document.querySelectorAll(
+                        'input[name="servicios[]"]:checked');
                     if (serviciosSeleccionados.length === 0) {
-                        swalWithBootstrapButtons.fire('Error', 'Debes seleccionar al menos un servicio', 'error');
+                        swalWithBootstrapButtons.fire('Error', 'Debes seleccionar al menos un servicio',
+                            'error');
                         return;
                     }
 
@@ -2159,7 +2200,8 @@
                     // Mostrar loader
                     const swalInstance = swalWithBootstrapButtons.fire({
                         title: isEdit ? 'Actualizando cita...' : 'Procesando cita...',
-                        html: isEdit ? 'Estamos actualizando tu cita, por favor espera' : 'Estamos reservando tu cita, por favor espera',
+                        html: isEdit ? 'Estamos actualizando tu cita, por favor espera' :
+                            'Estamos reservando tu cita, por favor espera',
                         allowOutsideClick: false,
                         didOpen: () => Swal.showLoading()
                     });
@@ -2193,7 +2235,8 @@
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').content
                             },
                             body: formData
                         });
@@ -2246,7 +2289,8 @@
                                 errorMessage = error.message;
 
                                 if (error.message.includes('No atendemos domingos')) {
-                                    errorMessage = 'No trabajamos los domingos. Por favor selecciona otro día.';
+                                    errorMessage =
+                                        'No trabajamos los domingos. Por favor selecciona otro día.';
                                     await swalWithBootstrapButtons.fire({
                                         title: 'Domingo no laborable',
                                         text: errorMessage,
@@ -2254,8 +2298,10 @@
                                         confirmButtonColor: '#4facfe'
                                     });
                                     return;
-                                } else if (error.message.includes('horario ya está ocupado') || error.message.includes('horario seleccionado está ocupado')) {
-                                    errorMessage = 'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.';
+                                } else if (error.message.includes('horario ya está ocupado') || error
+                                    .message.includes('horario seleccionado está ocupado')) {
+                                    errorMessage =
+                                        'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.';
                                 }
                             } else if (error.message.message) {
                                 errorMessage = error.message.message;
@@ -2286,11 +2332,22 @@
             }
         });
 
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-warning')) {
+                const citaId = e.target.closest('.cita-card').dataset.citaId;
+                editCita(citaId);
+            }
+            if (e.target.closest('.btn-outline')) {
+                const citaId = e.target.closest('.cita-card').dataset.citaId;
+                cancelCita(citaId);
+            }
+        });
+
         // Función para limpiar filtros
         function limpiarFiltros() {
             // Resetear el formulario
             document.getElementById('filtrosForm').reset();
-            
+
             // Redirigir a la URL base sin parámetros
             window.location.href = '{{ route('cliente.citas') }}';
         }
@@ -2310,7 +2367,7 @@
             const vehiculo_id = document.getElementById('vehiculo_id').value;
 
             // Construir URL con parámetros
-               let url = '{{ route('cliente.citas') }}?';
+            let url = '{{ route('cliente.citas') }}?';
 
             if (estado) url += `estado=${estado}&`;
             if (fecha_desde) url += `fecha_desde=${fecha_desde}&`;
@@ -2327,7 +2384,7 @@
         // Configurar event listeners para los filtros
         document.addEventListener('DOMContentLoaded', function() {
             const filters = ['estado', 'vehiculo_id', 'fecha_desde', 'fecha_hasta'];
-            
+
             filters.forEach(filterId => {
                 const element = document.getElementById(filterId);
                 if (element) {
