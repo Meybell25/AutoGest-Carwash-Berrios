@@ -1918,49 +1918,41 @@
             return `${mins}min`;
         }
 
-        async function setSelectedHourForEdit(hora24, maxAttempts = 5) {
+        async function setSelectedHourForEdit(hora24, maxAttempts = 10, interval = 300) {
             let attempts = 0;
 
-            console.log('Configurando hora para edición:', hora24);
-
-            while (attempts < maxAttempts) {
-                const horaSelect = document.getElementById('hora');
-
-                if (!horaSelect || horaSelect.options.length <= 1) {
-                    console.log(`Esperando que se carguen las opciones de hora... intento ${attempts + 1}`);
-                    await new Promise(resolve => setTimeout(resolve, 300));
+            return new Promise((resolve) => {
+                const checkInterval = setInterval(() => {
+                    const horaSelect = document.getElementById('hora');
                     attempts++;
-                    continue;
-                }
 
-                // Buscar la hora en las opciones disponibles
-                let horaEncontrada = false;
-                for (let option of horaSelect.options) {
-                    if (option.value === hora24 && !option.disabled) {
+                    // Si encontramos la hora y está disponible
+                    const targetOption = Array.from(horaSelect.options).find(
+                        opt => opt.value === hora24 && !opt.disabled
+                    );
+
+                    if (targetOption) {
                         horaSelect.value = hora24;
-                        horaEncontrada = true;
-                        console.log('Hora de edición configurada:', hora24);
-                        return true;
+                        console.log('Hora establecida exitosamente:', hora24);
+                        clearInterval(checkInterval);
+                        resolve(true);
                     }
-                }
+                    // Si se agotaron los intentos
+                    else if (attempts >= maxAttempts) {
+                        console.warn('No se pudo establecer la hora después de intentos');
+                        clearInterval(checkInterval);
 
-                // Si la hora no está disponible, agregarla (es una edición válida)
-                if (!horaEncontrada && attempts === maxAttempts - 1) {
-                    console.log('⚠️ Hora de edición no encontrada en opciones, agregando:', hora24);
-                    const option = document.createElement('option');
-                    option.value = hora24;
-                    option.textContent = hora24 + ' (Horario actual)';
-                    option.selected = true;
-                    horaSelect.appendChild(option);
-                    return true;
-                }
+                        // Forzar la creación de la opción si no existe
+                        const newOption = document.createElement('option');
+                        newOption.value = hora24;
+                        newOption.textContent = `${hora24} (Actual)`;
+                        horaSelect.appendChild(newOption);
+                        horaSelect.value = hora24;
 
-                attempts++;
-                await new Promise(resolve => setTimeout(resolve, 300));
-            }
-
-            console.error('No se pudo configurar la hora para edición:', hora24);
-            return false;
+                        resolve(false);
+                    }
+                }, interval);
+            });
         }
 
         // Función para cancelar citas
@@ -2096,12 +2088,10 @@
                 // 6. Establecer fecha (esto disparará la carga de horarios)
                 if (fechaInput && data.data.fecha) {
                     fechaInput.value = data.data.fecha;
-
-                    // Simular evento change para cargar horarios
                     const changeEvent = new Event('change');
                     fechaInput.dispatchEvent(changeEvent);
 
-                    // Esperar a que se carguen los horarios
+                    // Esperar explícitamente a que termine loadAvailableHours
                     await new Promise(resolve => setTimeout(resolve, 800));
                 }
 
