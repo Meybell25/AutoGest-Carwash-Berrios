@@ -811,6 +811,43 @@ class ClienteController extends Controller
         }
     }
 
+    public function historial()
+    {
+        $user = auth()->user();
+
+        // Obtener citas con relaciones necesarias
+        $citas = $user->citas()
+            ->with(['servicios', 'vehiculo'])
+            ->whereIn('estado', ['finalizada', 'cancelada'])
+            ->orderBy('fecha_hora', 'desc');
+
+
+        // Aplicar filtros si existen
+        if (request()->has('estado') && request('estado') != '') {
+            $citas->where('estado', request('estado'));
+        }
+
+        if (request()->has('fecha_desde') && request('fecha_desde') != '') {
+            $citas->whereDate('fecha_hora', '>=', request('fecha_desde'));
+        }
+
+        if (request()->has('fecha_hasta') && request('fecha_hasta') != '') {
+            $citas->whereDate('fecha_hora', '<=', request('fecha_hasta'));
+        }
+
+        if (request()->has('vehiculo_id') && request('vehiculo_id') != '') {
+            $citas->where('vehiculo_id', request('vehiculo_id'));
+        }
+
+        // Paginar resultados (15 por página)
+        $citas = $citas->paginate(15)->withQueryString();
+
+        return view('cliente.historial', [
+            'citas' => $citas,
+            'user' => $user
+        ]);
+    }
+
 
     public function debugFechas(Request $request)
     {

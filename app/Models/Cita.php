@@ -46,7 +46,6 @@ class Cita extends Model
             self::ESTADO_CANCELADA => 'Cancelada',
         ];
     }
-
     // Relaciones
     public function usuario()
     {

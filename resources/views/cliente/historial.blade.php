@@ -53,12 +53,16 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0, 0) rotate(0deg);
             }
+
             33% {
                 transform: translate(30px, -30px) rotate(120deg);
             }
+
             66% {
                 transform: translate(-20px, 20px) rotate(240deg);
             }
@@ -553,6 +557,40 @@
             font-style: italic;
         }
 
+        /* Agrega esto al final de tu sección de estilos */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -619,15 +657,6 @@
             <p>Registro completo de tus citas anteriores</p>
         </div>
 
-        <!-- Navegación entre vistas -->
-        <div class="view-nav">
-            <a href="{{ route('cliente.citas.proximas') }}" class="nav-btn">
-                <i class="fas fa-clock"></i> Próximas Citas
-            </a>
-            <a href="{{ route('cliente.citas.historial') }}" class="nav-btn active">
-                <i class="fas fa-history"></i> Historial
-            </a>
-        </div>
 
         <!-- Filtros -->
         <div class="filters-section">
@@ -638,11 +667,13 @@
                     <span class="counter-label">Total Historial</span>
                 </div>
                 <div class="counter-item counter-finalizada">
-                    <span class="counter-value" id="finalizada-counter">{{ $citas->where('estado', 'finalizada')->count() }}</span>
+                    <span class="counter-value"
+                        id="finalizada-counter">{{ $citas->where('estado', 'finalizada')->count() }}</span>
                     <span class="counter-label">Finalizadas</span>
                 </div>
                 <div class="counter-item counter-cancelada">
-                    <span class="counter-value" id="cancelada-counter">{{ $citas->where('estado', 'cancelada')->count() }}</span>
+                    <span class="counter-value"
+                        id="cancelada-counter">{{ $citas->where('estado', 'cancelada')->count() }}</span>
                     <span class="counter-label">Canceladas</span>
                 </div>
             </div>
@@ -716,9 +747,10 @@
                     @foreach ($citas as $cita)
                         @php
                             $diasTranscurridos = now()->diffInDays($cita->fecha_hora);
-                            $tiempoTranscurrido = $diasTranscurridos > 0 ? 
-                                "Hace " . $diasTranscurridos . " día" . ($diasTranscurridos != 1 ? 's' : '') : 
-                                "Hoy";
+                            $tiempoTranscurrido =
+                                $diasTranscurridos > 0
+                                    ? 'Hace ' . $diasTranscurridos . ' día' . ($diasTranscurridos != 1 ? 's' : '')
+                                    : 'Hoy';
                         @endphp
 
                         <div class="cita-card {{ $cita->estado }}" data-cita-id="{{ $cita->id }}">
@@ -756,12 +788,14 @@
                                         @foreach ($cita->servicios as $servicio)
                                             <li class="service-item">
                                                 <span class="service-name">{{ $servicio->nombre }}</span>
-                                                <span class="service-price">${{ number_format($servicio->precio, 2) }}</span>
+                                                <span
+                                                    class="service-price">${{ number_format($servicio->precio, 2) }}</span>
                                             </li>
                                         @endforeach
                                     </ul>
                                     <div style="border-top: 2px solid #667eea; margin-top: 10px; padding-top: 10px;">
-                                        <strong>Total Pagado: ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
+                                        <strong>Total Pagado:
+                                            ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
                                     </div>
                                 </div>
 
@@ -776,17 +810,21 @@
                                 @if ($cita->estado == 'finalizada')
                                     <div class="detail-section">
                                         <h4><i class="fas fa-check-circle"></i> Servicio Completado</h4>
-                                        <p><strong>Fecha de finalización:</strong> {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
+                                        <p><strong>Fecha de finalización:</strong>
+                                            {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
                                         @if ($cita->updated_at != $cita->created_at)
-                                            <p><strong>Última actualización:</strong> {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
+                                            <p><strong>Última actualización:</strong>
+                                                {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
                                         @endif
                                     </div>
                                 @elseif ($cita->estado == 'cancelada')
                                     <div class="detail-section">
                                         <h4><i class="fas fa-times-circle"></i> Cita Cancelada</h4>
-                                        <p><strong>Fecha original:</strong> {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
+                                        <p><strong>Fecha original:</strong>
+                                            {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
                                         @if ($cita->updated_at != $cita->created_at)
-                                            <p><strong>Cancelada el:</strong> {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
+                                            <p><strong>Cancelada el:</strong>
+                                                {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
                                         @endif
                                     </div>
                                 @endif
@@ -823,14 +861,47 @@
         }
 
         // Envío del formulario de filtros
+        // Envío del formulario de filtros
         document.getElementById('filtrosForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const formData = new FormData(this);
-            const params = new URLSearchParams(formData);
+            // Obtener valores actuales
+            const estado = document.getElementById('estado').value;
+            const fecha_desde = document.getElementById('fecha_desde').value;
+            const fecha_hasta = document.getElementById('fecha_hasta').value;
+            const vehiculo_id = document.getElementById('vehiculo_id').value;
+
+            // Construir URL con parámetros
+            let url = '{{ route('cliente.historial') }}?';
+
+            if (estado) url += `estado=${estado}&`;
+            if (fecha_desde) url += `fecha_desde=${fecha_desde}&`;
+            if (fecha_hasta) url += `fecha_hasta=${fecha_hasta}&`;
+            if (vehiculo_id) url += `vehiculo_id=${vehiculo_id}&`;
+
+            // Eliminar el último & si existe
+            url = url.replace(/&$/, '');
 
             // Recargar la página con los nuevos parámetros
-            window.location.href = '{{ route('cliente.citas.historial') }}?' + params.toString();
+            window.location.href = url;
+        });
+
+        document.getElementById('filtrosForm').addEventListener('submit', function(e) {
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.className = 'loading-overlay';
+            loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
+            document.body.appendChild(loadingOverlay);
+        });
+
+        // Auto-filtrado cuando cambian los selects
+        const filters = ['estado', 'vehiculo_id', 'fecha_desde', 'fecha_hasta'];
+        filters.forEach(filterId => {
+            const element = document.getElementById(filterId);
+            if (element) {
+                element.addEventListener('change', function() {
+                    document.getElementById('filtrosForm').dispatchEvent(new Event('submit'));
+                });
+            }
         });
 
         // Auto-filtrado cuando cambian los selects

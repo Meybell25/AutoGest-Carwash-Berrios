@@ -2306,7 +2306,7 @@
                 </div>
                 Historial de Servicios
             </h2>
-            <a href="{{ route('cliente.historial') }}" class="btn btn-outline" style="padding: 8px 12px;">
+            <a href="{{ route('cliente.citas.historial') }}" class="btn btn-outline" style="padding: 8px 12px;">
                 <i class="fas fa-list"></i> Ver Historial Completo
             </a>
         </div>
