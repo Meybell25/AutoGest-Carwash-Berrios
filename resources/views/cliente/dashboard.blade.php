@@ -640,18 +640,22 @@
 
         .service-icon.status-finalizada {
             background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
+            color : white !important;
         }
 
         .service-icon.status-cancelada {
             background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            color : white !important;
         }
 
         .service-icon.status-finalizada:hover {
             background: linear-gradient(135deg, #1b5e20, #2e7d32) !important;
+            color : white !important;
         }
 
         .service-icon.status-cancelada:hover {
             background: linear-gradient(135deg, #c82333, #dc3545) !important;
+            color : white !important;
         }
 
         .service-icon {
