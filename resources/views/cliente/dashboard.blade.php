@@ -2191,176 +2191,167 @@
             <div class="main-section">
                 <!-- Próximas Citas Confirmadas -->
                 <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            Próximas Citas Confirmadas
-                        </h2>
-                    </div>
-                    <div class="scroll-container">
-                        <div class="card-body scrollable" id="proximas-citas-container">
-                            @if ($proximas_citas->where('estado', 'confirmada')->count() > 0)
-                                @foreach ($proximas_citas->where('estado', 'confirmada')->sortBy('fecha_hora') as $cita)
-                                    @php
-                                        $diasRestantes = now()->diffInDays($cita->fecha_hora, false);
-                                        $diasRestantes = $diasRestantes < 0 ? 0 : ceil($diasRestantes);
-                                        $urgenciaClass = '';
-                                        $urgenciaText = '';
+        <div class="card-header">
+            <h2>
+                <div class="icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                Próximas Citas Confirmadas
+            </h2>
+        </div>
+        <div class="scroll-container">
+            <div class="card-body scrollable" id="proximas-citas-container">
+                @if ($proximas_citas->count() > 0)
+                    @foreach ($proximas_citas->sortBy('fecha_hora') as $cita)
+                        @php
+                            $diasRestantes = now()->diffInDays($cita->fecha_hora, false);
+                            $diasRestantes = $diasRestantes < 0 ? 0 : ceil($diasRestantes);
+                            $urgenciaClass = '';
+                            $urgenciaText = '';
 
-                                        // Sistema de urgencias (se mantiene igual)
-                                        if ($diasRestantes <= 1) {
-                                            $urgenciaClass = 'urgent-soon';
-                                            $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
-                                        } elseif ($diasRestantes <= 3) {
-                                            $urgenciaClass = 'urgent-close';
-                                            $urgenciaText = "En {$diasRestantes} días";
-                                        } elseif ($diasRestantes <= 7) {
-                                            $urgenciaClass = 'coming-soon';
-                                            $urgenciaText = "En {$diasRestantes} días";
-                                        } else {
-                                            $urgenciaText = "En {$diasRestantes} días";
-                                        }
-                                    @endphp
-                                    <div
-                                        class="next-appointment status-{{ str_replace('_', '-', $cita->estado) }} {{ $urgenciaClass }}">
-                                        <div class="appointment-date-time">
-                                            <div class="date-badge">
-                                                <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
-                                                <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
-                                                @if ($diasRestantes <= 7)
-                                                    <span class="days-remaining">{{ $urgenciaText }}</span>
-                                                @endif
-                                            </div>
-                                            <div class="time-info">
-                                                <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
-                                                <div class="service">
-                                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                                </div>
-                                                <div class="vehicle-info">
-                                                    <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                                    {{ $cita->vehiculo->modelo }}
-                                                </div>
-                                                @if ($diasRestantes > 7)
-                                                    <div class="days-info">
-                                                        <i class="fas fa-clock"></i> {{ $urgenciaText }}
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <span
-                                                class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}">
-                                                {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                            </span>
-                                        </div>
-                                        <div class="appointment-actions">
-                                            <button class="btn btn-sm btn-warning"
-                                                onclick="editCita({{ $cita->id }})">
-                                                <i class="fas fa-edit"></i> Modificar
-                                            </button>
-                                            <button class="btn btn-sm btn-outline"
-                                                onclick="cancelCita({{ $cita->id }})">
-                                                <i class="fas fa-times"></i> Cancelar
-                                            </button>
-                                        </div>
-                                    </div>
-                                @endforeach
-
-                                <!-- Mensaje informativo modificado -->
-                                <div class="info-message">
-                                    <small>
-                                        <i class="fas fa-info-circle"></i>
-                                        Se muestran todas tus citas confirmadas futuras
-                                    </small>
+                            if ($diasRestantes <= 1) {
+                                $urgenciaClass = 'urgent-soon';
+                                $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
+                            } elseif ($diasRestantes <= 3) {
+                                $urgenciaClass = 'urgent-close';
+                                $urgenciaText = "En {$diasRestantes} días";
+                            } elseif ($diasRestantes <= 7) {
+                                $urgenciaClass = 'coming-soon';
+                                $urgenciaText = "En {$diasRestantes} días";
+                            } else {
+                                $urgenciaText = "En {$diasRestantes} días";
+                            }
+                        @endphp
+                        <div class="next-appointment {{ $urgenciaClass }}">
+                            <div class="appointment-date-time">
+                                <div class="date-badge">
+                                    <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
+                                    <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
+                                    @if ($diasRestantes <= 7)
+                                        <span class="days-remaining">{{ $urgenciaText }}</span>
+                                    @endif
                                 </div>
-
-                                @if ($proximas_citas->where('estado', 'confirmada')->count() > 3)
-                                    <div style="text-align: center; margin-top: 15px;">
-                                        <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
-                                            <i class="fas fa-list"></i> Ver todas las citas
-                                        </a>
+                                <div class="time-info">
+                                    <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
+                                    <div class="service">
+                                        {{ $cita->servicios->pluck('nombre')->join(', ') }}
                                     </div>
+                                    <div class="vehicle-info">
+                                        <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                        {{ $cita->vehiculo->modelo }}
+                                    </div>
+                                    @if ($diasRestantes > 7)
+                                        <div class="days-info">
+                                            <i class="fas fa-clock"></i> {{ $urgenciaText }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <span class="appointment-status status-confirmada">
+                                    Confirmada
+                                </span>
+                            </div>
+                            <div class="appointment-actions">
+                                <button class="btn btn-sm btn-warning"
+                                    onclick="editCita({{ $cita->id }})">
+                                    <i class="fas fa-edit"></i> Modificar
+                                </button>
+                                <button class="btn btn-sm btn-outline"
+                                    onclick="cancelCita({{ $cita->id }})">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <!-- Mensaje informativo actualizado -->
+                    <div class="info-message">
+                        <small>
+                            <i class="fas fa-info-circle"></i>
+                            Todas tus citas confirmadas futuras
+                        </small>
+                    </div>
+
+                    @if ($proximas_citas->count() > 3)
+                        <div style="text-align: center; margin-top: 15px;">
+                            <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
+                                <i class="fas fa-list"></i> Ver todas las citas
+                            </a>
+                        </div>
+                    @endif
+                @else
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-check"></i>
+                        <h3>No tienes citas futuras confirmadas</h3>
+                        <p>Agenda una cita y aparecerá aquí cuando sea confirmada</p>
+                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                            <i class="fas fa-calendar-plus"></i>
+                            Agendar Cita
+                        </button>
+                    </div>
+                @endif
+            </div>
+            <div class="custom-scrollbar" id="proximas-citas-scrollbar">
+                <div class="custom-scrollbar-thumb" id="proximas-citas-thumb"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Servicios -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <div class="icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                Historial de Servicios
+            </h2>
+        </div>
+        <div class="scroll-container">
+            <div class="card-body scrollable" id="historial-container">
+                @if ($historial_citas->count() > 0)
+                    @foreach ($historial_citas as $cita)
+                        <div class="service-history-item">
+                            <div class="service-icon">
+                                <i class="fas fa-{{ $cita->estado === 'finalizada' ? 'check-circle' : 'times-circle' }}"></i>
+                            </div>
+                            <div class="service-details">
+                                <h4>
+                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                </h4>
+                                <p><i class="fas fa-calendar"></i>
+                                    {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
+                                <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                    {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
+                                <span class="appointment-status status-{{ $cita->estado }}"
+                                    style="display: inline-block; margin-top: 5px;">
+                                    {{ ucfirst($cita->estado) }}
+                                </span>
+                                @if ($cita->estado == 'finalizada')
+                                    <a href="#" class="repeat-service"
+                                        onclick="repeatService({{ $cita->id }})">
+                                        <i class="fas fa-redo"></i> Volver a agendar
+                                    </a>
                                 @endif
-                            @else
-                                <div class="empty-state">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <h3>No tienes citas confirmadas</h3>
-                                    <p>No hay citas confirmadas programadas</p>
-                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                        <i class="fas fa-calendar-plus"></i>
-                                        Agendar Cita
-                                    </button>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="custom-scrollbar" id="proximas-citas-scrollbar">
-                            <div class="custom-scrollbar-thumb" id="proximas-citas-thumb"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Historial de Servicios -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-history"></i>
                             </div>
-                            Historial de Servicios
-                        </h2>
-                    </div>
-                    <div class="scroll-container">
-                        <div class="card-body scrollable" id="historial-container">
-                            @if ($historial_citas->count() > 0)
-                                @foreach ($historial_citas as $cita)
-                                    <div class="service-history-item">
-                                        <div class="service-icon">
-                                            <i class="fas fa-soap"></i>
-                                        </div>
-                                        <div class="service-details">
-                                            <h4>
-                                                @if ($cita->servicios && count($cita->servicios) > 0)
-                                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                                @else
-                                                    Servicio no especificado
-                                                @endif
-                                            </h4>
-                                            <p><i class="fas fa-calendar"></i>
-                                                {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
-                                            <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                                {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
-                                            <p class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}"
-                                                style="display: inline-block; margin-top: 5px;">
-                                                {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                            </p>
-                                            @if ($cita->estado == 'finalizada')
-                                                <a href="#" class="repeat-service"
-                                                    onclick="repeatService({{ $cita->id }})">
-                                                    <i class="fas fa-redo"></i> Volver a agendar
-                                                </a>
-                                            @endif
-                                        </div>
-                                        <div class="service-price">
-                                            @php
-                                                $total = $cita->servicios->sum('precio');
-                                            @endphp
-                                            ${{ number_format($total, 2) }}
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="empty-state">
-                                    <i class="fas fa-history"></i>
-                                    <h3>No hay historial de servicios</h3>
-                                    <p>Agenda tu primera cita para comenzar a ver tu historial</p>
-                                </div>
-                            @endif
+                            <div class="service-price">
+                                ${{ number_format($cita->servicios->sum('precio'), 2) }}
+                            </div>
                         </div>
-                        <div class="custom-scrollbar" id="historial-scrollbar">
-                            <div class="custom-scrollbar-thumb" id="historial-thumb"></div>
-                        </div>
+                    @endforeach
+                @else
+                    <div class="empty-state">
+                        <i class="fas fa-history"></i>
+                        <h3>No hay historial de servicios</h3>
+                        <p>Agenda tu primera cita para comenzar a ver tu historial</p>
                     </div>
-                </div>
+                @endif
+            </div>
+            <div class="custom-scrollbar" id="historial-scrollbar">
+                <div class="custom-scrollbar-thumb" id="historial-thumb"></div>
+            </div>
+        </div>
+    </div>
+
 
                 <!-- Servicios Disponibles -->
                 <div class="card">
@@ -2890,8 +2881,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                FUNCIONAMIENTO DE CREAR CITAS
-                                                                                                                                                                            =========================================================*/
+                                                                                                                                                                                        FUNCIONAMIENTO DE CREAR CITAS
+                                                                                                                                                                                    =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3839,7 +3830,6 @@
         // Función para actualizar las secciones de citas
         async function updateCitasSections(tipo = 'próximas', citas = []) {
             try {
-                // Si no se proporcionan citas, obtenerlas del servidor
                 if (citas.length === 0) {
                     try {
                         const response = await fetch('/cliente/dashboard-data', {
@@ -3849,9 +3839,7 @@
                             }
                         });
 
-                        if (!response.ok) {
-                            throw new Error(`Error ${response.status}: ${response.statusText}`);
-                        }
+                        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
 
                         const contentType = response.headers.get('content-type');
                         if (!contentType || !contentType.includes('application/json')) {
@@ -3859,22 +3847,18 @@
                         }
 
                         const data = await response.json();
+                        if (!data.success) throw new Error(data.message || 'Error en los datos recibidos');
 
-                        if (!data.success) {
-                            throw new Error(data.message || 'Error en los datos recibidos');
-                        }
+                        // SOLO CITAS CONFIRMADAS para próximas (ya vienen filtradas del servidor)
+                        citas = tipo === 'próximas' ?
+                            data.proximas_citas :
+                            data.historial_citas; // Ya vienen filtradas (canceladas/finalizadas)
 
-                        citas = tipo === 'próximas' ? data.proximas_citas : data.historial_citas;
-
-                        // NUEVO: Ordenar citas próximas por fecha (más cercana primero) si no vienen ya ordenadas
+                        // Ordenar citas próximas por fecha (más cercana primero)
                         if (tipo === 'próximas' && citas.length > 0) {
-                            citas.sort((a, b) => {
-                                const fechaA = new Date(a.fecha_hora);
-                                const fechaB = new Date(b.fecha_hora);
-                                return fechaA - fechaB; // Ascendente: más cercana primero
-                            });
-                            console.log('📅 Citas próximas ordenadas de más cercana a más lejana');
+                            citas.sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora));
                         }
+
                     } catch (error) {
                         console.error('Error al obtener datos de citas:', error);
                         await swalWithBootstrapButtons.fire({
@@ -3898,23 +3882,23 @@
 
                 if (citas.length === 0) {
                     const emptyMessage = tipo === 'próximas' ?
-                        'No tienes citas programadas en los próximos 15 días' :
+                        'No tienes citas futuras confirmadas' :
                         'No hay historial de servicios';
 
                     const emptyDescription = tipo === 'próximas' ?
-                        'Agenda una cita y aparecerá aquí si está dentro de los próximos 15 días' :
+                        'Agenda una cita y aparecerá aquí cuando sea confirmada' :
                         'Agenda tu primera cita para comenzar a ver tu historial';
 
                     container.innerHTML = `
                 <div class="empty-state">
-                    <i class="fas fa-${tipo === 'próximas' ? 'calendar-alt' : 'history'}"></i>
+                    <i class="fas fa-${tipo === 'próximas' ? 'calendar-check' : 'history'}"></i>
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                                                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                            <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                            Agendar Cita
-                                                                                                                                                        </button>` : ''}
+                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                <i class="fas fa-calendar-plus"></i>
+                                Agendar Cita
+                            </button>` : ''}
                 </div>
             `;
                     return;
@@ -3924,17 +3908,14 @@
 
                 if (tipo === 'próximas') {
                     citas.forEach((cita, index) => {
-                        // Calcular días restantes para la cita
                         const fechaCita = formatearFechaHoraFromServer(cita.fecha_hora);
                         const hoy = new Date();
                         const diasRestantes = Math.ceil((fechaCita - hoy) / (1000 * 60 * 60 * 24));
 
-                        // Usar funciones de formateo seguras
                         const dia = obtenerDiaDelMes(cita.fecha_hora);
                         const mes = obtenerMesAbreviado(cita.fecha_hora);
                         const hora = formatearSoloHora(cita.fecha_hora);
 
-                        // Determinar clase de urgencia basada en días restantes
                         let urgenciaClass = '';
                         let urgenciaText = '';
 
@@ -3969,29 +3950,28 @@
                             </div>
                             ${diasRestantes > 7 ? `<div class="days-info"><i class="fas fa-clock"></i> ${urgenciaText}</div>` : ''}
                         </div>
-                        <span class="appointment-status status-${cita.estado.replace('_', '-')}">
-                            ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
+                        <span class="appointment-status status-confirmada">
+                            Confirmada
                         </span>
                     </div>
                     <div class="appointment-actions">
-                        ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                                                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                                                                                                <i class="fas fa-edit"></i> Modificar
-                                                                                                                                                            </button>
-                                                                                                                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                                                                                                <i class="fas fa-times"></i> Cancelar
-                                                                                                                                                            </button>` : ''}
+                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                            <i class="fas fa-edit"></i> Modificar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
                     </div>
                 </div>
                 `;
                     });
 
-                    // Agregar información sobre el filtro de 15 días
+                    // Mensaje actualizado (sin referencia a 15 días)
                     html += `
                 <div style="text-align: center; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
                     <small style="color: #6c757d;">
                         <i class="fas fa-info-circle"></i>
-                        Se muestran solo las citas de los próximos 15 días
+                        Todas tus citas confirmadas futuras
                     </small>
                 </div>
             `;
@@ -4007,26 +3987,25 @@
                     }
                 } else { // Historial
                     citas.forEach(cita => {
-                        //  Usar función de formateo segura
                         const fechaCompleta = formatearFechaCompleta(cita.fecha_hora);
                         const total = cita.servicios.reduce((sum, servicio) => sum + servicio.precio, 0);
 
                         html += `
                 <div class="service-history-item">
                     <div class="service-icon">
-                        <i class="fas fa-soap"></i>
+                        <i class="fas fa-${cita.estado === 'finalizada' ? 'check-circle' : 'times-circle'}"></i>
                     </div>
                     <div class="service-details">
                         <h4>${cita.servicios.map(s => s.nombre).join(', ')}</h4>
                         <p><i class="fas fa-calendar"></i> ${fechaCompleta}</p>
                         <p><i class="fas fa-car"></i> ${cita.vehiculo.marca} ${cita.vehiculo.modelo} - ${cita.vehiculo.placa}</p>
-                        <span class="appointment-status status-${cita.estado.replace('_', '-')}" style="display: inline-block; margin-top: 5px;">
-                            ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
+                        <span class="appointment-status status-${cita.estado}" style="display: inline-block; margin-top: 5px;">
+                            ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                                                                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                                                                                                <i class="fas fa-redo"></i> Volver a agendar
-                                                                                                                                                            </a>` : ''}
+                                <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                    <i class="fas fa-redo"></i> Volver a agendar
+                                </a>` : ''}
                     </div>
                     <div class="service-price">
                         ${total.toFixed(2)}
@@ -4037,7 +4016,6 @@
                 }
 
                 container.innerHTML = html;
-
                 console.log(`✅ Sección de citas "${tipo}" actualizada correctamente con ${citas.length} elementos`);
 
             } catch (error) {
@@ -4443,11 +4421,11 @@
                         <p>${errorMessage}</p>
                         ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                         ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                                                    </ul>
-                                                                                                ` : ''}
+                                                                                                            <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                            <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                            </ul>
+                                                                                                        ` : ''}
                         <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                             Por favor intenta nuevamente con un horario diferente.
                         </p>
@@ -4810,10 +4788,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4925,8 +4903,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4955,8 +4933,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

@@ -39,20 +39,15 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
-            // MODIFICADO: Filtrar citas próximas (futuras, con estados específicos Y dentro de los próximos 15 días)
-            $fechaLimite = now()->addDays(15); // 15 días desde hoy
+            // PRÓXIMAS CITAS - SOLO CONFIRMADAS 
+            $proximas_citas = $citas->where('estado', 'confirmada')
+                ->where('fecha_hora', '>=', now()) // Solo futuras
+                ->sortBy('fecha_hora');
 
-            $proximas_citas = $citas->filter(function ($cita) {
-                return $cita->fecha_hora >= now() && // Cita futura
-                    in_array($cita->estado, ['confirmada']); // Solo confirmadas
-            })->sortBy('fecha_hora');
-
-            // Filtrar historial (pasadas o con estados finalizados)
+            // HISTORIAL - SOLO CANCELADAS O FINALIZADAS
             $historial_citas = $citas->filter(function ($cita) {
-                return $cita->fecha_hora < now() ||
-                    in_array($cita->estado, ['finalizada', 'cancelada']);
+                return in_array($cita->estado, ['finalizada', 'cancelada']);
             });
-
             return view('cliente.dashboard', [
                 'user' => $user,
                 'stats' => [
@@ -63,7 +58,7 @@ class ClienteController extends Controller
                 ],
                 'mis_vehiculos' => $vehiculos,
                 'vehiculos_dashboard' => $vehiculosDashboard,
-                'proximas_citas' => $proximas_citas->values()->take(5), // values() para reindexar después del sort
+                'proximas_citas' => $proximas_citas->take(5),
                 'historial_citas' => $historial_citas->take(5),
                 'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
                 'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count()
@@ -523,25 +518,21 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
-            //  Filtrar citas próximas con límite de 15 días
-            $fechaLimite = now()->addDays(15);
+            // PRÓXIMAS CITAS - SOLO CONFIRMADAS
+            $proximas_citas = $todasLasCitas->where('estado', 'confirmada')
+                ->where('fecha_hora', '>=', now())
+                ->sortBy('fecha_hora')
+                ->values();
 
-            $proximas_citas = $todasLasCitas->filter(function ($cita) use ($fechaLimite) {
-                return $cita->fecha_hora >= now() && // Cita futura
-                    $cita->fecha_hora <= $fechaLimite && // Dentro de los próximos 15 días
-                    in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
-            })->sortBy('fecha_hora')->values(); // Ordenar de la más cercana a la más lejana y reindexar
-
-            // Filtrar historial
+            // HISTORIAL - SOLO CANCELADAS O FINALIZADAS
             $historial_citas = $todasLasCitas->filter(function ($cita) {
-                return $cita->fecha_hora < now() ||
-                    in_array($cita->estado, ['finalizada', 'cancelada']);
-            });
+                return in_array($cita->estado, ['cancelada', 'finalizada']);
+            })->values();
 
             return response()->json([
                 'success' => true,
-                'proximas_citas' => $proximas_citas, // Ya viene ordenado y con values()
-                'historial_citas' => $historial_citas->values(),
+                'proximas_citas' => $proximas_citas,
+                'historial_citas' => $historial_citas,
                 'stats' => [
                     'total_vehiculos' => $vehiculos->count(),
                     'total_citas' => $todasLasCitas->count(),
