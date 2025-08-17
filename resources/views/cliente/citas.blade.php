@@ -1028,7 +1028,7 @@
                     </div>
 
                     <div class="filter-group">
-                        <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
+                        <button type="button" class="btn btn-primary" onclick="limpiarFiltros()">
                             <i class="fas fa-times"></i> Limpiar
                         </button>
                     </div>

@@ -101,4 +101,31 @@ class Cita extends Model
             return $servicio->pivot->precio - $servicio->pivot->descuento;
         });
     }
+
+    public function marcarComoExpirada()
+    {
+        $motivo = ($this->estado == self::ESTADO_PENDIENTE)
+            ? 'Cita expirada por inacción'
+            : 'Cita expirada - No atendida';
+
+        $observaciones = $this->observaciones
+            ? $this->observaciones . "\n" . $motivo
+            : $motivo;
+
+        return $this->update([
+            'estado' => self::ESTADO_CANCELADA,
+            'observaciones' => $observaciones
+        ]);
+    }
+
+    public function scopeExpiradas($query)
+    {
+        return $query->whereIn('estado', [self::ESTADO_PENDIENTE, self::ESTADO_CONFIRMADA])
+            ->where('fecha_hora', '<', now());
+    }
+
+    public function scopeActivas($query)
+    {
+        return $query->whereIn('estado', [self::ESTADO_PENDIENTE, self::ESTADO_CONFIRMADA, self::ESTADO_EN_PROCESO]);
+    }
 }

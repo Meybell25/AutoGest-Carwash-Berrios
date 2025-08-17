@@ -101,13 +101,19 @@ class ClienteController extends Controller
     {
         $user = auth()->user();
 
-        // Obtener citas con relaciones necesarias
+        // Actualizar citas expiradas
+        $user->citas()
+            ->expiradas()
+            ->each(function ($cita) {
+                $cita->marcarComoExpirada();
+            });
+
+        // Obtener citas activas
         $query = $user->citas()
             ->with(['servicios', 'vehiculo'])
-            ->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso'])
-            ->orderBy('fecha_hora', 'asc'); // Orden ascendente por fecha
+            ->activas()
+            ->orderBy('fecha_hora', 'asc');
 
-        // Aplicar filtros
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
@@ -821,14 +827,20 @@ class ClienteController extends Controller
     {
         $user = auth()->user();
 
-        // Obtener citas con relaciones necesarias
+        // Actualizar citas expiradas
+        $user->citas()
+            ->expiradas()
+            ->each(function ($cita) {
+                $cita->marcarComoExpirada();
+            });
+
+        // Obtener citas para historial
         $citas = $user->citas()
             ->with(['servicios', 'vehiculo'])
-            ->whereIn('estado', ['finalizada', 'cancelada'])
+            ->whereIn('estado', [Cita::ESTADO_FINALIZADA, Cita::ESTADO_CANCELADA])
             ->orderBy('fecha_hora', 'desc');
 
 
-        // Aplicar filtros si existen
         if (request()->has('estado') && request('estado') != '') {
             $citas->where('estado', request('estado'));
         }
@@ -845,7 +857,7 @@ class ClienteController extends Controller
             $citas->where('vehiculo_id', request('vehiculo_id'));
         }
 
-        // Paginar resultados (15 por página)
+        // Paginar resultados
         $citas = $citas->paginate(15)->withQueryString();
 
         return view('cliente.historial', [
