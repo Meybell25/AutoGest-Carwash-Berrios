@@ -21,13 +21,11 @@ class HorarioController extends Controller
 
     public function index()
     {
-        // Excluir domingos (día 0) y ordenar por dIa y hora
         $horarios = Horario::where('dia_semana', '>=', 1)
             ->orderBy('dia_semana')
             ->orderBy('hora_inicio')
             ->get();
 
-        // Si es AJAX, devolver JSON con nombres de dia
         if (request()->ajax()) {
             $horarios->transform(function ($horario) {
                 $horario->nombre_dia = self::DIAS_SEMANA[$horario->dia_semana] ?? 'Desconocido';
@@ -36,7 +34,8 @@ class HorarioController extends Controller
             return response()->json($horarios);
         }
 
-        return view('HorariosViews.index', compact('horarios'));
+        return view('admin.dashboard', compact('horarios'));
+
     }
 
     public function store(Request $request)
@@ -44,17 +43,16 @@ class HorarioController extends Controller
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'dia_semana' => 'required|integer|between:1,6', // 1-6 (Lunes a Sábado)
+            'dia_semana' => 'required|integer|between:1,6',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin' => [
                 'required',
                 'date_format:H:i',
                 'after:hora_inicio',
                 function ($attribute, $value, $fail) use ($data) {
-                    // Validar que no exceda el límite de horas (ej. máximo 8 horas por bloque)
                     $inicio = \Carbon\Carbon::createFromFormat('H:i', $data['hora_inicio']);
                     $fin = \Carbon\Carbon::createFromFormat('H:i', $value);
-                    
+
                     if ($fin->diffInHours($inicio) > 8) {
                         $fail('El bloque horario no puede exceder las 8 horas.');
                     }
@@ -67,7 +65,6 @@ class HorarioController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Validar superposición de horarios
         $existeSuperposicion = Horario::where('dia_semana', $data['dia_semana'])
             ->where(function ($query) use ($data) {
                 $query->whereBetween('hora_inicio', [$data['hora_inicio'], $data['hora_fin']])
@@ -86,7 +83,7 @@ class HorarioController extends Controller
         }
 
         $horario = Horario::create($data);
-        
+
         return response()->json([
             'message' => 'Horario creado exitosamente.',
             'horario' => $this->formatHorarioResponse($horario)
@@ -105,7 +102,7 @@ class HorarioController extends Controller
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'dia_semana' => 'required|integer|between:1,6', // 1-6 (Lunes a Sábado)
+            'dia_semana' => 'required|integer|between:1,6',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin' => [
                 'required',
@@ -114,7 +111,7 @@ class HorarioController extends Controller
                 function ($attribute, $value, $fail) use ($data) {
                     $inicio = \Carbon\Carbon::createFromFormat('H:i', $data['hora_inicio']);
                     $fin = \Carbon\Carbon::createFromFormat('H:i', $value);
-                    
+
                     if ($fin->diffInHours($inicio) > 8) {
                         $fail('El bloque horario no puede exceder las 8 horas.');
                     }
@@ -127,7 +124,6 @@ class HorarioController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Validar superposición excluyendo el horario actual
         $existeSuperposicion = Horario::where('dia_semana', $data['dia_semana'])
             ->where('id', '!=', $id)
             ->where(function ($query) use ($data) {
@@ -147,7 +143,7 @@ class HorarioController extends Controller
         }
 
         $horario->update($data);
-        
+
         return response()->json([
             'message' => 'Horario actualizado exitosamente.',
             'horario' => $this->formatHorarioResponse($horario)
@@ -157,9 +153,8 @@ class HorarioController extends Controller
     public function destroy($id)
     {
         $horario = Horario::findOrFail($id);
-        
-        // Validar si el horario está siendo usado en citas futuras
-        if ($horario->citas()->where('fecha_hora', '>', now())->exists()) {
+
+        if (method_exists($horario, 'citas') && $horario->citas()->where('fecha_hora', '>', now())->exists()) {
             return response()->json([
                 'error' => 'No se puede eliminar el horario porque tiene citas programadas.'
             ], 422);
@@ -172,9 +167,6 @@ class HorarioController extends Controller
         ]);
     }
 
-    /**
-     * Formatea la respuesta del horario con datos adicionales
-     */
     protected function formatHorarioResponse($horario)
     {
         return [
