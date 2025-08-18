@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Pago;
+use Carbon\Carbon;
 
 class Cita extends Model
 {
@@ -18,13 +20,13 @@ class Cita extends Model
         'estado',
         'observaciones',
         'created_at',
-        'updated_at' 
+        'updated_at'
     ];
 
     protected $casts = [
-        'fecha_hora' => 'datetime',
+        'fecha_hora' => 'datetime:Y-m-d H:i:s',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime' 
+        'updated_at' => 'datetime'
     ];
 
     // Estados de las citas
@@ -59,7 +61,7 @@ class Cita extends Model
     public function servicios()
     {
         return $this->belongsToMany(Servicio::class, 'cita_servicio', 'cita_id', 'servicio_id')
-                    ->withPivot(['precio', 'descuento', 'observacion']);
+            ->withPivot(['precio', 'descuento', 'observacion']);
     }
 
     public function pago()
@@ -99,5 +101,21 @@ class Cita extends Model
         return $this->servicios->sum(function ($servicio) {
             return $servicio->pivot->precio - $servicio->pivot->descuento;
         });
+    }
+    public static function getEstadosFuturos()
+    {
+        return [
+            self::ESTADO_PENDIENTE,
+            self::ESTADO_CONFIRMADA,
+            self::ESTADO_EN_PROCESO
+        ];
+    }
+
+    public static function getEstadosHistorial()
+    {
+        return [
+            self::ESTADO_FINALIZADA,
+            self::ESTADO_CANCELADA
+        ];
     }
 }
