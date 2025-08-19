@@ -2461,13 +2461,52 @@
         </h2>
     </div>
 
-    <div class="card-body">
-        <div class="card-header-actions" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Configuración de horarios de trabajo</h3>
-            <button class="btn btn-primary" onclick="openCreateModal()">
-                <i class="fas fa-plus"></i> Agregar Horario
-            </button>
-        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Día</th>
+                                        <th>Hora Inicio</th>
+                                        <th>Hora Fin</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+    @forelse ($horarios as $horario)
+        <tr>
+            <td data-label="Día">{{ \App\Http\Controllers\HorarioController::DIAS_SEMANA[$horario->dia_semana] }}</td>
+            <td data-label="Hora Inicio">{{ \Carbon\Carbon::parse($horario->hora_inicio)->format('h:i A') }}</td>
+            <td data-label="Hora Fin">{{ \Carbon\Carbon::parse($horario->hora_fin)->format('h:i A') }}</td>
+            <td data-label="Estado">
+                <span class="badge {{ $horario->activo ? 'badge-success' : 'badge-danger' }}">
+                    {{ $horario->activo ? 'Activo' : 'Inactivo' }}
+                </span>
+            </td>
+            <td data-label="Acciones">
+                <div class="table-actions">
+                    <button class="table-btn btn-edit" title="Editar"
+                        onclick="editarHorario({{ $horario->id }})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="table-btn btn-delete" title="Eliminar"
+                        onclick="desactivarHorario({{ $horario->id }})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="5" class="text-center">No hay horarios registrados.</td>
+        </tr>
+    @endforelse
+</tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
         <div style="overflow-x: auto;">
             <table class="admin-table">
