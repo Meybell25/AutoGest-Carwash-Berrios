@@ -938,7 +938,7 @@
 </head>
 
 <body>
-    <a href="{{ route('cliente.dashboard') }}" class="back-button">
+   <a href="{{ route('cliente.dashboard') }}" class="back-button">
         <i class="fas fa-arrow-left"></i> Volver al Dashboard
     </a>
 

@@ -4040,9 +4040,9 @@
                     if (citas.length > 3) {
                         html += `
                 <div style="text-align: center; margin-top: 15px;">
-                    <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
-                        <i class="fas fa-list"></i> Ver todas las citas
-                    </a>
+                  <a href="{{ route('cliente.citas', ['tipo' => 'proximas']) }}" class="btn btn-outline">
+    <i class="fas fa-list"></i> Ver todas las citas
+</a>
                 </div>
                 `;
                     }

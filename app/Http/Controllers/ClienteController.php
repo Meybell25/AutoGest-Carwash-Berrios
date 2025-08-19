@@ -96,24 +96,12 @@ class ClienteController extends Controller
         return view('VehiculosViews.index', compact('vehiculos'));
     }
 
-    // En el controlador (ClienteController.php)
     public function citas(Request $request): View
     {
-        $user = auth()->user();
+        $query = Cita::where('usuario_id', Auth::id())
+            ->with(['vehiculo', 'servicios']);
 
-        // Actualizar citas expiradas
-        $user->citas()
-            ->expiradas()
-            ->each(function ($cita) {
-                $cita->marcarComoExpirada();
-            });
-
-        // Obtener citas activas
-        $query = $user->citas()
-            ->with(['servicios', 'vehiculo'])
-            ->activas()
-            ->orderBy('fecha_hora', 'asc');
-
+        // Aplicar filtros
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
@@ -130,13 +118,13 @@ class ClienteController extends Controller
             $query->where('vehiculo_id', $request->vehiculo_id);
         }
 
-        // Paginar resultados
-        $citas = $query->paginate(10)->withQueryString();
+        // Ordenar por fecha más reciente primero
+        $citas = $query->orderBy('fecha_hora', 'desc')->paginate(10);
 
-        return view('cliente.citas', [
-            'citas' => $citas,
-            'user' => $user
-        ]);
+        // Mantener los parámetros de filtro en la paginación
+        $citas->appends($request->query());
+
+        return view('cliente.citas', compact('citas'));
     }
 
     public function misVehiculosAjax()
