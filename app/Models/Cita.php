@@ -46,7 +46,6 @@ class Cita extends Model
             self::ESTADO_CANCELADA => 'Cancelada',
         ];
     }
-
     // Relaciones
     public function usuario()
     {
@@ -102,20 +101,31 @@ class Cita extends Model
             return $servicio->pivot->precio - $servicio->pivot->descuento;
         });
     }
-    public static function getEstadosFuturos()
+
+    public function marcarComoExpirada()
     {
-        return [
-            self::ESTADO_PENDIENTE,
-            self::ESTADO_CONFIRMADA,
-            self::ESTADO_EN_PROCESO
-        ];
+        $motivo = ($this->estado == self::ESTADO_PENDIENTE)
+            ? '. Cita expirada por inacción'
+            : '. Cita expirada - No atendida';
+
+        $observaciones = $this->observaciones
+            ? $this->observaciones . "\n" . $motivo
+            : $motivo;
+
+        return $this->update([
+            'estado' => self::ESTADO_CANCELADA,
+            'observaciones' => $observaciones
+        ]);
     }
 
-    public static function getEstadosHistorial()
+    public function scopeExpiradas($query)
     {
-        return [
-            self::ESTADO_FINALIZADA,
-            self::ESTADO_CANCELADA
-        ];
+        return $query->whereIn('estado', [self::ESTADO_PENDIENTE, self::ESTADO_CONFIRMADA])
+            ->where('fecha_hora', '<', now());
+    }
+
+    public function scopeActivas($query)
+    {
+        return $query->whereIn('estado', [self::ESTADO_PENDIENTE, self::ESTADO_CONFIRMADA, self::ESTADO_EN_PROCESO]);
     }
 }

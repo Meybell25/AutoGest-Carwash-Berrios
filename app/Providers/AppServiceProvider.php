@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +30,11 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
+
+        // Compartir la información del usuario y su rol con todas las vistas
+        View::composer('*', function ($view) {
+            $userRole = Auth::check() ? Auth::user()->rol : 'guest';
+            $view->with('userRole', $userRole);
+        });
     }
 }
