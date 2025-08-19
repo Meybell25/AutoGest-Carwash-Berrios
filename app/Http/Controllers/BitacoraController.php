@@ -7,6 +7,8 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+
+
 class BitacoraController extends Controller
 {
     public function index(Request $request): View
