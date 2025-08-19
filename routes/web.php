@@ -117,7 +117,15 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
     });
 
-    Route::get('/admin/horarios', [HorarioController::class, 'index'])->name('admin.horarios');
+    //Rutas horarios
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+       Route::get('/admin/dashboard', [HorarioController::class, 'index'])->name('admin.dashboard');
+       Route::get('/horarios/{id}', [HorarioController::class, 'show']);
+       Route::post('/horarios', [HorarioController::class, 'store']);
+       Route::put('/horarios/{id}', [HorarioController::class, 'update']);
+       Route::delete('/horarios/{id}', [HorarioController::class, 'destroy']);
+    });
+    
 });
 
 // Rutas de Empleado
