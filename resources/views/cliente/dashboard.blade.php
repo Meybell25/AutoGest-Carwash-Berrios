@@ -436,10 +436,10 @@
 
         /* Próximas Citas */
         .next-appointment {
-            background: linear-gradient(135deg, #667eea20, #764ba220);
+            background: linear-gradient(135deg, #667eea20, #764ba220) !important;
             padding: 20px;
             border-radius: 15px;
-            border-left: 5px solid #4facfe;
+            border-left: 5px solid #66bb6a !important;
             margin-bottom: 20px;
             box-shadow: var(--shadow-md);
             transition: all 0.3s ease;
@@ -475,7 +475,7 @@
         }
 
         .date-badge {
-            background: var(--secondary-gradient);
+            background: linear-gradient(135deg, #81c784, #66bb6a) !important;
             color: white;
             padding: 10px 15px;
             border-radius: 10px;
@@ -524,17 +524,17 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .status-pendiente {
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            color: #ef6c00;
-            border: 1px solid #ffcc80;
+        .appointment-status.status-pendiente {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2) !important;
+            color: #ef6c00 !important;
+            border: 1px solid #ffcc80 !important;
         }
 
-        .status-confirmado,
-        .status-confirmada {
-            background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
-            color: #0277bd;
-            border: 1px solid #81d4fa;
+        .appointment-status.status-confirmado,
+        .appointment-status.status-confirmada {
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc) !important;
+            color: #0277bd !important;
+            border: 1px solid #81d4fa !important;
         }
 
         .status-en-proceso,
@@ -563,8 +563,8 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .status-pendiente:hover {
-            background: linear-gradient(135deg, #ffe0b2, #ffcc80);
+        .appointment-status.status-pendiente:hover {
+            background: linear-gradient(135deg, #ffe0b2, #ffcc80) !important;
         }
 
         .status-confirmado:hover,
@@ -616,8 +616,50 @@
             transform: translateX(3px);
         }
 
+        .service-history-item.finalizada {
+            border-left: 4px solid #2e7d32;
+            background-color: rgba(46, 125, 50, 0.05);
+        }
+
+        .service-history-item.cancelada {
+            border-left: 4px solid #dc3545;
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        .status-finalizada {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9) !important;
+            color: #2e7d32 !important;
+            border: 1px solid #a5d6a7 !important;
+        }
+
+        .status-cancelada {
+            background: linear-gradient(135deg, #fde7f3, #f8bbd9) !important;
+            color: #ad1457 !important;
+            border: 1px solid #f48fb1 !important;
+        }
+
+        .service-icon.status-finalizada {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
+            color: white !important;
+        }
+
+        .service-icon.status-cancelada {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            color: white !important;
+        }
+
+        .service-icon.status-finalizada:hover {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32) !important;
+            color: white !important;
+        }
+
+        .service-icon.status-cancelada:hover {
+            background: linear-gradient(135deg, #c82333, #dc3545) !important;
+            color: white !important;
+        }
+
         .service-icon {
-            background: var(--success-gradient);
+            background: var(--secondary-gradient);
             width: 50px;
             height: 50px;
             border-radius: 12px;
@@ -895,82 +937,90 @@
         }
 
         /* Estilos para indicadores de urgencia en las citas próximas */
-        .next-appointment:first-child {
-            border: 2px solid transparent;
-            box-shadow: var(--shadow-lg);
-            position: relative;
+        .date-badge .days-remaining {
+            display: block;
+            font-size: 10px;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            padding: 1px 4px;
+            margin-top: 2px;
+            font-weight: 500;
         }
 
-        .next-appointment:first-child .date-badge {
+        .days-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .days-info i {
+            margin-right: 5px;
+        }
+
+        /* Clases de urgencia SOLO para citas confirmadas */
+        .next-appointment.pendiente .date-badge {
+            background: var(--secondary-gradient) !important;
+        }
+
+        .next-appointment.pendiente {
+            border-left: 5px solid #4facfe !important;
+        }
+
+        .next-appointment.confirmada.urgent-soon {
+            border-left: 4px solid #dc3545 !important;
+            background-color: #fff5f5;
+        }
+
+        .next-appointment.confirmada.urgent-soon .date-badge,
+        .next-appointment.confirmado.urgent-soon .date-badge {
             background: linear-gradient(135deg, #dc3545, #c82333) !important;
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
             animation: pulse 2s infinite;
         }
 
-        .next-appointment:nth-child(2) .date-badge {
+        .next-appointment.confirmada.urgent-close {
+            border-left: 4px solid #fd7e14 !important;
+            background-color: #fff8f0;
+        }
+
+        .next-appointment.confirmada.urgent-close .date-badge,
+        .next-appointment.confirmado.urgent-close .date-badge {
             background: linear-gradient(135deg, #fd7e14, #e5650b) !important;
-            box-shadow: 0 4px 15px rgba(253, 126, 20, 0.4);
-            animation: none;
         }
 
-        .next-appointment:first-child:hover,
-        .next-appointment:nth-child(2):hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-hover);
+        .next-appointment.confirmada.coming-soon {
+            border-left: 4px solid #ffc107 !important;
+            background-color: #fffbf0;
         }
 
-        .next-appointment:first-child .date-badge,
-        .next-appointment:nth-child(2) .date-badge {
-            color: white;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        .next-appointment.confirmada.coming-soon .date-badge,
+        .next-appointment.confirmado.coming-soon .date-badge {
+            background: linear-gradient(135deg, #ffc107, #e0a800) !important;
         }
 
-        .next-appointment:first-child .date-badge .days-remaining,
-        .next-appointment:nth-child(2) .date-badge .days-remaining {
-            background-color: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(10px);
-            border-radius: 4px;
-            padding: 2px 6px;
-            margin-top: 3px;
-            font-weight: 600;
-            color: white;
-        }
-
-        .next-appointment:first-child {
-            border-left: 4px solid transparent;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-        }
-
-        .next-appointment:nth-child(2) {
-            border-left: 4px solid transparent;
-            background: linear-gradient(45deg, rgba(79, 172, 254, 0.05), rgba(27, 233, 244, 0.05));
-        }
-
-        /* Animación suave para la primera cita */
+        /* Animación de pulso para citas urgentes confirmadas */
         @keyframes pulse {
-
-            0%,
-            100% {
+            0% {
                 transform: scale(1);
-                box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
             }
 
             50% {
-                transform: scale(1.02);
-                box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
             }
         }
 
-
         /* Responsive: ajustes para móviles */
         @media (max-width: 768px) {
-
-            .next-appointment:first-child .date-badge .days-remaining,
-            .next-appointment:nth-child(2) .date-badge .days-remaining {
+            .date-badge .days-remaining {
                 font-size: 9px;
                 padding: 1px 4px;
             }
         }
+
 
         /* Indicador de días restantes en el badge de fecha */
         .date-badge .days-remaining {
@@ -996,57 +1046,56 @@
         }
 
 
-
-        /* Clases de urgencia para las citas */
-        .next-appointment.urgent-soon {
-            border-left: 4px solid #dc3545;
-            background-color: #fff5f5;
-        }
-
-        .next-appointment.urgent-soon .date-badge {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            animation: pulse 2s infinite;
-        }
-
-        .next-appointment.urgent-close {
-            border-left: 4px solid #fd7e14;
-            background-color: #fff8f0;
-        }
-
-        .next-appointment.urgent-close .date-badge {
-            background: linear-gradient(135deg, #fd7e14, #e5650b);
-        }
-
-        .next-appointment.coming-soon {
-            border-left: 4px solid #ffc107;
-            background-color: #fffbf0;
-        }
-
-        .next-appointment.coming-soon .date-badge {
-            background: linear-gradient(135deg, #ffc107, #e0a800);
-        }
-
-        /* Animación de pulso para citas urgentes */
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
         /* Mejorar el estilo del contenedor de información */
         .next-appointment .appointment-date-time {
             display: flex;
             align-items: center;
             gap: 15px;
             flex: 1;
+        }
+
+        /* COLORES PARA BADGE DE FECHA Y BORDE IZQUIERDO */
+        /* CITAS PENDIENTES  */
+        .next-appointment.pendiente .date-badge {
+            background: var(--secondary-gradient) !important;
+        }
+
+        .next-appointment.pendiente {
+            border-left: 5px solid #4facfe !important;
+            /* Borde celeste */
+        }
+
+        /* CITAS CONFIRMADAS  */
+        .next-appointment.confirmada .date-badge,
+        .next-appointment.confirmado .date-badge {
+            background: linear-gradient(135deg, #81c784, #66bb6a) !important;
+        }
+
+        .next-appointment.confirmada,
+        .next-appointment.confirmado {
+            border-left: 5px solid #66bb6a !important;
+        }
+
+        /* CITAS EN PROCESO - */
+        .next-appointment.en_proceso .date-badge,
+        .next-appointment.en-proceso .date-badge {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
+        }
+
+        .next-appointment.en_proceso,
+        .next-appointment.en-proceso {
+            border-left: 5px solid #1b5e20 !important;
+        }
+
+        /* CITAS FINALIZADAS - */
+        .next-appointment.finalizada .date-badge,
+        .next-appointment.finalizado .date-badge {
+            background: var(--primary-gradient) !important;
+        }
+
+        .next-appointment.finalizada,
+        .next-appointment.finalizado {
+            border-left: 5px solid #764ba2 !important;
         }
 
         /* Responsive para dispositivos móviles */
@@ -1792,25 +1841,49 @@
             }
         }
 
+        .scroll-container {
+            position: relative;
+            height: 400px;
+        }
+
         .card-body.scrollable {
             max-height: 400px;
             overflow-y: auto;
             padding-right: 10px;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE/Edge */
         }
 
-        /* Personalizar scrollbar */
         .card-body.scrollable::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari/Opera */
+        }
+
+        .custom-scrollbar {
+            position: absolute;
+            right: 2px;
+            top: 0;
+            bottom: 0;
             width: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            z-index: 10;
         }
 
-        .card-body.scrollable::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+        .custom-scrollbar-thumb {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .card-body.scrollable::-webkit-scrollbar-thumb {
-            background: #4facfe;
-            border-radius: 10px;
+        .custom-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #3d8bfd, #00d9e8);
         }
 
         /* Footer */
@@ -2154,77 +2227,73 @@
         <div class="dashboard-grid">
             <!-- Sección Principal -->
             <div class="main-section">
-                <!-- Próximas Citas -->
+                <!-- Próximas Citas Confirmadas -->
                 <div class="card">
                     <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            Próximas Citas
-                            <small style="font-size: 12px; color: #6c757d; font-weight: normal;">
-                                (Próximos 15 días)
-                            </small>
-                        </h2>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>
+                                <div class="icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                Próximas Citas Confirmadas
+                            </h2>
+                            <a href="{{ route('cliente.citas') }}" class="btn btn-outline" style="padding: 8px 12px;">
+                                <i class="fas fa-list"></i> Ver Todas Las Citas
+                            </a>
+                        </div>
                     </div>
-                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        @if ($proximas_citas->count() > 0)
-                            @foreach ($proximas_citas as $cita)
-                                @php
-                                    // Calcular días restantes
-                                    $diasRestantes = now()->diffInDays($cita->fecha_hora, false);
-                                    $diasRestantes = $diasRestantes < 0 ? 0 : ceil($diasRestantes);
+                    <div class="scroll-container">
+                        <div class="card-body scrollable" id="proximas-citas-container">
+                            @if ($proximas_citas->count() > 0)
+                                @foreach ($proximas_citas->sortBy('fecha_hora') as $cita)
+                                    @php
+                                        $diasRestantes = now()->diffInDays($cita->fecha_hora, false);
+                                        $diasRestantes = $diasRestantes < 0 ? 0 : ceil($diasRestantes);
+                                        $urgenciaClass = '';
+                                        $urgenciaText = '';
 
-                                    // Determinar clase de urgencia
-                                    $urgenciaClass = '';
-                                    $urgenciaText = '';
-
-                                    if ($diasRestantes <= 1) {
-                                        $urgenciaClass = 'urgent-soon';
-                                        $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
-                                    } elseif ($diasRestantes <= 3) {
-                                        $urgenciaClass = 'urgent-close';
-                                        $urgenciaText = "En {$diasRestantes} días";
-                                    } elseif ($diasRestantes <= 7) {
-                                        $urgenciaClass = 'coming-soon';
-                                        $urgenciaText = "En {$diasRestantes} días";
-                                    } else {
-                                        $urgenciaText = "En {$diasRestantes} días";
-                                    }
-                                @endphp
-
-                                <div
-                                    class="next-appointment {{ $loop->first ? 'highlighted' : '' }} {{ $urgenciaClass }}">
-                                    <div class="appointment-date-time">
-                                        <div class="date-badge">
-                                            <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
-                                            <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
-                                            @if ($diasRestantes <= 7)
-                                                <span class="days-remaining">{{ $urgenciaText }}</span>
-                                            @endif
-                                        </div>
-                                        <div class="time-info">
-                                            <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
-                                            <div class="service">
-                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                        if ($diasRestantes <= 1) {
+                                            $urgenciaClass = 'urgent-soon';
+                                            $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
+                                        } elseif ($diasRestantes <= 3) {
+                                            $urgenciaClass = 'urgent-close';
+                                            $urgenciaText = "En {$diasRestantes} días";
+                                        } elseif ($diasRestantes <= 7) {
+                                            $urgenciaClass = 'coming-soon';
+                                            $urgenciaText = "En {$diasRestantes} días";
+                                        } else {
+                                            $urgenciaText = "En {$diasRestantes} días";
+                                        }
+                                    @endphp
+                                    <div class="next-appointment {{ $urgenciaClass }}">
+                                        <div class="appointment-date-time">
+                                            <div class="date-badge">
+                                                <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
+                                                <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
+                                                @if ($diasRestantes <= 7)
+                                                    <span class="days-remaining">{{ $urgenciaText }}</span>
+                                                @endif
                                             </div>
-                                            <div class="vehicle-info">
-                                                <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                                {{ $cita->vehiculo->modelo }}
-                                            </div>
-                                            @if ($diasRestantes > 7)
-                                                <div class="days-info">
-                                                    <i class="fas fa-clock"></i> {{ $urgenciaText }}
+                                            <div class="time-info">
+                                                <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
+                                                <div class="service">
+                                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
                                                 </div>
-                                            @endif
+                                                <div class="vehicle-info">
+                                                    <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                    {{ $cita->vehiculo->modelo }}
+                                                </div>
+                                                @if ($diasRestantes > 7)
+                                                    <div class="days-info">
+                                                        <i class="fas fa-clock"></i> {{ $urgenciaText }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <span class="appointment-status status-confirmada">
+                                                Confirmada
+                                            </span>
                                         </div>
-                                        <span
-                                            class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}">
-                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                        </span>
-                                    </div>
-                                    <div class="appointment-actions">
-                                        @if ($cita->estado == 'pendiente' || $cita->estado == 'confirmada')
+                                        <div class="appointment-actions">
                                             <button class="btn btn-sm btn-warning"
                                                 onclick="editCita({{ $cita->id }})">
                                                 <i class="fas fa-edit"></i> Modificar
@@ -2233,120 +2302,99 @@
                                                 onclick="cancelCita({{ $cita->id }})">
                                                 <i class="fas fa-times"></i> Cancelar
                                             </button>
-                                        @endif
+                                        </div>
                                     </div>
+                                @endforeach
+
+                                <!-- Mensaje informativo actualizado -->
+                                <div class="info-message">
+                                    <small>
+                                        <i class="fas fa-info-circle"></i>
+                                        Todas tus citas confirmadas futuras
+                                    </small>
                                 </div>
-                            @endforeach
 
-                            <!-- Mensaje informativo sobre el filtro -->
-                            <div class="info-message">
-                                <small>
-                                    <i class="fas fa-info-circle"></i>
-                                    Se muestran solo las citas de los próximos 15 días
-                                </small>
-                            </div>
-
-                            <!-- Botón "Ver todas las citas" - Siempre visible cuando hay citas -->
-                            <div style="text-align: center; margin-top: 15px;">
-                                <a href="{{ route('cliente.citas', ['tipo' => 'proximas']) }}" class="btn btn-outline">
-                                    <i class="fas fa-list"></i> Ver todas las citas
-                                </a>
-                            </div>
-                        @else
-                            <div class="empty-state">
-                                <i class="fas fa-calendar-alt"></i>
-                                <h3>No tienes citas programadas</h3>
-                                <p>En los próximos 15 días</p>
-                                <small style="color: #6c757d; display: block; margin-top: 5px;">
-                                    Agenda una cita y aparecerá aquí si está dentro de este período
-                                </small>
-                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Cita
-                                </button>
-                            </div>
-                        @endif
+                                @if ($proximas_citas->count() > 3)
+                                    <div style="text-align: center; margin-top: 15px;">
+                                        <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
+                                            <i class="fas fa-list"></i> Ver todas las citas
+                                        </a>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <h3>No tienes citas futuras confirmadas</h3>
+                                    <p>Agenda una cita y aparecerá aquí cuando sea confirmada</p>
+                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Agendar Cita
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="custom-scrollbar" id="proximas-citas-scrollbar">
+                            <div class="custom-scrollbar-thumb" id="proximas-citas-thumb"></div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Historial de Servicios -->
                 <div class="card">
                     <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            Historial de Servicios
-                            <small style="font-size: 12px; color: #6c757d; font-weight: normal;">
-                                (Últimos 10 registros)
-                            </small>
-                        </h2>
-                    </div>
-                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        @if ($historial_citas->count() > 0)
-                            @foreach ($historial_citas as $cita)
-                                <div class="service-history-item">
-                                    <div class="service-icon">
-                                        <i class="fas fa-soap"></i>
-                                    </div>
-                                    <div class="service-details">
-                                        <h4>
-                                            @if ($cita->servicios && count($cita->servicios) > 0)
-                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                            @else
-                                                Servicio no especificado
-                                            @endif
-                                        </h4>
-                                        <p><i class="fas fa-calendar"></i>
-                                            {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
-                                        <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                            {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
-                                        <p class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}"
-                                            style="display: inline-block; margin-top: 5px;">
-                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                        </p>
-                                        @if ($cita->estado == 'finalizada')
-                                            <a href="#" class="repeat-service"
-                                                onclick="repeatService({{ $cita->id }})">
-                                                <i class="fas fa-redo"></i> Volver a agendar
-                                            </a>
-                                        @endif
-                                    </div>
-                                    <div class="service-price">
-                                        @php
-                                            $total = $cita->servicios->sum('precio');
-                                        @endphp
-                                        ${{ number_format($total, 2) }}
-                                    </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>
+                                <div class="icon">
+                                    <i class="fas fa-history"></i>
                                 </div>
-                            @endforeach
+                                Historial de Servicios
+                            </h2>
+                            <a href="{{ route('cliente.citas.historial') }}" class="btn btn-outline"
+                                style="padding: 8px 12px;">
+                                <i class="fas fa-list"></i> Ver Historial Completo
+                            </a>
+                        </div>
+                    </div>
+                    <div class="scroll-container">
+                        <div class="card-body scrollable" id="historial-container">
+                            @if ($historial_citas->count() > 0)
+                                @foreach ($historial_citas as $cita)
+                                    <div class="service-history-item {{ $cita->estado }}">
+                                        <div class="service-icon status-{{ $cita->estado }}">
+                                            <i
+                                                class="fas fa-{{ $cita->estado === 'finalizada' ? 'check-circle' : 'times-circle' }}"></i>
+                                        </div>
 
-                            <!-- Mensaje informativo sobre el filtro -->
-                            <div class="info-message">
-                                <small>
-                                    <i class="fas fa-info-circle"></i>
-                                    Se muestran solo los últimos 10 registros
-                                </small>
-                            </div>
-
-                            <!-- Botón "Ver historial completo" - Siempre visible cuando hay historial -->
-                            <div style="text-align: center; margin-top: 15px;">
-                                <a href="{{ route('cliente.citas', ['tipo' => 'pasadas']) }}"
-                                    class="btn btn-outline">
-                                    <i class="fas fa-list"></i> Ver historial completo
-                                </a>
-                            </div>
-                        @else
-                            <div class="empty-state">
-                                <i class="fas fa-history"></i>
-                                <h3>No hay historial de servicios</h3>
-                                <p>Agenda tu primera cita para comenzar a ver tu historial</p>
-                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Cita
-                                </button>
-                            </div>
-                        @endif
+                                        <div class="service-details">
+                                            <h4>{{ $cita->servicios->pluck('nombre')->join(', ') }}</h4>
+                                            <p><i class="fas fa-calendar"></i>
+                                                {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
+                                            <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                {{ $cita->vehiculo->modelo }}
+                                                @if ($cita->vehiculo->placa)
+                                                    - {{ $cita->vehiculo->placa }}
+                                                @endif
+                                            </p>
+                                            <span class="appointment-status status-{{ $cita->estado }}">
+                                                {{ ucfirst($cita->estado) }}
+                                            </span>
+                                        </div>
+                                        <div class="service-price">
+                                            ${{ number_format($cita->servicios->sum('precio'), 2) }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="empty-state">
+                                    <i class="fas fa-history"></i>
+                                    <h3>No hay historial de servicios</h3>
+                                    <p>Agenda tu primera cita para comenzar a ver tu historial</p>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="custom-scrollbar" id="historial-scrollbar">
+                            <div class="custom-scrollbar-thumb" id="historial-thumb"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -2878,8 +2926,8 @@
 
     <script>
         /*=========================================================
-                            FUNCIONAMIENTO DE CREAR CITAS
-                            =========================================================*/
+                                                                                                                                                                                                                FUNCIONAMIENTO DE CREAR CITAS
+                                                                                                                                                                                                            =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3655,6 +3703,22 @@
                 const data = await response.json();
                 if (!data.success) throw new Error(data.message);
 
+                // Verificar restricción de 24 horas
+                if (data.data.restriccion_24h) {
+                    // Deshabilitar campos de fecha/hora/vehículo en el formulario
+                    document.getElementById('fecha').disabled = true;
+                    document.getElementById('hora').disabled = true;
+                    document.getElementById('vehiculo_id').disabled = true;
+
+                    // Mostrar mensaje al usuario
+                    swalWithBootstrapButtons.fire({
+                        title: 'Atención',
+                        text: 'Solo puedes modificar servicios y observaciones cuando faltan menos de 24 horas para tu cita confirmada',
+                        icon: 'info',
+                        confirmButtonText: 'Entendido'
+                    });
+                }
+
                 swalInstance.close();
 
                 // 2. Abrir modal limpio
@@ -3827,7 +3891,6 @@
         // Función para actualizar las secciones de citas
         async function updateCitasSections(tipo = 'próximas', citas = []) {
             try {
-                // Si no se proporcionan citas, obtenerlas del servidor
                 if (citas.length === 0) {
                     try {
                         const response = await fetch('/cliente/dashboard-data', {
@@ -3837,9 +3900,7 @@
                             }
                         });
 
-                        if (!response.ok) {
-                            throw new Error(`Error ${response.status}: ${response.statusText}`);
-                        }
+                        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
 
                         const contentType = response.headers.get('content-type');
                         if (!contentType || !contentType.includes('application/json')) {
@@ -3847,22 +3908,18 @@
                         }
 
                         const data = await response.json();
+                        if (!data.success) throw new Error(data.message || 'Error en los datos recibidos');
 
-                        if (!data.success) {
-                            throw new Error(data.message || 'Error en los datos recibidos');
-                        }
+                        // SOLO CITAS CONFIRMADAS para próximas (ya vienen filtradas del servidor)
+                        citas = tipo === 'próximas' ?
+                            data.proximas_citas :
+                            data.historial_citas; // Ya vienen filtradas (canceladas/finalizadas)
 
-                        citas = tipo === 'próximas' ? data.proximas_citas : data.historial_citas;
-
-                        // NUEVO: Ordenar citas próximas por fecha (más cercana primero) si no vienen ya ordenadas
+                        // Ordenar citas próximas por fecha (más cercana primero)
                         if (tipo === 'próximas' && citas.length > 0) {
-                            citas.sort((a, b) => {
-                                const fechaA = new Date(a.fecha_hora);
-                                const fechaB = new Date(b.fecha_hora);
-                                return fechaA - fechaB; // Ascendente: más cercana primero
-                            });
-                            console.log('📅 Citas próximas ordenadas de más cercana a más lejana');
+                            citas.sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora));
                         }
+
                     } catch (error) {
                         console.error('Error al obtener datos de citas:', error);
                         await swalWithBootstrapButtons.fire({
@@ -3886,23 +3943,23 @@
 
                 if (citas.length === 0) {
                     const emptyMessage = tipo === 'próximas' ?
-                        'No tienes citas programadas en los próximos 15 días' :
+                        'No tienes citas futuras confirmadas' :
                         'No hay historial de servicios';
 
                     const emptyDescription = tipo === 'próximas' ?
-                        'Agenda una cita y aparecerá aquí si está dentro de los próximos 15 días' :
+                        'Agenda una cita y aparecerá aquí cuando sea confirmada' :
                         'Agenda tu primera cita para comenzar a ver tu historial';
 
                     container.innerHTML = `
                 <div class="empty-state">
-                    <i class="fas fa-${tipo === 'próximas' ? 'calendar-alt' : 'history'}"></i>
+                    <i class="fas fa-${tipo === 'próximas' ? 'calendar-check' : 'history'}"></i>
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                <i class="fas fa-calendar-plus"></i>
-                                                                                                                Agendar Cita
-                                                                                                            </button>` : ''}
+                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                        <i class="fas fa-calendar-plus"></i>
+                                                        Agendar Cita
+                                                    </button>` : ''}
                 </div>
             `;
                     return;
@@ -3912,17 +3969,14 @@
 
                 if (tipo === 'próximas') {
                     citas.forEach((cita, index) => {
-                        // Calcular días restantes para la cita
                         const fechaCita = formatearFechaHoraFromServer(cita.fecha_hora);
                         const hoy = new Date();
                         const diasRestantes = Math.ceil((fechaCita - hoy) / (1000 * 60 * 60 * 24));
 
-                        // Usar funciones de formateo seguras
                         const dia = obtenerDiaDelMes(cita.fecha_hora);
                         const mes = obtenerMesAbreviado(cita.fecha_hora);
                         const hora = formatearSoloHora(cita.fecha_hora);
 
-                        // Determinar clase de urgencia basada en días restantes
                         let urgenciaClass = '';
                         let urgenciaText = '';
 
@@ -3957,29 +4011,28 @@
                             </div>
                             ${diasRestantes > 7 ? `<div class="days-info"><i class="fas fa-clock"></i> ${urgenciaText}</div>` : ''}
                         </div>
-                        <span class="appointment-status status-${cita.estado.replace('_', '-')}">
-                            ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
+                        <span class="appointment-status status-confirmada">
+                            Confirmada
                         </span>
                     </div>
                     <div class="appointment-actions">
-                        ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                                                <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                                                    <i class="fas fa-edit"></i> Modificar
-                                                                                                                </button>
-                                                                                                                <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                                                    <i class="fas fa-times"></i> Cancelar
-                                                                                                                </button>` : ''}
+                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                            <i class="fas fa-edit"></i> Modificar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
                     </div>
                 </div>
                 `;
                     });
 
-                    // Agregar información sobre el filtro de 15 días
+                    // Mensaje actualizado (sin referencia a 15 días)
                     html += `
                 <div style="text-align: center; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
                     <small style="color: #6c757d;">
                         <i class="fas fa-info-circle"></i>
-                        Se muestran solo las citas de los próximos 15 días
+                        Todas tus citas confirmadas futuras
                     </small>
                 </div>
             `;
@@ -3995,26 +4048,21 @@
                     }
                 } else { // Historial
                     citas.forEach(cita => {
-                        //  Usar función de formateo segura
                         const fechaCompleta = formatearFechaCompleta(cita.fecha_hora);
                         const total = cita.servicios.reduce((sum, servicio) => sum + servicio.precio, 0);
 
                         html += `
                 <div class="service-history-item">
                     <div class="service-icon">
-                        <i class="fas fa-soap"></i>
+                        <i class="fas fa-${cita.estado === 'finalizada' ? 'check-circle' : 'times-circle'}"></i>
                     </div>
                     <div class="service-details">
                         <h4>${cita.servicios.map(s => s.nombre).join(', ')}</h4>
                         <p><i class="fas fa-calendar"></i> ${fechaCompleta}</p>
                         <p><i class="fas fa-car"></i> ${cita.vehiculo.marca} ${cita.vehiculo.modelo} - ${cita.vehiculo.placa}</p>
-                        <span class="appointment-status status-${cita.estado.replace('_', '-')}" style="display: inline-block; margin-top: 5px;">
-                            ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
+                        <span class="appointment-status status-${cita.estado}" style="display: inline-block; margin-top: 5px;">
+                            ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)}
                         </span>
-                        ${cita.estado === 'finalizada' ? `
-                                                                                                                <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                                                    <i class="fas fa-redo"></i> Volver a agendar
-                                                                                                                </a>` : ''}
                     </div>
                     <div class="service-price">
                         ${total.toFixed(2)}
@@ -4025,7 +4073,6 @@
                 }
 
                 container.innerHTML = html;
-
                 console.log(`✅ Sección de citas "${tipo}" actualizada correctamente con ${citas.length} elementos`);
 
             } catch (error) {
@@ -4037,43 +4084,6 @@
                 });
                 location.reload();
             }
-        }
-        // Función para repetir servicio desde el historial
-        function repeatService(citaId) {
-            fetch(`/cliente/citas/${citaId}/repeat`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Rellenar el modal con los datos de la cita anterior
-                        document.getElementById('vehiculo_id').value = data.vehiculo_id;
-                        cargarServiciosPorTipo().then(() => {
-                            // Seleccionar los servicios anteriores
-                            data.servicios.forEach(servicioId => {
-                                const checkbox = document.getElementById(`servicio_${servicioId}`);
-                                if (checkbox) checkbox.checked = true;
-                            });
-
-                            // Abrir el modal
-                            openCitaModal();
-
-                            swalWithBootstrapButtons.fire({
-                                title: 'Servicio cargado',
-                                text: 'Hemos cargado los detalles de tu cita anterior. Por favor revisa y confirma la nueva fecha.',
-                                icon: 'info',
-                                confirmButtonColor: '#4facfe'
-                            });
-                        });
-                    } else {
-                        throw new Error(data.message);
-                    }
-                })
-                .catch(error => {
-                    swalWithBootstrapButtons.fire({
-                        title: 'Error',
-                        text: error.message || 'No se pudo cargar la cita anterior',
-                        icon: 'error'
-                    });
-                });
         }
 
         async function generateAvailableTimesFromOccupied(fecha, horariosOcupados) {
@@ -4431,11 +4441,11 @@
                         <p>${errorMessage}</p>
                         ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                         ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                        </ul>
-                                                    ` : ''}
+                                                                                                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                                                    </ul>
+                                                                                                                                ` : ''}
                         <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                             Por favor intenta nuevamente con un horario diferente.
                         </p>
@@ -4452,6 +4462,98 @@
                 });
             }
         });
+
+        // Codigo para el scroll personalizado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar scroll personalizado para Próximas Citas
+            setupCustomScroll('proximas-citas-container', 'proximas-citas-scrollbar', 'proximas-citas-thumb');
+
+            // Configurar scroll personalizado para Historial
+            setupCustomScroll('historial-container', 'historial-scrollbar', 'historial-thumb');
+        });
+
+        function setupCustomScroll(containerId, scrollbarId, thumbId) {
+            const container = document.getElementById(containerId);
+            const scrollbar = document.getElementById(scrollbarId);
+            const thumb = document.getElementById(thumbId);
+
+            if (!container || !scrollbar || !thumb) return;
+
+            // Calcular la relación entre el tamaño del thumb y el contenido
+            function updateThumb() {
+                const scrollRatio = container.clientHeight / container.scrollHeight;
+                const thumbHeight = Math.max(scrollRatio * scrollbar.clientHeight, 30);
+                thumb.style.height = `${thumbHeight}px`;
+
+                const maxScroll = container.scrollHeight - container.clientHeight;
+                const thumbPosition = (container.scrollTop / maxScroll) * (scrollbar.clientHeight - thumbHeight);
+                thumb.style.top = `${thumbPosition}px`;
+            }
+
+            // Actualizar al cargar y al redimensionar
+            updateThumb();
+            window.addEventListener('resize', updateThumb);
+
+            // Mover el scroll al arrastrar el thumb
+            let isDragging = false;
+
+            thumb.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                const startY = e.clientY;
+                const startTop = parseFloat(thumb.style.top) || 0;
+
+                function moveThumb(e) {
+                    if (!isDragging) return;
+
+                    const deltaY = e.clientY - startY;
+                    let newTop = startTop + deltaY;
+
+                    const maxTop = scrollbar.clientHeight - thumb.clientHeight;
+                    newTop = Math.max(0, Math.min(maxTop, newTop));
+
+                    thumb.style.top = `${newTop}px`;
+
+                    // Mover el contenido
+                    const scrollRatio = newTop / (scrollbar.clientHeight - thumb.clientHeight);
+                    container.scrollTop = scrollRatio * (container.scrollHeight - container.clientHeight);
+                }
+
+                function stopDrag() {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', moveThumb);
+                    document.removeEventListener('mouseup', stopDrag);
+                }
+
+                document.addEventListener('mousemove', moveThumb);
+                document.addEventListener('mouseup', stopDrag);
+                e.preventDefault();
+            });
+
+            // Mover el thumb al hacer scroll con la rueda del mouse
+            container.addEventListener('scroll', function() {
+                if (!isDragging) {
+                    updateThumb();
+                }
+            });
+
+            // Permitir hacer clic en la barra para mover el scroll
+            scrollbar.addEventListener('click', function(e) {
+                if (e.target === thumb) return;
+
+                const clickPosition = e.clientY - scrollbar.getBoundingClientRect().top;
+                const thumbHeight = parseFloat(thumb.style.height);
+                const newTop = clickPosition - (thumbHeight / 2);
+
+                const maxTop = scrollbar.clientHeight - thumbHeight;
+                const adjustedTop = Math.max(0, Math.min(maxTop, newTop));
+
+                thumb.style.top = `${adjustedTop}px`;
+
+                // Mover el contenido
+                const scrollRatio = adjustedTop / (scrollbar.clientHeight - thumbHeight);
+                container.scrollTop = scrollRatio * (container.scrollHeight - container.clientHeight);
+            });
+        }
 
         // Script para debug - funciones para probar el manejo de fechas
         async function debugFechas(fechaStr = null) {
@@ -4706,10 +4808,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4821,8 +4923,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                            FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                            =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4851,8 +4953,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

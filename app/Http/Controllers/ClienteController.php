@@ -39,21 +39,15 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
-            //  Filtrar citas próximas (futuras, con estados específicos Y dentro de los próximos 15 días)
-            $fechaLimite = now()->addDays(15); // 15 días desde hoy
+            // PRÓXIMAS CITAS - SOLO CONFIRMADAS 
+            $proximas_citas = $citas->where('estado', 'confirmada')
+                ->where('fecha_hora', '>=', now()) // Solo futuras
+                ->sortBy('fecha_hora');
 
-            $proximas_citas = $citas->filter(function ($cita) use ($fechaLimite) {
-                return $cita->fecha_hora >= now() &&
-                    $cita->fecha_hora <= $fechaLimite &&
-                    in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
-            })->sortByDesc('fecha_hora');
-
-            // Filtrar historial (pasadas o con estados finalizados)
+            // HISTORIAL - SOLO CANCELADAS O FINALIZADAS
             $historial_citas = $citas->filter(function ($cita) {
-                return $cita->fecha_hora < now() ||
-                    in_array($cita->estado, ['finalizada', 'cancelada']);
-            })->sortByDesc('fecha_hora');
-
+                return in_array($cita->estado, ['finalizada', 'cancelada']);
+            });
             return view('cliente.dashboard', [
                 'user' => $user,
                 'stats' => [
@@ -64,7 +58,7 @@ class ClienteController extends Controller
                 ],
                 'mis_vehiculos' => $vehiculos,
                 'vehiculos_dashboard' => $vehiculosDashboard,
-                'proximas_citas' => $proximas_citas->values()->take(5), // values() para reindexar después del sort
+                'proximas_citas' => $proximas_citas->take(5),
                 'historial_citas' => $historial_citas->take(5),
                 'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
                 'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count()
@@ -102,37 +96,12 @@ class ClienteController extends Controller
         return view('VehiculosViews.index', compact('vehiculos'));
     }
 
-    // En tu ClienteController.php
-
-    public function citas(Request $request)
+    public function citas(Request $request): View
     {
-        $user = Auth::user();
+        $query = Cita::where('usuario_id', Auth::id())
+            ->with(['vehiculo', 'servicios']);
 
-        $query = Cita::where('usuario_id', $user->id)
-            ->with(['vehiculo', 'servicios'])
-            ->orderBy('fecha_hora', 'desc');
-
-        // Filtro por tipo (futuras/pasadas)
-        if ($request->filled('tipo')) {
-            if ($request->tipo == 'proximas') {
-                $query->where('fecha_hora', '>=', now())
-                    ->whereIn('estado', [
-                        Cita::ESTADO_PENDIENTE,
-                        Cita::ESTADO_CONFIRMADA,
-                        Cita::ESTADO_EN_PROCESO
-                    ]);
-            } elseif ($request->tipo == 'pasadas') {
-                $query->where(function ($q) {
-                    $q->where('fecha_hora', '<', now())
-                        ->orWhereIn('estado', [
-                            Cita::ESTADO_FINALIZADA,
-                            Cita::ESTADO_CANCELADA
-                        ]);
-                });
-            }
-        }
-
-        // Filtros adicionales
+        // Aplicar filtros
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
@@ -149,11 +118,13 @@ class ClienteController extends Controller
             $query->where('vehiculo_id', $request->vehiculo_id);
         }
 
-        return view('cliente.citas', [
-            'citas' => $query->paginate(10),
-            'vehiculos' => $user->vehiculos,
-            'filters' => $request->only(['tipo', 'estado', 'fecha_desde', 'fecha_hasta', 'vehiculo_id'])
-        ]);
+        // Ordenar por fecha más reciente primero
+        $citas = $query->orderBy('fecha_hora', 'desc')->paginate(10);
+
+        // Mantener los parámetros de filtro en la paginación
+        $citas->appends($request->query());
+
+        return view('cliente.citas', compact('citas'));
     }
 
     public function misVehiculosAjax()
@@ -547,25 +518,21 @@ class ClienteController extends Controller
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
-            //  Filtrar citas próximas con límite de 15 días
-            $fechaLimite = now()->addDays(15);
+            // PRÓXIMAS CITAS - SOLO CONFIRMADAS
+            $proximas_citas = $todasLasCitas->where('estado', 'confirmada')
+                ->where('fecha_hora', '>=', now())
+                ->sortBy('fecha_hora')
+                ->values();
 
-            $proximas_citas = $todasLasCitas->filter(function ($cita) use ($fechaLimite) {
-                return $cita->fecha_hora >= now() && // Cita futura
-                    $cita->fecha_hora <= $fechaLimite && // Dentro de los próximos 15 días
-                    in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
-            })->sortBy('fecha_hora')->values(); // Ordenar de la más cercana a la más lejana y reindexar
-
-            // Filtrar historial
+            // HISTORIAL - SOLO CANCELADAS O FINALIZADAS
             $historial_citas = $todasLasCitas->filter(function ($cita) {
-                return $cita->fecha_hora < now() ||
-                    in_array($cita->estado, ['finalizada', 'cancelada']);
-            });
+                return in_array($cita->estado, ['cancelada', 'finalizada']);
+            })->values();
 
             return response()->json([
                 'success' => true,
-                'proximas_citas' => $proximas_citas, // Ya viene ordenado y con values()
-                'historial_citas' => $historial_citas->values(),
+                'proximas_citas' => $proximas_citas,
+                'historial_citas' => $historial_citas,
                 'stats' => [
                     'total_vehiculos' => $vehiculos->count(),
                     'total_citas' => $todasLasCitas->count(),
@@ -639,7 +606,26 @@ class ClienteController extends Controller
                 'observaciones' => 'nullable|string|max:500'
             ]);
 
-            // IMPORTANTE: Crear request temporal para usar storeCita con exclusión
+            // Bloquear cambios de fecha/hora/vehículo si faltan menos de 24 horas para cita confirmada
+            $fechaActual = now();
+            $fechaCitaOriginal = Carbon::parse($cita->fecha_hora);
+            $horasRestantes = $fechaActual->diffInHours($fechaCitaOriginal, false);
+
+            if ($cita->estado === 'confirmada' && $horasRestantes < 24) {
+                // Verificar qué campos intentan modificar
+                $fechaCitaNueva = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
+                $haCambiadoFechaHora = !$fechaCitaOriginal->equalTo($fechaCitaNueva);
+                $haCambiadoVehiculo = $cita->vehiculo_id != $validated['vehiculo_id'];
+
+                if ($haCambiadoFechaHora || $haCambiadoVehiculo) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No puedes cambiar la fecha, hora o vehículo cuando faltan menos de 24 horas para la cita confirmada. Solo puedes modificar servicios u observaciones.'
+                    ], 400);
+                }
+            }
+
+            // Crear request temporal para usar storeCita con exclusión
             $tempRequest = new Request();
             $tempRequest->replace($validated);
             $tempRequest->merge(['cita_id' => $cita->id]); // Agregar ID para exclusión
@@ -648,6 +634,16 @@ class ClienteController extends Controller
 
             // Combinar fecha y hora
             $fechaCita = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
+
+            // Verificar si la fecha/hora ha cambiado
+            $fechaOriginal = Carbon::parse($cita->fecha_hora);
+            $haCambiadoFecha = !$fechaOriginal->equalTo($fechaCita);
+
+            // Si la cita estaba confirmada y cambió la fecha, cambiar a pendiente
+            $nuevoEstado = $cita->estado;
+            if ($cita->estado === 'confirmada' && $haCambiadoFecha) {
+                $nuevoEstado = 'pendiente';
+            }
 
             // Validar que la nueva fecha/hora no sea en el pasado
             if ($fechaCita->lt(now())) {
@@ -698,11 +694,11 @@ class ClienteController extends Controller
                         ->orWhere(function ($q) use ($fechaCita, $horaFin) {
                             $q->where('fecha_hora', '<', $fechaCita)
                                 ->whereRaw('DATE_ADD(fecha_hora, INTERVAL (
-                                SELECT SUM(servicios.duracion_min) 
-                                FROM cita_servicio 
-                                JOIN servicios ON cita_servicio.servicio_id = servicios.id 
-                                WHERE cita_servicio.cita_id = citas.id
-                            ) MINUTE) > ?', [$fechaCita]);
+                        SELECT SUM(servicios.duracion_min) 
+                        FROM cita_servicio 
+                        JOIN servicios ON cita_servicio.servicio_id = servicios.id 
+                        WHERE cita_servicio.cita_id = citas.id
+                    ) MINUTE) > ?', [$fechaCita]);
                         })
                         ->orWhere(function ($q) use ($fechaCita, $horaFin) {
                             $q->where('fecha_hora', '>', $fechaCita)
@@ -727,6 +723,7 @@ class ClienteController extends Controller
             $cita->update([
                 'vehiculo_id' => $validated['vehiculo_id'],
                 'fecha_hora' => $fechaCita,
+                'estado' => $nuevoEstado,
                 'observaciones' => $validated['observaciones'] ?? null
             ]);
 
@@ -752,7 +749,8 @@ class ClienteController extends Controller
                     'servicios_nombres' => $cita->servicios->pluck('nombre')->join(', '),
                     'vehiculo_marca' => $cita->vehiculo->marca,
                     'vehiculo_modelo' => $cita->vehiculo->modelo,
-                    'vehiculo_placa' => $cita->vehiculo->placa ?? ''
+                    'vehiculo_placa' => $cita->vehiculo->placa ?? '',
+                    'nuevo_estado' => $nuevoEstado
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -842,6 +840,49 @@ class ClienteController extends Controller
 
             return response()->json(['horariosOcupados' => []], 500);
         }
+    }
+
+    public function historial()
+    {
+        $user = auth()->user();
+
+        // Actualizar citas expiradas
+        $user->citas()
+            ->expiradas()
+            ->each(function ($cita) {
+                $cita->marcarComoExpirada();
+            });
+
+        // Obtener citas para historial
+        $citas = $user->citas()
+            ->with(['servicios', 'vehiculo'])
+            ->whereIn('estado', [Cita::ESTADO_FINALIZADA, Cita::ESTADO_CANCELADA])
+            ->orderBy('fecha_hora', 'desc');
+
+
+        if (request()->has('estado') && request('estado') != '') {
+            $citas->where('estado', request('estado'));
+        }
+
+        if (request()->has('fecha_desde') && request('fecha_desde') != '') {
+            $citas->whereDate('fecha_hora', '>=', request('fecha_desde'));
+        }
+
+        if (request()->has('fecha_hasta') && request('fecha_hasta') != '') {
+            $citas->whereDate('fecha_hora', '<=', request('fecha_hasta'));
+        }
+
+        if (request()->has('vehiculo_id') && request('vehiculo_id') != '') {
+            $citas->where('vehiculo_id', request('vehiculo_id'));
+        }
+
+        // Paginar resultados
+        $citas = $citas->paginate(15)->withQueryString();
+
+        return view('cliente.historial', [
+            'citas' => $citas,
+            'user' => $user
+        ]);
     }
 
 
