@@ -19,25 +19,31 @@ class HorarioController extends Controller
         6 => 'Sábado'
     ];
 
-    public function index()
-    {
-        $horarios = Horario::where('dia_semana', '>=', 1)
-            ->orderBy('dia_semana')
-            ->orderBy('hora_inicio')
-            ->get();
+    public function index(){
+    
+      $horarios = Horario::whereBetween('dia_semana', [0, 6]) // Coincide con tu constante
+        ->orderBy('dia_semana')
+        ->orderBy('hora_inicio')
+        ->get();
 
-        if (request()->ajax()) {
-            $horarios->transform(function ($horario) {
-                $horario->nombre_dia = self::DIAS_SEMANA[$horario->dia_semana] ?? 'Desconocido';
-                return $horario;
-            });
-            return response()->json($horarios);
-        }
+      if (request()->ajax()) {
+        return response()->json($horarios->map(function ($horario) {
+            return [
+                'id' => $horario->id,
+                'dia_semana' => $horario->dia_semana,
+                'nombre_dia' => self::DIAS_SEMANA[$horario->dia_semana] ?? 'Desconocido',
+                'hora_inicio' => $horario->hora_inicio,
+                'hora_fin' => $horario->hora_fin,
+                'active' => $horario->active
+            ];
+        }));
+      }
 
-        return view('admin.dashboard', compact('horarios'));
-
+      return view('admin.dashboard', [
+        'horarios' => $horarios,
+        'diasSemana' => self::DIAS_SEMANA // Pasamos la constante a la vista
+      ]);
     }
-
     public function store(Request $request)
     {
         $data = $request->all();

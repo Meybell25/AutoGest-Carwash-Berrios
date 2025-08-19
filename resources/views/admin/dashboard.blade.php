@@ -2475,30 +2475,37 @@
                                 <tbody>
     @forelse ($horarios as $horario)
         <tr>
-            <td data-label="Día">{{ \App\Http\Controllers\HorarioController::DIAS_SEMANA[$horario->dia_semana] }}</td>
-            <td data-label="Hora Inicio">{{ \Carbon\Carbon::parse($horario->hora_inicio)->format('h:i A') }}</td>
-            <td data-label="Hora Fin">{{ \Carbon\Carbon::parse($horario->hora_fin)->format('h:i A') }}</td>
+            <td data-label="Día">{{ $diasSemana[$horario->dia_semana] ?? 'Desconocido' }}</td>
+            <td data-label="Hora Inicio">
+                {{ \Carbon\Carbon::parse($horario->hora_inicio)->format('h:i A') }}
+            </td>
+            <td data-label="Hora Fin">
+                {{ \Carbon\Carbon::parse($horario->hora_fin)->format('h:i A') }}
+            </td>
             <td data-label="Estado">
-                <span class="badge {{ $horario->activo ? 'badge-success' : 'badge-danger' }}">
-                    {{ $horario->activo ? 'Activo' : 'Inactivo' }}
+                <span class="badge {{ $horario->active ? 'badge-success' : 'badge-danger' }}">
+                    {{ $horario->active ? 'Activo' : 'Inactivo' }}
                 </span>
             </td>
             <td data-label="Acciones">
                 <div class="table-actions">
-                    <button class="table-btn btn-edit" title="Editar"
-                        onclick="editarHorario({{ $horario->id }})">
+                    <!-- Botones de editar/eliminar -->
+                    <a href="{{ route('horarios.edit', $horario->id) }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="table-btn btn-delete" title="Eliminar"
-                        onclick="desactivarHorario({{ $horario->id }})">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    </a>
+                    <form action="{{ route('horarios.destroy', $horario->id) }}" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro?')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
                 </div>
             </td>
         </tr>
     @empty
         <tr>
-            <td colspan="5" class="text-center">No hay horarios registrados.</td>
+            <td colspan="5" class="text-center">No hay horarios registrados</td>
         </tr>
     @endforelse
 </tbody>
