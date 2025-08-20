@@ -2450,7 +2450,7 @@
                     </div>
                 </div>
 
-                <!-- Gestión de Horarios -->
+                <!-- Gestión de Horarios 
                 <div class="card">
                     <div class="card-header">
                         <h2>
@@ -2615,7 +2615,7 @@
                       window.openEditModal = openEditModal;
                       .eliminarHorario = eliminarHorario;
                     });
-                </script>
+                </script>-->
 
 
                 <!-- Contenedor para Días No Laborables -->

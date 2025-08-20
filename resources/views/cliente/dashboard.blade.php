@@ -510,6 +510,40 @@
             font-size: 0.9rem;
         }
 
+        .restriction-alert {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .campo-bloqueado {
+            background-color: #f8f9fa !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+
+        .badge.bg-warning.text-dark {
+            font-size: 0.65em;
+            vertical-align: middle;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* Estados estilo badges  */
         .appointment-status {
@@ -958,44 +992,85 @@
             margin-right: 5px;
         }
 
-        /* Clases de urgencia SOLO para citas confirmadas */
-        .next-appointment.pendiente .date-badge {
-            background: var(--secondary-gradient) !important;
-        }
-
+        /* ===== ESTILOS BASE PARA CITAS ===== */
+        /* Citas pendientes (estilo base) */
         .next-appointment.pendiente {
             border-left: 5px solid #4facfe !important;
+            /* Borde azul */
         }
 
-        .next-appointment.confirmada.urgent-soon {
+        .next-appointment.pendiente .date-badge {
+            background: var(--secondary-gradient) !important;
+            /* Fondo azul/gradiente */
+        }
+
+        /* Citas confirmadas (estilo base) */
+        .next-appointment.confirmada,
+        .next-appointment.confirmado {
+            border-left: 5px solid #66bb6a !important;
+            /* Borde verde */
+            background-color: transparent;
+            /* Fondo normal */
+        }
+
+        .next-appointment.confirmada .date-badge,
+        .next-appointment.confirmado .date-badge {
+            background: linear-gradient(135deg, #81c784, #66bb6a) !important;
+            /* Fondo verde */
+        }
+
+        /* ===== CLASES DE URGENCIA (SOLO PARA CONFIRMADAS) ===== */
+        /* Urgente (0-1 días): Rojo */
+        .next-appointment.confirmada.urgent-soon,
+        .next-appointment.confirmado.urgent-soon {
             border-left: 4px solid #dc3545 !important;
+            /* Borde rojo */
             background-color: #fff5f5;
+            /* Fondo rojo claro */
         }
 
         .next-appointment.confirmada.urgent-soon .date-badge,
         .next-appointment.confirmado.urgent-soon .date-badge {
             background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            /* Fondo rojo */
             animation: pulse 2s infinite;
+            /* Efecto de pulso */
         }
 
-        .next-appointment.confirmada.urgent-close {
+        /* Muy próxima (2-3 días): Naranja */
+        .next-appointment.confirmada.urgent-close,
+        .next-appointment.confirmado.urgent-close {
             border-left: 4px solid #fd7e14 !important;
+            /* Borde naranja */
             background-color: #fff8f0;
+            /* Fondo naranja claro */
         }
 
         .next-appointment.confirmada.urgent-close .date-badge,
         .next-appointment.confirmado.urgent-close .date-badge {
             background: linear-gradient(135deg, #fd7e14, #e5650b) !important;
+            /* Fondo naranja */
         }
 
-        .next-appointment.confirmada.coming-soon {
+        /* Próxima (4-7 días): Amarillo */
+        .next-appointment.confirmada.coming-soon,
+        .next-appointment.confirmado.coming-soon {
             border-left: 4px solid #ffc107 !important;
+            /* Borde amarillo */
             background-color: #fffbf0;
+            /* Fondo amarillo claro */
         }
 
         .next-appointment.confirmada.coming-soon .date-badge,
         .next-appointment.confirmado.coming-soon .date-badge {
             background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+            /* Fondo amarillo */
+        }
+
+        .service-card.selected {
+            background-color: #e7f3ff;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.3);
         }
 
         /* Animación de pulso para citas urgentes confirmadas */
@@ -2251,21 +2326,28 @@
                                         $diasRestantes = $diasRestantes < 0 ? 0 : ceil($diasRestantes);
                                         $urgenciaClass = '';
                                         $urgenciaText = '';
+                                        $estadoClass = strtolower($cita->estado);
 
-                                        if ($diasRestantes <= 1) {
-                                            $urgenciaClass = 'urgent-soon';
-                                            $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
-                                        } elseif ($diasRestantes <= 3) {
-                                            $urgenciaClass = 'urgent-close';
-                                            $urgenciaText = "En {$diasRestantes} días";
-                                        } elseif ($diasRestantes <= 7) {
-                                            $urgenciaClass = 'coming-soon';
-                                            $urgenciaText = "En {$diasRestantes} días";
+                                        // Solo aplicamos clases de urgencia a citas confirmadas
+                                        if ($estadoClass === 'confirmada' || $estadoClass === 'confirmado') {
+                                            if ($diasRestantes <= 1) {
+                                                $urgenciaClass = 'urgent-soon';
+                                                $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
+                                            } elseif ($diasRestantes <= 3) {
+                                                $urgenciaClass = 'urgent-close';
+                                                $urgenciaText = "En {$diasRestantes} días";
+                                            } elseif ($diasRestantes <= 7) {
+                                                $urgenciaClass = 'coming-soon';
+                                                $urgenciaText = "En {$diasRestantes} días";
+                                            } else {
+                                                $urgenciaText = "En {$diasRestantes} días";
+                                            }
                                         } else {
+                                            // Para citas pendientes u otros estados
                                             $urgenciaText = "En {$diasRestantes} días";
                                         }
                                     @endphp
-                                    <div class="next-appointment {{ $urgenciaClass }}">
+                                    <div class="next-appointment {{ $estadoClass }} {{ $urgenciaClass }}">
                                         <div class="appointment-date-time">
                                             <div class="date-badge">
                                                 <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
@@ -2289,8 +2371,8 @@
                                                     </div>
                                                 @endif
                                             </div>
-                                            <span class="appointment-status status-confirmada">
-                                                Confirmada
+                                            <span class="appointment-status status-{{ $estadoClass }}">
+                                                {{ ucfirst($cita->estado) }}
                                             </span>
                                         </div>
                                         <div class="appointment-actions">
@@ -2306,7 +2388,7 @@
                                     </div>
                                 @endforeach
 
-                                <!-- Mensaje informativo actualizado -->
+                                <!-- Mensaje informativo -->
                                 <div class="info-message">
                                     <small>
                                         <i class="fas fa-info-circle"></i>
@@ -2926,8 +3008,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                FUNCIONAMIENTO DE CREAR CITAS
-                                                                                                                                                                                                            =========================================================*/
+                                                                                                                                                                                                                                            FUNCIONAMIENTO DE CREAR CITAS
+                                                                                                                                                                                                                                        =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3956,10 +4038,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                        <i class="fas fa-calendar-plus"></i>
-                                                        Agendar Cita
-                                                    </button>` : ''}
+                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                    <i class="fas fa-calendar-plus"></i>
+                                                                                    Agendar Cita
+                                                                                </button>` : ''}
                 </div>
             `;
                     return;
@@ -4441,11 +4523,11 @@
                         <p>${errorMessage}</p>
                         ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                         ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                                                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                                                                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                                                                                    </ul>
-                                                                                                                                ` : ''}
+                                                                                                                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                                                                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                                                                                </ul>
+                                                                                                                                                            ` : ''}
                         <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                             Por favor intenta nuevamente con un horario diferente.
                         </p>
@@ -4808,10 +4890,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -4923,8 +5005,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -4953,8 +5035,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
