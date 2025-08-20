@@ -29,7 +29,6 @@ class Bitacora extends Model
 
     // Tipos de acciones comunes
     const ACCION_LOGIN = 'login';
-    const ACCION_LOGOUT = 'logout';
     const ACCION_CREAR_CITA = 'crear_cita';
     const ACCION_ACTUALIZAR_CITA = 'actualizar_cita';
     const ACCION_CANCELAR_CITA = 'cancelar_cita';
@@ -38,6 +37,14 @@ class Bitacora extends Model
     const ACCION_CREAR_USUARIO = 'crear_usuario';
     const ACCION_ACTUALIZAR_USUARIO = 'actualizar_usuario';
     const ACCION_ELIMINAR_USUARIO = 'eliminar_usuario';
+    const ACCION_ACTUALIZAR_VEHICULO = 'actualizar_vehiculo';
+    const ACCION_ELIMINAR_VEHICULO = 'eliminar_vehiculo';
+    const ACCION_CREAR_SERVICIO = 'crear_servicio';
+    const ACCION_ACTUALIZAR_SERVICIO = 'actualizar_servicio';
+    const ACCION_ELIMINAR_SERVICIO = 'eliminar_servicio';
+    const ACCION_ACTUALIZAR_PERFIL = 'actualizar_perfil';
+    const ACCION_ACTUALIZAR_EMAIL = 'actualizar_email';
+    const ACCION_ACTUALIZAR_PASSWORD = 'actualizar_password';
 
     // Relaciones
     public function usuario()

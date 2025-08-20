@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Panel de Administración - AutoGest Carwash</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
-    @vite(['resources/js/app.js'])
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* ======================
         ESTILOS GENERALES
@@ -278,10 +278,13 @@
         }
 
         .header-actions {
+            background: transparent;
+            border: none;
             display: flex;
             gap: 12px;
             align-items: center;
             flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         /* ======================
@@ -924,13 +927,36 @@
             background: var(--bg-light);
             backdrop-filter: var(--blur);
             margin: 5% auto;
-            padding: 35px;
+            padding: 20px;
             border-radius: 25px;
-            width: 90%;
-            max-width: 500px;
+            width: 100%;
+            max-width: 600px;
             box-shadow: var(--shadow-xl);
             border: 1px solid var(--border-light);
             animation: modalSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #usuarioModal .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #usuarioModal {
+            overflow: hidden;
+        }
+
+        #passwordMatchMessage {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            height: 18px;
+        }
+
+        .text-success {
+            color: #10b981;
+        }
+
+        .text-danger {
+            color: #ef4444;
         }
 
         @keyframes modalSlideIn {
@@ -946,12 +972,15 @@
         }
 
         .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            z-index: 1000;
+            /* Asegura que esté por encima de todo */
             color: var(--primary);
-            float: right;
-            font-size: 30px;
-            font-weight: bold;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
 
         .close-modal:hover {
@@ -960,6 +989,10 @@
 
         .form-group {
             margin-bottom: 20px;
+        }
+
+        .form-group .relative {
+            position: relative;
         }
 
         .form-group label {
@@ -987,6 +1020,141 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
             outline: none;
+        }
+
+        /* Estilos para el formulario de usuario en el modal */
+
+        .password-input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Estilo para el input de contraseña */
+        .password-input {
+            padding-right: 40px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            z-index: 10;
+            padding: 5px;
+            font-size: 1rem;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        /* Asegurar que el input tenga espacio para el botón */
+        #password,
+        #password_confirmation {
+            padding-right: 35px !important;
+        }
+
+        /* Estilo para los iconos dentro del botón */
+        .password-toggle i {
+            font-size: 1rem;
+        }
+
+        /* Estilo para los mensajes de validación */
+        .password-requirements {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Barra de fortaleza de contraseña */
+        .password-strength-meter {
+            height: 5px;
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .password-strength-meter-fill {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Colores para los diferentes niveles de fortaleza */
+        .password-weak {
+            background-color: #ff5252;
+            width: 25%;
+        }
+
+        .password-medium {
+            background-color: #ffb74d;
+            width: 50%;
+        }
+
+        .password-strong {
+            background-color: #4caf50;
+            width: 75%;
+        }
+
+        .password-very-strong {
+            background-color: #2e7d32;
+            width: 100%;
+        }
+
+        .password-strength-text {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: var(--text-secondary);
+        }
+
+        .text-green-500 {
+            color: #10b981;
+        }
+
+        .text-red-500 {
+            color: #ef4444;
+        }
+
+        .text-gray-400 {
+            color: #9ca3af;
+        }
+
+        .password-requirements ul {
+            margin: 0.5rem 0 0 0;
+            padding-left: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .password-requirements li {
+            margin-bottom: 0.3rem;
+            transition: color 0.3s ease;
+        }
+
+        /* Estilos para el spinner */
+        .fa-spinner.fa-spin {
+            margin-right: 8px;
+        }
+
+        .password-match-message {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .password-match-message.valid {
+            color: #28a745;
+        }
+
+        .password-match-message.invalid {
+            color: #dc3545;
         }
 
         /* ======================
@@ -1335,8 +1503,8 @@
             ====================== */
         .search-filter-container {
             display: flex;
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: 15px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -1502,8 +1670,15 @@
             }
 
             .header-actions {
+                gap: 15px;
                 justify-content: center;
-                flex-wrap: wrap;
+            }
+
+            .header-actions .btn {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+                min-width: auto;
+                flex: 1 1 auto;
             }
 
             .card-header,
@@ -1531,6 +1706,16 @@
 
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+
+            /* Mejoras para cards */
+            .card {
+                border-radius: 18px;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 15px 20px;
             }
         }
 
@@ -1645,7 +1830,94 @@
                 margin-right: 0;
                 align-self: center;
             }
+
+            /* Mejoras para días no laborables */
+            #diasNoLaborablesTable td[data-label="Motivo"] {
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            /* Mejoras para gestión de gastos */
+            .search-filter-container {
+                flex-direction: column;
+            }
+
+            #gastosTable td {
+                padding-left: 45% !important;
+            }
+
+            #gastosTable td[data-label="Detalle"] {
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            .admin-table {
+                font-size: 0.85rem;
+            }
+
+            .admin-table td:before {
+                width: 40%;
+                padding-right: 8px;
+                font-size: 0.8rem;
+            }
+
+            .card-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .card-header-actions h3 {
+                margin-bottom: 0;
+                white-space: normal;
+                word-break: break-word;
+                width: 100%;
+            }
+
+            .card-header-actions .btn {
+                align-self: flex-end;
+            }
+
+            #usuarioModal .modal-content {
+                max-height: 85vh;
+                width: 95%;
+                margin: 2% auto;
+            }
+
+            #usuarioForm {
+                min-height: min-content;
+            }
+
+            .close-modal {
+                top: 10px;
+                right: 15px;
+                font-size: 24px;
+                background: rgba(255, 255, 255, 0.9);
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            }
+
+            .header-actions {
+                gap: 12px;
+                justify-content: space-between;
+            }
+
+            .header-actions .btn {
+                flex: 1 1 calc(50% - 6px);
+                min-width: calc(50% - 6px);
+                margin-bottom: 0;
+            }
+
+            .header-actions .btn i {
+                margin-right: 5px;
+            }
         }
+
 
         @media (max-width: 576px) {
             .dashboard-container {
@@ -1760,6 +2032,88 @@
                 margin-bottom: 10px;
                 align-self: flex-start;
             }
+
+            /* Ajustes para móviles pequeños */
+            #diasNoLaborablesTable td,
+            #gastosTable td {
+                padding: 8px 5px;
+                font-size: 0.85rem;
+            }
+
+            .table-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .table-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+
+            #usuarioForm .form-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px;
+            }
+
+            #usuarioForm .password-input-container {
+                position: relative;
+            }
+
+            #usuarioForm .password-toggle {
+                right: 10px;
+            }
+
+            #usuarioForm .form-control {
+                padding: 12px 35px 12px 12px;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header-actions .btn {
+                width: 100%;
+                flex: 1 1 100%;
+                min-width: 100%;
+                margin-bottom: 0;
+            }
+
+            .header-actions .btn i {
+                margin-right: 8px;
+            }
+
+            #usuarioModal {
+                align-items: flex-start;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+
+            #usuarioModal .modal-content {
+                max-height: 95vh;
+                margin-top: 10px;
+            }
+
+            #usuarioModal input,
+            #usuarioModal select,
+            #usuarioModal textarea {
+                font-size: 16px;
+            }
+
+            #usuarioModal .form-group {
+                margin-bottom: 15px;
+            }
+
+            #usuarioModal .password-requirements {
+                columns: 1;
+            }
+
+            .close-modal {
+                top: 8px;
+                right: 12px;
+                font-size: 22px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1805,6 +2159,28 @@
 
             .empty-state h3 {
                 font-size: 1.1rem;
+            }
+
+            body {
+                word-break: break-word;
+            }
+
+            .info-item:last-child {
+                white-space: normal !important;
+            }
+
+            .card-header-actions .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .password-requirements ul {
+                padding-left: 1.2rem;
+                font-size: 0.75rem;
+            }
+
+            .password-requirements li {
+                margin-bottom: 5px;
             }
         }
 
@@ -2012,13 +2388,17 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="#" class="btn btn-primary" onclick="mostrarModalUsuario()">
+                    <button type="button" class="btn btn-primary" onclick="mostrarModalUsuario()">
                         <i class="fas fa-user-plus"></i>
                         Crear Usuarios
-                    </a>
+                    </button>
                     <a href="{{ route('admin.reportes') }}" class="btn btn-success">
                         <i class="fas fa-chart-bar"></i>
                         Reportes
+                    </a>
+                     <a href="{{ route('admin.bitacora.index') }}" class="btn btn-primary">
+                        <i class="fas fa-book"></i>
+                        Bitácora
                     </a>
                     <a href="{{ route('configuracion.index') }}" class="btn btn-info">
                         <i class="fas fa-cog"></i>
@@ -2070,7 +2450,7 @@
                     </div>
                 </div>
 
-                <!-- Gestión de Horarios -->
+                <!-- Gestión de Horarios 
                 <div class="card">
                     <div class="card-header">
                         <h2>
@@ -2081,8 +2461,10 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <h3 style="color: var(--text-primary);">Configuración de Horarios de Trabajo</h3>
+                        <div class="card-header-actions"
+                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Configuración de horarios
+                                de trabajo</h3>
                             <button class="btn btn-primary" onclick="mostrarModalHorario()">
                                 <i class="fas fa-plus"></i> Agregar Horario
                             </button>
@@ -2100,151 +2482,280 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+   {{--   @forelse ($horarios as $horario)
+        <tr>
+            <td data-label="Día">{{ \App\Http\Controllers\HorarioController::DIAS_SEMANA[$horario->dia_semana] }}</td>
+            <td data-label="Hora Inicio">{{ \Carbon\Carbon::parse($horario->hora_inicio)->format('h:i A') }}</td>
+            <td data-label="Hora Fin">{{ \Carbon\Carbon::parse($horario->hora_fin)->format('h:i A') }}</td>
+            <td data-label="Estado">
+                <span class="badge   {{ $horario->activo ? 'badge-success' : 'badge-danger' }}">
+                    {{ $horario->activo ? 'Activo' : 'Inactivo' }}
+                </span>
+            </td>
+            <td data-label="Acciones">
+                <div class="table-actions">
+                    <button class="table-btn btn-edit" title="Editar"
+                        onclick="editarHorario({{ $horario->id }})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="table-btn btn-delete" title="Eliminar"
+                        onclick="desactivarHorario({{ $horario->id }})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="5" class="text-center">No hay horarios registrados.</td>
+        </tr>
+    @endforelse
+</tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                   document.addEventListener('DOMContentLoaded', function () {
+                   const horarioForm = document.getElementById('horarioForm');
+                   const horarioModal = document.getElementById('horarioModal');
+                   const modalTitle = document.getElementById('horarioModalTitle');
+
+                  function openCreateModal() {
+                   horarioForm.reset();
+                   document.getElementById('horario_id').value = "";
+                   modalTitle.innerHTML = '<i class="fas fa-clock"></i> Agregar Horario';
+                   openModal('horarioModal');
+                  }
+
+                  function openEditModal(id) {
+                    fetch(`/horarios/${id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                    document.getElementById('horario_id').value = data.id;
+                    document.getElementById('horario_dia').value = data.dia_semana;
+                    document.getElementById('horario_inicio').value = data.hora_inicio.substring(0, 5);
+                    document.getElementById('horario_fin').value = data.hora_fin.substring(0, 5);
+                    document.getElementById('horario_activo').value = data.activo ? 1 : 0;
+                    modalTitle.innerHTML = '<i class="fas fa-clock"></i> Editar Horario';
+                    openModal('horarioModal');
+                   });
+                  }
+
+                  horarioForm.addEventListener('submit', function (e) {
+                     e.preventDefault();
+
+                   const id = document.getElementById('horario_id').value;
+                   const method = id ? 'PUT' : 'POST';
+                   const url = id ? `/horarios/${id}` : '/horarios';
+
+                  const formData = {
+                    dia_semana: document.getElementById('horario_dia').value,
+                    hora_inicio: document.getElementById('horario_inicio').value,
+                    hora_fin: document.getElementById('horario_fin').value,
+                    activo: document.getElementById('horario_activo').value
+                  };
+
+                   fetch(url, {
+                       method: method,
+                     headers: {
+                       'Content-Type': 'application/json',
+                       'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                     },
+                      body: JSON.stringify(formData)
+                    })
+                   .then(response => {
+                   if (!response.ok)
+                    return response.json().then(err => Promise.reject(err));
+                    return response.json();
+                   })
+                   .then(data => {
+                   Swal.fire('Éxito', data.message, 'success');
+                   closeModal('horarioModal');
+                   location.reload();
+                  })
+                  .catch(err => {
+                  if (err.errors) {
+                    let errorMsg = '';
+                    for (let campo in err.errors) {
+                        errorMsg += err.errors[campo][0] + '<br>';
+                    }
+                    Swal.fire('Error', errorMsg, 'error');
+                  }
+                 });
+                  });
+ 
+                       function eliminarHorario(id) {
+                           Swal.fire({
+                              title: '¿Eliminar?',
+                              text: 'Esta acción no se puede deshacer',
+                              icon: 'warning',
+                              showCancelButton: true,
+                              confirmButtonText: 'Sí, eliminar'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                   fetch(`/horarios/${id}`, {
+                                   method: 'DELETE',
+                                   headers: {
+                                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                             Swal.fire('Eliminado', data.message, 'success');
+                             location.reload();
+                            });
+                        }
+                      });
+                    }
+
+                      window.openCreateModal = openCreateModal;
+                      window.openEditModal = openEditModal;
+                      .eliminarHorario = eliminarHorario;
+                    });
+                </script>  --}}-->
+
+
+                <!-- Contenedor para Días No Laborables -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="card-header-icon icon-container">
+                                <i class="fas fa-calendar-times"></i>
+                            </div>
+                            Días No Laborables
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header-actions"
+                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Días festivos y feriados
+                            </h3>
+                            <button class="btn btn-primary" onclick="mostrarModalDiaNoLaborable()">
+                                <i class="fas fa-plus"></i> Agregar Día
+                            </button>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
                                     <tr>
-                                        <td data-label="Día">Lunes</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
+                                        <th>Fecha</th>
+                                        <th>Motivo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Ejemplo de fila -->
+                                    <tr>
+                                        <td data-label="Fecha">25/12/2025</td>
+                                        <td data-label="Motivo">Navidad</td>
                                         <td data-label="Acciones">
                                             <div class="table-actions">
                                                 <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(1)">
+                                                    onclick="editarDiaNoLaborable(1)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(1)">
-                                                    <i class="fas fa-times"></i>
+                                                <button class="table-btn btn-delete" title="Eliminar"
+                                                    onclick="eliminarDiaNoLaborable(1)">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td data-label="Día">Martes</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(2)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(2)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Miércoles</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(3)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(3)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Jueves</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(4)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(4)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Viernes</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(5)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(5)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Sábado</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(6)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(6)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Domingo</td>
-                                        <td data-label="Hora Inicio">-</td>
-                                        <td data-label="Hora Fin">-</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-danger">Inactivo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(0)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-success" title="Activar"
-                                                    onclick="activarHorario(0)">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <!-- Fin ejemplo -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+
+                <!-- Contenedor para Gestión de Gastos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="card-header-icon icon-container">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            Gestión de Gastos
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header-actions"
+                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Registro de gastos
+                                operativos</h3>
+                            <button class="btn btn-primary" onclick="mostrarModalGasto()">
+                                <i class="fas fa-plus"></i> Registrar Gasto
+                            </button>
+                        </div>
+
+                        <div class="search-filter-container">
+                            <div class="search-box">
+                                <input type="text" placeholder="Buscar gastos..." class="form-control">
+                            </div>
+                            <div class="filter-select">
+                                <select class="form-control">
+                                    <option value="">Todos los tipos</option>
+                                    <option value="stock">Stock</option>
+                                    <option value="sueldos">Sueldos</option>
+                                    <option value="personal">Personal</option>
+                                    <option value="mantenimiento">Mantenimiento</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Detalle</th>
+                                        <th>Monto</th>
+                                        <th>Registrado por</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Ejemplo de fila -->
+                                    <tr>
+                                        <td data-label="Fecha">15/06/2025</td>
+                                        <td data-label="Tipo">Stock</td>
+                                        <td data-label="Detalle">Compra de shampoo y ceras</td>
+                                        <td data-label="Monto">$125.50</td>
+                                        <td data-label="Registrado por">Admin</td>
+                                        <td data-label="Acciones">
+                                            <div class="table-actions">
+                                                <button class="table-btn btn-edit" title="Editar"
+                                                    onclick="editarGasto(1)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="table-btn btn-delete" title="Eliminar"
+                                                    onclick="eliminarGasto(1)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Fin ejemplo -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pagination">
+                            <a href="#" class="page-link">&laquo;</a>
+                            <a href="#" class="page-link active">1</a>
+                            <a href="#" class="page-link">2</a>
+                            <a href="#" class="page-link">3</a>
+                            <a href="#" class="page-link">&raquo;</a>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- Gráficos -->
                 <div class="card">
@@ -2426,7 +2937,7 @@
                             </div>
 
                             <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
-                                onclick="editarPerfil()">
+                                onclick="mostrarModal('perfilModal')">
                                 <i class="fas fa-edit"></i> Editar Perfil
                             </button>
                         </div>
@@ -2467,7 +2978,7 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.usuarios') }}" class="btn btn-outline" style="width: 100%;">
+                        <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline" style="width: 100%;">
                             <i class="fas fa-list"></i> Ver Todos los Usuarios
                         </a>
                     </div>
@@ -2668,6 +3179,82 @@
                 </div>
             </div>
 
+            
+
+            <!-- Modal para Días No Laborables -->
+            <div id="diaNoLaborableModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('diaNoLaborableModal')">&times;</span>
+                    <h2 id="diaNoLaborableModalTitle">
+                        <i class="fas fa-calendar-times"></i> Agregar Día No Laborable
+                    </h2>
+                    <form id="diaNoLaborableForm">
+                        <div class="form-group">
+                            <label for="diaNoLaborableFecha">Fecha:</label>
+                            <input type="date" id="diaNoLaborableFecha" name="fecha" required
+                                class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="diaNoLaborableMotivo">Motivo (opcional):</label>
+                            <input type="text" id="diaNoLaborableMotivo" name="motivo" class="form-control"
+                                placeholder="Ej: Feriado nacional">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal para Gastos -->
+            <div id="gastoModal" class="modal">
+                <div class="modal-content" style="max-width: 600px;">
+                    <span class="close-modal" onclick="closeModal('gastoModal')">&times;</span>
+                    <h2 id="gastoModalTitle">
+                        <i class="fas fa-money-bill-wave"></i> Registrar Gasto
+                    </h2>
+                    <form id="gastoForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="gastoTipo">Tipo:</label>
+                                <select id="gastoTipo" name="tipo" class="form-control" required>
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="stock">Stock</option>
+                                    <option value="sueldos">Sueldos</option>
+                                    <option value="personal">Personal</option>
+                                    <option value="mantenimiento">Mantenimiento</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gastoMonto">Monto ($):</label>
+                                <input type="number" step="0.01" id="gastoMonto" name="monto" required
+                                    class="form-control" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gastoDetalle">Detalle:</label>
+                            <textarea id="gastoDetalle" name="detalle" rows="3" required class="form-control"
+                                placeholder="Descripción del gasto..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gastoFecha">Fecha:</label>
+                            <input type="date" id="gastoFecha" name="fecha" class="form-control"
+                                value="{{ date('Y-m-d') }}">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i> Registrar Gasto
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Modal para editar perfil -->
             <div id="perfilModal" class="modal">
                 <div class="modal-content" style="max-width: 500px;">
@@ -2699,70 +3286,137 @@
         </div>
     </div>
 
-    <!-- Modal para crear usuarios -->
-    <div id="usuarioModal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <span class="close-modal" onclick="closeModal('usuarioModal')">&times;</span>
-            <h2 style="color: var(--primary); margin-bottom: 20px;">
-                <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
+
+    <!-- Modal para crear nuevo usuario -->
+    <div id="usuarioModal" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
+            <span class="close-modal" onclick="closeModal('usuarioModal')"
+                style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</span>
+
+            <h2 id="modalUsuarioTitle"
+                style="margin-bottom: 20px; font-size: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-user-plus"></i>
+                <span id="modalTitleText">Crear Nuevo Usuario</span>
             </h2>
-            <form id="usuarioForm">
+
+            <form id="usuarioForm" style="margin-top: 20px;">
                 @csrf
-                <div class="form-group">
-                    <label for="usuario_nombre">Nombre Completo:</label>
-                    <input type="text" id="usuario_nombre" name="nombre" required class="form-control"
-                        placeholder="Ej: Juan Pérez">
-                </div>
+                <input type="hidden" id="usuario_id" name="id">
 
-                <div class="form-group">
-                    <label for="usuario_email">Email:</label>
-                    <input type="email" id="usuario_email" name="email" required class="form-control"
-                        placeholder="Ej: usuario@example.com">
-                </div>
-
-                <div class="form-group">
-                    <label for="usuario_telefono">Teléfono:</label>
-                    <input type="tel" id="usuario_telefono" name="telefono" class="form-control"
-                        placeholder="Ej: 75855197">
-                </div>
-
-                <div class="form-group">
-                    <label for="usuario_rol">Rol:</label>
-                    <select id="usuario_rol" name="rol" class="form-control" required>
-                        <option value="">Seleccione un rol</option>
-                        <option value="cliente">Cliente</option>
-                        <option value="empleado">Empleado</option>
-                        <option value="admin">Administrador</option>
-                    </select>
-                </div>
-
-                <div class="form-grid">
+                <div class="form-grid"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div class="form-group">
-                        <label for="usuario_password">Contraseña:</label>
-                        <input type="password" id="usuario_password" name="password" required class="form-control"
-                            placeholder="Mínimo 8 caracteres">
+                        <label for="nombre"
+                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Nombre
+                            Completo</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control" required
+                            placeholder="Ej: Juan Pérez">
                     </div>
 
                     <div class="form-group">
-                        <label for="usuario_password_confirmation">Confirmar Contraseña:</label>
-                        <input type="password" id="usuario_password_confirmation" name="password_confirmation"
-                            required class="form-control" placeholder="Repite la contraseña">
+                        <label for="email"
+                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Correo
+                            Electrónico</label>
+                        <input type="email" id="email" name="email" class="form-control" required
+                            placeholder="Ej: juan@example.com" readonly>
+                        <div id="email-error" class="hidden text-sm text-red-600 mt-1"></div>
+                        <small id="emailHelp"
+                            style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
+                            El correo electrónico no puede ser modificado
+                        </small>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="usuario_estado">Estado:</label>
-                    <select id="usuario_estado" name="estado" class="form-control">
+                <div class="form-grid"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label for="telefono"
+                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" class="form-control"
+                            placeholder="Ej: 75855197" pattern="[0-9]{8}" maxlength="8">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rol"
+                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Rol</label>
+                        <select id="rol" name="rol" class="form-control" required readonly>
+                            <option value="cliente">Cliente</option>
+                            <option value="empleado">Empleado</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                        <small id="rolHelp"
+                            style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
+                            El rol no puede ser modificado después de crear el usuario
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Sección de contraseñas -->
+                <div id="passwordFields" style="display: block; margin-bottom: 15px;">
+                    <div class="password-fields-container">
+                        <div class="form-group">
+                            <label for="password"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Contraseña</label>
+                            <div style="position: relative;">
+                                <input type="password" id="password" name="password" class="form-control"
+                                    placeholder="Mínimo 8 caracteres" style="padding-right: 40px;">
+                                <button type="button" onclick="togglePassword('password')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                                    <i class="fas fa-eye" id="passwordEye"></i>
+                                </button>
+                            </div>
+                            <div class="password-requirements">
+                                <div class="password-strength-meter">
+                                    <div class="password-strength-meter-fill" id="passwordStrengthBar"></div>
+                                </div>
+                                <div class="password-strength-text" id="passwordStrengthText">Fortaleza de la
+                                    contraseña</div>
+                                <ul style="columns: 2; column-gap: 20px; margin-top: 10px;">
+                                    <li id="req-length">Mínimo 8 caracteres</li>
+                                    <li id="req-uppercase">1 letra mayúscula</li>
+                                    <li id="req-lowercase">1 letra minúscula</li>
+                                    <li id="req-number">1 número</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="form-group confirm-password-field">
+                            <label for="password_confirmation"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Confirmar
+                                Contraseña</label>
+                            <div style="position: relative;">
+                                <input type="password" id="password_confirmation" name="password_confirmation"
+                                    class="form-control" placeholder="Repite la contraseña"
+                                    style="padding-right: 40px;">
+                                <button type="button" onclick="togglePassword('password_confirmation')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                                    <i class="fas fa-eye" id="passwordConfirmationEye"></i>
+                                </button>
+                            </div>
+                            <div id="passwordMatchMessage" class="password-match-message"
+                                style="margin-top: 5px; font-size: 0.8rem;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="estado"
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Estado</label>
+                    <select id="estado" name="estado" class="form-control">
                         <option value="1" selected>Activo</option>
                         <option value="0">Inactivo</option>
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-save"></i> Crear Usuario
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+                    <i class="fas fa-save"></i> Guardar Usuario
                 </button>
             </form>
         </div>
+    </div>
+
     </div>
 
     <!-- Footer -->
@@ -2816,7 +3470,11 @@
     </footer>
 
     <script>
-        // Configuración global de SweetAlert
+        // =============================================
+        // INICIALIZACIÓN AL CARGAR LA PÁGINA
+        // =============================================
+
+        // Configuración de SweetAlert
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -2825,72 +3483,669 @@
             timerProgressBar: true
         });
 
-        // Variables globales para los gráficos
+        // Variables globales para gráficos
         let usuariosChart, ingresosChart, citasChart, serviciosChart;
 
-        // Inicializar Pusher con tus credenciales
-        const pusher = new Pusher('7aad3a0de2b398e2f0b4', {
-            cluster: 'mt1',
-            encrypted: true,
-            authEndpoint: '/broadcasting/auth',
-            auth: {
-                headers: {
-                    'X-CSRF-Token': '{{ csrf_token() }}'
-                }
-            }
+        document.querySelectorAll('#usuarioModal input, #usuarioModal select').forEach(el => {
+            el.addEventListener('focus', function() {
+                setTimeout(() => {
+                    this.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }, 300);
+            });
         });
 
-        // Manejo de conexión Pusher
-        pusher.connection.bind('state_change', (states) => {
-            console.log('Estado de conexión cambiado:', states);
-            if (states.current === 'disconnected') {
-                console.log('Intentando reconectar...');
-                Toast.fire({
+        // =============================================
+        // FUNCIONES PARA DÍAS NO LABORABLES
+        // =============================================
+
+        // Cargar días no laborables desde la API
+        /* async function cargarDiasNoLaborables() {
+                                                         try {
+                                                             const response = await fetch('/dias-no-laborables');
+                                                             if (!response.ok) throw new Error('Error al cargar días no laborables');
+
+                                                             diasNoLaborables = await response.json();
+                                                             actualizarTablaDiasNoLaborables();
+                                                         } catch (error) {
+                                                             console.error('Error al cargar días no laborables:', error);
+                                                             Toast.fire({
+                                                                 icon: 'error',
+                                                                 title: 'Error al cargar días no laborables',
+                                                                 text: error.message
+                                                             });
+                                                         }
+                                                     }
+
+                                                     // Actualizar la tabla con los días no laborables
+                                                     function actualizarTablaDiasNoLaborables() {
+                                                         const tbody = document.querySelector('#diasNoLaborablesTable tbody');
+                                                         if (!tbody) return;
+
+                                                         tbody.innerHTML = '';
+
+                                                         if (diasNoLaborables.length === 0) {
+                                                             tbody.innerHTML = `
+         <tr>
+             <td colspan="3" style="text-align: center; padding: 20px;">
+                 <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
+                 <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
+             </td>
+         </tr>
+     `;
+                                                             return;
+                                                         }
+
+                                                         diasNoLaborables.forEach(dia => {
+                                                             const fecha = new Date(dia.fecha);
+                                                             const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                                                                 day: '2-digit',
+                                                                 month: '2-digit',
+                                                                 year: 'numeric'
+                                                             });
+
+                                                             const row = document.createElement('tr');
+                                                             row.setAttribute('data-id', dia.id);
+                                                             row.innerHTML = `
+         <td data-label="Fecha">${fechaFormateada}</td>
+         <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
+         <td data-label="Acciones">
+             <div class="table-actions">
+                 <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
+                     <i class="fas fa-edit"></i>
+                 </button>
+                 <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
+                     <i class="fas fa-trash"></i>
+                 </button>
+             </div>
+         </td>
+     `;
+                                                             tbody.appendChild(row);
+                                                         });
+                                                     }*/
+
+        // Mostrar modal para agregar/editar día no laborable
+        /*function mostrarModalDiaNoLaborable(diaId = null) {
+            const modal = document.getElementById('diaNoLaborableModal');
+            const form = document.getElementById('diaNoLaborableForm');
+            const title = document.getElementById('diaNoLaborableModalTitle');
+
+            if (result.isConfirmed) {
+                const response = await fetch(`/dias-no-laborables/${diaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+            form.reset();
+
+            if (diaId) {
+                title.innerHTML = '<i class="fas fa-edit"></i> Editar Día No Laborable';
+                form.setAttribute('data-id', diaId);
+
+                const dia = diasNoLaborables.find(d => d.id == diaId);
+                if (dia) {
+                    document.getElementById('diaNoLaborableFecha').value = dia.fecha;
+                    document.getElementById('diaNoLaborableMotivo').value = dia.motivo || '';
+                }
+            } else {
+                title.innerHTML = '<i class="fas fa-plus"></i> Agregar Día No Laborable';
+                form.removeAttribute('data-id');
+                // Establecer la fecha mínima como hoy
+                document.getElementById('diaNoLaborableFecha').min = new Date().toISOString().split('T')[0];
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        // Función para editar un día no laborable
+        function editarDiaNoLaborable(diaId) {
+            mostrarModalDiaNoLaborable(diaId);
+        }
+
+        // Función para eliminar un día no laborable
+        async function eliminarDiaNoLaborable(diaId) {
+            try {
+                const result = await Swal.fire({
+                    title: '¿Eliminar este día no laborable?',
+                    text: "Esta acción no se puede deshacer",
                     icon: 'warning',
-                    title: 'Reconectando con el servidor...'
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Error al eliminar el día no laborable');
+                    }
+                    await cargarDiasNoLaborables();
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Día no laborable eliminado correctamente'
+                    });
+                }
+            } catch (error) {
+                console.error('Error al eliminar día no laborable:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error al eliminar día no laborable',
+                    text: error.message
+                });
+            }
+        }
+
+        // =============================================
+        // EVENT LISTENERS ADICIONALES
+        // =============================================
+
+        // Manejar el envío del formulario de día no laborable
+        document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const diaId = form.getAttribute('data-id');
+            const isEdit = !!diaId;
+
+            const formData = {
+                fecha: document.getElementById('diaNoLaborableFecha').value,
+                motivo: document.getElementById('diaNoLaborableMotivo').value,
+                _token: '{{ csrf_token() }}'
+            };
+
+            try {
+                let response;
+                let url;
+                let method;
+
+                if (isEdit) {
+                    url = `/api/dias-no-laborables/${diaId}`;
+                    method = 'PUT';
+                } else {
+                    url = '/api/dias-no-laborables';
+                    method = 'POST';
+                }
+
+                response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    let errorMessage = 'Error al guardar el día no laborable';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).join('\n');
+                    } else if (data.message) {
+                        errorMessage = data.message;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                Toast.fire({
+                    icon: 'success',
+                    title: isEdit ? 'Día no laborable actualizado' : 'Día no laborable agregado'
+                });
+
+                closeModal('diaNoLaborableModal');
+                await cargarDiasNoLaborables();
+            } catch (error) {
+                console.error('Error al guardar día no laborable:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
                 });
             }
         });
 
-        pusher.connection.bind('connected', () => {
-            Toast.fire({
-                icon: 'success',
-                title: 'Conexión en tiempo real establecida'
-            });
-        });
+        // Validar que la fecha seleccionada no sea en el pasado
+        document.getElementById('diaNoLaborableFecha')?.addEventListener('change', function() {
+            const fechaSeleccionada = new Date(this.value);
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
 
-        pusher.connection.bind('error', (err) => {
-            console.error('Error de Pusher:', err);
-            Toast.fire({
-                icon: 'error',
-                title: 'Error de conexión en tiempo real'
-            });
-        });
+            if (fechaSeleccionada < hoy) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'No puedes seleccionar una fecha pasada'
+                });
+                this.value = hoy.toISOString().split('T')[0];
+            }
+        });*/
 
-        // Suscribirse a canales y eventos
-        const channel = pusher.subscribe('usuarios');
-        channel.bind('UsuarioCreado', function(data) {
-            Toast.fire({
-                icon: 'info',
-                title: 'Nuevo usuario registrado'
-            });
-            actualizarGraficoUsuarios();
-        });
 
-        // Función para inicializar todos los gráficos
-        function inicializarGraficos() {
-            // Verificar que los elementos canvas existan
-            if (!document.getElementById('ingresosChart') ||
-                !document.getElementById('citasChart') ||
-                !document.getElementById('serviciosChart') ||
-                !document.getElementById('usuariosChart')) {
-                console.error('No se encontraron todos los elementos canvas para los gráficos');
+        // =============================================
+        // FUNCIONES DE USUARIO Y VALIDACIÓN
+        // =============================================
+
+
+        // Función para mostrar el modal de usuario 
+        function mostrarModalUsuario(usuarioId = null) {
+            const modal = document.getElementById('usuarioModal');
+            const form = document.getElementById('usuarioForm');
+            const title = document.getElementById('modalTitleText');
+            const rolField = document.getElementById('rol');
+            const emailField = document.getElementById('email');
+            const passwordFields = document.getElementById('passwordFields');
+
+            // Resetear el formulario y listeners
+            form.reset();
+            document.getElementById('usuario_id').value = '';
+
+            // Remover cualquier listener previo de email
+            const emailInput = document.getElementById('email');
+            const newEmailInput = emailInput.cloneNode(true);
+            emailInput.parentNode.replaceChild(newEmailInput, emailInput);
+
+            if (usuarioId) {
+                // Modo edición
+                document.getElementById('modalTitleText').textContent = 'Editar Usuario';
+                document.getElementById('email').readOnly = true;
+                document.getElementById('rol').readOnly = true;
+                document.getElementById('emailHelp').style.display = 'block';
+                document.getElementById('rolHelp').style.display = 'block';
+                passwordFields.style.display = 'none';
+                document.getElementById('password').required = false;
+                document.getElementById('password_confirmation').required = false;
+
+                // Buscar el usuario en los datos cargados
+                const usuario = allUsersData.find(u => u.id == usuarioId);
+
+                if (usuario) {
+                    document.getElementById('usuario_id').value = usuario.id;
+                    document.getElementById('nombre').value = usuario.nombre;
+                    document.getElementById('email').value = usuario.email;
+                    document.getElementById('telefono').value = usuario.telefono || '';
+                    document.getElementById('rol').value = usuario.rol;
+                    document.getElementById('estado').value = usuario.estado ? '1' : '0';
+                } else {
+                    // Si no está en los datos cargados, hacer petición al servidor
+                    fetch(`/admin/usuarios/${usuarioId}/edit`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Usuario no encontrado');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            document.getElementById('usuario_id').value = data.id;
+                            document.getElementById('nombre').value = data.nombre;
+                            document.getElementById('email').value = data.email;
+                            document.getElementById('telefono').value = data.telefono || '';
+                            document.getElementById('rol').value = data.rol;
+                            document.getElementById('estado').value = data.estado ? '1' : '0';
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar usuario:', error);
+                            Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
+                            closeModal('usuarioModal');
+                        });
+                }
+            } else {
+                // Modo creación
+                document.getElementById('modalTitleText').textContent = 'Crear Nuevo Usuario';
+                document.getElementById('email').readOnly = false;
+                document.getElementById('rol').readOnly = false;
+                document.getElementById('emailHelp').style.display = 'none';
+                document.getElementById('email').removeAttribute('readonly');
+                document.getElementById('rolHelp').style.display = 'none';
+                passwordFields.style.display = 'block';
+                document.getElementById('rol').value = 'cliente'; // Valor por defecto
+                document.getElementById('password').required = true;
+                document.getElementById('password_confirmation').required = true;
+
+                // Validación en tiempo real para email (solo en creación)
+                document.getElementById('email').addEventListener('blur', async function() {
+                    const email = this.value;
+                    if (!email) return;
+
+                    try {
+                        const usuarioId = document.getElementById('usuario_id').value;
+                        const url =
+                            `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
+
+                        const response = await fetch(url);
+
+                        if (!response.ok) {
+                            throw new Error('Error al verificar email');
+                        }
+
+                        const data = await response.json();
+
+                        if (!data.available) {
+                            this.setCustomValidity(data.message);
+                            this.classList.add('border-red-500');
+                            document.getElementById('email-error').textContent = data.message;
+                            document.getElementById('email-error').classList.remove('hidden');
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('border-red-500');
+                            document.getElementById('email-error').classList.add('hidden');
+                        }
+                    } catch (error) {
+                        console.error('Error al verificar email:', error);
+                        // No mostrar error al usuario para no confundirlo
+                    }
+                });
+            }
+
+            // Resetear validaciones visuales
+            document.querySelectorAll('.password-requirements li').forEach(li => {
+                li.style.color = '#6b7280';
+            });
+            document.getElementById('passwordMatchMessage').textContent = '';
+
+            // Resetear el botón de submit
+            const submitBtn = document.querySelector('#usuarioForm button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
+
+            modal.style.display = 'flex';
+
+            initPasswordValidations();
+
+        }
+
+        // Función para alternar visibilidad de contraseña 
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            let eyeIcon;
+
+            if (inputId === 'password') {
+                eyeIcon = document.getElementById('passwordEye');
+            } else {
+                eyeIcon = document.getElementById('passwordConfirmationEye');
+            }
+
+            if (!input || !eyeIcon) {
+                console.error(`Elemento no encontrado para inputId: ${inputId}`);
                 return;
             }
 
-            // Gráfico de ingresos mensuales
-            const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
-            ingresosChart = new Chart(ingresosCtx, {
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        function evaluatePasswordStrength(password) {
+            let strength = 0;
+            const strengthText = document.getElementById('passwordStrengthText');
+            const strengthBar = document.getElementById('passwordStrengthBar');
+
+            // Resetear completamente
+            strengthBar.className = 'password-strength-meter-fill';
+            strengthBar.style.backgroundColor = 'transparent';
+            strengthBar.style.width = '0';
+            strengthText.textContent = '';
+
+            // Si está vacío, salir sin evaluar
+            if (password.length === 0) {
+                return false;
+            }
+
+            // Evaluar fortaleza
+            if (password.length >= 8) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[a-z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            // Aplicar estilos según fortaleza
+            let color, width, text;
+            switch (strength) {
+                case 0:
+                case 1:
+                    color = '#ff5252';
+                    width = '25%';
+                    text = 'Débil';
+                    break;
+                case 2:
+                    color = '#ffb74d';
+                    width = '50%';
+                    text = 'Moderada';
+                    break;
+                case 3:
+                    color = '#4caf50';
+                    width = '75%';
+                    text = 'Fuerte';
+                    break;
+                case 4:
+                case 5:
+                    color = '#2e7d32';
+                    width = '100%';
+                    text = 'Muy fuerte';
+                    break;
+            }
+
+            // Aplicar cambios visuales
+            strengthBar.style.backgroundColor = color;
+            strengthBar.style.width = width;
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+
+            return strength >= 3;
+        }
+
+        function validatePasswordStrength(password) {
+            const hasMinLength = password.length >= 8;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+
+            // Actualizar lista de requisitos
+            document.getElementById('req-length').style.color = hasMinLength ? '#10b981' : '#6b7280';
+            document.getElementById('req-uppercase').style.color = hasUpperCase ? '#10b981' : '#6b7280';
+            document.getElementById('req-lowercase').style.color = hasLowerCase ? '#10b981' : '#6b7280';
+            document.getElementById('req-number').style.color = hasNumber ? '#10b981' : '#6b7280';
+
+            // Evaluar fortaleza general
+            evaluatePasswordStrength(password);
+
+            return hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
+        }
+
+        document.getElementById('password')?.addEventListener('input', function() {
+            validatePasswordStrength(this.value);
+            if (document.getElementById('password_confirmation').value.length > 0) {
+                validatePasswordMatch();
+            }
+        });
+
+        // Función para validar coincidencia de contraseñas
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+            const messageElement = document.getElementById('passwordMatchMessage');
+
+            // Limpiar clases previas
+            messageElement.classList.remove('text-success', 'text-danger');
+
+            messageElement.className = 'password-match-message';
+            messageElement.textContent = '';
+
+            if (confirmPassword.length === 0) {
+                return false;
+            }
+
+            if (password === confirmPassword) {
+                messageElement.textContent = 'Las contraseñas coinciden';
+                messageElement.classList.add('valid');
+                return true;
+            } else {
+                messageElement.textContent = 'Las contraseñas no coinciden';
+                messageElement.classList.add('invalid');
+                return false;
+            }
+        }
+
+
+        // Inicializar validaciones del formulario
+        function initPasswordValidations() {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('password_confirmation');
+
+            if (passwordInput && confirmPasswordInput) {
+                // Validar mientras se escribe en campo de contraseña
+                passwordInput.addEventListener('input', function() {
+                    validatePasswordStrength(this.value);
+                    if (confirmPasswordInput.value.length > 0) {
+                        validatePasswordMatch();
+                    }
+                });
+
+                // Validar mientras se escribe en campo de confirmación
+                confirmPasswordInput.addEventListener('input', function() {
+                    if (passwordInput.value.length > 0) {
+                        validatePasswordMatch();
+                    } else {
+                        document.getElementById('passwordMatchMessage').textContent = '';
+                    }
+                });
+            } else {
+                console.error('No se encontraron los inputs de contraseña');
+            }
+        }
+
+        // Función para manejar envío de formulario 
+        async function handleUsuarioFormSubmit(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const usuarioId = form.querySelector('#usuario_id').value;
+
+            // Resetear errores visuales
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.querySelectorAll('.border-red-500').forEach(el => {
+                el.classList.remove('border-red-500');
+            });
+
+            // Deshabilitar el botón
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+            try {
+                // Primero verificar el email nuevamente
+                const email = form.email.value;
+                const checkEmailUrl =
+                    `{{ route('admin.usuarios.check-email') }}?email=${encodeURIComponent(email)}${usuarioId ? '&exclude_id=' + usuarioId : ''}`;
+                const checkResponse = await fetch(checkEmailUrl);
+
+                if (!checkResponse.ok) throw new Error('Error al verificar email');
+
+                const checkData = await checkResponse.json();
+
+                if (!checkData.available) {
+                    throw new Error(checkData.message);
+                }
+
+                // Si el email está disponible, proceder con el envío
+                const response = await fetch(usuarioId ? `/admin/usuarios/${usuarioId}` : '/admin/usuarios', {
+                    method: usuarioId ? 'PUT' : 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: form.nombre.value.trim(),
+                        email: email,
+                        telefono: form.telefono.value.trim() || null,
+                        estado: form.estado.value === '1',
+                        rol: form.rol.value,
+                        password: form.password?.value,
+                        password_confirmation: form.password_confirmation?.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error al procesar la solicitud');
+                }
+
+                // Éxito - mostrar mensaje y recargar
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+                await fetchAllUsers();
+                closeModal('usuarioModal');
+
+            } catch (error) {
+                // Mostrar error específico para email
+                if (error.message.includes('correo electrónico')) {
+                    form.email.classList.add('border-red-500');
+                    document.getElementById('email-error').textContent = error.message;
+                    document.getElementById('email-error').classList.remove('hidden');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message,
+                        footer: usuarioId ? `ID: ${usuarioId}` : ''
+                    });
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Usuario';
+            }
+        }
+
+
+
+        // =============================================
+        // FUNCIONES DE INICIALIZACIÓN
+        // =============================================
+
+        function inicializarGraficoUsuarios(data) {
+            const ctx = document.getElementById('usuariosChart').getContext('2d');
+            usuariosChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Clientes', 'Empleados', 'Administradores'],
+                    datasets: [{
+                        data: [data.clientes, data.empleados, data.administradores],
+                        backgroundColor: [
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: getCommonChartOptions('bottom')
+            });
+        }
+        console.log(document.getElementById('usuariosChart')); // Debería mostrar el elemento canvas
+
+        function inicializarGraficoIngresos() {
+            const ctx = document.getElementById('ingresosChart').getContext('2d');
+            ingresosChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
@@ -2905,75 +4160,29 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    ...getCommonChartOptions('top'),
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => '$' + value
+                            }
+                        }
+                    },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                        },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
-                                    return '$' + context.raw.toLocaleString();
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value;
-                                }
+                                label: context => '$' + context.raw.toLocaleString()
                             }
                         }
                     }
                 }
             });
+        }
 
-            // Gráfico de citas mensuales
-            const citasCtx = document.getElementById('citasChart').getContext('2d');
-            citasChart = new Chart(citasCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                    datasets: [{
-                        label: 'Citas Completadas',
-                        data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                        backgroundColor: 'rgba(211, 84, 0, 0.7)',
-                        borderColor: 'rgba(211, 84, 0, 1)',
-                        borderWidth: 1
-                    }, {
-                        label: 'Citas Canceladas',
-                        data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Gráfico de servicios populares
-            const serviciosCtx = document.getElementById('serviciosChart').getContext('2d');
-            serviciosChart = new Chart(serviciosCtx, {
+        function inicializarGraficoServicios() {
+            const ctx = document.getElementById('serviciosChart').getContext('2d');
+            serviciosChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
@@ -2986,68 +4195,38 @@
                             'rgba(155, 89, 182, 0.7)',
                             'rgba(231, 76, 60, 0.7)'
                         ],
-                        borderColor: [
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(52, 152, 219, 1)',
-                            'rgba(243, 156, 18, 1)',
-                            'rgba(155, 89, 182, 1)',
-                            'rgba(231, 76, 60, 1)'
-                        ],
                         borderWidth: 1
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                        }
-                    }
-                }
+                options: getCommonChartOptions('right')
             });
+        }
 
-            // Gráfico de distribución de usuarios
-            const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
-            usuariosChart = new Chart(usuariosCtx, {
-                type: 'pie',
+        function inicializarGraficoCitas() {
+            const ctx = document.getElementById('citasChart').getContext('2d');
+            citasChart = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: ['Clientes', 'Empleados', 'Administradores'],
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                     datasets: [{
-                        data: [
-                            {{ $rolesDistribucion['clientes'] }},
-                            {{ $rolesDistribucion['empleados'] }},
-                            {{ $rolesDistribucion['administradores'] }}
-                        ],
-                        backgroundColor: [
-                            'rgba(39, 174, 96, 0.7)',
-                            'rgba(52, 152, 219, 0.7)',
-                            'rgba(155, 89, 182, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(52, 152, 219, 1)',
-                            'rgba(155, 89, 182, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
+                            label: 'Citas Completadas',
+                            data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
+                            backgroundColor: 'rgba(211, 84, 0, 0.7)'
+                        },
+                        {
+                            label: 'Citas Canceladas',
+                            data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)'
+                        }
+                    ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
+                    ...getCommonChartOptions('top'),
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
                             }
                         }
                     }
@@ -3055,259 +4234,176 @@
             });
         }
 
-        // Función para actualizar datos de gráficos
-        async function actualizarGraficoUsuarios() {
+        function getCommonChartOptions(legendPosition) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: legendPosition
+                    }
+                }
+            };
+        }
+
+        // =============================================
+        // FUNCIONES DE ACTUALIZACIÓN DE DATOS
+        // =============================================
+
+        // En la función actualizarDatosDashboard
+        async function actualizarDatosDashboard() {
             try {
                 const response = await fetch('{{ route('admin.dashboard.data') }}');
+                if (!response.ok) throw new Error('Error en la respuesta del servidor');
+
                 const data = await response.json();
 
-                // Función helper segura
-                const safeUpdate = (selector, value) => {
-                    const element = document.querySelector(selector);
-                    if (element) element.textContent = value;
-                };
-
-                // Actualización de estadísticas
-                if (data.stats) {
-                    safeUpdate('.welcome-stat:nth-child(1) .number', data.stats.usuarios_totales || '0');
-                    safeUpdate('.welcome-stat:nth-child(2) .number', data.stats.citas_hoy || '0');
-                    safeUpdate('.welcome-stat:nth-child(3) .number', `$${(data.stats.ingresos_hoy || 0).toFixed(2)}`);
-
-                    // Actualización de cards
-                    safeUpdate('.card-body [style*="grid-template-columns"] div:first-child div:first-child',
-                        data.stats.usuarios_totales || '0');
-                    safeUpdate('.card-body [style*="grid-template-columns"] div:nth-child(2) div:first-child',
-                        data.stats.nuevos_clientes_mes || '0');
+                if (!data.stats || !data.rolesDistribucion) {
+                    throw new Error('Formato de datos incorrecto');
                 }
 
-                // Actualización de gráficos
-                if (window.usuariosChart && data.rolesDistribucion) {
-                    window.usuariosChart.data.datasets[0].data = [
-                        data.rolesDistribucion.clientes || 0,
-                        data.rolesDistribucion.empleados || 0,
-                        data.rolesDistribucion.administradores || 0
-                    ];
-                    window.usuariosChart.update();
+                actualizarEstadisticas(data.stats);
+
+                // Asegúrate de que el canvas existe antes de inicializar el gráfico
+                if (document.getElementById('usuariosChart')) {
+                    // Si el gráfico ya existe, actualízalo
+                    if (usuariosChart) {
+                        actualizarGraficoUsuarios(data.rolesDistribucion);
+                    } else {
+                        // Si no existe, créalo
+                        inicializarGraficoUsuarios(data.rolesDistribucion);
+                    }
                 }
 
-                if (window.ingresosChart && data.ingresosMensuales) {
-                    window.ingresosChart.data.datasets[0].data = data.ingresosMensuales || [];
-                    window.ingresosChart.update();
-                }
-
-                if (window.citasChart && data.citasMensuales) {
-                    window.citasChart.data.datasets[0].data = data.citasMensuales?.completadas || [];
-                    window.citasChart.data.datasets[1].data = data.citasMensuales?.canceladas || [];
-                    window.citasChart.update();
-                }
-
-                if (window.serviciosChart && data.serviciosPopulares) {
-                    window.serviciosChart.data.datasets[0].data = data.serviciosPopulares || [];
-                    window.serviciosChart.update();
-                }
-
+                return true;
             } catch (error) {
                 console.error('Error al actualizar datos:', error);
                 Toast.fire({
                     icon: 'error',
-                    title: 'Error al actualizar datos'
+                    title: 'Error al cargar datos',
+                    text: error.message
                 });
+                return false;
             }
         }
-        // Inicializar todo cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
-            inicializarGraficos();
-            actualizarGraficoUsuarios();
 
-            // Actualizar cada 10 segundos
-            setInterval(actualizarGraficoUsuarios, 10000);
-        });
-
-        // Actualizar cuando la pestaña vuelve a estar activa
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                actualizarGraficoUsuarios();
+        function actualizarEstadisticas(stats) {
+            const welcomeStats = document.querySelectorAll('.welcome-stat .number');
+            if (welcomeStats.length >= 3) {
+                welcomeStats[0].textContent = stats.usuarios_totales ?? 0;
+                welcomeStats[1].textContent = stats.citas_hoy ?? 0;
+                welcomeStats[2].textContent = `$${(stats.ingresos_hoy ?? 0).toFixed(2)}`;
+            } else {
+                console.warn('No se encontraron los elementos de estadísticas principales');
             }
-        });
+
+            const cardCounters = document.querySelectorAll('.card-body [style*="grid-template-columns"] div');
+            if (cardCounters.length >= 2) {
+                const numberElements = cardCounters[0].querySelectorAll('div:first-child');
+                if (numberElements.length > 0) {
+                    numberElements[0].textContent = stats.usuarios_totales ?? 0;
+                }
+                if (numberElements.length > 1) {
+                    numberElements[1].textContent = stats.nuevos_clientes_mes ?? 0;
+                }
+            }
+        }
+
+        function actualizarGraficoUsuarios(data) {
+            if (usuariosChart) {
+                usuariosChart.data.datasets[0].data = [
+                    data.clientes,
+                    data.empleados,
+                    data.administradores
+                ];
+                usuariosChart.update();
+            } else {
+                inicializarGraficoUsuarios(data);
+            }
+        }
+
+        // =============================================
+        // FUNCIONES DE INTERFAZ
+        // =============================================
 
         // Funciones para pestañas
         function openTab(evt, tabName) {
             const tabContents = document.getElementsByClassName('tab-content');
-            for (let i = 0; i < tabContents.length; i++) {
-                tabContents[i].classList.remove('active');
-            }
-
             const tabButtons = document.getElementsByClassName('tab-button');
-            for (let i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].classList.remove('active');
-            }
+
+            Array.from(tabContents).forEach(content => content.classList.remove('active'));
+            Array.from(tabButtons).forEach(button => button.classList.remove('active'));
 
             document.getElementById(tabName).classList.add('active');
             evt.currentTarget.classList.add('active');
         }
 
         // Funciones para modales
-        function verDetalleCita(citaId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            const detalleContent = `
-                <h2 style="color: var(--primary); margin-bottom: 20px;">
-                    <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
-                </h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-user"></i> Información del Cliente
-                        </h3>
-                        <p><strong>Nombre:</strong> Juan Pérez</p>
-                        <p><strong>Teléfono:</strong> 5555-1234</p>
-                        <p><strong>Email:</strong> juan@example.com</p>
-                        <p><strong>Cliente desde:</strong> Ene 2023</p>
-                    </div>
-                    
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-car"></i> Información del Vehículo
-                        </h3>
-                        <p><strong>Marca/Modelo:</strong> Toyota Corolla</p>
-                        <p><strong>Año:</strong> 2020</p>
-                        <p><strong>Color:</strong> Rojo</p>
-                        <p><strong>Placa:</strong> P123456</p>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-concierge-bell"></i> Servicios Contratados
-                    </h3>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: var(--light);">
-                                <th style="padding: 10px; text-align: left;">Servicio</th>
-                                <th style="padding: 10px; text-align: right;">Precio</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary);">Lavado Completo</td>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary); text-align: right;">$25.00</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary);">Aspirado Interior</td>
-                                <td style="padding: 10px; border-bottom: 1px solid var(--border-primary); text-align: right;">$15.00</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; font-weight: bold;">Total</td>
-                                <td style="padding: 10px; font-weight: bold; text-align: right;">$40.00</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-info-circle"></i> Información Adicional
-                    </h3>
-                    <p><strong>Fecha/Hora:</strong> 15 Jun 2023 - 10:00 AM</p>
-                    <p><strong>Estado:</strong> <span class="badge badge-success">Finalizada</span></p>
-                    <p><strong>Empleado asignado:</strong> Carlos López</p>
-                    <p><strong>Observaciones del cliente:</strong> Por favor prestar atención a las manchas en los asientos traseros.</p>
-                    <p><strong>Observaciones del empleado:</strong> Se detectó pequeño rayón en la puerta derecha, cliente fue notificado.</p>
-                </div>
-                
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button class="btn btn-outline" onclick="imprimirRecibo(${citaId})">
-                        <i class="fas fa-print"></i> Imprimir Recibo
-                    </button>
-                    <button class="btn btn-primary" onclick="editarCita(${citaId})">
-                        <i class="fas fa-edit"></i> Editar Cita
-                    </button>
-                </div>
-            `;
+        function mostrarModal(modalId, title = '', content = '') {
+            if (title) document.getElementById(`${modalId}Title`).innerHTML = title;
+            if (content) document.getElementById(`${modalId}Content`).innerHTML = content;
+            document.getElementById(modalId).style.display = 'flex';
+        }
 
-            document.getElementById('detalleCitaContent').innerHTML = detalleContent;
-            document.getElementById('detalleCitaModal').style.display = 'flex';
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // =============================================
+        // FUNCIONES ESPECÍFICAS
+        // =============================================
+
+        // Gestión de citas
+        function verDetalleCita(citaId) {
+            const detalleContent = `
+        <h2 style="color: var(--primary); margin-bottom: 20px;">
+            <i class="fas fa-calendar-check"></i> Detalle de Cita #${citaId}
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                    <i class="fas fa-user"></i> Información del Cliente
+                </h3>
+                <p><strong>Nombre:</strong> ${citaId.nombre || 'Juan Pérez'}</p>
+                <p><strong>Teléfono:</strong> ${citaId.telefono || '5555-1234'}</p>
+                <p><strong>Email:</strong> ${citaId.email || 'juan@example.com'}</p>
+            </div>
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                    <i class="fas fa-car"></i> Información del Vehículo
+                </h3>
+                <p><strong>Marca/Modelo:</strong> ${citaId.vehiculo || 'Toyota Corolla'}</p>
+                <p><strong>Placa:</strong> ${citaId.placa || 'P123456'}</p>
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                <i class="fas fa-concierge-bell"></i> Servicios
+            </h3>
+            <ul>
+                ${citaId.servicios ? citaId.servicios.map(s => `<li>${s.nombre} - $${s.precio}</li>`).join('') : '<li>Lavado Completo - $25.00</li>'}
+            </ul>
+        </div>
+    `;
+            mostrarModal('detalleCitaModal', '<i class="fas fa-calendar-check"></i> Detalle de Cita', detalleContent);
         }
 
         function editarCita(citaId) {
-            // Simulación de formulario 
             const formContent = `
-                <div class="form-group">
-                    <label for="edit_cliente">Cliente:</label>
-                    <select id="edit_cliente" class="form-control" required>
-                        <option value="1" selected>Juan Pérez</option>
-                        <option value="2">María González</option>
-                        <option value="3">Carlos López</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_vehiculo">Vehículo:</label>
-                    <select id="edit_vehiculo" class="form-control" required>
-                        <option value="1" selected>Toyota Corolla (P123456)</option>
-                        <option value="2">Honda Civic (P654321)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_fecha">Fecha:</label>
-                    <input type="date" id="edit_fecha" class="form-control" value="2023-06-15" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_hora">Hora:</label>
-                    <input type="time" id="edit_hora" class="form-control" value="10:00" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Servicios:</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div>
-                            <input type="checkbox" id="serv1" checked>
-                            <label for="serv1">Lavado Completo ($25.00)</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="serv2" checked>
-                            <label for="serv2">Aspirado Interior ($15.00)</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="serv3">
-                            <label for="serv3">Encerado ($20.00)</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_empleado">Empleado Asignado:</label>
-                    <select id="edit_empleado" class="form-control" required>
-                        <option value="1" selected>Carlos López</option>
-                        <option value="2">Ana Martínez</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_estado">Estado:</label>
-                    <select id="edit_estado" class="form-control" required>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="en_proceso">En Proceso</option>
-                        <option value="finalizada" selected>Finalizada</option>
-                        <option value="cancelada">Cancelada</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit_observaciones">Observaciones:</label>
-                    <textarea id="edit_observaciones" rows="3" class="form-control">Por favor prestar atención a las manchas en los asientos traseros.</textarea>
-                </div>
-                
-                <button type="button" class="btn btn-success" style="width: 100%;" onclick="guardarCambiosCita(${citaId})">
-                    <i class="fas fa-save"></i> Guardar Cambios
-                </button>
-            `;
-
-            document.getElementById('editarCitaForm').innerHTML = formContent;
-            document.getElementById('detalleCitaModal').style.display = 'none';
-            document.getElementById('editarCitaModal').style.display = 'flex';
+        <form id="editarCitaForm">
+            <div class="form-group">
+                <label for="editFecha">Fecha:</label>
+                <input type="date" id="editFecha" class="form-control" value="${new Date().toISOString().split('T')[0]}" required>
+            </div>
+            <div class="form-group">
+                <label for="editHora">Hora:</label>
+                <input type="time" id="editHora" class="form-control" value="10:00" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    `;
+            closeModal('detalleCitaModal');
+            mostrarModal('editarCitaModal', '<i class="fas fa-edit"></i> Editar Cita', formContent);
         }
 
         function cancelarCita(citaId) {
@@ -3322,268 +4418,312 @@
                 cancelButtonText: 'No, volver'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Aquí iría la petición AJAX para cancelar la cita
                     Toast.fire({
                         icon: 'success',
                         title: 'Cita cancelada correctamente'
                     });
-
-                    // Simulación de recarga de datos
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    actualizarDatosDashboard();
                 }
             });
         }
 
-        function guardarCambiosCita(citaId) {
-            // Aquí iría la petición AJAX para guardar los cambios
-            Toast.fire({
-                icon: 'success',
-                title: 'Cambios guardados correctamente'
-            });
-
-            closeModal('editarCitaModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                verDetalleCita(citaId);
-            }, 500);
-        }
-
-        function imprimirRecibo(citaId) {
-            // Aquí iría la lógica para imprimir el recibo
-            window.open(`/admin/citas/${citaId}/recibo`, '_blank');
-        }
-
+        // Gestión de servicios
         function nuevoServicio() {
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Nuevo Servicio';
-            document.getElementById('servicio_id').value = '';
-            document.getElementById('servicio_nombre').value = '';
-            document.getElementById('servicio_descripcion').value = '';
-            document.getElementById('servicio_precio').value = '';
-            document.getElementById('servicio_duracion').value = '';
-            document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'flex';
+            const formContent = `
+        <form id="servicioForm">
+            <div class="form-group">
+                <label for="servicioNombre">Nombre:</label>
+                <input type="text" id="servicioNombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="servicioPrecio">Precio:</label>
+                <input type="number" id="servicioPrecio" class="form-control" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Servicio</button>
+        </form>
+    `;
+            mostrarModal('servicioModal', '<i class="fas fa-plus"></i> Nuevo Servicio', formContent);
         }
 
         function editarServicio(servicioId) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
-            document.getElementById('servicio_id').value = servicioId;
-            document.getElementById('servicio_nombre').value = 'Lavado Completo';
-            document.getElementById('servicio_descripcion').value =
-                'Lavado exterior e interior completo con aspirado y limpieza de tapicería';
-            document.getElementById('servicio_precio').value = '25.00';
-            document.getElementById('servicio_duracion').value = '30';
-            document.getElementById('servicio_activo').value = '1';
-            document.getElementById('servicioModal').style.display = 'flex';
+            const formContent = `
+        <form id="editarServicioForm">
+            <input type="hidden" id="servicioId" value="${servicioId}">
+            <div class="form-group">
+                <label for="editServicioNombre">Nombre:</label>
+                <input type="text" id="editServicioNombre" class="form-control" value="Lavado Premium" required>
+            </div>
+            <div class="form-group">
+                <label for="editServicioPrecio">Precio:</label>
+                <input type="number" id="editServicioPrecio" class="form-control" value="35.00" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Servicio</button>
+        </form>
+    `;
+            mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
         }
 
+        // Gestión de horarios
         function mostrarModalHorario() {
-            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-plus"></i> Agregar Horario';
-            document.getElementById('horario_id').value = '';
-            document.getElementById('horario_dia').value = '';
-            document.getElementById('horario_inicio').value = '';
-            document.getElementById('horario_fin').value = '';
-            document.getElementById('horario_activo').value = '1';
-            document.getElementById('horarioModal').style.display = 'flex';
+            const formContent = `
+        <form id="horarioForm">
+            <div class="form-group">
+                <label for="horarioDia">Día:</label>
+                <select id="horarioDia" class="form-control" required>
+                    <option value="Lunes">Lunes</option>
+                    <option value="Martes">Martes</option>
+                    <!-- Más días -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="horarioInicio">Hora Inicio:</label>
+                <input type="time" id="horarioInicio" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Horario</button>
+        </form>
+    `;
+            mostrarModal('horarioModal', '<i class="fas fa-plus"></i> Agregar Horario', formContent);
         }
 
-        function editarHorario(diaSemana) {
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-
-            document.getElementById('horarioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Horario';
-            document.getElementById('horario_id').value = diaSemana;
-            document.getElementById('horario_dia').value = diaSemana;
-            document.getElementById('horario_inicio').value = '07:00';
-            document.getElementById('horario_fin').value = '18:00';
-            document.getElementById('horario_activo').value = '1';
-            document.getElementById('horarioModal').style.display = 'flex';
+        function editarHorario(horarioId) {
+            const formContent = `
+        <form id="editarHorarioForm">
+            <input type="hidden" id="horarioId" value="${horarioId}">
+            <div class="form-group">
+                <label for="editHorarioDia">Día:</label>
+                <select id="editHorarioDia" class="form-control" required>
+                    <option value="Lunes" selected>Lunes</option>
+                    <option value="Martes">Martes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editHorarioInicio">Hora Inicio:</label>
+                <input type="time" id="editHorarioInicio" class="form-control" value="08:00" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Horario</button>
+        </form>
+    `;
+            mostrarModal('horarioModal', '<i class="fas fa-edit"></i> Editar Horario', formContent);
         }
 
-        function activarHorario(diaSemana) {
-            // Aquí iría la petición AJAX para activar el horario
-            Toast.fire({
-                icon: 'success',
-                title: 'Horario activado correctamente'
-            });
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        }
-
-        function desactivarHorario(diaSemana) {
-            // Aquí iría la petición AJAX para desactivar el horario
-            Toast.fire({
-                icon: 'success',
-                title: 'Horario desactivado correctamente'
-            });
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        }
-
-        // Función para abrir el modal de edición de perfil
+        // Gestión de perfil
         function editarPerfil() {
-            document.getElementById('perfil_nombre').value = '{{ Auth::user()->nombre }}';
-            document.getElementById('perfil_telefono').value = '{{ Auth::user()->telefono ?? '' }}';
-            document.getElementById('perfilModal').style.display = 'flex';
+            const formContent = `
+        <form id="perfilForm">
+            <div class="form-group">
+                <label for="perfilNombre">Nombre:</label>
+                <input type="text" id="perfilNombre" class="form-control" value="{{ Auth::user()->nombre }}" required>
+            </div>
+            <div class="form-group">
+                <label for="perfilTelefono">Teléfono:</label>
+                <input type="tel" id="perfilTelefono" class="form-control" value="{{ Auth::user()->telefono ?? '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    `;
+            mostrarModal('perfilModal', '<i class="fas fa-user-edit"></i> Editar Perfil', formContent);
         }
 
-        // Manejar envío del formulario de perfil
-        document.getElementById('perfilForm').addEventListener('submit', async function(e) {
+        // =============================================
+        // EVENT LISTENERS
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. PRIMERO VERIFICAR QUE LOS CONTENEDORES DE GRÁFICOS EXISTAN
+            if (!document.getElementById('usuariosChart')) {
+                console.error('No se encontró el elemento usuariosChart');
+            }
+
+            if (!document.getElementById('ingresosChart')) {
+                console.error('No se encontró el elemento ingresosChart');
+            }
+
+            if (!document.getElementById('citasChart')) {
+                console.error('No se encontró el elemento citasChart');
+            }
+
+            if (!document.getElementById('serviciosChart')) {
+                console.error('No se encontró el elemento serviciosChart');
+            }
+
+            // 2. SOLO INICIALIZAR GRÁFICOS SI SUS CONTENEDORES EXISTEN
+            if (document.getElementById('ingresosChart')) {
+                inicializarGraficoIngresos();
+            }
+
+            if (document.getElementById('citasChart')) {
+                inicializarGraficoCitas();
+            }
+
+            if (document.getElementById('serviciosChart')) {
+                inicializarGraficoServicios();
+            }
+
+            actualizarDatosDashboard();
+
+            // Inicializar validaciones del formulario de usuario
+            if (!document.getElementById('password') || !document.getElementById('password_confirmation')) {
+                console.error('Elementos de contraseña no encontrados');
+            } else {
+                initPasswordValidations();
+            }
+
+            cargarDiasNoLaborables();
+
+            // Asignar el evento al botón de crear usuario
+            document.querySelector('.btn-primary[onclick="mostrarModalUsuario()"]').addEventListener('click',
+                mostrarModalUsuario);
+
+            // Configurar intervalo para actualizaciones (5 segundos)
+            setInterval(actualizarDatosDashboard, 5000);
+
+            // Actualizar cuando la pestaña vuelve a estar activa
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) actualizarDatosDashboard();
+            });
+
+            // Listeners para botones de pestañas
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    openTab(e, this.getAttribute('data-tab'));
+                });
+            });
+
+            // Listener para cerrar modales al hacer clic fuera
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    ['detalleCita', 'editarCita', 'servicio', 'horario', 'perfil', 'usuario'].forEach(
+                        modal => {
+                            closeModal(`${modal}Modal`);
+                        });
+                }
+            });
+
+            // Listener para botones de cerrar modal
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    closeModal(this.closest('.modal').id);
+                });
+            });
+
+            // Inicializar el formulario de usuario
+            const usuarioForm = document.getElementById('usuarioForm');
+            if (usuarioForm) {
+                usuarioForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    // Validar contraseña si estamos en modo creación
+                    if (document.getElementById('passwordFields').style.display !== 'none') {
+                        const password = document.getElementById('password').value;
+                        const isPasswordStrong = validatePasswordStrength(password);
+                        const doPasswordsMatch = validatePasswordMatch();
+
+                        if (!isPasswordStrong || !doPasswordsMatch) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error en la contraseña',
+                                text: 'Por favor, asegúrate de que la contraseña cumpla con todos los requisitos y que ambas contraseñas coincidan.'
+                            });
+                            return;
+                        }
+                    }
+
+                    // Si todo está bien, enviar el formulario
+                    handleUsuarioFormSubmit(e);
+                });
+            }
+        });
+
+
+        // Perfil de usuario
+        document.getElementById('perfilForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const formData = new FormData(this);
+            const formData = {
+                nombre: document.getElementById('perfil_nombre').value,
+                telefono: document.getElementById('perfil_telefono').value,
+                _token: '{{ csrf_token() }}'
+            };
 
             try {
                 const response = await fetch('{{ route('perfil.update-ajax') }}', {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify({
-                        nombre: document.getElementById('perfil_nombre').value,
-                        telefono: document.getElementById('perfil_telefono').value
-                    })
+                    body: JSON.stringify(formData)
                 });
 
                 const data = await response.json();
 
-                if (data.success) {
-                    // Actualizar la UI
-                    document.querySelector('.profile-name').textContent = data.user.nombre;
-                    if (data.user.telefono) {
-                        document.querySelector('.profile-info-item:nth-child(2) span').textContent = data.user
-                            .telefono;
-                    }
-
+                if (response.ok) {
                     Toast.fire({
                         icon: 'success',
-                        title: data.message
+                        title: 'Perfil actualizado correctamente'
                     });
 
+                    // ACTUALIZACIÓN DEL SIDEBAR 
+                    // 1. Actualizar el nombre en el perfil
+                    const profileName = document.querySelector('.profile-name');
+                    if (profileName) profileName.textContent = formData.nombre;
+
+                    // 2. Actualizar el teléfono en el perfil
+                    const profilePhone = document.querySelector('.profile-info-item:nth-child(2) span');
+                    if (profilePhone) profilePhone.textContent = formData.telefono || 'No especificado';
+
+                    // Cerrar el modal
                     closeModal('perfilModal');
+
                 } else {
-                    throw new Error(data.message);
+                    throw new Error(data.message || 'Error al actualizar el perfil');
                 }
             } catch (error) {
                 Toast.fire({
                     icon: 'error',
-                    title: error.message || 'Error al actualizar el perfil'
+                    title: error.message
                 });
             }
         });
 
-        // Manejar envío del formulario de horario
-        document.getElementById('horarioForm').addEventListener('submit', function(e) {
+        // Formulario de usuario
+        // Formulario de usuario - Versión unificada con validación de contraseña
+        document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // Aquí iría la petición AJAX para guardar el horario
-            const isNew = document.getElementById('horario_id').value === '';
+            // Validar contraseña si estamos en modo creación
+            if (document.getElementById('passwordFields').style.display !== 'none') {
+                const password = document.getElementById('password').value;
+                const isPasswordStrong = validatePasswordStrength(password);
+                const doPasswordsMatch = validatePasswordMatch();
 
-            Toast.fire({
-                icon: 'success',
-                title: `Horario ${isNew ? 'creado' : 'actualizado'} correctamente`
-            });
-
-            closeModal('horarioModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Manejar envío del formulario de servicio
-        document.getElementById('servicioForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Aquí iría la petición AJAX para guardar el servicio
-            const isNew = document.getElementById('servicio_id').value === '';
-
-            Toast.fire({
-                icon: 'success',
-                title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
-            });
-
-            closeModal('servicioModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Manejar envío del formulario de perfil
-        document.getElementById('perfilForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Aquí iría la petición AJAX para guardar el perfil
-            Toast.fire({
-                icon: 'success',
-                title: 'Perfil actualizado correctamente'
-            });
-
-            closeModal('perfilModal');
-
-            // Simulación de recarga de datos
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        });
-
-        // Función para cerrar modales
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Cerrar modales al hacer clic fuera
-        window.addEventListener('click', function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal('detalleCitaModal');
-                closeModal('editarCitaModal');
-                closeModal('servicioModal');
-                closeModal('horarioModal');
-                closeModal('perfilModal');
-                closeModal('usuarioModal');
+                if (!isPasswordStrong || !doPasswordsMatch) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error en la contraseña',
+                        text: 'Por favor, asegúrate de que la contraseña cumpla con todos los requisitos y que ambas contraseñas coincidan.'
+                    });
+                    return;
+                }
             }
-        });
-
-        // Función para mostrar el modal de usuario
-        function mostrarModalUsuario() {
-            document.getElementById('usuarioModal').style.display = 'flex';
-        }
-
-        // Manejar envío del formulario de usuario
-        document.getElementById('usuarioForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
 
             const formData = {
-                nombre: document.getElementById('usuario_nombre').value,
-                email: document.getElementById('usuario_email').value,
-                telefono: document.getElementById('usuario_telefono').value,
-                rol: document.getElementById('usuario_rol').value,
-                password: document.getElementById('usuario_password').value,
-                password_confirmation: document.getElementById('usuario_password_confirmation').value,
-                estado: document.getElementById('usuario_estado').value
+                nombre: document.getElementById('nombre').value,
+                email: document.getElementById('email').value,
+                telefono: document.getElementById('telefono').value,
+                rol: document.getElementById('rol').value,
+                password: document.getElementById('password').value,
+                password_confirmation: document.getElementById('password_confirmation').value,
+                estado: document.getElementById('estado').value,
+                _token: '{{ csrf_token() }}'
             };
 
             try {
                 const response = await fetch('{{ route('admin.usuarios.store') }}', {
                     method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(formData)
                 });
@@ -3595,20 +4735,16 @@
                         icon: 'success',
                         title: 'Usuario creado correctamente'
                     });
-
                     closeModal('usuarioModal');
-
-                    // Limpiar el formulario
-                    document.getElementById('usuarioForm').reset();
-
-                    actualizarGraficoUsuarios();
-
-                    // Recargar la página para ver los cambios
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    await actualizarDatosDashboard();
                 } else {
-                    throw new Error(data.message || 'Error al crear el usuario');
+                    let errorMessage = 'Error al crear el usuario';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).join('\n');
+                    } else if (data.message) {
+                        errorMessage = data.message;
+                    }
+                    throw new Error(errorMessage);
                 }
             } catch (error) {
                 Toast.fire({
@@ -3617,6 +4753,82 @@
                 });
             }
         });
+
+        // Formulario de servicio
+        document.getElementById('servicioForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                nombre: document.getElementById('servicioNombre').value,
+                precio: document.getElementById('servicioPrecio').value
+            };
+
+            try {
+                const response = await fetch('{{ route('admin.servicios.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Servicio creado correctamente'
+                    });
+                    closeModal('servicioModal');
+                    await actualizarDatosDashboard();
+                } else {
+                    throw new Error(data.message || 'Error al crear el servicio');
+                }
+            } catch (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message
+                });
+            }
+        });
+
+        // Asignación de eventos a botones dinámicos
+        document.addEventListener('click', function(e) {
+            // Botones de ver detalle de cita
+            if (e.target.closest('.btn-view')) {
+                const citaId = e.target.closest('tr').getAttribute('data-id');
+                verDetalleCita(citaId);
+            }
+
+            // Botones de editar cita
+            if (e.target.closest('.btn-edit')) {
+                const citaId = e.target.closest('tr').getAttribute('data-id');
+                editarCita(citaId);
+            }
+
+            // Botones de cancelar cita
+            if (e.target.closest('.btn-delete')) {
+                const citaId = e.target.closest('tr').getAttribute('data-id');
+                cancelarCita(citaId);
+            }
+
+            // Botones de editar servicio
+            if (e.target.closest('.btn-edit-servicio')) {
+                const servicioId = e.target.closest('.service-history-item').getAttribute('data-id');
+                editarServicio(servicioId);
+            }
+        });
+
+        // Botón para mostrar modal de nuevo servicio
+        document.getElementById('btnNuevoServicio')?.addEventListener('click', nuevoServicio);
+
+        // Botón para mostrar modal de horario
+        document.getElementById('btnAgregarHorario')?.addEventListener('click', mostrarModalHorario);
+
+        // Botón para editar perfil
+        document.getElementById('btnEditarPerfil')?.addEventListener('click', editarPerfil);
     </script>
 </body>
 

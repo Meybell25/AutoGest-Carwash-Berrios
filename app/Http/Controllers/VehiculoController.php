@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vehiculo;
+use App\Models\Bitacora;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -31,7 +32,7 @@ class VehiculoController extends Controller
     }
 
    
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'marca' => 'nullable|string',
@@ -40,14 +41,19 @@ class VehiculoController extends Controller
             'color' => 'nullable|string',
             'descripcion' => 'nullable|string',
             'placa' => 'required|unique:vehiculos,placa',
-            'fecha_registro' => 'nullable|date',
         ]);
 
         $validated['usuario_id'] = Auth::id();
+        $validated['fecha_registro'] = now();
 
-        Vehiculo::create($validated);
+        $vehiculo = Vehiculo::create($validated);
+        Bitacora::registrar(Bitacora::ACCION_REGISTRAR_VEHICULO, null, $request->ip());
 
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo creado correctamente');
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'vehiculo' => $vehiculo]);
+        }
+
+        return redirect()->back()->with('success', 'Vehículo creado correctamente');
     }
 
 
@@ -61,7 +67,7 @@ class VehiculoController extends Controller
     }
 
  
-    public function update(Request $request, Vehiculo $vehiculo): RedirectResponse
+     public function update(Request $request, Vehiculo $vehiculo)
     {
         if (Auth::user()->rol === 'cliente' && $vehiculo->usuario_id !== Auth::id()) {
             abort(403);
@@ -78,16 +84,21 @@ class VehiculoController extends Controller
             'color' => 'nullable|string',
             'descripcion' => 'nullable|string',
             'placa' => 'required|unique:vehiculos,placa,' . $vehiculo->id,
-            'fecha_registro' => 'nullable|date',
         ]);
 
         $vehiculo->update($validated);
+        Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_VEHICULO, null, $request->ip());
 
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo actualizado correctamente');
+
+             if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Vehículo actualizado correctamente');
     }
 
 
-    public function destroy(Vehiculo $vehiculo): RedirectResponse
+    public function destroy(Vehiculo $vehiculo)
     {
         $user = Auth::user();
 
@@ -100,7 +111,12 @@ class VehiculoController extends Controller
         }
 
         $vehiculo->delete();
+        Bitacora::registrar(Bitacora::ACCION_ELIMINAR_VEHICULO, null, request()->ip());
 
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo eliminado correctamente');
+       if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Vehículo eliminado correctamente');
     }
 }
