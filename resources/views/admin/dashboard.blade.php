@@ -2989,14 +2989,15 @@
                                     <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces este
                                         mes</p>
                                 </div>
-                                <button class="btn btn-sm btn-outline" onclick="editarServicio({{ $servicio->id }})">
+                                <button class="btn btn-sm btn-outline" 
+                                    onclick="window.location.href='{{ route('admin.servicios.edit', $servicio->id) }}'">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </div>
                         @endforeach
 
                         <button class="btn btn-primary" style="width: 100%; margin-top: 10px;"
-                            onclick="nuevoServicio()">
+                            onclick="window.location.href='{{ route('admin.servicios.create') }}'">
                             <i class="fas fa-plus"></i> Agregar Servicio
                         </button>
                     </div>
@@ -3420,6 +3421,13 @@
     </footer>
 
     <script>
+        function nuevoServicio() {
+            window.location.href = "{{ route('admin.servicios.create') }}";
+        }
+
+        function editarServicio(id) {
+            window.location.href = "{{ route('admin.servicios.edit', ':id') }}".replace(':id', id);
+        }
         // =============================================
         // CONFIGURACIONES GLOBALES
         // =============================================

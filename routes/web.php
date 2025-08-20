@@ -99,7 +99,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         // Rutas de reportes
         Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
 
-        // Rutas de servicios
+        // Rutas de servicios - CORREGIDAS
         Route::prefix('servicios')->name('servicios.')->group(function () {
             Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
             Route::get('/crear', [ServicioController::class, 'create'])->name('create');
@@ -107,6 +107,8 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
             Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
             Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
+            
+           
         });
     });
 

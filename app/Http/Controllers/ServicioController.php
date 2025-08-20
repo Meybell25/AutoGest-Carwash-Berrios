@@ -5,208 +5,133 @@ namespace App\Http\Controllers;
 use App\Models\Servicio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Validator;
 
 class ServicioController extends Controller
 {
     public function __construct()
     {
-        // Solo requerir autenticación para crear, editar o eliminar
-        $this->middleware('auth:api')->except(['index', 'show']);
+        // Middleware para autenticación web
+        $this->middleware('auth');
         
-        // Verificar que sea administrador para acciones sensibles
+        // Middleware para verificar rol de admin
         $this->middleware(function ($request, $next) {
             if (!Gate::allows('is-admin')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Acción no autorizada. Se requiere rol de administrador'
-                ], 403);
+                abort(403, 'Acción no autorizada. Se requiere rol de administrador');
             }
             return $next($request);
-        })->only(['store', 'update', 'destroy']);
+        })->only(['create', 'store', 'edit', 'update', 'destroy']);
     }
 
     /**
-     * Obtener listado de todos los servicios
+     * Mostrar listado de servicios
      */
     public function index()
     {
-        try {
-            $servicios = Servicio::with('citas')->get();
-            
-            return response()->json([
-                'success' => true,
-                'data' => $servicios
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al obtener el listado de servicios',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $servicios = Servicio::all();
+        return view('admin.servicios.index', compact('servicios'));
     }
 
     /**
-     * Crear un nuevo servicio (solo admin)
+     * Mostrar formulario de creación
+     */
+    public function create()
+    {
+        return view('admin.servicios.create');
+    }
+
+    /**
+     * Almacenar nuevo servicio
      */
     public function store(Request $request)
     {
-        $reglasValidacion = [
+        $request->validate([
             'nombre' => 'required|string|max:100|unique:servicios,nombre',
             'descripcion' => 'nullable|string|max:255',
             'precio' => 'required|numeric|min:0.01',
             'duracion_min' => 'required|integer|min:5',
-            'activo' => 'boolean',
             'categoria' => 'required|string|max:50'
-        ];
-
-        $validator = Validator::make($request->all(), $reglasValidacion);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        ]);
 
         try {
-            $servicio = Servicio::create($request->all());
+            Servicio::create($request->all());
 
-            return response()->json([
-                'success' => true,
-                'data' => $servicio,
-                'message' => 'Servicio creado correctamente'
-            ], 201);
+            return redirect()->route('admin.servicios.index')
+                ->with('success', 'Servicio creado correctamente');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al crear el servicio',
-                'error' => $e->getMessage()
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'Error al crear el servicio: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
     /**
-     * Mostrar un servicio específico
+     * Mostrar formulario de edición
      */
-    public function show($id)
+    public function edit($id)
     {
-        try {
-            $servicio = Servicio::with('citas')->findOrFail($id);
-
-            return response()->json([
-                'success' => true,
-                'data' => $servicio
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Servicio no encontrado',
-                'error' => $e->getMessage()
-            ], 404);
-        }
+        $servicio = Servicio::findOrFail($id);
+        return view('admin.servicios.edit', compact('servicio'));
     }
 
     /**
-     * Actualizar un servicio (solo admin)
+     * Actualizar servicio
      */
     public function update(Request $request, $id)
     {
+        $servicio = Servicio::findOrFail($id);
+
+        $request->validate([
+            'nombre' => 'required|string|max:100|unique:servicios,nombre,'.$servicio->id,
+            'descripcion' => 'nullable|string|max:255',
+            'precio' => 'required|numeric|min:0.01',
+            'duracion_min' => 'required|integer|min:5',
+            'categoria' => 'required|string|max:50'
+        ]);
+
         try {
-            $servicio = Servicio::findOrFail($id);
-
-            $reglasValidacion = [
-                'nombre' => 'sometimes|required|string|max:100|unique:servicios,nombre,'.$servicio->id,
-                'descripcion' => 'nullable|string|max:255',
-                'precio' => 'sometimes|required|numeric|min:0.01',
-                'duracion_min' => 'sometimes|required|integer|min:5',
-                'activo' => 'sometimes|boolean',
-                'categoria' => 'sometimes|required|string|max:50'
-            ];
-
-            $validator = Validator::make($request->all(), $reglasValidacion);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
             $servicio->update($request->all());
 
-            return response()->json([
-                'success' => true,
-                'data' => $servicio,
-                'message' => 'Servicio actualizado correctamente'
-            ]);
+            return redirect()->route('admin.servicios.index')
+                ->with('success', 'Servicio actualizado correctamente');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar el servicio',
-                'error' => $e->getMessage()
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'Error al actualizar el servicio: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
     /**
-     * Eliminar un servicio (solo admin)
+     * Eliminar servicio
      */
     public function destroy($id)
     {
         try {
             $servicio = Servicio::findOrFail($id);
 
-            // Verificar si el servicio tiene citas asociadas
             if ($servicio->citas()->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se puede eliminar el servicio porque tiene citas asociadas'
-                ], 409);
+                return redirect()->route('admin.servicios.index')
+                    ->with('error', 'No se puede eliminar el servicio porque tiene citas asociadas');
             }
 
             $servicio->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Servicio eliminado correctamente'
-            ]);
+            return redirect()->route('admin.servicios.index')
+                ->with('success', 'Servicio eliminado correctamente');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al eliminar el servicio',
-                'error' => $e->getMessage()
-            ], 500);
+            return redirect()->route('admin.servicios.index')
+                ->with('error', 'Error al eliminar el servicio: ' . $e->getMessage());
         }
     }
 
     /**
-     * Obtener servicios activos por categoría
+     * Vista de servicios para admin dashboard
      */
-    public function porCategoria($categoria)
+    public function adminIndex()
     {
-        try {
-            $servicios = Servicio::activos()
-                ->byCategoria($categoria)
-                ->get();
-
-            return response()->json([
-                'success' => true,
-                'data' => $servicios
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al obtener servicios por categoría',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $servicios = Servicio::all();
+        return view('admin.servicios.index', compact('servicios'));
     }
 }
