@@ -2482,13 +2482,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-    @forelse ($horarios as $horario)
+   {{--   @forelse ($horarios as $horario)
         <tr>
             <td data-label="Día">{{ \App\Http\Controllers\HorarioController::DIAS_SEMANA[$horario->dia_semana] }}</td>
             <td data-label="Hora Inicio">{{ \Carbon\Carbon::parse($horario->hora_inicio)->format('h:i A') }}</td>
             <td data-label="Hora Fin">{{ \Carbon\Carbon::parse($horario->hora_fin)->format('h:i A') }}</td>
             <td data-label="Estado">
-                <span class="badge {{ $horario->activo ? 'badge-success' : 'badge-danger' }}">
+                <span class="badge   {{ $horario->activo ? 'badge-success' : 'badge-danger' }}">
                     {{ $horario->activo ? 'Activo' : 'Inactivo' }}
                 </span>
             </td>
@@ -2615,7 +2615,7 @@
                       window.openEditModal = openEditModal;
                       .eliminarHorario = eliminarHorario;
                     });
-                </script>-->
+                </script>  --}}-->
 
 
                 <!-- Contenedor para Días No Laborables -->
