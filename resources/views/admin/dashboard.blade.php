@@ -3369,6 +3369,118 @@
         </div>
     </div>
 
+    <!-- Modal para editar cita -->
+    <div id="editarCitaModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-modal" onclick="closeModal('editarCitaModal')">&times;</span>
+            <h2 style="color: #4facfe; margin-bottom: 20px;">
+                <i class="fas fa-edit"></i> Editar Cita
+            </h2>
+            <form id="editarCitaForm">
+                <!-- Formulario se llenará dinámicamente -->
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para nuevo/editar servicio - VERSIÓN MEJORADA -->
+    <div id="servicioModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close-modal" onclick="closeModal('servicioModal')">&times;</span>
+            
+            <!-- Usando tu formulario de servicios -->
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h1 class="h3 mb-0 text-gray-800" id="servicioModalTitle">
+                            <i class="fas fa-plus-circle"></i> Crear Nuevo Servicio
+                        </h1>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form id="servicioForm" action="#" method="POST">
+                            @csrf
+                            <input type="hidden" id="servicio_id" name="id">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="nombre">Nombre del Servicio *</label>
+                                        <input type="text" class="form-control" 
+                                               id="nombre" name="nombre" 
+                                               value="" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="categoria">Categoría *</label>
+                                        <select class="form-control" 
+                                                id="categoria" name="categoria" required>
+                                            <option value="">Seleccione una categoría</option>
+                                            @foreach(['lavado', 'pulido', 'interior', 'completo'] as $categoria)
+                                                <option value="{{ $categoria }}">
+                                                    {{ ucfirst($categoria) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="descripcion">Descripción</label>
+                                <textarea class="form-control" 
+                                          id="descripcion" name="descripcion" rows="2"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="precio">Precio ($) *</label>
+                                        <input type="number" step="0.01" min="0.01" 
+                                               class="form-control" 
+                                               id="precio" name="precio" 
+                                               value="" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="duracion_min">Duración (minutos) *</label>
+                                        <input type="number" min="5" 
+                                               class="form-control" 
+                                               id="duracion_min" name="duracion_min" 
+                                               value="" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="activo">Estado</label>
+                                        <select class="form-control" id="activo" name="activo">
+                                            <option value="1" selected>Activo</option>
+                                            <option value="0">Inactivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="closeModal('servicioModal')">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -3926,179 +4038,70 @@
             });
         }
 
-        // Gestión de servicios
+        function guardarCambiosCita(citaId) {
+            // Aquí iría la petición AJAX para guardar los cambios
+            Toast.fire({
+                icon: 'success',
+                title: 'Cambios guardados correctamente'
+            });
+
+            closeModal('editarCitaModal');
+
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                verDetalleCita(citaId);
+            }, 500);
+        }
+
+        function imprimirRecibo(citaId) {
+            // Aquí iría la lógica para imprimir el recibo
+            window.open(`/admin/citas/${citaId}/recibo`, '_blank');
+        }
+
+        // Scripts actualizados para manejar el formulario de servicios
+        // Función para abrir el modal de nuevo servicio
         function nuevoServicio() {
-            const formContent = `
-        <form id="servicioForm">
-            <div class="form-group">
-                <label for="servicioNombre">Nombre:</label>
-                <input type="text" id="servicioNombre" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="servicioPrecio">Precio:</label>
-                <input type="number" id="servicioPrecio" class="form-control" step="0.01" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Guardar Servicio</button>
-        </form>
-    `;
-            mostrarModal('servicioModal', '<i class="fas fa-plus"></i> Nuevo Servicio', formContent);
+            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Crear Nuevo Servicio';
+            document.getElementById('servicioForm').reset();
+            document.getElementById('servicio_id').value = '';
+            document.getElementById('servicioModal').style.display = 'block';
         }
 
+        // Función para abrir el modal de edición
         function editarServicio(servicioId) {
-            const formContent = `
-        <form id="editarServicioForm">
-            <input type="hidden" id="servicioId" value="${servicioId}">
-            <div class="form-group">
-                <label for="editServicioNombre">Nombre:</label>
-                <input type="text" id="editServicioNombre" class="form-control" value="Lavado Premium" required>
-            </div>
-            <div class="form-group">
-                <label for="editServicioPrecio">Precio:</label>
-                <input type="number" id="editServicioPrecio" class="form-control" value="35.00" step="0.01" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Actualizar Servicio</button>
-        </form>
-    `;
-            mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
+            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
+            
+            // Simulación de datos - en una aplicación real harías una petición AJAX
+            // Estos son datos de ejemplo:
+            document.getElementById('servicio_id').value = servicioId;
+            document.getElementById('nombre').value = 'Lavado Premium';
+            document.getElementById('categoria').value = 'lavado';
+            document.getElementById('descripcion').value = 'Lavado completo exterior con cera y brillo profesional';
+            document.getElementById('precio').value = '45.00';
+            document.getElementById('duracion_min').value = '45';
+            document.getElementById('activo').value = '1';
+            
+            document.getElementById('servicioModal').style.display = 'block';
         }
 
-        // Gestión de horarios
-        function mostrarModalHorario() {
-            const formContent = `
-        <form id="horarioForm">
-            <div class="form-group">
-                <label for="horarioDia">Día:</label>
-                <select id="horarioDia" class="form-control" required>
-                    <option value="Lunes">Lunes</option>
-                    <option value="Martes">Martes</option>
-                    <!-- Más días -->
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="horarioInicio">Hora Inicio:</label>
-                <input type="time" id="horarioInicio" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Guardar Horario</button>
-        </form>
-    `;
-            mostrarModal('horarioModal', '<i class="fas fa-plus"></i> Agregar Horario', formContent);
-        }
-
-        function editarHorario(horarioId) {
-            const formContent = `
-        <form id="editarHorarioForm">
-            <input type="hidden" id="horarioId" value="${horarioId}">
-            <div class="form-group">
-                <label for="editHorarioDia">Día:</label>
-                <select id="editHorarioDia" class="form-control" required>
-                    <option value="Lunes" selected>Lunes</option>
-                    <option value="Martes">Martes</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="editHorarioInicio">Hora Inicio:</label>
-                <input type="time" id="editHorarioInicio" class="form-control" value="08:00" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Actualizar Horario</button>
-        </form>
-    `;
-            mostrarModal('horarioModal', '<i class="fas fa-edit"></i> Editar Horario', formContent);
-        }
-
-        // Gestión de perfil
-        function editarPerfil() {
-            const formContent = `
-        <form id="perfilForm">
-            <div class="form-group">
-                <label for="perfilNombre">Nombre:</label>
-                <input type="text" id="perfilNombre" class="form-control" value="{{ Auth::user()->nombre }}" required>
-            </div>
-            <div class="form-group">
-                <label for="perfilTelefono">Teléfono:</label>
-                <input type="tel" id="perfilTelefono" class="form-control" value="{{ Auth::user()->telefono ?? '' }}">
-            </div>
-            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-        </form>
-    `;
-            mostrarModal('perfilModal', '<i class="fas fa-user-edit"></i> Editar Perfil', formContent);
-        }
-
-        // =============================================
-        // EVENT LISTENERS
-        // =============================================
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. PRIMERO VERIFICAR QUE LOS CONTENEDORES DE GRÁFICOS EXISTAN
-            if (!document.getElementById('usuariosChart')) {
-                console.error('No se encontró el elemento usuariosChart');
-            }
-
-            if (!document.getElementById('ingresosChart')) {
-                console.error('No se encontró el elemento ingresosChart');
-            }
-
-            if (!document.getElementById('citasChart')) {
-                console.error('No se encontró el elemento citasChart');
-            }
-
-            if (!document.getElementById('serviciosChart')) {
-                console.error('No se encontró el elemento serviciosChart');
-            }
-
-            // 2. SOLO INICIALIZAR GRÁFICOS SI SUS CONTENEDORES EXISTEN
-            if (document.getElementById('ingresosChart')) {
-                inicializarGraficoIngresos();
-            }
-
-            if (document.getElementById('citasChart')) {
-                inicializarGraficoCitas();
-            }
-
-            if (document.getElementById('serviciosChart')) {
-                inicializarGraficoServicios();
-            }
-            if (document.getElementById('usuarioForm')) initUsuarioFormValidation();
-
-            actualizarDatosDashboard();
-
-            // Inicializar validaciones del formulario de usuario
-            initUsuarioFormValidation();
-
-            // Asignar el evento al botón de crear usuario
-            document.querySelector('.btn-primary[onclick="mostrarModalUsuario()"]').addEventListener('click',
-                mostrarModalUsuario);
-
-            // Configurar intervalo para actualizaciones (5 segundos)
-            setInterval(actualizarDatosDashboard, 5000);
-
-            // Actualizar cuando la pestaña vuelve a estar activa
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) actualizarDatosDashboard();
+        // Manejar envío del formulario
+        document.getElementById('servicioForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Aquí iría tu lógica para guardar el servicio (AJAX)
+            const isNew = document.getElementById('servicio_id').value === '';
+            
+            Toast.fire({
+                icon: 'success',
+                title: `Servicio ${isNew ? 'creado' : 'actualizado'} correctamente`
             });
 
-            // Listeners para botones de pestañas
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    openTab(e, this.getAttribute('data-tab'));
-                });
-            });
-
-            // Listener para cerrar modales al hacer clic fuera
-            window.addEventListener('click', function(event) {
-                if (event.target.classList.contains('modal')) {
-                    ['detalleCita', 'editarCita', 'servicio', 'horario', 'perfil', 'usuario'].forEach(
-                        modal => {
-                            closeModal(`${modal}Modal`);
-                        });
-                }
-            });
-
-            // Listener para botones de cerrar modal
-            document.querySelectorAll('.close-modal').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    closeModal(this.closest('.modal').id);
-                });
-            });
+            closeModal('servicioModal');
+            
+            // Simulación de recarga de datos
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         });
 
 
