@@ -29,7 +29,6 @@ class Bitacora extends Model
 
     // Tipos de acciones comunes
     const ACCION_LOGIN = 'login';
-    const ACCION_LOGOUT = 'logout';
     const ACCION_CREAR_CITA = 'crear_cita';
     const ACCION_ACTUALIZAR_CITA = 'actualizar_cita';
     const ACCION_CANCELAR_CITA = 'cancelar_cita';

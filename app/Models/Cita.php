@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Pago;
+use Carbon\Carbon;
 
 class Cita extends Model
 {
@@ -23,7 +24,7 @@ class Cita extends Model
     ];
 
     protected $casts = [
-        'fecha_hora' => 'datetime',
+        'fecha_hora' => 'datetime:Y-m-d H:i:s',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
@@ -45,7 +46,6 @@ class Cita extends Model
             self::ESTADO_CANCELADA => 'Cancelada',
         ];
     }
-
     // Relaciones
     public function usuario()
     {
@@ -100,5 +100,32 @@ class Cita extends Model
         return $this->servicios->sum(function ($servicio) {
             return $servicio->pivot->precio - $servicio->pivot->descuento;
         });
+    }
+
+    public function marcarComoExpirada()
+    {
+        $motivo = ($this->estado == self::ESTADO_PENDIENTE)
+            ? '. Cita expirada por inacción'
+            : '. Cita expirada - No atendida';
+
+        $observaciones = $this->observaciones
+            ? $this->observaciones . "\n" . $motivo
+            : $motivo;
+
+        return $this->update([
+            'estado' => self::ESTADO_CANCELADA,
+            'observaciones' => $observaciones
+        ]);
+    }
+
+    public function scopeExpiradas($query)
+    {
+        return $query->whereIn('estado', [self::ESTADO_PENDIENTE, self::ESTADO_CONFIRMADA])
+            ->where('fecha_hora', '<', now());
+    }
+
+    public function scopeActivas($query)
+    {
+        return $query->whereIn('estado', [self::ESTADO_PENDIENTE, self::ESTADO_CONFIRMADA, self::ESTADO_EN_PROCESO]);
     }
 }

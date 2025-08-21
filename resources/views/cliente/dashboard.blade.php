@@ -436,10 +436,10 @@
 
         /* Próximas Citas */
         .next-appointment {
-            background: linear-gradient(135deg, #667eea20, #764ba220);
+            background: linear-gradient(135deg, #667eea20, #764ba220) !important;
             padding: 20px;
             border-radius: 15px;
-            border-left: 5px solid #4facfe;
+            border-left: 5px solid #66bb6a !important;
             margin-bottom: 20px;
             box-shadow: var(--shadow-md);
             transition: all 0.3s ease;
@@ -475,7 +475,7 @@
         }
 
         .date-badge {
-            background: var(--secondary-gradient);
+            background: linear-gradient(135deg, #81c784, #66bb6a) !important;
             color: white;
             padding: 10px 15px;
             border-radius: 10px;
@@ -510,6 +510,42 @@
             font-size: 0.9rem;
         }
 
+        .restriction-alert {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .campo-bloqueado {
+            background-color: #f8f9fa !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+
+        .badge.bg-warning.text-dark {
+            font-size: 0.65em;
+            vertical-align: middle;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estados estilo badges  */
         .appointment-status {
             display: inline-block;
             padding: 6px 12px;
@@ -518,26 +554,70 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .status-pendiente {
-            background: #fff3cd;
-            color: #856404;
+        .appointment-status.status-pendiente {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2) !important;
+            color: #ef6c00 !important;
+            border: 1px solid #ffcc80 !important;
         }
 
-        .status-confirmado {
-            background: #d1ecf1;
-            color: #0c5460;
+        .appointment-status.status-confirmado,
+        .appointment-status.status-confirmada {
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc) !important;
+            color: #0277bd !important;
+            border: 1px solid #81d4fa !important;
         }
 
-        .status-en-proceso {
-            background: #f8d7da;
-            color: #721c24;
+        .status-en-proceso,
+        .status-en_proceso {
+            background: linear-gradient(135deg, #f1e6ff, #e1bee7);
+            color: #6a1b9a;
+            border: 1px solid #ce93d8;
         }
 
-        .status-finalizado {
-            background: #d4edda;
-            color: #155724;
+        .status-finalizado,
+        .status-finalizada {
+            background: linear-gradient(135deg, #e0f2e0, #c8e6c9);
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .status-cancelada {
+            background: linear-gradient(135deg, #fde7f3, #f8bbd9);
+            color: #ad1457;
+            border: 1px solid #f48fb1;
+        }
+
+        /* Efectos hover para los badges */
+        .appointment-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .appointment-status.status-pendiente:hover {
+            background: linear-gradient(135deg, #ffe0b2, #ffcc80) !important;
+        }
+
+        .status-confirmado:hover,
+        .status-confirmada:hover {
+            background: linear-gradient(135deg, #b3e5fc, #81d4fa);
+        }
+
+        .status-en-proceso:hover,
+        .status-en_proceso:hover {
+            background: linear-gradient(135deg, #e1bee7, #ce93d8);
+        }
+
+        .status-finalizado:hover,
+        .status-finalizada:hover {
+            background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+        }
+
+        .status-cancelada:hover {
+            background: linear-gradient(135deg, #f8bbd9, #f48fb1);
         }
 
         .appointment-actions {
@@ -570,8 +650,50 @@
             transform: translateX(3px);
         }
 
+        .service-history-item.finalizada {
+            border-left: 4px solid #2e7d32;
+            background-color: rgba(46, 125, 50, 0.05);
+        }
+
+        .service-history-item.cancelada {
+            border-left: 4px solid #dc3545;
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        .status-finalizada {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9) !important;
+            color: #2e7d32 !important;
+            border: 1px solid #a5d6a7 !important;
+        }
+
+        .status-cancelada {
+            background: linear-gradient(135deg, #fde7f3, #f8bbd9) !important;
+            color: #ad1457 !important;
+            border: 1px solid #f48fb1 !important;
+        }
+
+        .service-icon.status-finalizada {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
+            color: white !important;
+        }
+
+        .service-icon.status-cancelada {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            color: white !important;
+        }
+
+        .service-icon.status-finalizada:hover {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32) !important;
+            color: white !important;
+        }
+
+        .service-icon.status-cancelada:hover {
+            background: linear-gradient(135deg, #c82333, #dc3545) !important;
+            color: white !important;
+        }
+
         .service-icon {
-            background: var(--success-gradient);
+            background: var(--secondary-gradient);
             width: 50px;
             height: 50px;
             border-radius: 12px;
@@ -595,7 +717,6 @@
         }
 
         .service-details p {
-            color: var(--text-secondary);
             font-size: 0.85rem;
             margin-bottom: 3px;
         }
@@ -847,6 +968,241 @@
             color: var(--text-secondary);
             font-size: 0.75rem;
             white-space: nowrap;
+        }
+
+        /* Estilos para indicadores de urgencia en las citas próximas */
+        .date-badge .days-remaining {
+            display: block;
+            font-size: 10px;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            padding: 1px 4px;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .days-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .days-info i {
+            margin-right: 5px;
+        }
+
+        /* ===== ESTILOS BASE PARA CITAS ===== */
+        /* Citas pendientes (estilo base) */
+        .next-appointment.pendiente {
+            border-left: 5px solid #4facfe !important;
+            /* Borde azul */
+        }
+
+        .next-appointment.pendiente .date-badge {
+            background: var(--secondary-gradient) !important;
+            /* Fondo azul/gradiente */
+        }
+
+        /* Citas confirmadas (estilo base) */
+        .next-appointment.confirmada,
+        .next-appointment.confirmado {
+            border-left: 5px solid #66bb6a !important;
+            /* Borde verde */
+            background-color: transparent;
+            /* Fondo normal */
+        }
+
+        .next-appointment.confirmada .date-badge,
+        .next-appointment.confirmado .date-badge {
+            background: linear-gradient(135deg, #81c784, #66bb6a) !important;
+            /* Fondo verde */
+        }
+
+        /* ===== CLASES DE URGENCIA (SOLO PARA CONFIRMADAS) ===== */
+        /* Urgente (0-1 días): Rojo */
+        .next-appointment.confirmada.urgent-soon,
+        .next-appointment.confirmado.urgent-soon {
+            border-left: 4px solid #dc3545 !important;
+            /* Borde rojo */
+            background-color: #fff5f5;
+            /* Fondo rojo claro */
+        }
+
+        .next-appointment.confirmada.urgent-soon .date-badge,
+        .next-appointment.confirmado.urgent-soon .date-badge {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            /* Fondo rojo */
+            animation: pulse 2s infinite;
+            /* Efecto de pulso */
+        }
+
+        /* Muy próxima (2-3 días): Naranja */
+        .next-appointment.confirmada.urgent-close,
+        .next-appointment.confirmado.urgent-close {
+            border-left: 4px solid #fd7e14 !important;
+            /* Borde naranja */
+            background-color: #fff8f0;
+            /* Fondo naranja claro */
+        }
+
+        .next-appointment.confirmada.urgent-close .date-badge,
+        .next-appointment.confirmado.urgent-close .date-badge {
+            background: linear-gradient(135deg, #fd7e14, #e5650b) !important;
+            /* Fondo naranja */
+        }
+
+        /* Próxima (4-7 días): Amarillo */
+        .next-appointment.confirmada.coming-soon,
+        .next-appointment.confirmado.coming-soon {
+            border-left: 4px solid #ffc107 !important;
+            /* Borde amarillo */
+            background-color: #fffbf0;
+            /* Fondo amarillo claro */
+        }
+
+        .next-appointment.confirmada.coming-soon .date-badge,
+        .next-appointment.confirmado.coming-soon .date-badge {
+            background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+            /* Fondo amarillo */
+        }
+
+        .service-card.selected {
+            background-color: #e7f3ff;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.3);
+        }
+
+        /* Animación de pulso para citas urgentes confirmadas */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive: ajustes para móviles */
+        @media (max-width: 768px) {
+            .date-badge .days-remaining {
+                font-size: 9px;
+                padding: 1px 4px;
+            }
+        }
+
+
+        /* Indicador de días restantes en el badge de fecha */
+        .date-badge .days-remaining {
+            display: block;
+            font-size: 10px;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            padding: 1px 4px;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* Información de días cuando no está en el badge */
+        .days-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .days-info i {
+            margin-right: 5px;
+        }
+
+
+        /* Mejorar el estilo del contenedor de información */
+        .next-appointment .appointment-date-time {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        /* COLORES PARA BADGE DE FECHA Y BORDE IZQUIERDO */
+        /* CITAS PENDIENTES  */
+        .next-appointment.pendiente .date-badge {
+            background: var(--secondary-gradient) !important;
+        }
+
+        .next-appointment.pendiente {
+            border-left: 5px solid #4facfe !important;
+            /* Borde celeste */
+        }
+
+        /* CITAS CONFIRMADAS  */
+        .next-appointment.confirmada .date-badge,
+        .next-appointment.confirmado .date-badge {
+            background: linear-gradient(135deg, #81c784, #66bb6a) !important;
+        }
+
+        .next-appointment.confirmada,
+        .next-appointment.confirmado {
+            border-left: 5px solid #66bb6a !important;
+        }
+
+        /* CITAS EN PROCESO - */
+        .next-appointment.en_proceso .date-badge,
+        .next-appointment.en-proceso .date-badge {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
+        }
+
+        .next-appointment.en_proceso,
+        .next-appointment.en-proceso {
+            border-left: 5px solid #1b5e20 !important;
+        }
+
+        /* CITAS FINALIZADAS - */
+        .next-appointment.finalizada .date-badge,
+        .next-appointment.finalizado .date-badge {
+            background: var(--primary-gradient) !important;
+        }
+
+        .next-appointment.finalizada,
+        .next-appointment.finalizado {
+            border-left: 5px solid #764ba2 !important;
+        }
+
+        /* Responsive para dispositivos móviles */
+        @media (max-width: 768px) {
+            .days-remaining {
+                font-size: 9px !important;
+                padding: 1px 3px !important;
+            }
+
+            .days-info {
+                font-size: 11px;
+            }
+        }
+
+        /* Estilo para el mensaje informativo */
+        .info-message {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .info-message small {
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .info-message i {
+            margin-right: 5px;
+            color: #17a2b8;
         }
 
         /* Empty States */
@@ -1560,25 +1916,49 @@
             }
         }
 
+        .scroll-container {
+            position: relative;
+            height: 400px;
+        }
+
         .card-body.scrollable {
             max-height: 400px;
             overflow-y: auto;
             padding-right: 10px;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE/Edge */
         }
 
-        /* Personalizar scrollbar */
         .card-body.scrollable::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari/Opera */
+        }
+
+        .custom-scrollbar {
+            position: absolute;
+            right: 2px;
+            top: 0;
+            bottom: 0;
             width: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            z-index: 10;
         }
 
-        .card-body.scrollable::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+        .custom-scrollbar-thumb {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .card-body.scrollable::-webkit-scrollbar-thumb {
-            background: #4facfe;
-            border-radius: 10px;
+        .custom-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #3d8bfd, #00d9e8);
         }
 
         /* Footer */
@@ -1922,42 +2302,80 @@
         <div class="dashboard-grid">
             <!-- Sección Principal -->
             <div class="main-section">
-                <!-- Próximas Citas -->
+                <!-- Próximas Citas Confirmadas -->
                 <div class="card">
                     <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            Próximas Citas
-                        </h2>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>
+                                <div class="icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                Próximas Citas Confirmadas
+                            </h2>
+                            <a href="{{ route('cliente.citas') }}" class="btn btn-outline" style="padding: 8px 12px;">
+                                <i class="fas fa-list"></i> Ver Todas Las Citas
+                            </a>
+                        </div>
                     </div>
-                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        @if ($proximas_citas->count() > 0)
-                            @foreach ($proximas_citas as $cita)
-                                <div class="next-appointment {{ $loop->first ? 'highlighted' : '' }}">
-                                    <div class="appointment-date-time">
-                                        <div class="date-badge">
-                                            <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
-                                            <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
-                                        </div>
-                                        <div class="time-info">
-                                            <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
-                                            <div class="service">
-                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                    <div class="scroll-container">
+                        <div class="card-body scrollable" id="proximas-citas-container">
+                            @if ($proximas_citas->count() > 0)
+                                @foreach ($proximas_citas->sortBy('fecha_hora') as $cita)
+                                    @php
+                                        $diasRestantes = now()->diffInDays($cita->fecha_hora, false);
+                                        $diasRestantes = $diasRestantes < 0 ? 0 : ceil($diasRestantes);
+                                        $urgenciaClass = '';
+                                        $urgenciaText = '';
+                                        $estadoClass = strtolower($cita->estado);
+
+                                        // Solo aplicamos clases de urgencia a citas confirmadas
+                                        if ($estadoClass === 'confirmada' || $estadoClass === 'confirmado') {
+                                            if ($diasRestantes <= 1) {
+                                                $urgenciaClass = 'urgent-soon';
+                                                $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
+                                            } elseif ($diasRestantes <= 3) {
+                                                $urgenciaClass = 'urgent-close';
+                                                $urgenciaText = "En {$diasRestantes} días";
+                                            } elseif ($diasRestantes <= 7) {
+                                                $urgenciaClass = 'coming-soon';
+                                                $urgenciaText = "En {$diasRestantes} días";
+                                            } else {
+                                                $urgenciaText = "En {$diasRestantes} días";
+                                            }
+                                        } else {
+                                            // Para citas pendientes u otros estados
+                                            $urgenciaText = "En {$diasRestantes} días";
+                                        }
+                                    @endphp
+                                    <div class="next-appointment {{ $estadoClass }} {{ $urgenciaClass }}">
+                                        <div class="appointment-date-time">
+                                            <div class="date-badge">
+                                                <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
+                                                <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
+                                                @if ($diasRestantes <= 7)
+                                                    <span class="days-remaining">{{ $urgenciaText }}</span>
+                                                @endif
                                             </div>
-                                            <div class="vehicle-info">
-                                                <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                                {{ $cita->vehiculo->modelo }}
+                                            <div class="time-info">
+                                                <div class="time">{{ $cita->fecha_hora->format('h:i A') }}</div>
+                                                <div class="service">
+                                                    {{ $cita->servicios->pluck('nombre')->join(', ') }}
+                                                </div>
+                                                <div class="vehicle-info">
+                                                    <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                    {{ $cita->vehiculo->modelo }}
+                                                </div>
+                                                @if ($diasRestantes > 7)
+                                                    <div class="days-info">
+                                                        <i class="fas fa-clock"></i> {{ $urgenciaText }}
+                                                    </div>
+                                                @endif
                                             </div>
+                                            <span class="appointment-status status-{{ $estadoClass }}">
+                                                {{ ucfirst($cita->estado) }}
+                                            </span>
                                         </div>
-                                        <span
-                                            class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}">
-                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                        </span>
-                                    </div>
-                                    <div class="appointment-actions">
-                                        @if ($cita->estado == 'pendiente' || $cita->estado == 'confirmada')
+                                        <div class="appointment-actions">
                                             <button class="btn btn-sm btn-warning"
                                                 onclick="editCita({{ $cita->id }})">
                                                 <i class="fas fa-edit"></i> Modificar
@@ -1966,87 +2384,99 @@
                                                 onclick="cancelCita({{ $cita->id }})">
                                                 <i class="fas fa-times"></i> Cancelar
                                             </button>
-                                        @endif
+                                        </div>
                                     </div>
-                                </div>
-                            @endforeach
+                                @endforeach
 
-                            @if ($proximas_citas->count() > 3)
-                                <div style="text-align: center; margin-top: 15px;">
-                                    <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
-                                        <i class="fas fa-list"></i> Ver todas las citas
-                                    </a>
+                                <!-- Mensaje informativo -->
+                                <div class="info-message">
+                                    <small>
+                                        <i class="fas fa-info-circle"></i>
+                                        Todas tus citas confirmadas futuras
+                                    </small>
+                                </div>
+
+                                @if ($proximas_citas->count() > 3)
+                                    <div style="text-align: center; margin-top: 15px;">
+                                        <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
+                                            <i class="fas fa-list"></i> Ver todas las citas
+                                        </a>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <h3>No tienes citas futuras confirmadas</h3>
+                                    <p>Agenda una cita y aparecerá aquí cuando sea confirmada</p>
+                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Agendar Cita
+                                    </button>
                                 </div>
                             @endif
-                        @else
-                            <div class="empty-state">
-                                <i class="fas fa-calendar-alt"></i>
-                                <h3>No tienes citas programadas</h3>
-                                <p>Agenda tu primera cita de lavado</p>
-                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Cita
-                                </button>
-                            </div>
-                        @endif
+                        </div>
+                        <div class="custom-scrollbar" id="proximas-citas-scrollbar">
+                            <div class="custom-scrollbar-thumb" id="proximas-citas-thumb"></div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Historial de Servicios -->
                 <div class="card">
                     <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            Historial de Servicios
-                        </h2>
-                    </div>
-                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        @if ($historial_citas->count() > 0)
-                            @foreach ($historial_citas as $cita)
-                                <div class="service-history-item">
-                                    <div class="service-icon">
-                                        <i class="fas fa-soap"></i>
-                                    </div>
-                                    <div class="service-details">
-                                        <h4>
-                                            @if ($cita->servicios && count($cita->servicios) > 0)
-                                                {{ $cita->servicios->pluck('nombre')->join(', ') }}
-                                            @else
-                                                Servicio no especificado
-                                            @endif
-                                        </h4>
-                                        <p><i class="fas fa-calendar"></i>
-                                            {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
-                                        <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
-                                            {{ $cita->vehiculo->modelo }} - {{ $cita->vehiculo->placa }}</p>
-                                        <p class="appointment-status status-{{ str_replace('_', '-', $cita->estado) }}"
-                                            style="display: inline-block; margin-top: 5px;">
-                                            {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                        </p>
-                                        @if ($cita->estado == 'finalizada')
-                                            <a href="#" class="repeat-service"
-                                                onclick="repeatService({{ $cita->id }})">
-                                                <i class="fas fa-redo"></i> Volver a agendar
-                                            </a>
-                                        @endif
-                                    </div>
-                                    <div class="service-price">
-                                        @php
-                                            $total = $cita->servicios->sum('precio');
-                                        @endphp
-                                        ${{ number_format($total, 2) }}
-                                    </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>
+                                <div class="icon">
+                                    <i class="fas fa-history"></i>
                                 </div>
-                            @endforeach
-                        @else
-                            <div class="empty-state">
-                                <i class="fas fa-history"></i>
-                                <h3>No hay historial de servicios</h3>
-                                <p>Agenda tu primera cita para comenzar a ver tu historial</p>
-                            </div>
-                        @endif
+                                Historial de Servicios
+                            </h2>
+                            <a href="{{ route('cliente.citas.historial') }}" class="btn btn-outline"
+                                style="padding: 8px 12px;">
+                                <i class="fas fa-list"></i> Ver Historial Completo
+                            </a>
+                        </div>
+                    </div>
+                    <div class="scroll-container">
+                        <div class="card-body scrollable" id="historial-container">
+                            @if ($historial_citas->count() > 0)
+                                @foreach ($historial_citas as $cita)
+                                    <div class="service-history-item {{ $cita->estado }}">
+                                        <div class="service-icon status-{{ $cita->estado }}">
+                                            <i
+                                                class="fas fa-{{ $cita->estado === 'finalizada' ? 'check-circle' : 'times-circle' }}"></i>
+                                        </div>
+
+                                        <div class="service-details">
+                                            <h4>{{ $cita->servicios->pluck('nombre')->join(', ') }}</h4>
+                                            <p><i class="fas fa-calendar"></i>
+                                                {{ $cita->fecha_hora->format('d M Y - h:i A') }}</p>
+                                            <p><i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                {{ $cita->vehiculo->modelo }}
+                                                @if ($cita->vehiculo->placa)
+                                                    - {{ $cita->vehiculo->placa }}
+                                                @endif
+                                            </p>
+                                            <span class="appointment-status status-{{ $cita->estado }}">
+                                                {{ ucfirst($cita->estado) }}
+                                            </span>
+                                        </div>
+                                        <div class="service-price">
+                                            ${{ number_format($cita->servicios->sum('precio'), 2) }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="empty-state">
+                                    <i class="fas fa-history"></i>
+                                    <h3>No hay historial de servicios</h3>
+                                    <p>Agenda tu primera cita para comenzar a ver tu historial</p>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="custom-scrollbar" id="historial-scrollbar">
+                            <div class="custom-scrollbar-thumb" id="historial-thumb"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -2454,21 +2884,23 @@
         </div>
     </div>
 
-    <!-- Modal para crear cita -->
+    <!-- Modal para crear/editar cita  -->
     <div id="createCitaModal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
             <span class="close-modal" onclick="closeCitaModal()">&times;</span>
             <h2 style="color: #4facfe; margin-bottom: 20px;">
-                <i class="fas fa-calendar-plus"></i> Nueva Cita
+                <i class="fas fa-calendar-plus"></i> <span id="modalTitle">Nueva Cita</span>
             </h2>
 
             <form id="citaForm" method="POST" action="{{ route('cliente.citas.store') }}"
                 enctype="multipart/form-data">
                 @csrf
+                <!-- Campo oculto para ID de cita (solo en edición) -->
+                <input type="hidden" id="form_cita_id" name="cita_id" value="">
 
                 <!-- Selección de vehículo -->
                 <div class="form-group">
-                    <label for="vehiculo_id">Vehículo:</label>
+                    <label for="vehiculo_id">Vehículo: <span style="color: red;">*</span></label>
                     <select id="vehiculo_id" name="vehiculo_id" required onchange="cargarServiciosPorTipo()">
                         <option value="">Seleccione un vehículo</option>
                         @foreach ($mis_vehiculos as $vehiculo)
@@ -2480,54 +2912,50 @@
                     </select>
                 </div>
 
+                <!-- Fecha -->
                 <div class="form-group">
-                    <label for="fecha">Fecha:</label>
-                    <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}">
+                    <label for="fecha">Fecha: <span style="color: red;">*</span></label>
+                    <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}"
+                        max="{{ date('Y-m-d', strtotime('+1 month')) }}">
                 </div>
 
+                <!-- Hora -->
                 <div class="form-group">
-                    <label for="hora">Hora:</label>
+                    <label for="hora">Hora: <span style="color: red;">*</span></label>
                     <select id="hora" name="hora" required>
                         <option value="">Seleccione una hora</option>
                         <!-- Las opciones se llenarán dinámicamente con JavaScript -->
                     </select>
                 </div>
 
+                <!-- Servicios -->
                 <div class="form-group">
-                    <label>Servicios Disponibles:</label>
+                    <label>Servicios Disponibles: <span style="color: red;">*</span></label>
                     <div id="serviciosContainer"
                         style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
-                        @foreach ($servicios as $servicio)
-                            <div class="servicio-checkbox">
-                                <input type="checkbox" name="servicios[]" id="servicio-{{ $servicio->id }}"
-                                    value="{{ $servicio->id }}" class="servicio-checkbox-input"
-                                    data-tipo="{{ $servicio->tipo_vehiculo }}">
-                                <label for="servicio-{{ $servicio->id }}" class="servicio-checkbox-label">
-                                    <strong>{{ $servicio->nombre }}</strong><br>
-                                    <span>{{ number_format($servicio->precio, 2) }} €</span><br>
-                                    <small>{{ $servicio->duracion }} minutos</small>
-                                </label>
-                            </div>
-                        @endforeach
+                        <!-- Los servicios se cargarán dinámicamente según el tipo de vehículo -->
                     </div>
                 </div>
 
+                <!-- Observaciones -->
                 <div class="form-group">
                     <label for="observaciones">Observaciones:</label>
-                    <textarea id="observaciones" name="observaciones" rows="3"></textarea>
+                    <textarea id="observaciones" name="observaciones" rows="3" maxlength="500"
+                        placeholder="Información adicional sobre su vehículo o servicio requerido..."></textarea>
                 </div>
 
+                <!-- Botones -->
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button type="button" class="btn btn-outline" onclick="closeCitaModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Guardar Cita
+                    <button type="button" class="btn btn-outline" onclick="closeCitaModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitButton">
+                        <i class="fas fa-save"></i> <span id="submitText">Guardar Cita</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
-
-
 
     <!-- Footer -->
     <footer class="footer">
@@ -2579,6 +3007,16 @@
     </footer>
 
     <script>
+        /*=========================================================
+                                                                                                                                                                                                                                            FUNCIONAMIENTO DE CREAR CITAS
+                                                                                                                                                                                                                                        =========================================================*/
+
+        // Variables globales
+        let horariosDisponibles = [];
+        let todosServiciosDisponibles = [];
+        let serviciosFiltrados = [];
+        let diasNoLaborables = [];
+
         // Configuración global de SweetAlert
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
@@ -2588,52 +3026,70 @@
             buttonsStyling: false
         });
 
-        /*=========================================================
-        FUNCIONAMIENTO DE CREAR CITAS
-        =========================================================*/
-        // Variables globales
-        let horariosDisponibles = [];
-        let todosServiciosDisponibles = [];
-        let serviciosFiltrados = [];
-        let diasNoLaborables = [];
+        function setModalMode(isEdit = false) {
+            const modalTitle = document.getElementById('modalTitle');
+            const submitText = document.getElementById('submitText');
 
+            if (modalTitle) {
+                modalTitle.textContent = isEdit ? 'Editar Cita' : 'Nueva Cita';
+            }
+
+            if (submitText) {
+                submitText.textContent = isEdit ? 'Actualizar Cita' : 'Guardar Cita';
+            }
+        }
 
         // Funciones del modal de citas
         async function openCitaModal(vehiculoId = null) {
-            return new Promise((resolve) => {
-                checkUserStatus().then(async isActive => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const isActive = await checkUserStatus();
                     if (!isActive) {
                         swalWithBootstrapButtons.fire({
                             title: 'Cuenta inactiva',
                             text: 'Tu cuenta está inactiva. No puedes crear nuevas citas.',
                             icon: 'error'
                         });
-                        return;
+                        return reject('Cuenta inactiva');
                     }
 
                     const modal = document.getElementById('createCitaModal');
                     if (!modal) {
-                        console.error('Modal de cita no encontrado');
-                        return;
+                        return reject('Modal de cita no encontrado');
                     }
 
-                    // Resetear formulario
+                    // Resetear completamente el formulario
                     const citaForm = document.getElementById('citaForm');
                     if (citaForm) {
                         citaForm.reset();
                         citaForm.action = '{{ route('cliente.citas.store') }}';
+
+                        // Eliminar cualquier campo _method
                         const methodInput = citaForm.querySelector('[name="_method"]');
                         if (methodInput) methodInput.remove();
+
+                        // Limpiar ID de cita
+                        const citaIdInput = document.getElementById('form_cita_id');
+                        if (citaIdInput) citaIdInput.value = '';
+
+                        // Restablecer el título y texto del botón
+                        setModalMode(false); // Modo creación
+
+                        // Limpiar servicios seleccionados
                         document.querySelectorAll('.service-card.selected').forEach(card => {
                             card.classList.remove('selected');
                         });
-                        document.getElementById('hora').innerHTML =
-                            '<option value="">Seleccione una hora</option>';
+
+                        // Resetear select de hora
+                        const horaSelect = document.getElementById('hora');
+                        if (horaSelect) {
+                            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+                        }
                     }
 
-                    // Cargar datos INICIALES antes de mostrar el modal
+                    // Cargar datos iniciales
                     const loading = swalWithBootstrapButtons.fire({
-                        title: 'Cargando datos...',
+                        title: 'Preparando formulario...',
                         allowOutsideClick: false,
                         didOpen: () => Swal.showLoading()
                     });
@@ -2652,27 +3108,28 @@
                         await loadInitialData();
                         loading.close();
 
-                        // Mostrar modal después de cargar datos
+                        // Mostrar modal
                         modal.style.display = 'block';
-                        resolve();
+                        await new Promise(resolve => setTimeout(resolve, 100));
 
-                        // Establecer vehículo si se proporciona
+                        // Establecer vehículo si se proporciona (NO carga horarios aún)
                         if (vehiculoId) {
                             const vehiculoSelect = document.getElementById('vehiculo_id');
                             if (vehiculoSelect) {
                                 vehiculoSelect.value = vehiculoId;
-                                cargarServiciosPorTipo();
+                                await cargarServiciosPorTipo();
                             }
                         }
+
+                        console.log(' Modal abierto para CREAR nueva cita');
+                        resolve();
                     } catch (error) {
                         loading.close();
-                        swalWithBootstrapButtons.fire({
-                            title: 'Error',
-                            text: 'No se pudieron cargar los datos necesarios',
-                            icon: 'error'
-                        });
+                        reject(error);
                     }
-                });
+                } catch (error) {
+                    reject(error);
+                }
             });
         }
 
@@ -2702,113 +3159,146 @@
         // Función para cargar datos iniciales
         async function loadInitialData() {
             try {
+                console.log('Iniciando carga de datos...');
+
                 // Cargar datos en paralelo
                 const [horariosRes, serviciosRes, noLaborablesRes] = await Promise.all([
-                    fetch('{{ route('cliente.horarios-disponibles') }}'),
-                    fetch('{{ route('cliente.servicios-disponibles') }}'),
-                    fetch('{{ route('cliente.dias-no-laborables') }}')
+                    fetch('{{ route('cliente.horarios-disponibles') }}').catch(e => {
+                        console.error('Error cargando horarios:', e);
+                        return {
+                            ok: false
+                        };
+                    }),
+                    fetch('{{ route('cliente.servicios-disponibles') }}').catch(e => {
+                        console.error('Error cargando servicios:', e);
+                        return {
+                            ok: false
+                        };
+                    }),
+                    fetch('{{ route('cliente.dias-no-laborables') }}').catch(e => {
+                        console.error('Error cargando días no laborables:', e);
+                        return {
+                            ok: false
+                        };
+                    })
                 ]);
 
-                // Verificar respuestas
-                if (!horariosRes.ok || !serviciosRes.ok || !noLaborablesRes.ok) {
-                    throw new Error('Error al cargar datos iniciales');
+                // Verificar respuestas y procesar
+                if (horariosRes.ok) {
+                    horariosDisponibles = await horariosRes.json();
+                    console.log('Horarios cargados:', horariosDisponibles.length);
+                } else {
+                    horariosDisponibles = [];
+                    console.error('Error cargando horarios disponibles');
                 }
 
-                // Procesar respuestas
-                horariosDisponibles = await horariosRes.json();
-                todosServiciosDisponibles = await serviciosRes.json();
-                diasNoLaborables = await noLaborablesRes.json();
+                if (serviciosRes.ok) {
+                    todosServiciosDisponibles = await serviciosRes.json();
+                    console.log('Servicios cargados:', Object.keys(todosServiciosDisponibles));
+                } else {
+                    todosServiciosDisponibles = {};
+                    console.error('Error cargando servicios disponibles');
+                }
 
-                console.log('Datos cargados:', {
-                    horarios: horariosDisponibles,
-                    servicios: todosServiciosDisponibles,
-                    diasNoLaborables: diasNoLaborables
-                });
-
-                // Verificar que los horarios se cargaron correctamente
-                if (!Array.isArray(horariosDisponibles)) {
-                    console.error('Horarios no es un array:', horariosDisponibles);
-                    horariosDisponibles = [];
+                if (noLaborablesRes.ok) {
+                    diasNoLaborables = await noLaborablesRes.json();
+                    console.log('Días no laborables cargados:', diasNoLaborables.length);
+                } else {
+                    diasNoLaborables = [];
+                    console.error('Error cargando días no laborables');
                 }
 
                 // Configurar datepicker
                 setupDatePicker();
 
-                return true; // Indicar que los datos se cargaron correctamente
+                console.log('Datos iniciales cargados completamente');
+                return true;
 
             } catch (error) {
-                console.error('Error cargando datos:', error);
+                console.error('Error crítico cargando datos iniciales:', error);
+
+                // Configurar valores por defecto
+                horariosDisponibles = horariosDisponibles || [];
+                todosServiciosDisponibles = todosServiciosDisponibles || {};
+                diasNoLaborables = diasNoLaborables || [];
+
                 swalWithBootstrapButtons.fire({
-                    title: 'Error',
-                    text: 'No se pudieron cargar los datos necesarios. Por favor recarga la página.',
-                    icon: 'error'
+                    title: 'Error de conexión',
+                    text: 'Hubo problemas cargando algunos datos. Algunas funciones pueden estar limitadas.',
+                    icon: 'warning'
                 });
+
                 return false;
             }
         }
 
-        // Función para cargar horas disponibles 
-        async function loadAvailableHours(jsDayOfWeek, fechaStr) {
+        // Función para cargar horas disponibles
+        async function loadAvailableHours(selectedDate, excludeCitaId = null) {
             const horaSelect = document.getElementById('hora');
+
+            console.log('Cargando horarios para fecha:', selectedDate, '| Excluir cita:', excludeCitaId);
+
             horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
 
             try {
-                // 1. Validar si es domingo (0=Dom, 1=Lun...6=Sab)
-                if (jsDayOfWeek === 0) {
+                // Usar la fecha local correctamente
+                const fechaLocal = createLocalDate(selectedDate);
+                const dayOfWeekJS = fechaLocal.getDay(); // 0=Domingo, 1=Lunes, etc.
+                const dayOfWeekBackend = getBackendDayFromJSDay(dayOfWeekJS);
+
+                console.log('Fecha seleccionada:', selectedDate);
+                console.log('Día JS:', dayOfWeekJS, 'Día Backend:', dayOfWeekBackend);
+
+                // Validar si es domingo
+                if (dayOfWeekJS === 0) {
                     horaSelect.innerHTML = '<option value="">No hay horarios (No atendemos domingos)</option>';
                     return;
                 }
 
-                // 2. Verificar si es día no laborable
-                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+                // Verificar día no laborable
+                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === selectedDate);
                 if (diaNoLaborable) {
-                    const motivo = diaNoLaborable.motivo || 'Día no laborable';
-                    horaSelect.innerHTML = `<option value="">${motivo}</option>`;
+                    horaSelect.innerHTML = `<option value="">${diaNoLaborable.motivo || 'Día no laborable'}</option>`;
                     return;
                 }
 
-                // 3. Convertir día JS a formato backend (1=Lun, 2=Mar...6=Sab, 0=Dom)
-                const backendDay = jsDayOfWeek;
-
-                // 4. Filtrar horarios para el día
-                const horariosDia = Array.isArray(horariosDisponibles) ?
-                    horariosDisponibles.filter(h => h.dia_semana == backendDay) : [];
-
-                if (horariosDia.length === 0) {
-                    horaSelect.innerHTML = '<option value="">No hay horarios programados para este día</option>';
-                    return;
-                }
-
-                // 5. Obtener citas existentes para esa fecha
+                // Obtener horarios ocupados
                 let citasExistentes = [];
                 try {
-                    const response = await fetch(`/cliente/citas/horarios-ocupados?fecha=${fechaStr}`, {
+                    const url =
+                        `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
+                    console.log('Consultando horarios ocupados:', url);
+
+                    const response = await fetch(url, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        timeout: 5000 // Timeout de 5 segundos
+                        }
                     });
 
-                    if (!response.ok) {
-                        throw new Error(`Error ${response.status}: ${response.statusText}`);
-                    }
+                    if (!response.ok) throw new Error(`Error ${response.status}`);
 
                     const data = await response.json();
-                    citasExistentes = Array.isArray(data.horariosOcupados) ? data.horariosOcupados : [];
+                    citasExistentes = data.horariosOcupados || [];
+
+                    console.log('Horarios ocupados recibidos:', citasExistentes);
                 } catch (error) {
                     console.error('Error al obtener horarios ocupados:', error);
-                    // Continuar aunque falle, pero mostrar advertencia
-                    swalWithBootstrapButtons.fire({
-                        title: 'Advertencia',
-                        text: 'No se pudieron verificar los horarios ocupados. Algunos horarios podrían estar no disponibles.',
-                        icon: 'warning',
-                        confirmButtonColor: '#4facfe'
-                    });
+                    // Continuar sin horarios ocupados
                 }
 
-                // 6. Generar opciones de horarios
+                // Generar opciones de horario
                 horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+
+                const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeekBackend);
+
+                console.log('Horarios disponibles para día', dayOfWeekBackend, ':', horariosDia);
+
+                if (horariosDia.length === 0) {
+                    horaSelect.innerHTML = '<option value="">No hay horarios programados</option>';
+                    return;
+                }
+
                 let horariosGenerados = 0;
 
                 horariosDia.forEach(horario => {
@@ -2821,24 +3311,20 @@
                     const horaFin = new Date();
                     horaFin.setHours(finH, finM, 0, 0);
 
-                    // Generar slots de 30 minutos
                     while (horaActual < horaFin) {
                         const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
                             horaActual.getMinutes().toString().padStart(2, '0');
 
-                        // Calcular duración total de servicios seleccionados
-                        const duracionTotal = calcularDuracionServiciosSeleccionados();
-
                         // Verificar colisión con citas existentes
                         const estaOcupado = citasExistentes.some(cita => {
                             try {
-                                const inicioCita = new Date(`${fechaStr}T${cita.hora_inicio}`);
+                                const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
                                 const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
                                     60000);
 
-                                const inicioPropuesta = new Date(`${fechaStr}T${horaStr}`);
+                                const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
                                 const finPropuesta = new Date(inicioPropuesta.getTime() +
-                                    duracionTotal * 60000);
+                                    calcularDuracionServiciosSeleccionados() * 60000);
 
                                 return (
                                     (inicioPropuesta >= inicioCita && inicioPropuesta < finCita) ||
@@ -2859,7 +3345,6 @@
                             option.disabled = true;
                             option.textContent += ' (Ocupado)';
                             option.style.color = '#ff6b6b';
-                            option.title = 'Este horario ya está reservado';
                         } else {
                             horariosGenerados++;
                         }
@@ -2869,56 +3354,81 @@
                     }
                 });
 
-                // 7. Verificar si no se generaron horarios disponibles
                 if (horariosGenerados === 0 && horaSelect.options.length > 1) {
-                    horaSelect.innerHTML = '<option value="">No hay horarios disponibles (Todos ocupados)</option>';
+                    horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
                 }
 
-            } catch (error) {
-                horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+                console.log(`Horarios cargados - Generados: ${horariosGenerados}`);
 
-                // Mostrar error al usuario
-                swalWithBootstrapButtons.fire({
-                    title: 'Error',
-                    text: 'No se pudieron cargar los horarios disponibles. Por favor intenta nuevamente.',
-                    icon: 'error'
-                });
+            } catch (error) {
+                console.error('Error en loadAvailableHours:', error);
+                horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
             }
         }
 
-        // Configuracion del datepicker (actualizada)
+        // Configuracion del datepicker
         function setupDatePicker() {
             const fechaInput = document.getElementById('fecha');
 
-            fechaInput.addEventListener('change', function() {
-                const selectedDate = new Date(this.value);
-                const dayOfWeek = selectedDate.getDay(); // JS: 0=Dom, 1=Lun,...,6=Sab
+            // Establecer fechas mínima y máxima correctamente
+            const hoy = new Date();
+            const unMesAdelante = new Date();
+            unMesAdelante.setMonth(unMesAdelante.getMonth() + 1);
 
-                // Validar domingos primero
-                if (dayOfWeek === 0) {
-                    showDateError('Domingo no laborable',
-                        'No trabajamos los domingos. Por favor selecciona otro día.');
-                    this.value = '';
+            fechaInput.min = getLocalDateString(hoy);
+            fechaInput.max = getLocalDateString(unMesAdelante);
+
+            console.log('Datepicker configurado:', {
+                min: fechaInput.min,
+                max: fechaInput.max,
+                today: getLocalDateString(hoy)
+            });
+
+            fechaInput.addEventListener('change', function() {
+                console.log('📅 Fecha cambiada:', this.value);
+
+                if (!this.value) {
                     document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
                     return;
                 }
 
-                // Validar días no laborables
-                const fechaStr = selectedDate.toISOString().split('T')[0];
-                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === fechaStr);
+                try {
+                    const selectedDate = createLocalDate(this.value);
+                    const dayOfWeekJS = selectedDate.getDay();
 
-                if (diaNoLaborable) {
-                    showDateError(
-                        'Día no laborable',
-                        `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
-                 <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
-                    );
+                    console.log('Fecha parseada:', selectedDate);
+                    console.log('Día de la semana JS:', dayOfWeekJS);
+
+                    // Validar domingos primero
+                    if (dayOfWeekJS === 0) {
+                        showDateError('Domingo no laborable',
+                            'No trabajamos los domingos. Por favor selecciona otro día.');
+                        this.value = '';
+                        document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
+                        return;
+                    }
+
+                    // Verificar días no laborables
+                    const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === this.value);
+                    if (diaNoLaborable) {
+                        showDateError(
+                            'Día no laborable',
+                            `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
+                     <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
+                        );
+                        this.value = '';
+                        return;
+                    }
+
+                    //  ÚNICO LUGAR donde se cargan horarios - al cambiar fecha
+                    const citaId = document.getElementById('form_cita_id')?.value;
+                    loadAvailableHours(this.value, citaId);
+
+                } catch (error) {
+                    console.error('Error al procesar fecha:', error);
+                    showDateError('Error', 'Fecha inválida. Por favor selecciona una fecha válida.');
                     this.value = '';
-                    return;
                 }
-
-                // Cargar horarios para días laborables (1-6)
-                loadAvailableHours(dayOfWeek, fechaStr);
             });
         }
 
@@ -2969,72 +3479,163 @@
             document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
         }
 
-
         // Función para cargar servicios según el tipo de vehículo seleccionado
         async function cargarServiciosPorTipo() {
-            const vehiculoSelect = document.getElementById('vehiculo_id');
-            const selectedOption = vehiculoSelect?.options[vehiculoSelect.selectedIndex];
-            const tipoVehiculo = selectedOption?.dataset.tipo?.toLowerCase();
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const vehiculoSelect = document.getElementById('vehiculo_id');
+                    const serviciosContainer = document.getElementById('serviciosContainer');
 
-            if (!tipoVehiculo) {
-                document.getElementById('serviciosContainer').innerHTML =
-                    '<p>Seleccione un vehículo primero</p>';
-                return;
-            }
+                    if (!vehiculoSelect) {
+                        console.error('Select de vehículo no encontrado');
+                        return reject('Select de vehículo no encontrado');
+                    }
 
-            // Si no tenemos los servicios disponibles, cargarlos
-            if (!todosServiciosDisponibles || Object.keys(todosServiciosDisponibles).length === 0) {
-                await loadInitialData();
-            }
+                    if (!serviciosContainer) {
+                        console.error('Container de servicios no encontrado');
+                        return reject('Container de servicios no encontrado');
+                    }
 
-            const serviciosFiltrados = [];
-            for (const categoria in todosServiciosDisponibles) {
-                if (categoria.toLowerCase() === tipoVehiculo) {
-                    serviciosFiltrados.push(...todosServiciosDisponibles[categoria]);
+                    const selectedOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
+                    const tipoVehiculo = selectedOption?.dataset.tipo?.toLowerCase();
+
+                    if (!tipoVehiculo) {
+                        serviciosContainer.innerHTML = '<p>Seleccione un vehículo primero</p>';
+                        return resolve();
+                    }
+
+                    // Mostrar loading
+                    serviciosContainer.innerHTML = '<p>Cargando servicios...</p>';
+
+                    // Si no tenemos los servicios disponibles, cargarlos
+                    if (!todosServiciosDisponibles || Object.keys(todosServiciosDisponibles).length === 0) {
+                        console.log('Cargando servicios desde servidor...');
+                        await loadInitialData();
+                    }
+
+                    // Filtrar servicios por tipo
+                    const serviciosFiltrados = [];
+                    for (const categoria in todosServiciosDisponibles) {
+                        if (categoria.toLowerCase() === tipoVehiculo) {
+                            serviciosFiltrados.push(...todosServiciosDisponibles[categoria]);
+                        }
+                    }
+
+                    console.log('Servicios filtrados para', tipoVehiculo, ':', serviciosFiltrados);
+
+                    if (serviciosFiltrados.length === 0) {
+                        console.error('No se encontraron servicios para:', tipoVehiculo);
+                        console.log('Todos los servicios disponibles:', todosServiciosDisponibles);
+                        serviciosContainer.innerHTML =
+                            '<p>No hay servicios disponibles para este tipo de vehículo</p>';
+                        return resolve();
+                    }
+
+                    await renderServicios(serviciosFiltrados);
+                    resolve();
+
+                } catch (error) {
+                    console.error('Error en cargarServiciosPorTipo:', error);
+                    const serviciosContainer = document.getElementById('serviciosContainer');
+                    if (serviciosContainer) {
+                        serviciosContainer.innerHTML = '<p>Error al cargar servicios</p>';
+                    }
+                    reject(error);
                 }
-            }
-
-            if (serviciosFiltrados.length === 0) {
-                console.error('No se encontraron servicios para:', tipoVehiculo);
-                console.log('Todos los servicios disponibles:', todosServiciosDisponibles);
-            }
-
-            await renderServicios(serviciosFiltrados);
+            });
         }
 
+        // Función renderServicios
         function renderServicios(servicios) {
-            return new Promise((resolve) => {
-                const container = document.getElementById('serviciosContainer');
-                container.innerHTML = '';
+            return new Promise((resolve, reject) => {
+                try {
+                    const container = document.getElementById('serviciosContainer');
 
-                if (servicios.length === 0) {
-                    container.innerHTML = '<p>No hay servicios disponibles para este tipo de vehículo</p>';
-                    return resolve();
-                }
+                    if (!container) {
+                        return reject('Container de servicios no encontrado');
+                    }
 
-                servicios.forEach(servicio => {
-                    const servicioDiv = document.createElement('label');
-                    servicioDiv.className = 'service-card';
-                    servicioDiv.htmlFor = `servicio_${servicio.id}`;
-                    servicioDiv.innerHTML = `
-                <input type="checkbox" id="servicio_${servicio.id}" name="servicios[]" value="${servicio.id}">
-                <div>
-                    <h4>${servicio.nombre}</h4>
-                    <p>$${servicio.precio.toFixed(2)} • ${formatDuration(servicio.duracion_min)}</p>
-                    <p class="description">${servicio.descripcion || ''}</p>
-                </div>
-            `;
-                    container.appendChild(servicioDiv);
+                    container.innerHTML = '';
 
-                    const checkbox = servicioDiv.querySelector('input');
-                    checkbox.addEventListener('change', function() {
-                        servicioDiv.classList.toggle('selected', this.checked);
+                    if (servicios.length === 0) {
+                        container.innerHTML = '<p>No hay servicios disponibles para este tipo de vehículo</p>';
+                        return resolve();
+                    }
+
+                    servicios.forEach(servicio => {
+                        const servicioDiv = document.createElement('label');
+                        servicioDiv.className = 'service-card';
+                        servicioDiv.htmlFor = `servicio_${servicio.id}`;
+                        servicioDiv.innerHTML = `
+                    <input type="checkbox" id="servicio_${servicio.id}" name="servicios[]" value="${servicio.id}">
+                    <div>
+                        <h4>${servicio.nombre}</h4>
+                        <p>$${servicio.precio.toFixed(2)} • ${formatDuration(servicio.duracion_min)}</p>
+                        <p class="description">${servicio.descripcion || ''}</p>
+                    </div>
+                `;
+                        container.appendChild(servicioDiv);
+
+                        const checkbox = servicioDiv.querySelector('input');
+                        if (checkbox) {
+                            // SOLO cambiar la apariencia visual, NO recargar horarios
+                            checkbox.addEventListener('change', function() {
+                                servicioDiv.classList.toggle('selected', this.checked);
+
+                                // Log para debug (opcional)
+                                const duracionTotal = calcularDuracionServiciosSeleccionados();
+                                console.log(
+                                    `Servicio ${this.checked ? 'seleccionado' : 'deseleccionado'}: ${servicio.nombre}`
+                                );
+                                console.log(`Duración total actualizada: ${duracionTotal} minutos`);
+
+                                // Opcional: Validar que la duración no exceda el horario laboral
+                                const horaSelect = document.getElementById('hora');
+                                if (horaSelect && horaSelect.value && this.checked) {
+                                    validateServiceDuration(horaSelect.value, duracionTotal);
+                                }
+                            });
+                        }
                     });
-                });
+                    console.log(' Servicios renderizados exitosamente SIN recargar horarios:', servicios.length);
+                    setTimeout(() => resolve(), 50);
 
-                // Pequeño retraso para asegurar que el DOM se actualizó
-                setTimeout(resolve, 50);
+                } catch (error) {
+                    console.error('Error en renderServicios:', error);
+                    reject(error);
+                }
             });
+        }
+
+
+        // Función auxiliar para validar duración de servicios (opcional)
+        function validateServiceDuration(horaSeleccionada, duracionTotal) {
+            try {
+                const [horas, minutos] = horaSeleccionada.split(':').map(Number);
+                const horaInicio = new Date();
+                horaInicio.setHours(horas, minutos, 0, 0);
+                const horaFin = new Date(horaInicio.getTime() + duracionTotal * 60000);
+
+                // Verificar si excede las 6:00 PM (18:00)
+                if (horaFin.getHours() > 18 || (horaFin.getHours() === 18 && horaFin.getMinutes() > 0)) {
+                    console.warn('⚠️ Los servicios seleccionados podrían exceder el horario laboral (6:00 PM)');
+
+                    // Mostrar advertencia visual sutil (opcional)
+                    const horaSelect = document.getElementById('hora');
+                    if (horaSelect) {
+                        horaSelect.style.borderColor = '#ffa500';
+                        horaSelect.title = 'Los servicios seleccionados podrían exceder el horario laboral';
+
+                        // Remover advertencia después de 3 segundos
+                        setTimeout(() => {
+                            horaSelect.style.borderColor = '';
+                            horaSelect.title = '';
+                        }, 3000);
+                    }
+                }
+            } catch (error) {
+                console.error('Error al validar duración:', error);
+            }
         }
 
         function formatTime24to12(time24) {
@@ -3055,6 +3656,51 @@
             return `${mins}min`;
         }
 
+        async function setSelectedHourForEdit(hora24, maxAttempts = 5) {
+            let attempts = 0;
+
+            console.log('Configurando hora para edición:', hora24);
+
+            while (attempts < maxAttempts) {
+                const horaSelect = document.getElementById('hora');
+
+                if (!horaSelect || horaSelect.options.length <= 1) {
+                    console.log(`Esperando que se carguen las opciones de hora... intento ${attempts + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    attempts++;
+                    continue;
+                }
+
+                // Buscar la hora en las opciones disponibles
+                let horaEncontrada = false;
+                for (let option of horaSelect.options) {
+                    if (option.value === hora24 && !option.disabled) {
+                        horaSelect.value = hora24;
+                        horaEncontrada = true;
+                        console.log(' Hora de edición configurada:', hora24);
+                        return true;
+                    }
+                }
+
+                // Si la hora no está disponible, agregarla (es una edición válida)
+                if (!horaEncontrada && attempts === maxAttempts - 1) {
+                    console.log('⚠️ Hora de edición no encontrada en opciones, agregando:', hora24);
+                    const option = document.createElement('option');
+                    option.value = hora24;
+                    option.textContent = hora24 + ' (Horario actual)';
+                    option.selected = true;
+                    horaSelect.appendChild(option);
+                    return true;
+                }
+
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            console.error(' No se pudo configurar la hora para edición:', hora24);
+            return false;
+        }
+
         function cancelCita(citaId) {
             swalWithBootstrapButtons.fire({
                 title: '¿Cancelar cita?',
@@ -3068,10 +3714,11 @@
                     fetch(`/cliente/citas/${citaId}/cancelar`, {
                             method: 'POST',
                             headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            }
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            credentials: 'same-origin' // Asegura que las cookies se incluyan
                         })
                         .then(response => {
                             if (!response.ok) {
@@ -3088,7 +3735,6 @@
                                     text: data.message,
                                     icon: 'success'
                                 }).then(() => {
-                                    // Recargar solo si fue exitoso
                                     location.reload();
                                 });
                             } else {
@@ -3195,28 +3841,6 @@
         document.getElementById('citaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // Debug 1: Estado inicial del formulario
-            console.log('Estado INICIAL del formulario:', {
-                fecha: document.getElementById('fecha').value,
-                hora: document.getElementById('hora').value,
-                vehiculo: document.getElementById('vehiculo_id').value,
-                servicios: Array.from(document.querySelectorAll('input[name="servicios[]"]:checked'))
-                    .map(el => el.value),
-                action: this.action,
-                method: this.method
-            });
-
-            // Validación explícita de hora
-            const horaSelect = document.getElementById('hora');
-            if (!horaSelect || !horaSelect.value) {
-                console.error('Error de validación: Hora no seleccionada');
-                swalWithBootstrapButtons.fire('Error', 'Debes seleccionar una hora válida', 'error');
-                return;
-            }
-
-            // Declarar isEdit al inicio
-            const isEdit = this.action.includes('edit');
-
             // Validar que al menos un servicio esté seleccionado
             const serviciosSeleccionados = document.querySelectorAll('input[name="servicios[]"]:checked');
             if (serviciosSeleccionados.length === 0) {
@@ -3226,8 +3850,8 @@
 
             // Mostrar loader
             const swalInstance = swalWithBootstrapButtons.fire({
-                title: isEdit ? 'Actualizando cita...' : 'Procesando cita...',
-                html: isEdit ? 'Estamos actualizando tu cita, por favor espera' :
+                title: this.action.includes('edit') ? 'Actualizando cita...' : 'Procesando cita...',
+                html: this.action.includes('edit') ? 'Estamos actualizando tu cita, por favor espera' :
                     'Estamos reservando tu cita, por favor espera',
                 allowOutsideClick: false,
                 didOpen: () => {
@@ -3235,89 +3859,50 @@
                 }
             });
 
+            const formData = new FormData(this);
+            const isEdit = this.action.includes('edit');
+
+            if (isEdit) {
+                const citaId = this.action.split('/').pop();
+                formData.append('cita_id', citaId);
+            }
+
             try {
-                // Preparar FormData
-                const formData = new FormData(this);
-
-                // Convertir servicios a array
-                const servicios = Array.from(serviciosSeleccionados).map(el => el.value);
-
-                // Eliminar servicios antiguos
-                formData.delete('servicios[]');
-
-                // Agregar servicios como array
-                servicios.forEach(servicioId => {
-                    formData.append('servicios[]', servicioId);
-                });
-
-                // Agregar cita_id si es edición
-                if (isEdit) {
-                    const citaId = this.action.split('/').pop();
-                    formData.append('cita_id', citaId);
-                }
-
-                // Validar campos requeridos antes de enviar
-                const fecha = formData.get('fecha');
-                const hora = formData.get('hora');
-                const vehiculoId = formData.get('vehiculo_id');
-
-                if (!fecha || !hora || !vehiculoId) {
-                    throw new Error('Todos los campos requeridos deben estar completos');
-                }
-
-                // Debug 2: Datos que se enviarán (justo antes del fetch)
-                console.log('Datos FINALES a enviar:', {
-                    vehiculo_id: formData.get('vehiculo_id'),
-                    fecha: formData.get('fecha'),
-                    hora: formData.get('hora'),
-                    servicios: servicios,
-                    observaciones: formData.get('observaciones'),
-                    cita_id: formData.get('cita_id')
-                });
-
-
-                // Enviar al servidor
                 const response = await fetch(this.action, {
                     method: this.method,
                     headers: {
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
                 });
 
                 const result = await response.json();
-
-                // Log de la respuesta del servidor
-                console.log('Respuesta del servidor:', {
-                    status: response.status,
-                    data: result
-                });
+                await swalInstance.close();
 
                 if (!response.ok) {
-                    // Mostrar errores de validación detallados si existen
-                    if (result.errors) {
-                        const errorMessages = Object.values(result.errors).join('\n');
-                        throw new Error(errorMessages);
-                    }
                     throw new Error(result.message || 'Error al procesar la cita');
                 }
 
-                // Éxito - Mostrar alerta 
+                // Éxito - Mostrar alerta
+                const selectedDate = new Date(`${formData.get('fecha')}T${formData.get('hora')}`);
+                // Cerrar el modal primero
                 closeCitaModal();
+
+                // Mostrar alerta de éxito
                 await swalWithBootstrapButtons.fire({
                     title: isEdit ? '¡Cita actualizada!' : '¡Cita agendada!',
                     html: `
                 <div style="text-align: left; margin-top: 15px;">
-                    <p><strong>Fecha:</strong> ${new Date(result.data.fecha_hora).toLocaleDateString('es-ES', { 
-                        weekday: 'long', 
-                        day: 'numeric', 
-                        month: 'long', 
-                        year: 'numeric' 
+                    <p><strong>Fecha:</strong> ${new Date(result.data.fecha_hora).toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
                     })}</p>
-                    <p><strong>Hora:</strong> ${new Date(result.data.fecha_hora).toLocaleTimeString('es-ES', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                    <p><strong>Hora:</strong> ${new Date(result.data.fecha_hora).toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit'
                     })}</p>
                     <p><strong>Servicios:</strong> ${result.data.servicios_nombres}</p>
                     <p><strong>Vehículo:</strong> ${result.data.vehiculo_marca} ${result.data.vehiculo_modelo}</p>
@@ -3328,14 +3913,13 @@
                     confirmButtonText: 'Aceptar'
                 });
 
-                // Actualizar secciones de citas
+                // Actualizar solo las secciones de citas
                 await updateCitasSections();
 
             } catch (error) {
                 console.error('Error:', error);
                 await swalInstance.close();
 
-                // Manejo de errores
                 let errorMessage = 'Ocurrió un error al procesar tu cita.';
                 let errorDetails = '';
                 let showAvailableTimes = false;
@@ -3360,7 +3944,7 @@
                                 'Lo sentimos, ese horario ya está ocupado. Por favor selecciona otro horario.';
                             showAvailableTimes = true;
 
-                            // Obtener horarios disponibles
+                            // Obtener horarios disponibles para la fecha seleccionada
                             const fecha = document.getElementById('fecha').value;
                             if (fecha) {
                                 try {
@@ -3386,11 +3970,11 @@
                 <p>${errorMessage}</p>
                 ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                 ${showAvailableTimes && availableTimes.length > 0 ? `
-                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                    </ul>
-                                ` : ''}
+                                                                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                                </ul>
+                                                                                                            ` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -3464,18 +4048,21 @@
                 }, 600);
                 // ******************************************
 
-            } catch (error) {
-                console.error('Error al actualizar secciones:', error);
-                // En caso de error, recargar toda la página
-                location.reload();
-            }
-        }
+                    } catch (error) {
+                        console.error('Error al obtener datos de citas:', error);
+                        await swalWithBootstrapButtons.fire({
+                            title: 'Error',
+                            text: 'No se pudieron cargar los datos actualizados. Recargando página...',
+                            icon: 'error'
+                        });
+                        location.reload();
+                        return;
+                    }
+                }
 
-        // Función para actualizar una sección específica de citas
-        function updateCitasSection(tipo, citas) {
-            const container = tipo === 'próximas' ?
-                document.querySelector('.card:first-child .card-body') :
-                document.querySelector('.card:nth-child(2) .card-body');
+                const container = tipo === 'próximas' ?
+                    document.querySelector('.card:first-child .card-body') :
+                    document.querySelector('.card:nth-child(2) .card-body');
 
             if (citas.length === 0) {
                 container.innerHTML = `
@@ -3484,120 +4071,238 @@
                 <h3>${tipo === 'próximas' ? 'No tienes citas programadas' : 'No hay historial de servicios'}</h3>
                 <p>${tipo === 'próximas' ? 'Agenda tu primera cita de lavado' : 'Agenda tu primera cita para comenzar a ver tu historial'}</p>
                 ${tipo === 'próximas' ? `
-                                                                                                                                                                                                                                                                                                                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                                                                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                                                                                                                                                                                                                                        Agendar Cita
-                                                                                                                                                                                                                                                                                                                                                                                    </button>` : ''}
+                                                                                                                                                                                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                                                                                                                                                    <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                                                                                                                                                    Agendar Cita
+                                                                                                                                                                                                                                                                                                                </button>` : ''}
             </div>
         `;
                 return;
             }
 
-            let html = '';
+                let html = '';
 
-            if (tipo === 'próximas') {
-                citas.forEach((cita, index) => {
-                    const fecha = new Date(cita.fecha_hora);
-                    html += `
-                <div class="next-appointment ${index === 0 ? 'highlighted' : ''}">
+                if (tipo === 'próximas') {
+                    citas.forEach((cita, index) => {
+                        const fechaCita = formatearFechaHoraFromServer(cita.fecha_hora);
+                        const hoy = new Date();
+                        const diasRestantes = Math.ceil((fechaCita - hoy) / (1000 * 60 * 60 * 24));
+
+                        const dia = obtenerDiaDelMes(cita.fecha_hora);
+                        const mes = obtenerMesAbreviado(cita.fecha_hora);
+                        const hora = formatearSoloHora(cita.fecha_hora);
+
+                        let urgenciaClass = '';
+                        let urgenciaText = '';
+
+                        if (diasRestantes <= 1) {
+                            urgenciaClass = 'urgent-soon';
+                            urgenciaText = diasRestantes === 0 ? 'Hoy' : 'Mañana';
+                        } else if (diasRestantes <= 3) {
+                            urgenciaClass = 'urgent-close';
+                            urgenciaText = `En ${diasRestantes} días`;
+                        } else if (diasRestantes <= 7) {
+                            urgenciaClass = 'coming-soon';
+                            urgenciaText = `En ${diasRestantes} días`;
+                        } else {
+                            urgenciaText = `En ${diasRestantes} días`;
+                        }
+
+                        html += `
+                <div class="next-appointment ${index === 0 ? 'highlighted' : ''} ${urgenciaClass}">
                     <div class="appointment-date-time">
                         <div class="date-badge">
-                            <span class="day">${fecha.getDate()}</span>
-                            <span class="month">${fecha.toLocaleString('es-ES', { month: 'short' })}</span>
+                            <span class="day">${dia}</span>
+                            <span class="month">${mes}</span>
+                            ${diasRestantes <= 7 ? `<span class="days-remaining">${urgenciaText}</span>` : ''}
                         </div>
                         <div class="time-info">
-                            <div class="time">${fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</div>
+                            <div class="time">${hora}</div>
                             <div class="service">
                                 ${cita.servicios.map(s => s.nombre).join(', ')}
                             </div>
                             <div class="vehicle-info">
                                 <i class="fas fa-car"></i> ${cita.vehiculo.marca} ${cita.vehiculo.modelo}
                             </div>
+                            ${diasRestantes > 7 ? `<div class="days-info"><i class="fas fa-clock"></i> ${urgenciaText}</div>` : ''}
                         </div>
-                        <span class="appointment-status status-${cita.estado.replace('_', '-')}">
-                            ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
+                        <span class="appointment-status status-confirmada">
+                            Confirmada
                         </span>
                     </div>
                     <div class="appointment-actions">
                         ${['pendiente', 'confirmada'].includes(cita.estado) ? `
-                                                                                                                                                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
-                                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-edit"></i> Modificar
-                                                                                                                                                                                                                                                                                                                                                                                            </button>
-                                                                                                                                                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
-                                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-times"></i> Cancelar
-                                                                                                                                                                                                                                                                                                                                                                                            </button>` : ''}
+                                                                                                                                                                                                                                                                                                                        <button class="btn btn-sm btn-warning" onclick="editCita(${cita.id})">
+                                                                                                                                                                                                                                                                                                                            <i class="fas fa-edit"></i> Modificar
+                                                                                                                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                                                                                                                        <button class="btn btn-sm btn-outline" onclick="cancelCita(${cita.id})">
+                                                                                                                                                                                                                                                                                                                            <i class="fas fa-times"></i> Cancelar
+                                                                                                                                                                                                                                                                                                                        </button>` : ''}
                     </div>
                 </div>
-            `;
-                });
+                `;
+                    });
 
-                if (citas.length > 3) {
+                    // Mensaje actualizado (sin referencia a 15 días)
                     html += `
-                <div style="text-align: center; margin-top: 15px;">
-                    <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
-                        <i class="fas fa-list"></i> Ver todas las citas
-                    </a>
+                <div style="text-align: center; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
+                    <small style="color: #6c757d;">
+                        <i class="fas fa-info-circle"></i>
+                        Todas tus citas confirmadas futuras
+                    </small>
                 </div>
             `;
-                }
-            } else { // Historial
-                citas.forEach(cita => {
-                    const fecha = new Date(cita.fecha_hora);
-                    const total = cita.servicios.reduce((sum, servicio) => sum + servicio.precio, 0);
 
-                    html += `
+                    if (citas.length > 3) {
+                        html += `
+                <div style="text-align: center; margin-top: 15px;">
+                  <a href="{{ route('cliente.citas', ['tipo' => 'proximas']) }}" class="btn btn-outline">
+    <i class="fas fa-list"></i> Ver todas las citas
+</a>
+                </div>
+                `;
+                    }
+                } else { // Historial
+                    citas.forEach(cita => {
+                        const fechaCompleta = formatearFechaCompleta(cita.fecha_hora);
+                        const total = cita.servicios.reduce((sum, servicio) => sum + servicio.precio, 0);
+
+                        html += `
                 <div class="service-history-item">
                     <div class="service-icon">
-                        <i class="fas fa-soap"></i>
+                        <i class="fas fa-${cita.estado === 'finalizada' ? 'check-circle' : 'times-circle'}"></i>
                     </div>
                     <div class="service-details">
                         <h4>${cita.servicios.map(s => s.nombre).join(', ')}</h4>
-                        <p><i class="fas fa-calendar"></i> ${fecha.toLocaleString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                        <p><i class="fas fa-calendar"></i> ${fechaCompleta}</p>
                         <p><i class="fas fa-car"></i> ${cita.vehiculo.marca} ${cita.vehiculo.modelo} - ${cita.vehiculo.placa}</p>
-                        <span class="appointment-status status-${cita.estado.replace('_', '-')}" style="display: inline-block; margin-top: 5px;">
-                            ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
+                        <span class="appointment-status status-${cita.estado}" style="display: inline-block; margin-top: 5px;">
+                            ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)}
                         </span>
                         ${cita.estado === 'finalizada' ? `
-                                                                                                                                                                                                                                                                                                                                                                                            <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
-                                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-redo"></i> Volver a agendar
-                                                                                                                                                                                                                                                                                                                                                                                            </a>` : ''}
+                                                                                                                                                                                                                                                                                                                        <a href="#" class="repeat-service" onclick="repeatService(${cita.id})">
+                                                                                                                                                                                                                                                                                                                            <i class="fas fa-redo"></i> Volver a agendar
+                                                                                                                                                                                                                                                                                                                        </a>` : ''}
                     </div>
                     <div class="service-price">
-                        $${total.toFixed(2)}
+                        ${total.toFixed(2)}
                     </div>
                 </div>
-            `;
-                });
-            }
+                `;
+                    });
+                }
 
-            container.innerHTML = html;
+                container.innerHTML = html;
+                console.log(`✅ Sección de citas "${tipo}" actualizada correctamente con ${citas.length} elementos`);
+
+            } catch (error) {
+                console.error('Error al actualizar secciones de citas:', error);
+                await swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Ocurrió un problema al actualizar la vista. Recargando página...',
+                    icon: 'error'
+                });
+                location.reload();
+            }
         }
 
-        // Función para repetir servicio desde el historial
-        function repeatService(citaId) {
-            fetch(`/cliente/citas/${citaId}/repeat`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Rellenar el modal con los datos de la cita anterior
-                        document.getElementById('vehiculo_id').value = data.vehiculo_id;
-                        cargarServiciosPorTipo().then(() => {
-                            // Seleccionar los servicios anteriores
-                            data.servicios.forEach(servicioId => {
-                                const checkbox = document.getElementById(`servicio_${servicioId}`);
-                                if (checkbox) checkbox.checked = true;
-                            });
+        async function generateAvailableTimesFromOccupied(fecha, horariosOcupados) {
+            try {
+                const fechaDate = new Date(fecha);
+                const dayOfWeek = fechaDate.getDay();
 
-                            // Abrir el modal
-                            openCitaModal();
+                // Obtener horarios programados para este día
+                const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeek);
+                if (horariosDia.length === 0) return [];
 
-                            swalWithBootstrapButtons.fire({
-                                title: 'Servicio cargado',
-                                text: 'Hemos cargado los detalles de tu cita anterior. Por favor revisa y confirma la nueva fecha.',
-                                icon: 'info',
-                                confirmButtonColor: '#4facfe'
-                            });
+                let disponibles = [];
+
+                horariosDia.forEach(horario => {
+                    const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
+                    const [finH, finM] = horario.hora_fin.split(':').map(Number);
+
+                    let horaActual = new Date();
+                    horaActual.setHours(inicioH, inicioM, 0, 0);
+
+                    const horaFin = new Date();
+                    horaFin.setHours(finH, finM, 0, 0);
+
+                    while (horaActual < horaFin) {
+                        const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
+                            horaActual.getMinutes().toString().padStart(2, '0');
+
+                        // Verificar si está ocupado
+                        const estaOcupado = horariosOcupados.some(cita => {
+                            try {
+                                const inicioCita = new Date(`${fecha}T${cita.hora_inicio}`);
+                                const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
+                                    60000);
+                                const inicioPropuesta = new Date(`${fecha}T${horaStr}`);
+                                const finPropuesta = new Date(inicioPropuesta.getTime() + 30 * 60000);
+
+                                return (
+                                    (inicioPropuesta >= inicioCita && inicioPropuesta < finCita) ||
+                                    (finPropuesta > inicioCita && finPropuesta <= finCita) ||
+                                    (inicioPropuesta <= inicioCita && finPropuesta >= finCita)
+                                );
+                            } catch (e) {
+                                return false;
+                            }
                         });
+
+                        if (!estaOcupado) {
+                            disponibles.push(horaStr);
+                        }
+
+                        horaActual.setMinutes(horaActual.getMinutes() + 30);
+                    }
+                });
+
+                return disponibles;
+            } catch (error) {
+                console.error('Error generando horarios disponibles:', error);
+                return [];
+            }
+        }
+
+        // FUNCIÓN para convertir día de JavaScript a formato backend
+        function getBackendDayFromJSDay(jsDay) {
+            // JavaScript: 0=Domingo, 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado
+            // Backend: 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado, 7=Domingo
+
+            if (jsDay === 0) {
+                return 7; // Domingo
+            }
+            return jsDay; // Lunes=1, Martes=2, etc.
+        }
+
+        // FUNCIÓN para obtener fecha en timezone local
+        function getLocalDateString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // FUNCIÓN para crear fecha desde string sin problemas de timezone
+        function createLocalDate(dateString) {
+            const [year, month, day] = dateString.split('-').map(Number);
+            return new Date(year, month - 1, day); // month - 1 porque los meses en JS van de 0-11
+        }
+
+        /**
+         * Formatea una fecha/hora del servidor para mostrar correctamente
+         * Maneja tanto timestamps como strings de fecha
+         */
+        function formatearFechaHoraFromServer(fechaHora) {
+            try {
+                let fecha;
+
+                if (typeof fechaHora === 'string') {
+                    // Si viene como string del servidor (formato: "2025-08-13 15:30:00" o ISO)
+                    if (fechaHora.includes('T')) {
+                        // Formato ISO: remover timezone para evitar conversión
+                        fecha = new Date(fechaHora.split('T')[0] + 'T' + fechaHora.split('T')[1].split('.')[0]);
                     } else {
                         throw new Error(data.message);
                     }
@@ -3609,6 +4314,94 @@
                         icon: 'error'
                     });
                 });
+        }
+
+        async function editCita(citaId) {
+            const swalInstance = swalWithBootstrapButtons.fire({
+                title: 'Cargando cita...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                const response = await fetch(`/cliente/citas/${citaId}/edit`);
+                if (!response.ok) throw new Error(`Error: ${response.status}`);
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message || 'Error al cargar cita');
+
+                swalInstance.close();
+
+                // Abrir modal y esperar a que cargue todo
+                await openCitaModal();
+
+                const form = document.getElementById('citaForm');
+                form.action = `/cliente/citas/${citaId}`;
+
+                // Asegurar método PUT
+                if (!form.querySelector('input[name="_method"]')) {
+                    form.insertAdjacentHTML('beforeend', '<input type="hidden" name="_method" value="PUT">');
+                }
+
+                // 1. Establecer vehículo
+                const vehiculoSelect = document.getElementById('vehiculo_id');
+                vehiculoSelect.value = data.data.vehiculo_id;
+
+                // 2. Establecer fecha y forzar carga de horas
+                const fechaInput = document.getElementById('fecha');
+                fechaInput.value = data.data.fecha;
+
+                // Disparar evento change para cargar horas
+                const fechaDate = new Date(data.data.fecha);
+                await loadAvailableHours(fechaDate.getDay(), data.data.fecha);
+
+                // 3. Establecer hora
+                const horaSelect = document.getElementById('hora');
+                const hora24 = data.data.hora;
+
+                // Buscar opción que coincida con la hora (formato 24h o 12h)
+                const horaOption = Array.from(horaSelect.options).find(option =>
+                    option.value === hora24 ||
+                    option.value === formatTime24to12(hora24)
+                );
+
+                if (horaOption) {
+                    horaOption.selected = true;
+                } else {
+                    // Si no existe, agregar la opción manualmente
+                    const option = document.createElement('option');
+                    option.value = hora24;
+                    option.textContent = hora24;
+                    horaSelect.appendChild(option);
+                    horaSelect.value = hora24;
+                }
+
+                // 4. Cargar servicios
+                await cargarServiciosPorTipo();
+
+                // 5. Marcar servicios seleccionados (con retraso para asegurar carga)
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                data.data.cita.servicios.forEach(servicio => {
+                    const checkbox = document.querySelector(
+                        `input[name="servicios[]"][value="${servicio.id}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.closest('.service-card').classList.add('selected');
+                    }
+                });
+
+                // 6. Establecer observaciones
+                document.getElementById('observaciones').value = data.data.observaciones || '';
+
+            } catch (error) {
+                swalInstance.close();
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: error.message,
+                    icon: 'error'
+                });
+            }
         }
 
         function formatTime24to12(time24) {
@@ -3761,10 +4554,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -3876,8 +4669,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                        FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                        =========================================================*/
+                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -3906,8 +4699,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
