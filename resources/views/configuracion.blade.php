@@ -1,17 +1,15 @@
 @extends('layouts.app')
 
+@section('body-class')
+user-{{ Auth::check() ? Auth::user()->rol : 'guest' }}
+@endsection
+
 @section('content')
     <div class="container py-4">
-        <!-- Botón de regreso mejorado -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <a href="{{ route('dashboard') }}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-arrow-left me-2"></i>
-                    <span class="d-none d-sm-inline fs-6">Volver al Dashboard</span>
-                    <span class="d-sm-none fs-6">Volver</span>
-                </a>
-            </div>
-        </div>
+        <!-- Botón de regreso con diseño flotante -->
+        <a href="{{ route('dashboard') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        </a>
 
         <!-- Tarjeta principal -->
         <div class="row justify-content-center">
@@ -372,26 +370,27 @@
             const hasNumber = /\d/.test(password);
             const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
 
+            // Limpiar mensajes de error existentes solo para este campo
+            const existingFeedbacks = this.parentNode.querySelectorAll('.invalid-feedback');
+            existingFeedbacks.forEach(feedback => feedback.remove());
+
             // Validación de fortaleza
             if (hasMinLength && hasUpperCase && hasLowerCase && hasNumber) {
                 this.classList.add('is-valid');
                 this.classList.remove('is-invalid');
-                const feedback = this.parentNode.querySelector('.invalid-feedback');
-                if (feedback) feedback.remove();
             } else {
                 this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
                 
                 let errorMessage = '';
                 if (!hasMinLength) errorMessage = 'La contraseña debe tener al menos 8 caracteres.';
                 else if (!hasUpperCase || !hasLowerCase) errorMessage = 'La contraseña debe contener mayúsculas y minúsculas.';
                 else if (!hasNumber) errorMessage = 'La contraseña debe contener al menos un número.';
                 
-                const feedback = this.parentNode.querySelector('.invalid-feedback') || document.createElement('div');
-                feedback.className = 'invalid-feedback';
+                const feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback d-block';
                 feedback.innerHTML = `<strong>${errorMessage}</strong>`;
-                if (!this.parentNode.querySelector('.invalid-feedback')) {
-                    this.parentNode.appendChild(feedback);
-                }
+                this.parentNode.appendChild(feedback);
             }
 
             // Indicador de fortaleza
@@ -452,23 +451,26 @@
         document.getElementById('password-confirm').addEventListener('input', function() {
             const password = document.getElementById('password').value;
             const confirmPassword = this.value;
-            const feedbackDiv = this.parentNode.querySelector('.invalid-feedback');
-
-            // Eliminar cualquier mensaje existente primero
-            if (feedbackDiv && feedbackDiv.textContent === 'Las contraseñas no coinciden') {
-                feedbackDiv.remove();
-            }
+            
+            // Eliminar TODOS los mensajes de error existentes primero
+            const existingFeedbacks = this.parentNode.querySelectorAll('.invalid-feedback');
+            existingFeedbacks.forEach(feedback => feedback.remove());
 
             if (confirmPassword && password !== confirmPassword) {
                 this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+                
+                // Crear nuevo mensaje de error
                 const feedback = document.createElement('div');
-                feedback.className = 'invalid-feedback';
+                feedback.className = 'invalid-feedback d-block';
                 feedback.innerHTML = '<strong>Las contraseñas no coinciden.</strong>';
                 this.parentNode.appendChild(feedback);
+            } else if (confirmPassword && password === confirmPassword) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
             } else {
                 this.classList.remove('is-invalid');
-                const feedback = this.parentNode.querySelector('.invalid-feedback');
-                if (feedback) feedback.remove();
+                this.classList.remove('is-valid');
             }
         });
 

@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
-use App\Events\UsuarioCreado;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -137,8 +136,6 @@ class AdminController extends Controller
 
             // Limpiar caché de estadísticas
             Cache::forget('dashboard_stats');
-
-            event(new UsuarioCreado($usuario));
 
             return response()->json([
                 'success' => true,
