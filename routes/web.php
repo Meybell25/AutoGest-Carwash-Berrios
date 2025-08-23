@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\DiaNoLaborableController;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +106,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
         });
 
+        // Rutas de Gastos - ACTIVAS
         Route::prefix('gastos')->name('gastos.')->group(function () {
             Route::get('/', [GastoController::class, 'index'])->name('index');
             Route::get('/crear', [GastoController::class, 'create'])->name('create');
@@ -123,7 +125,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::get('/estadisticas/por-tipo', [GastoController::class, 'estadisticasPorTipo'])->name('estadisticas-tipo');
         });
 
-        // Rutas para Días No Laborables (MOVIDAS AQUÍ - DENTRO DEL GRUPO ADMIN)
+        // Rutas para Días No Laborables
         Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
             Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
             Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
@@ -159,18 +161,27 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
         Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
         Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
+        Route::get('/citas/historial', [ClienteController::class, 'historial'])->name('citas.historial');
 
         // Datos AJAX
         Route::get('/mis-vehiculos', [ClienteController::class, 'misVehiculosAjax'])->name('mis-vehiculos-ajax');
         Route::get('/check-status', [ClienteController::class, 'checkStatus'])->name('check-status');
 
-        // Gestión de citas
-        Route::post('/citas', [ClienteController::class, 'storeCita'])->name('citas.store');
-        Route::post('/citas/{cita}/cancelar', [ClienteController::class, 'cancelarCita'])->name('citas.cancelar');
-        Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('citas.dashboard-data');
+        // Gestión de citas - ORDEN IMPORTANTE
+        // Rutas específicas PRIMERO (antes de las rutas con parámetros)
+        Route::get('/citas/horarios-ocupados', [ClienteController::class, 'getHorariosOcupados'])
+            ->name('citas.horarios-ocupados');
+
+        // Rutas con parámetros DESPUÉS
         Route::get('/citas/{cita}/edit', [ClienteController::class, 'edit'])->name('citas.edit');
-        Route::get('/citas/horarios-ocupados', [ClienteController::class, 'getHorariosOcupados'])->name('citas.horarios-ocupados');
-        Route::get('/citas/horarios-ocupados', [ClienteController::class, 'getHorariosOcupados'])->name('cliente.citas.horarios-ocupados');
+        Route::put('/citas/{cita}', [ClienteController::class, 'updateCita'])->name('citas.update');
+        Route::post('/citas/{cita}/cancelar', [ClienteController::class, 'cancelarCita'])->name('citas.cancelar');
+
+        // Ruta de creación al final
+        Route::post('/citas', [ClienteController::class, 'storeCita'])->name('citas.store');
+
+        // Datos para el dashboard
+        Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('dashboard.data');
 
         // Datos para formularios
         Route::get('/horarios-disponibles', function () {
@@ -306,5 +317,24 @@ Route::get('/debug/servicios', function () {
                 'activo' => $s->activo
             ];
         })
+    ]);
+});
+
+Route::get('/debug-fechas', [ClienteController::class, 'debugFechas'])->name('debug-fechas');
+
+/// Ruta para debug de citas por usuario (JSON)
+Route::get('/debug/citas-usuario/{usuarioId}', [ClienteController::class, 'debugCitasUsuarioJson'])
+    ->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
+    ->name('debug.citas-usuario-json');
+
+    Route::get('/check-timezone', function() {
+    // Verificar configuración de la base de datos
+    $dbTime = DB::select(DB::raw("SELECT @@global.time_zone, @@session.time_zone, NOW() as current_time"));
+
+    return response()->json([
+        'app_timezone' => config('app.timezone'),
+        'db_timezone' => $dbTime[0],
+        'php_time' => now()->format('Y-m-d H:i:s'),
+        'db_time' => $dbTime[0]->current_time
     ]);
 });

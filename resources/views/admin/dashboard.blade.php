@@ -2492,7 +2492,7 @@
                     </div>
                 </div>
 
-                <!-- Gestión de Horarios -->
+                <!-- Gestión de Horarios 
                 <div class="card">
                     <div class="card-header">
                         <h2>
@@ -2524,147 +2524,36 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td data-label="Día">Lunes</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(1)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(1)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Martes</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(2)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(2)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Miércoles</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(3)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(3)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Jueves</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(4)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(4)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Viernes</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(5)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(5)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Sábado</td>
-                                        <td data-label="Hora Inicio">07:00 AM</td>
-                                        <td data-label="Hora Fin">06:00 PM</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-success">Activo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(6)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-delete" title="Desactivar"
-                                                    onclick="desactivarHorario(6)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td data-label="Día">Domingo</td>
-                                        <td data-label="Hora Inicio">-</td>
-                                        <td data-label="Hora Fin">-</td>
-                                        <td data-label="Estado">
-                                            <span class="badge badge-danger">Inactivo</span>
-                                        </td>
-                                        <td data-label="Acciones">
-                                            <div class="table-actions">
-                                                <button class="table-btn btn-edit" title="Editar"
-                                                    onclick="editarHorario(0)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="table-btn btn-success" title="Activar"
-                                                    onclick="activarHorario(0)">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
+   {{--   @forelse ($horarios as $horario)
+        <tr>
+            <td data-label="Día">{{ \App\Http\Controllers\HorarioController::DIAS_SEMANA[$horario->dia_semana] }}</td>
+            <td data-label="Hora Inicio">{{ \Carbon\Carbon::parse($horario->hora_inicio)->format('h:i A') }}</td>
+            <td data-label="Hora Fin">{{ \Carbon\Carbon::parse($horario->hora_fin)->format('h:i A') }}</td>
+            <td data-label="Estado">
+                <span class="badge   {{ $horario->activo ? 'badge-success' : 'badge-danger' }}">
+                    {{ $horario->activo ? 'Activo' : 'Inactivo' }}
+                </span>
+            </td>
+            <td data-label="Acciones">
+                <div class="table-actions">
+                    <button class="table-btn btn-edit" title="Editar"
+                        onclick="editarHorario({{ $horario->id }})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="table-btn btn-delete" title="Eliminar"
+                        onclick="desactivarHorario({{ $horario->id }})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="5" class="text-center">No hay horarios registrados.</td>
+        </tr>
+    @endforelse
+</tbody>
+
                             </table>
                         </div>
                     </div>
@@ -2768,7 +2657,7 @@
                       window.openEditModal = openEditModal;
                       .eliminarHorario = eliminarHorario;
                     });
-                </script>
+                </script>  --}}-->
 
 
                 <!-- Contenedor para Días No Laborables -->
