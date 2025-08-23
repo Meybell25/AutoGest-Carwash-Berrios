@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Servicio;
+use App\Models\Bitacora;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -54,6 +55,8 @@ class ServicioController extends Controller
 
         try {
             Servicio::create($request->all());
+           // $servicio = Servicio::create($request->all());
+            Bitacora::registrar(Bitacora::ACCION_CREAR_SERVICIO, null, $request->ip());
 
             return redirect()->route('admin.servicios.index')
                 ->with('success', 'Servicio creado correctamente');
@@ -91,6 +94,7 @@ class ServicioController extends Controller
 
         try {
             $servicio->update($request->all());
+            Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_SERVICIO, null, $request->ip());
 
             return redirect()->route('admin.servicios.index')
                 ->with('success', 'Servicio actualizado correctamente');
@@ -116,6 +120,8 @@ class ServicioController extends Controller
             }
 
             $servicio->delete();
+            Bitacora::registrar(Bitacora::ACCION_ELIMINAR_SERVICIO, null, request()->ip());
+
 
             return redirect()->route('admin.servicios.index')
                 ->with('success', 'Servicio eliminado correctamente');
