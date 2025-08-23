@@ -10,6 +10,7 @@ use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\GastoController;
+use App\Http\Controllers\HorarioController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
@@ -135,7 +136,12 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         });*/
 
         //Rutas para horarios
-        Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
+          Route::get('/admin/horarios', [HorarioController::class, 'index'])->name('admin.horarios.index');
+          Route::get('/horarios/{id}', [HorarioController::class, 'show']);
+          Route::post('/horarios', [HorarioController::class, 'store']);
+          Route::put('/horarios/{id}', [HorarioController::class, 'update']);
+          Route::delete('/horarios/{id}', [HorarioController::class, 'destroy']);
+
     });
 
 // Rutas de Empleado
