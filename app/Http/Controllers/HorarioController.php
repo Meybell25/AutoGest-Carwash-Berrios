@@ -21,22 +21,9 @@ class HorarioController extends Controller
 
     public function index()
     {
-        // Excluir domingos (día 0) y ordenar por dIa y hora
-        $horarios = Horario::where('dia_semana', '>=', 1)
-            ->orderBy('dia_semana')
-            ->orderBy('hora_inicio')
-            ->get();
+        $horarios = Horario::ordenadoPorDia()->get();
 
-        // Si es AJAX, devolver JSON con nombres de dia
-        if (request()->ajax()) {
-            $horarios->transform(function ($horario) {
-                $horario->nombre_dia = self::DIAS_SEMANA[$horario->dia_semana] ?? 'Desconocido';
-                return $horario;
-            });
-            return response()->json($horarios);
-        }
-
-        return view('HorariosViews.index', compact('horarios'));
+        return view('admin.dashboard', compact('horarios'));
     }
 
     public function store(Request $request)
