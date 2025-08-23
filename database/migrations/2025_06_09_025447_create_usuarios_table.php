@@ -15,10 +15,12 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('email')->unique();
             $table->string('telefono')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('rol', ['cliente','empleado','admin'])->default('cliente');
             $table->boolean('estado')->default(1);
-            $table->timestamps(); // ✅ CAMBIO: Esta línea crea created_at y updated_at
+            $table->rememberToken();
+            $table->timestamps();
         });
     }
 

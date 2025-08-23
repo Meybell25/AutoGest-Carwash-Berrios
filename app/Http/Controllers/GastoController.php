@@ -16,6 +16,27 @@ class GastoController extends Controller
      */
     public function index(Request $request)
     {
+        // Si es petición AJAX para el modal
+        if ($request->ajax()) {
+            $gastos = Gasto::with('usuario')->orderBy('fecha_gasto', 'desc')->get();
+            
+            // Formatear datos para el modal
+            $gastosFormatted = $gastos->map(function($gasto) {
+                return [
+                    'id' => $gasto->id,
+                    'tipo' => $gasto->tipo,
+                    'detalle' => $gasto->detalle,
+                    'monto' => $gasto->monto,
+                    'fecha_gasto' => $gasto->fecha_gasto->format('Y-m-d'),
+                    'fecha_gasto_formatted' => $gasto->fecha_gasto->format('d/m/Y'),
+                    'created_at' => $gasto->created_at,
+                    'usuario' => $gasto->usuario ? $gasto->usuario->nombre : 'Usuario no disponible'
+                ];
+            });
+            
+            return response()->json($gastosFormatted);
+        }
+        
         $query = Gasto::with('usuario');
 
         // Filtros opcionales
@@ -86,6 +107,12 @@ class GastoController extends Controller
         ]);
 
         if ($validator->fails()) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                    'message' => 'Por favor, corrige los errores del formulario.'
+                ], 422);
+            }
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput()
@@ -101,10 +128,24 @@ class GastoController extends Controller
                 'fecha_gasto' => $request->fecha_gasto,
             ]);
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Gasto registrado correctamente.',
+                    'gasto' => $gasto
+                ]);
+            }
+
             return redirect()->route('admin.gastos.index')
                 ->with('success', 'Gasto registrado correctamente.')
                 ->with('gasto_creado', $gasto->id);
         } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al registrar el gasto. Por favor, inténtelo de nuevo.'
+                ], 500);
+            }
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Error al registrar el gasto. Por favor, inténtelo de nuevo.');
@@ -114,9 +155,18 @@ class GastoController extends Controller
     /**
      * Mostrar un gasto específico.
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
         $gasto = Gasto::with('usuario')->findOrFail($id);
+
+        if ($request->ajax()) {
+            // Formatear la fecha para JavaScript
+            $gastoFormatted = $gasto->toArray();
+            $gastoFormatted['fecha_gasto'] = $gasto->fecha_gasto->format('Y-m-d'); // Formato para input date
+            $gastoFormatted['fecha_gasto_formatted'] = $gasto->fecha_gasto->format('d/m/Y'); // Formato para mostrar
+            
+            return response()->json($gastoFormatted);
+        }
 
         return view('admin.gastos.show', compact('gasto'));
     }
@@ -165,6 +215,12 @@ class GastoController extends Controller
         ]);
 
         if ($validator->fails()) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                    'message' => 'Por favor, corrige los errores del formulario.'
+                ], 422);
+            }
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput()
@@ -180,10 +236,24 @@ class GastoController extends Controller
                 'fecha_gasto' => $request->fecha_gasto,
             ]);
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Gasto actualizado correctamente.',
+                    'gasto' => $gasto
+                ]);
+            }
+
             return redirect()->route('admin.gastos.index')
                 ->with('success', 'Gasto actualizado correctamente.')
                 ->with('gasto_actualizado', $gasto->id);
         } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar el gasto. Por favor, inténtelo de nuevo.'
+                ], 500);
+            }
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Error al actualizar el gasto. Por favor, inténtelo de nuevo.');
@@ -193,7 +263,7 @@ class GastoController extends Controller
     /**
      * Eliminar un gasto.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
         try {
             $gasto = Gasto::findOrFail($id);
@@ -202,9 +272,22 @@ class GastoController extends Controller
 
             $gasto->delete();
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Gasto eliminado correctamente: $detalleEliminado (\${$montoEliminado})"
+                ]);
+            }
+
             return redirect()->route('admin.gastos.index')
                 ->with('success', "Gasto eliminado correctamente: $detalleEliminado (\${$montoEliminado})");
         } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar el gasto. Por favor, inténtelo de nuevo.'
+                ], 500);
+            }
             return redirect()->back()
                 ->with('error', 'Error al eliminar el gasto. Por favor, inténtelo de nuevo.');
         }

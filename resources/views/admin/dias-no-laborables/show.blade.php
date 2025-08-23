@@ -802,7 +802,7 @@
                                 Editar información
                             </a>
 
-                            <a href="{{ route('admin.dias-no-laborables.create') }}" class="btn-modern action-btn btn-success">
+                            <a href="{{ route('admin.dias-no-laborables.index') }}#open-modal" class="btn-modern action-btn btn-success">
                                 <i class="fas fa-plus me-2"></i>
                                 Agregar nuevo día
                             </a>

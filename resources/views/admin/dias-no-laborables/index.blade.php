@@ -499,10 +499,10 @@
                                     <i class="fas fa-tachometer-alt"></i>
                                     Dashboard
                                 </a>
-                                <a href="{{ route('admin.dias-no-laborables.create') }}" class="btn-modern btn-add">
+                                <button type="button" class="btn-modern btn-add" id="btnAgregarDiaHeader">
                                     <i class="fas fa-plus"></i>
                                     Agregar Día
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -638,10 +638,10 @@
                             </div>
                             <h4>No hay días no laborables registrados</h4>
                             <p class="mb-4">Comienza agregando el primer día no laborable para gestionar la disponibilidad de citas.</p>
-                            <a href="{{ route('admin.dias-no-laborables.create') }}" class="btn-modern btn-add">
+                            <button type="button" class="btn-modern btn-add" id="btnAgregarDiaEmpty">
                                 <i class="fas fa-plus me-1"></i>
                                 Agregar el primero
-                            </a>
+                            </button>
                         </div>
                     @endif
                 </div>
@@ -687,8 +687,113 @@
         </div>
     </div>
 
+    <!-- Modal para agregar día no laborable -->
+    <div class="modal fade" id="modalAgregarDia" tabindex="-1" aria-labelledby="modalAgregarDiaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content modal-content-modern">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-blue), var(--success-green)); color: white;">
+                    <h5 class="modal-title" id="modalAgregarDiaLabel">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Agregar Día No Laborable
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <!-- Alerta para mensajes -->
+                    <div id="alertaModal" class="alert" style="display: none;"></div>
+                    
+                    <form id="formAgregarDia">
+                        @csrf
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    <label for="fechaModal" class="form-label-modern">
+                                        <i class="fas fa-calendar icon-input"></i>
+                                        Fecha <span class="required-star">*</span>
+                                    </label>
+                                    <input type="date"
+                                           class="form-control form-control-modern"
+                                           id="fechaModal"
+                                           name="fecha"
+                                           min="{{ date('Y-m-d') }}"
+                                           required>
+                                    <div class="invalid-feedback"></div>
+                                    <small class="form-text text-muted mt-2">
+                                        Solo se pueden agregar fechas futuras o la fecha actual
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    <label for="motivoModal" class="form-label-modern">
+                                        <i class="fas fa-tag icon-input"></i>
+                                        Motivo <span class="required-star">*</span>
+                                    </label>
+                                    <select class="form-control form-control-modern form-select-modern"
+                                            id="motivoModal"
+                                            name="motivo"
+                                            required>
+                                        <option value="">Seleccione un motivo</option>
+                                        @foreach($motivosDisponibles as $key => $motivo)
+                                            <option value="{{ $key }}">{{ $motivo }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información importante -->
+                        <div class="alert-modern" style="margin-top: 1.5rem;">
+                            <h6 class="alert-title">
+                                <i class="fas fa-info-circle"></i>
+                                Información importante
+                            </h6>
+                            <ul class="mb-0" style="color: var(--text-secondary); line-height: 1.6;">
+                                <li>Los días no laborables afectarán automáticamente la disponibilidad de citas</li>
+                                <li>Los clientes no podrán agendar nuevas citas en estas fechas</li>
+                                <li>Se notificará a los administradores sobre este cambio</li>
+                                <li>Las citas existentes para esta fecha serán marcadas para revisión</li>
+                            </ul>
+                        </div>
+
+                        <!-- Vista previa del día seleccionado -->
+                        <div id="previewModal" style="display: none; margin-top: 1.5rem;">
+                            <div class="alert-modern" style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(39, 174, 96, 0.1));">
+                                <h6 class="alert-title" style="color: var(--warning-orange);">
+                                    <i class="fas fa-eye"></i>
+                                    Vista previa
+                                </h6>
+                                <div id="previewContentModal" style="color: var(--text-secondary);"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary btn-modern" id="btnGuardarDia" style="background: linear-gradient(135deg, var(--primary-blue), var(--success-green)); border: none;">
+                        <i class="fas fa-save me-1"></i>
+                        Guardar Día No Laborable
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Forzar recarga sin cache
+        if (window.location.hash === '#reload') {
+            window.location.hash = '';
+            location.reload(true);
+        }
+    </script>
     <script>
         function confirmarEliminacion(id) {
             const form = document.getElementById('formEliminar');
@@ -719,6 +824,222 @@
                 card.addEventListener('mouseleave', function() {
                     this.style.transform = 'translateY(0) scale(1)';
                 });
+            });
+        });
+
+        // === FUNCIONALIDAD DEL MODAL ===
+        
+        let modalInstance;
+        
+        // Hacer la función disponible globalmente
+        window.abrirModalAgregarDia = function() {
+            console.log('Función abrirModalAgregarDia llamada'); // Debug
+            
+            try {
+                // Limpiar el formulario
+                const form = document.getElementById('formAgregarDia');
+                if (form) {
+                    form.reset();
+                }
+                
+                const preview = document.getElementById('previewModal');
+                if (preview) {
+                    preview.style.display = 'none';
+                }
+                
+                const alerta = document.getElementById('alertaModal');
+                if (alerta) {
+                    alerta.style.display = 'none';
+                }
+                
+                // Quitar clases de error
+                const inputs = document.querySelectorAll('#modalAgregarDia .form-control');
+                inputs.forEach(input => {
+                    input.classList.remove('is-invalid');
+                    const feedback = input.parentElement.querySelector('.invalid-feedback');
+                    if (feedback) feedback.textContent = '';
+                });
+                
+                // Abrir modal
+                const modalElement = document.getElementById('modalAgregarDia');
+                if (modalElement) {
+                    modalInstance = new bootstrap.Modal(modalElement);
+                    modalInstance.show();
+                    console.log('Modal abierto correctamente'); // Debug
+                } else {
+                    console.error('No se encontró el elemento del modal');
+                }
+            } catch (error) {
+                console.error('Error al abrir el modal:', error);
+            }
+        };
+
+        // Función para mostrar alertas en el modal
+        function mostrarAlertaModal(mensaje, tipo = 'danger') {
+            const alerta = document.getElementById('alertaModal');
+            alerta.className = `alert alert-${tipo}`;
+            alerta.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                ${mensaje}
+            `;
+            alerta.style.display = 'block';
+            
+            // Scroll al inicio del modal
+            document.querySelector('#modalAgregarDia .modal-body').scrollTop = 0;
+        }
+
+        // Función para actualizar la vista previa en el modal
+        function actualizarVistaPreviaModal() {
+            const fechaInput = document.getElementById('fechaModal');
+            const motivoSelect = document.getElementById('motivoModal');
+            const preview = document.getElementById('previewModal');
+            const previewContent = document.getElementById('previewContentModal');
+
+            const fecha = fechaInput.value;
+            const motivo = motivoSelect.options[motivoSelect.selectedIndex]?.text;
+
+            if (fecha && motivo && motivo !== 'Seleccione un motivo') {
+                const fechaObj = new Date(fecha + 'T12:00:00');
+                const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                previewContent.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-calendar-times fa-2x" style="color: var(--warning-orange);"></i>
+                        </div>
+                        <div>
+                            <strong style="color: var(--text-primary);">${fechaFormateada}</strong><br>
+                            <span style="color: var(--text-secondary);">Motivo: ${motivo}</span>
+                        </div>
+                    </div>
+                `;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // Event listeners para el modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaModal = document.getElementById('fechaModal');
+            const motivoModal = document.getElementById('motivoModal');
+            const btnGuardar = document.getElementById('btnGuardarDia');
+            
+            // Verificar si se debe abrir el modal automáticamente
+            if (window.location.hash === '#open-modal') {
+                console.log('Detectado hash #open-modal, abriendo modal automáticamente'); // Debug
+                // Limpiar el hash de la URL
+                history.replaceState(null, null, window.location.pathname);
+                // Abrir el modal después de un breve delay para asegurar que todo esté cargado
+                setTimeout(() => {
+                    window.abrirModalAgregarDia();
+                }, 200);
+            }
+            
+            // Event listeners para los botones de agregar día
+            const btnHeader = document.getElementById('btnAgregarDiaHeader');
+            const btnEmpty = document.getElementById('btnAgregarDiaEmpty');
+            
+            if (btnHeader) {
+                btnHeader.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Botón header clickeado'); // Debug
+                    window.abrirModalAgregarDia();
+                });
+            }
+            
+            if (btnEmpty) {
+                btnEmpty.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Botón empty clickeado'); // Debug
+                    window.abrirModalAgregarDia();
+                });
+            }
+
+            // Vista previa en tiempo real
+            fechaModal.addEventListener('change', actualizarVistaPreviaModal);
+            motivoModal.addEventListener('change', actualizarVistaPreviaModal);
+
+            // Manejar envío del formulario
+            btnGuardar.addEventListener('click', async function() {
+                const originalText = this.innerHTML;
+                const originalDisabled = this.disabled;
+
+                try {
+                    // Cambiar estado del botón
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Guardando...';
+
+                    // Obtener datos del formulario
+                    const formData = new FormData(document.getElementById('formAgregarDia'));
+
+                    // Enviar petición
+                    const response = await fetch('{{ route("admin.dias-no-laborables.store") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Éxito - cerrar modal y recargar página
+                        modalInstance.hide();
+                        
+                        // Mostrar mensaje de éxito y recargar
+                        setTimeout(() => {
+                            location.reload();
+                        }, 300);
+                        
+                    } else {
+                        // Error de validación
+                        if (data.errors) {
+                            // Limpiar errores anteriores
+                            const inputs = document.querySelectorAll('#modalAgregarDia .form-control');
+                            inputs.forEach(input => {
+                                input.classList.remove('is-invalid');
+                                const feedback = input.parentElement.querySelector('.invalid-feedback');
+                                if (feedback) feedback.textContent = '';
+                            });
+
+                            // Mostrar errores específicos
+                            Object.keys(data.errors).forEach(field => {
+                                const input = document.querySelector(`#modalAgregarDia [name="${field}"]`);
+                                if (input) {
+                                    input.classList.add('is-invalid');
+                                    const feedback = input.parentElement.querySelector('.invalid-feedback');
+                                    if (feedback) {
+                                        feedback.textContent = data.errors[field][0];
+                                    }
+                                }
+                            });
+
+                            mostrarAlertaModal('Por favor, corrige los errores en el formulario.');
+                        } else {
+                            mostrarAlertaModal(data.message || 'Error al guardar el día no laborable.');
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarAlertaModal('Error de conexión. Por favor, inténtalo de nuevo.');
+                    
+                } finally {
+                    // Restaurar estado del botón
+                    this.disabled = originalDisabled;
+                    this.innerHTML = originalText;
+                }
             });
         });
     </script>

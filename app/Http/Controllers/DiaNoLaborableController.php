@@ -16,6 +16,23 @@ class DiaNoLaborableController extends Controller
         // Si es una petición AJAX, devolver JSON
         if ($request->ajax()) {
             $dias = DiaNoLaborable::ordenadoPorFecha()->get();
+            
+            // Formatear las fechas para JavaScript
+            $dias = $dias->map(function($dia) {
+                return [
+                    'id' => $dia->id,
+                    'fecha' => $dia->fecha->format('Y-m-d'), // Formato consistente para JavaScript
+                    'fecha_formateada' => $dia->fecha->format('d/m/Y'), // Fecha ya formateada
+                    'motivo' => $dia->motivo,
+                    'es_hoy' => $dia->es_hoy,
+                    'es_futuro' => $dia->es_futuro,
+                    'es_pasado' => $dia->es_pasado,
+                    'dias_restantes' => $dia->dias_restantes,
+                    'created_at' => $dia->created_at,
+                    'updated_at' => $dia->updated_at
+                ];
+            });
+            
             return response()->json($dias);
         }
 
@@ -82,7 +99,12 @@ class DiaNoLaborableController extends Controller
         $dia = DiaNoLaborable::findOrFail($id);
 
         if ($request->ajax()) {
-            return response()->json($dia);
+            // Formatear la fecha para JavaScript
+            $diaFormatted = $dia->toArray();
+            $diaFormatted['fecha'] = $dia->fecha->format('Y-m-d'); // Formato para input date
+            $diaFormatted['fecha_formateada'] = $dia->fecha->format('d/m/Y'); // Formato para mostrar
+            
+            return response()->json($diaFormatted);
         }
 
         return view('admin.dias-no-laborables.show', compact('dia'));
@@ -164,7 +186,10 @@ class DiaNoLaborableController extends Controller
         ]);
 
         if ($request->ajax()) {
-            return response()->json(['mensaje' => 'Día no laborable eliminado correctamente.']);
+            return response()->json([
+                'success' => true, 
+                'message' => 'Día no laborable eliminado correctamente.'
+            ]);
         }
 
         return redirect()->route('admin.dias-no-laborables.index')
