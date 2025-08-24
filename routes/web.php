@@ -185,6 +185,10 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         // Datos para el dashboard
         Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('dashboard.data');
 
+        // Datos para formularios 
+        Route::get('/cliente/horarios-disponibles/{fecha}', [ClienteController::class, 'getHorariosDisponibles'])
+            ->name('cliente.horarios-disponibles.fecha');
+
         // Datos para formularios
         Route::get('/horarios-disponibles', function () {
             return response()->json(
@@ -329,7 +333,7 @@ Route::get('/debug/citas-usuario/{usuarioId}', [ClienteController::class, 'debug
     ->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
     ->name('debug.citas-usuario-json');
 
-    Route::get('/check-timezone', function() {
+Route::get('/check-timezone', function () {
     // Verificar configuración de la base de datos
     $dbTime = DB::select(DB::raw("SELECT @@global.time_zone, @@session.time_zone, NOW() as current_time"));
 

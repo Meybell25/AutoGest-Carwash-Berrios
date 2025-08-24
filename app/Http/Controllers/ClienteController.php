@@ -92,7 +92,7 @@ class ClienteController extends Controller
                 ],
                 'mis_vehiculos' => collect(),
                 'mis_citas' => collect(),
-                'proximas_citas' => collect(), 
+                'proximas_citas' => collect(),
                 'historial_citas' => collect(),
                 'proximos_dias_no_laborables' => collect(),
                 'notificaciones' => collect(),
@@ -644,7 +644,7 @@ class ClienteController extends Controller
                         'citas_confirmadas' => $todasLasCitas->where('estado', 'confirmada')->count(),
                     ],
                     'vehiculos_dashboard' => $vehiculosDashboard,
-                    'proximas_citas' => $proximas_citas->values(), 
+                    'proximas_citas' => $proximas_citas->values(),
                     'historial_citas' => $historial_citas->values(),
                     'proximos_dias_no_laborables' => $proximosDiasNoLaborables,
                     'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->limit(10)->get(),
@@ -1091,7 +1091,57 @@ class ClienteController extends Controller
             ]);
         }
     }
+    /**
+     * Obtener horarios disponibles para una fecha específica
+     */
+    public function getHorariosDisponibles($fecha)
+    {
+        try {
+            $fechaCarbon = Carbon::parse($fecha);
 
+            // Verificar si es domingo
+            if ($fechaCarbon->isSunday()) {
+                return [];
+            }
+
+            // Verificar día no laborable
+            if (DiaNoLaborable::whereDate('fecha', $fechaCarbon)->exists()) {
+                return [];
+            }
+
+            // Obtener día de la semana en formato ISO (1=Lunes, 7=Domingo)
+            $diaSemana = $fechaCarbon->dayOfWeekIso;
+
+            // Obtener horarios programados para este día
+            $horarios = Horario::where('dia_semana', $diaSemana)
+                ->where('activo', true)
+                ->get();
+
+            if ($horarios->isEmpty()) {
+                return [];
+            }
+
+            // Generar horarios disponibles cada 30 minutos
+            $horariosDisponibles = [];
+
+            foreach ($horarios as $horario) {
+                $horaInicio = Carbon::parse($horario->hora_inicio);
+                $horaFin = Carbon::parse($horario->hora_fin);
+
+                $horaActual = $horaInicio->copy();
+
+                while ($horaActual < $horaFin) {
+                    $horariosDisponibles[] = $horaActual->format('H:i');
+                    $horaActual->addMinutes(30);
+                }
+            }
+
+            return $horariosDisponibles;
+        } catch (\Exception $e) {
+            Log::error('Error en getHorariosDisponibles: ' . $e->getMessage());
+            return [];
+        }
+    }
     // En ClienteController.php
     public function verificarDiaNoLaborable(Request $request)
     {

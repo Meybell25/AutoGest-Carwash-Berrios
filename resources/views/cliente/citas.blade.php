@@ -1188,8 +1188,8 @@
                             }
 
                             $isFuture = $cita->fecha_hora > now();
-                            $daysDiff = $isFuture ? now()->diffInDays($cita->fecha_hora, false) : null;
-                            $hoursRemaining = $isFuture ? now()->diffInHours($cita->fecha_hora, false) : null;
+                            $daysDiff = $isFuture ? floor(now()->diffInDays($cita->fecha_hora, false)) : null;
+                            $hoursRemaining = $isFuture ? floor(now()->diffInHours($cita->fecha_hora, false)) : null;
 
                             $cardClass = $cita->estado;
                             // LÓGICA DE URGENCIA SOLO PARA CITAS CONFIRMADAS

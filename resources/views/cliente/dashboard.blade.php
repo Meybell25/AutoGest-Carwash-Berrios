@@ -3096,8 +3096,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CREAR CITAS
-                                                                                                                                                                                                                                                                    =========================================================*/
+            FUNCIONAMIENTO DE CREAR CITAS
+            =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3359,33 +3359,67 @@
             horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
 
             try {
-                // Usar la fecha local correctamente
-                const fechaLocal = createLocalDate(selectedDate);
-                const dayOfWeekJS = fechaLocal.getDay(); // 0=Domingo, 1=Lunes, etc.
-                const dayOfWeekBackend = getBackendDayFromJSDay(dayOfWeekJS);
 
-                console.log('Fecha seleccionada:', selectedDate);
-                console.log('Día JS:', dayOfWeekJS, 'Día Backend:', dayOfWeekBackend);
+                const url =
+                    `/cliente/horarios-disponibles/${selectedDate}${excludeCitaId ? '?exclude=' + excludeCitaId : ''}`;
+                console.log('Consultando horarios disponibles:', url);
 
-                // Validar si es domingo
-                if (dayOfWeekJS === 0) {
-                    horaSelect.innerHTML = '<option value="">No hay horarios (No atendemos domingos)</option>';
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}`);
+                }
+
+                const horariosDisponibles = await response.json();
+                console.log('Horarios disponibles recibidos:', horariosDisponibles);
+
+                horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+
+                if (horariosDisponibles.length === 0) {
+                    horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
                     return;
                 }
 
-                // Verificar día no laborable
-                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === selectedDate);
-                if (diaNoLaborable) {
-                    horaSelect.innerHTML = `<option value="">${diaNoLaborable.motivo || 'Día no laborable'}</option>`;
-                    return;
-                }
+                // Llenar el select con los horarios disponibles
+                horariosDisponibles.forEach(hora => {
+                    const option = document.createElement('option');
+                    option.value = hora;
+                    option.textContent = hora;
+                    horaSelect.appendChild(option);
+                });
 
+                console.log(`Horarios cargados exitosamente: ${horariosDisponibles.length} opciones`);
+
+            } catch (error) {
+                console.error('Error en loadAvailableHours:', error);
+                horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+
+                // Fallback: intentar cargar horarios de forma local si hay error
+                try {
+                    await loadAvailableHoursFallback(selectedDate, excludeCitaId);
+                } catch (fallbackError) {
+                    console.error('Error en fallback también:', fallbackError);
+                }
+            }
+        }
+
+        // Función de fallback para cargar horarios 
+        async function loadAvailableHoursFallback(selectedDate, excludeCitaId = null) {
+            const horaSelect = document.getElementById('hora');
+            horaSelect.innerHTML = '<option value="">Cargando horarios (modo fallback)...</option>';
+
+            try {
                 // Obtener horarios ocupados
                 let citasExistentes = [];
                 try {
                     const url =
                         `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
-                    console.log('Consultando horarios ocupados:', url);
+                    console.log('Consultando horarios ocupados (fallback):', url);
 
                     const response = await fetch(url, {
                         headers: {
@@ -3398,88 +3432,105 @@
 
                     const data = await response.json();
                     citasExistentes = data.horariosOcupados || [];
-
-                    console.log('Horarios ocupados recibidos:', citasExistentes);
+                    console.log('Horarios ocupados recibidos (fallback):', citasExistentes);
                 } catch (error) {
-                    console.error('Error al obtener horarios ocupados:', error);
-                    // Continuar sin horarios ocupados
+                    console.error('Error al obtener horarios ocupados (fallback):', error);
                 }
 
-                // Generar opciones de horario
-                horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+                // Obtener horarios programados para este día
+                const fechaLocal = createLocalDate(selectedDate);
+                const dayOfWeekJS = fechaLocal.getDay();
+                const dayOfWeekBackend = getBackendDayFromJSDay(dayOfWeekJS);
 
-                const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeekBackend);
+                console.log('Consultando horarios programados para día (fallback):', dayOfWeekBackend);
 
-                console.log('Horarios disponibles para día', dayOfWeekBackend, ':', horariosDia);
+                // Cargar horarios programados desde el endpoint general
+                try {
+                    const horariosRes = await fetch('{{ route('cliente.horarios-disponibles') }}');
+                    if (horariosRes.ok) {
+                        const todosHorarios = await horariosRes.json();
+                        const horariosDia = todosHorarios.filter(h => h.dia_semana == dayOfWeekBackend);
 
-                if (horariosDia.length === 0) {
-                    horaSelect.innerHTML = '<option value="">No hay horarios programados</option>';
-                    return;
-                }
+                        console.log('Horarios para día', dayOfWeekBackend, ':', horariosDia);
 
-                let horariosGenerados = 0;
+                        if (horariosDia.length === 0) {
+                            horaSelect.innerHTML = '<option value="">No hay horarios programados</option>';
+                            return;
+                        }
 
-                horariosDia.forEach(horario => {
-                    const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
-                    const [finH, finM] = horario.hora_fin.split(':').map(Number);
+                        let horariosGenerados = 0;
 
-                    let horaActual = new Date();
-                    horaActual.setHours(inicioH, inicioM, 0, 0);
+                        horariosDia.forEach(horario => {
+                            const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
+                            const [finH, finM] = horario.hora_fin.split(':').map(Number);
 
-                    const horaFin = new Date();
-                    horaFin.setHours(finH, finM, 0, 0);
+                            let horaActual = new Date();
+                            horaActual.setHours(inicioH, inicioM, 0, 0);
 
-                    while (horaActual < horaFin) {
-                        const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
-                            horaActual.getMinutes().toString().padStart(2, '0');
+                            const horaFin = new Date();
+                            horaFin.setHours(finH, finM, 0, 0);
 
-                        // Verificar colisión con citas existentes
-                        const estaOcupado = citasExistentes.some(cita => {
-                            try {
-                                const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
-                                const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
-                                    60000);
+                            while (horaActual < horaFin) {
+                                const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
+                                    horaActual.getMinutes().toString().padStart(2, '0');
 
-                                const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
-                                const finPropuesta = new Date(inicioPropuesta.getTime() +
-                                    calcularDuracionServiciosSeleccionados() * 60000);
+                                // Verificar colisión con citas existentes
+                                const estaOcupado = citasExistentes.some(cita => {
+                                    try {
+                                        const inicioCita = new Date(
+                                            `${selectedDate}T${cita.hora_inicio}`);
+                                        const finCita = new Date(inicioCita.getTime() + (cita
+                                                .duracion || 30) *
+                                            60000);
 
-                                return (
-                                    (inicioPropuesta >= inicioCita && inicioPropuesta < finCita) ||
-                                    (finPropuesta > inicioCita && finPropuesta <= finCita) ||
-                                    (inicioPropuesta <= inicioCita && finPropuesta >= finCita)
-                                );
-                            } catch (e) {
-                                console.error('Error al verificar colisión:', e);
-                                return false;
+                                        const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
+                                        const finPropuesta = new Date(inicioPropuesta.getTime() +
+                                            calcularDuracionServiciosSeleccionados() * 60000);
+
+                                        return (
+                                            (inicioPropuesta >= inicioCita && inicioPropuesta <
+                                                finCita) ||
+                                            (finPropuesta > inicioCita && finPropuesta <=
+                                            finCita) ||
+                                            (inicioPropuesta <= inicioCita && finPropuesta >=
+                                                finCita)
+                                        );
+                                    } catch (e) {
+                                        console.error('Error al verificar colisión (fallback):', e);
+                                        return false;
+                                    }
+                                });
+
+                                const option = document.createElement('option');
+                                option.value = horaStr;
+                                option.textContent = horaStr;
+
+                                if (estaOcupado) {
+                                    option.disabled = true;
+                                    option.textContent += ' (Ocupado)';
+                                    option.style.color = '#ff6b6b';
+                                } else {
+                                    horariosGenerados++;
+                                }
+
+                                horaSelect.appendChild(option);
+                                horaActual.setMinutes(horaActual.getMinutes() + 30);
                             }
                         });
 
-                        const option = document.createElement('option');
-                        option.value = horaStr;
-                        option.textContent = horaStr;
-
-                        if (estaOcupado) {
-                            option.disabled = true;
-                            option.textContent += ' (Ocupado)';
-                            option.style.color = '#ff6b6b';
-                        } else {
-                            horariosGenerados++;
+                        if (horariosGenerados === 0 && horaSelect.options.length > 1) {
+                            horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
                         }
 
-                        horaSelect.appendChild(option);
-                        horaActual.setMinutes(horaActual.getMinutes() + 30);
+                        console.log(`Horarios cargados (fallback) - Generados: ${horariosGenerados}`);
                     }
-                });
-
-                if (horariosGenerados === 0 && horaSelect.options.length > 1) {
-                    horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                } catch (error) {
+                    console.error('Error cargando horarios programados (fallback):', error);
+                    horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
                 }
 
-                console.log(`Horarios cargados - Generados: ${horariosGenerados}`);
-
             } catch (error) {
-                console.error('Error en loadAvailableHours:', error);
+                console.error('Error crítico en loadAvailableHoursFallback:', error);
                 horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
             }
         }
@@ -3564,7 +3615,7 @@
 
                     // ÚNICO LUGAR donde se cargan horarios - al cambiar fecha
                     const citaId = document.getElementById('form_cita_id')?.value;
-                    loadAvailableHours(this.value, citaId);
+                    await loadAvailableHours(this.value, citaId);
 
                 } catch (error) {
                     console.error('Error al procesar fecha:', error);
@@ -3899,7 +3950,7 @@
         }
 
         // Función para editar citas
-        async function editCita(citaId) {
+      async function editCita(citaId) {
             console.log('Elementos DOM disponibles:', {
                 modal: !!document.getElementById('createCitaModal'),
                 form: !!document.getElementById('citaForm'),
@@ -4145,7 +4196,7 @@
                         if (!data.success) throw new Error(data.message || 'Error en los datos recibidos');
 
                         // SOLO CITAS CONFIRMADAS para próximas
-                           citas = tipo === 'próximas' ? data.data.proximas_citas : data.data.historial_citas;
+                        citas = tipo === 'próximas' ? data.data.proximas_citas : data.data.historial_citas;
 
                         // Ordenar citas próximas por fecha (más cercana primero)
                         if (tipo === 'próximas' && citas.length > 0) {
@@ -4188,10 +4239,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Cita
-                                </button>` : ''}
+                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Agendar Cita
+                                    </button>` : ''}
                 </div>
             `;
                     return;
@@ -5040,10 +5091,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -5155,8 +5206,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -5185,8 +5236,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
