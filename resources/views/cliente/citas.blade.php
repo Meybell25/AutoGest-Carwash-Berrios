@@ -368,7 +368,8 @@
 
         .cita-card.confirmada,
         .cita-card.confirmado {
-            border-left: 5px solid #66bb6a !important; /* Verde por defecto */
+            border-left: 5px solid #66bb6a !important;
+            /* Verde por defecto */
         }
 
         .cita-card.en_proceso,
@@ -377,19 +378,22 @@
         }
 
         /* Estilos para citas urgentes - 3 niveles */
-        .cita-card.confirmada.urgent-soon,  /* Menos de 24h - Rojo */
+        .cita-card.confirmada.urgent-soon,
+        /* Menos de 24h - Rojo */
         .cita-card.confirmado.urgent-soon {
             border-left: 5px solid #dc3545 !important;
             background-color: rgba(255, 245, 245, 0.8) !important;
         }
 
-        .cita-card.confirmada.urgent-close,  /* 1-2 días - Naranja */
+        .cita-card.confirmada.urgent-close,
+        /* 1-2 días - Naranja */
         .cita-card.confirmado.urgent-close {
             border-left: 5px solid #fd7e14 !important;
             background-color: rgba(255, 248, 240, 0.8) !important;
         }
 
-        .cita-card.confirmada.coming-soon,   /* 3-5 días - Amarillo */
+        .cita-card.confirmada.coming-soon,
+        /* 3-5 días - Amarillo */
         .cita-card.confirmado.coming-soon {
             border-left: 5px solid #ffc107 !important;
             background-color: rgba(255, 251, 240, 0.8) !important;
@@ -463,7 +467,8 @@
 
         /* AUMENTAR EL Z-INDEX DE SWEETALERT2 PARA QUE APAREZCA SOBRE EL MODAL */
         .swal2-container {
-            z-index: 100000 !important; /* Aumentado a 100000 */
+            z-index: 100000 !important;
+            /* Aumentado a 100000 */
         }
 
         /* Estilos para campos deshabilitados */
@@ -1089,7 +1094,9 @@
             <!-- Contadores específicos para próximas citas -->
             <div class="counters-container">
                 <div class="counter-item counter-total">
-                    <span class="counter-value" id="total-counter">{{ $citas->total() }}</span>
+                    <span class="counter-value" id="total-counter">
+                        {{ $citas->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso'])->count() }}
+                    </span>
                     <span class="counter-label">Total Citas</span>
                 </div>
                 <div class="counter-item counter-pendiente">
@@ -1171,13 +1178,15 @@
         <div id="citas-container">
             @if ($citas->count() > 0)
                 <div class="citas-grid">
-                    @foreach ($citas as $cita)
+                    @foreach ($citas->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso']) as $cita)
                         @php
-                            // Filtrar citas canceladas (no mostrarlas por defecto)
-                            if ($cita->estado == 'cancelada' && !request('estado')) {
+                            if (
+                                !in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']) &&
+                                !request('estado')
+                            ) {
                                 continue;
                             }
-                            
+
                             $isFuture = $cita->fecha_hora > now();
                             $daysDiff = $isFuture ? now()->diffInDays($cita->fecha_hora, false) : null;
                             $hoursRemaining = $isFuture ? now()->diffInHours($cita->fecha_hora, false) : null;
@@ -1517,7 +1526,7 @@
 
                         // Ocultar alerta de restricción
                         document.getElementById('restriccion24hAlert').style.display = 'none';
-                        
+
                         // Habilitar todos los campos
                         document.getElementById('modal_vehiculo_id').disabled = false;
                         document.getElementById('fecha').disabled = false;
@@ -1844,7 +1853,8 @@
                         showDateError('Domingo no laborable',
                             'No trabajamos los domingos. Por favor selecciona otro día.');
                         this.value = '';
-                        document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
+                        document.getElementById('hora').innerHTML =
+                            '<option value="">Seleccione una hora</option>';
                         return;
                     }
 

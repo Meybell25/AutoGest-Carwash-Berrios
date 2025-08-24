@@ -49,7 +49,7 @@ class ClienteController extends Controller
             // PRÓXIMAS CITAS - Pendientes, confirmadas y en proceso (futuras)
             $proximas_citas = $citas->filter(function ($cita) {
                 return $cita->fecha_hora >= now() &&
-                    in_array($cita->estado, ['pendiente', 'confirmada', 'en_proceso']);
+                    $cita->estado === 'confirmada';
             })->sortBy('fecha_hora');
 
             // HISTORIAL - SOLO CANCELADAS O FINALIZADAS
@@ -69,7 +69,7 @@ class ClienteController extends Controller
                 ],
                 'mis_vehiculos' => $vehiculos,
                 'vehiculos_dashboard' => $vehiculosDashboard,
-                'proximas_citas' => $proximas_citas->take(5),
+                'proximas_citas' => $proximas_citas,
                 'historial_citas' => $historial_citas->take(5),
                 'proximos_dias_no_laborables' => $proximosDiasNoLaborables,
                 'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->get(),
@@ -92,6 +92,8 @@ class ClienteController extends Controller
                 ],
                 'mis_vehiculos' => collect(),
                 'mis_citas' => collect(),
+                'proximas_citas' => collect(), 
+                'historial_citas' => collect(),
                 'proximos_dias_no_laborables' => collect(),
                 'notificaciones' => collect(),
                 'notificacionesNoLeidas' => 0,
@@ -114,10 +116,13 @@ class ClienteController extends Controller
         $this->procesarCitasExpiradas();
 
         $query = Cita::where('usuario_id', Auth::id())
-            ->with(['vehiculo', 'servicios']);
+            ->with(['vehiculo', 'servicios'])
+            ->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso']);
 
         // Aplicar filtros
-        if ($request->filled('estado')) {
+        if (!$request->filled('estado')) {
+            $query->whereIn('estado', ['pendiente', 'confirmada', 'en_proceso']);
+        } else {
             $query->where('estado', $request->estado);
         }
 
@@ -639,7 +644,7 @@ class ClienteController extends Controller
                         'citas_confirmadas' => $todasLasCitas->where('estado', 'confirmada')->count(),
                     ],
                     'vehiculos_dashboard' => $vehiculosDashboard,
-                    'proximas_citas' => $proximas_citas->values(),
+                    'proximas_citas' => $proximas_citas->values(), 
                     'historial_citas' => $historial_citas->values(),
                     'proximos_dias_no_laborables' => $proximosDiasNoLaborables,
                     'notificaciones' => $user->notificaciones()->orderBy('fecha_envio', 'desc')->limit(10)->get(),
