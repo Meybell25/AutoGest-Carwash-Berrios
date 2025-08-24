@@ -166,6 +166,8 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         // Datos AJAX
         Route::get('/mis-vehiculos', [ClienteController::class, 'misVehiculosAjax'])->name('mis-vehiculos-ajax');
         Route::get('/check-status', [ClienteController::class, 'checkStatus'])->name('check-status');
+        Route::get('/verificar-dia-no-laborable', [ClienteController::class, 'verificarDiaNoLaborable'])
+            ->name('verificar-dia-no-laborable');
 
         // Gestión de citas - ORDEN IMPORTANTE
         // Rutas específicas PRIMERO (antes de las rutas con parámetros)

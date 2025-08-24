@@ -932,6 +932,35 @@
             pointer-events: auto;
         }
 
+        /* Estilo para input de fecha cuando es no laborable */
+        input[type="date"].dia-no-laborable {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        /* Tooltip para días no laborables */
+        .dia-no-laborable-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -1144,6 +1173,11 @@
                 <div class="citas-grid">
                     @foreach ($citas as $cita)
                         @php
+                            // Filtrar citas canceladas (no mostrarlas por defecto)
+                            if ($cita->estado == 'cancelada' && !request('estado')) {
+                                continue;
+                            }
+                            
                             $isFuture = $cita->fecha_hora > now();
                             $daysDiff = $isFuture ? now()->diffInDays($cita->fecha_hora, false) : null;
                             $hoursRemaining = $isFuture ? now()->diffInHours($cita->fecha_hora, false) : null;
@@ -1790,7 +1824,7 @@
                 today: getLocalDateString(hoy)
             });
 
-            fechaInput.addEventListener('change', function() {
+            fechaInput.addEventListener('change', async function() {
                 console.log('📅 Fecha cambiada:', this.value);
 
                 if (!this.value) {

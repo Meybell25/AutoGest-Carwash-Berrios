@@ -1087,6 +1087,34 @@ class ClienteController extends Controller
         }
     }
 
+    // En ClienteController.php
+    public function verificarDiaNoLaborable(Request $request)
+    {
+        $request->validate([
+            'fecha' => 'required|date'
+        ]);
+
+        $fecha = Carbon::parse($request->fecha);
+
+        $diaNoLaborable = DiaNoLaborable::whereDate('fecha', $fecha)->first();
+
+        if ($diaNoLaborable) {
+            $motivosDisponibles = DiaNoLaborable::getMotivosDisponibles();
+            $motivoTexto = $motivosDisponibles[$diaNoLaborable->motivo] ?? $diaNoLaborable->motivo;
+
+            return response()->json([
+                'es_no_laborable' => true,
+                'motivo' => $motivoTexto,
+                'fecha' => $fecha->format('Y-m-d')
+            ]);
+        }
+
+        return response()->json([
+            'es_no_laborable' => false,
+            'fecha' => $fecha->format('Y-m-d')
+        ]);
+    }
+
 
     public function debugFechas(Request $request)
     {

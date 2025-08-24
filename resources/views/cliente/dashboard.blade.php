@@ -970,6 +970,50 @@
             white-space: nowrap;
         }
 
+        /* Estilo para input de fecha cuando es no laborable */
+        input[type="date"].dia-no-laborable {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        /* Tooltip para días no laborables */
+        .dia-no-laborable-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dia-no-laborable-tooltip::after {
+            content: "⚠️ Día no laborable";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
         /* Estilos para indicadores de urgencia en las citas próximas */
         .date-badge .days-remaining {
             display: block;
@@ -1004,68 +1048,108 @@
             /* Fondo azul/gradiente */
         }
 
-        /* Citas confirmadas (estilo base) */
+        /* Citas confirmadas base (verde) */
         .next-appointment.confirmada,
         .next-appointment.confirmado {
             border-left: 5px solid #66bb6a !important;
-            /* Borde verde */
-            background-color: transparent;
-            /* Fondo normal */
+            /* Verde base */
+            background-color: rgba(102, 187, 106, 0.05);
         }
 
         .next-appointment.confirmada .date-badge,
         .next-appointment.confirmado .date-badge {
             background: linear-gradient(135deg, #81c784, #66bb6a) !important;
-            /* Fondo verde */
+            /* Verde base */
         }
 
-        /* ===== CLASES DE URGENCIA (SOLO PARA CONFIRMADAS) ===== */
-        /* Urgente (0-1 días): Rojo */
+        /* URGENCIA LEVEL 1: Hoy/Mañana (Rojo) */
         .next-appointment.confirmada.urgent-soon,
         .next-appointment.confirmado.urgent-soon {
-            border-left: 4px solid #dc3545 !important;
-            /* Borde rojo */
-            background-color: #fff5f5;
-            /* Fondo rojo claro */
+            border-left: 5px solid #dc3545 !important;
+            /* Rojo */
+            background-color: rgba(220, 53, 69, 0.08) !important;
+            box-shadow: 0 4px 20px rgba(220, 53, 69, 0.15) !important;
         }
 
         .next-appointment.confirmada.urgent-soon .date-badge,
         .next-appointment.confirmado.urgent-soon .date-badge {
             background: linear-gradient(135deg, #dc3545, #c82333) !important;
-            /* Fondo rojo */
-            animation: pulse 2s infinite;
-            /* Efecto de pulso */
+            /* Rojo */
+            animation: urgentPulse 2s infinite;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4) !important;
         }
 
-        /* Muy próxima (2-3 días): Naranja */
+        /* URGENCIA LEVEL 2: 2-3 días (Naranja) */
         .next-appointment.confirmada.urgent-close,
         .next-appointment.confirmado.urgent-close {
-            border-left: 4px solid #fd7e14 !important;
-            /* Borde naranja */
-            background-color: #fff8f0;
-            /* Fondo naranja claro */
+            border-left: 5px solid #fd7e14 !important;
+            /* Naranja */
+            background-color: rgba(253, 126, 20, 0.06) !important;
+            box-shadow: 0 4px 15px rgba(253, 126, 20, 0.12) !important;
         }
 
         .next-appointment.confirmada.urgent-close .date-badge,
         .next-appointment.confirmado.urgent-close .date-badge {
-            background: linear-gradient(135deg, #fd7e14, #e5650b) !important;
-            /* Fondo naranja */
+            background: linear-gradient(135deg, #fd7e14, #e55100) !important;
+            /* Naranja */
+            box-shadow: 0 3px 12px rgba(253, 126, 20, 0.3) !important;
         }
 
-        /* Próxima (4-7 días): Amarillo */
+        /* URGENCIA LEVEL 3: 4-7 días (Amarillo) */
         .next-appointment.confirmada.coming-soon,
         .next-appointment.confirmado.coming-soon {
-            border-left: 4px solid #ffc107 !important;
-            /* Borde amarillo */
-            background-color: #fffbf0;
-            /* Fondo amarillo claro */
+            border-left: 5px solid #ffc107 !important;
+            /* Amarillo */
+            background-color: rgba(255, 193, 7, 0.05) !important;
+            box-shadow: 0 3px 12px rgba(255, 193, 7, 0.1) !important;
         }
 
         .next-appointment.confirmada.coming-soon .date-badge,
         .next-appointment.confirmado.coming-soon .date-badge {
-            background: linear-gradient(135deg, #ffc107, #e0a800) !important;
-            /* Fondo amarillo */
+            background: linear-gradient(135deg, #ffc107, #ff8f00) !important;
+            /* Amarillo */
+            color: #333 !important;
+            /* Texto más oscuro para mejor legibilidad */
+            box-shadow: 0 3px 10px rgba(255, 193, 7, 0.25) !important;
         }
+
+        /* Animación para citas muy urgentes */
+        @keyframes urgentPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+            }
+
+            50% {
+                transform: scale(1.03);
+                box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+            }
+        }
+
+        /* Hover effects mejorados para cada nivel de urgencia */
+        .next-appointment.confirmada.urgent-soon:hover,
+        .next-appointment.confirmado.urgent-soon:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .next-appointment.confirmada.urgent-close:hover,
+        .next-appointment.confirmado.urgent-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(253, 126, 20, 0.2) !important;
+        }
+
+        .next-appointment.confirmada.coming-soon:hover,
+        .next-appointment.confirmado.coming-soon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(255, 193, 7, 0.15) !important;
+        }
+
 
         .service-card.selected {
             background-color: #e7f3ff;
@@ -2319,35 +2403,37 @@
                     </div>
                     <div class="scroll-container">
                         <div class="card-body scrollable" id="proximas-citas-container">
-                            @if ($proximas_citas->count() > 0)
-                                @foreach ($proximas_citas->sortBy('fecha_hora') as $cita)
+                            @php
+                                // Filtrar solo citas confirmadas
+                                $citas_confirmadas = $proximas_citas->filter(function ($cita) {
+                                    return $cita->estado === 'confirmada' || $cita->estado === 'confirmado';
+                                });
+                            @endphp
+
+                            @if ($citas_confirmadas->count() > 0)
+                                @foreach ($citas_confirmadas->sortBy('fecha_hora') as $cita)
                                     @php
                                         $diasRestantes = now()->diffInDays($cita->fecha_hora, false);
                                         $diasRestantes = $diasRestantes < 0 ? 0 : ceil($diasRestantes);
                                         $urgenciaClass = '';
                                         $urgenciaText = '';
-                                        $estadoClass = strtolower($cita->estado);
 
-                                        // Solo aplicamos clases de urgencia a citas confirmadas
-                                        if ($estadoClass === 'confirmada' || $estadoClass === 'confirmado') {
-                                            if ($diasRestantes <= 1) {
-                                                $urgenciaClass = 'urgent-soon';
-                                                $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
-                                            } elseif ($diasRestantes <= 3) {
-                                                $urgenciaClass = 'urgent-close';
-                                                $urgenciaText = "En {$diasRestantes} días";
-                                            } elseif ($diasRestantes <= 7) {
-                                                $urgenciaClass = 'coming-soon';
-                                                $urgenciaText = "En {$diasRestantes} días";
-                                            } else {
-                                                $urgenciaText = "En {$diasRestantes} días";
-                                            }
+                                        // Aplicar clases de urgencia solo para citas confirmadas
+                                        if ($diasRestantes <= 1) {
+                                            $urgenciaClass = 'urgent-soon';
+                                            $urgenciaText = $diasRestantes == 0 ? 'Hoy' : 'Mañana';
+                                        } elseif ($diasRestantes <= 3) {
+                                            $urgenciaClass = 'urgent-close';
+                                            $urgenciaText = "En {$diasRestantes} días";
+                                        } elseif ($diasRestantes <= 7) {
+                                            $urgenciaClass = 'coming-soon';
+                                            $urgenciaText = "En {$diasRestantes} días";
                                         } else {
-                                            // Para citas pendientes u otros estados
                                             $urgenciaText = "En {$diasRestantes} días";
                                         }
                                     @endphp
-                                    <div class="next-appointment {{ $estadoClass }} {{ $urgenciaClass }}">
+
+                                    <div class="next-appointment confirmada {{ $urgenciaClass }}">
                                         <div class="appointment-date-time">
                                             <div class="date-badge">
                                                 <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
@@ -2371,8 +2457,8 @@
                                                     </div>
                                                 @endif
                                             </div>
-                                            <span class="appointment-status status-{{ $estadoClass }}">
-                                                {{ ucfirst($cita->estado) }}
+                                            <span class="appointment-status status-confirmada">
+                                                Confirmada
                                             </span>
                                         </div>
                                         <div class="appointment-actions">
@@ -2396,7 +2482,7 @@
                                     </small>
                                 </div>
 
-                                @if ($proximas_citas->count() > 3)
+                                @if ($citas_confirmadas->count() > 3)
                                     <div style="text-align: center; margin-top: 15px;">
                                         <a href="{{ route('cliente.citas') }}" class="btn btn-outline">
                                             <i class="fas fa-list"></i> Ver todas las citas
@@ -2408,7 +2494,8 @@
                                     <i class="fas fa-calendar-check"></i>
                                     <h3>No tienes citas futuras confirmadas</h3>
                                     <p>Agenda una cita y aparecerá aquí cuando sea confirmada</p>
-                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                    <button onclick="openCitaModal()" class="btn btn-primary"
+                                        style="margin-top: 15px;">
                                         <i class="fas fa-calendar-plus"></i>
                                         Agendar Cita
                                     </button>
@@ -2420,6 +2507,7 @@
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Historial de Servicios -->
                 <div class="card">
@@ -3008,8 +3096,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                            FUNCIONAMIENTO DE CREAR CITAS
-                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                    FUNCIONAMIENTO DE CREAR CITAS
+                                                                                                                                                                                                                                                                =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3025,6 +3113,46 @@
             },
             buttonsStyling: false
         });
+
+        // Función para verificar si una fecha es no laborable
+        async function verificarDiaNoLaborable(fecha) {
+            try {
+                const response = await fetch('/cliente/verificar-dia-no-laborable?fecha=' + fecha);
+                const data = await response.json();
+
+                if (data.es_no_laborable) {
+                    return {
+                        esNoLaborable: true,
+                        motivo: data.motivo || 'Día no laborable'
+                    };
+                }
+                return {
+                    esNoLaborable: false
+                };
+            } catch (error) {
+                console.error('Error al verificar día no laborable:', error);
+                return {
+                    esNoLaborable: false
+                };
+            }
+        }
+
+        // Función para mostrar alerta de día no laborable
+        function mostrarAlertaDiaNoLaborable(motivo) {
+            Swal.fire({
+                title: '⚠️ Día No Laborable',
+                html: `<div style="text-align: left;">
+            <p>No se pueden agendar citas en esta fecha.</p>
+            <p><strong>Motivo:</strong> ${motivo}</p>
+            <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
+                Por favor selecciona otra fecha disponible.
+            </p>
+        </div>`,
+                icon: 'warning',
+                confirmButtonColor: '#4facfe',
+                confirmButtonText: 'Entendido'
+            });
+        }
 
         function setModalMode(isEdit = false) {
             const modalTitle = document.getElementById('modalTitle');
@@ -3374,7 +3502,7 @@
                 today: getLocalDateString(hoy)
             });
 
-            fechaInput.addEventListener('change', function() {
+            fechaInput.addEventListener('change', async function() {
                 console.log('📅 Fecha cambiada:', this.value);
 
                 if (!this.value) {
@@ -3389,28 +3517,52 @@
                     console.log('Fecha parseada:', selectedDate);
                     console.log('Día de la semana JS:', dayOfWeekJS);
 
-                    // Validar domingos primero
+                    // Validar domingos primero 
                     if (dayOfWeekJS === 0) {
                         showDateError('Domingo no laborable',
                             'No trabajamos los domingos. Por favor selecciona otro día.');
                         this.value = '';
-                        document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
+                        document.getElementById('hora').innerHTML =
+                            '<option value="">Seleccione una hora</option>';
                         return;
                     }
 
-                    // Verificar días no laborables
-                    const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === this.value);
-                    if (diaNoLaborable) {
-                        showDateError(
-                            'Día no laborable',
-                            `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
-                     <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
-                        );
-                        this.value = '';
-                        return;
+                    // ✅ NUEVA VALIDACIÓN: Verificar días no laborables con el servidor
+                    try {
+                        const response = await fetch(`/cliente/verificar-dia-no-laborable?fecha=${this.value}`);
+                        if (response.ok) {
+                            const data = await response.json();
+
+                            if (data.es_no_laborable) {
+                                showDateError(
+                                    'Día no laborable',
+                                    `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
+                             <strong>Motivo:</strong> ${data.motivo || 'Día no laborable'}`
+                                );
+                                this.value = '';
+                                document.getElementById('hora').innerHTML =
+                                    '<option value="">Seleccione una hora</option>';
+                                return;
+                            }
+                        }
+                    } catch (error) {
+                        console.warn('Error al verificar día no laborable, usando validación local:', error);
+                        // Fallback a la validación local existente
+                        const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === this.value);
+                        if (diaNoLaborable) {
+                            showDateError(
+                                'Día no laborable',
+                                `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
+                         <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
+                            );
+                            this.value = '';
+                            document.getElementById('hora').innerHTML =
+                                '<option value="">Seleccione una hora</option>';
+                            return;
+                        }
                     }
 
-                    //  ÚNICO LUGAR donde se cargan horarios - al cambiar fecha
+                    // ÚNICO LUGAR donde se cargan horarios - al cambiar fecha
                     const citaId = document.getElementById('form_cita_id')?.value;
                     loadAvailableHours(this.value, citaId);
 
@@ -3992,10 +4144,12 @@
                         const data = await response.json();
                         if (!data.success) throw new Error(data.message || 'Error en los datos recibidos');
 
-                        // SOLO CITAS CONFIRMADAS para próximas (ya vienen filtradas del servidor)
+                        // SOLO CITAS CONFIRMADAS para próximas
                         citas = tipo === 'próximas' ?
-                            data.proximas_citas :
-                            data.historial_citas; // Ya vienen filtradas (canceladas/finalizadas)
+                            data.data.proximas_citas.filter(cita =>
+                                cita.estado === 'confirmada' || cita.estado === 'confirmado'
+                            ) :
+                            data.data.historial_citas;
 
                         // Ordenar citas próximas por fecha (más cercana primero)
                         if (tipo === 'próximas' && citas.length > 0) {
@@ -4038,10 +4192,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                    <i class="fas fa-calendar-plus"></i>
-                                                                                    Agendar Cita
-                                                                                </button>` : ''}
+                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                <i class="fas fa-calendar-plus"></i>
+                                Agendar Cita
+                            </button>` : ''}
                 </div>
             `;
                     return;
@@ -4523,11 +4677,11 @@
                         <p>${errorMessage}</p>
                         ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                         ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                                                                                                                <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                                                                                                                <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                                                                                                    ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                                                                                                                </ul>
-                                                                                                                                                            ` : ''}
+                                                                                                                                                                                        <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                                                                                                        <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                                                                                                            ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                                                                                                        </ul>
+                                                                                                                                                                                    ` : ''}
                         <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                             Por favor intenta nuevamente con un horario diferente.
                         </p>
@@ -4890,10 +5044,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -5005,8 +5159,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                    =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -5035,8 +5189,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
