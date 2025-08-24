@@ -349,6 +349,7 @@
             background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.1));
             opacity: 0.1;
             transition: all 0.3s ease;
+            z-index: 1;
         }
 
         .cita-card:hover::before {
@@ -367,7 +368,7 @@
 
         .cita-card.confirmada,
         .cita-card.confirmado {
-            border-left: 5px solid #66bb6a !important;
+            border-left: 5px solid #66bb6a !important; /* Verde por defecto */
         }
 
         .cita-card.en_proceso,
@@ -375,28 +376,104 @@
             border-left: 5px solid #1b5e20 !important;
         }
 
-        /* Estilos para citas urgentes */
-        .cita-card.urgent {
+        /* Estilos para citas urgentes - 3 niveles */
+        .cita-card.confirmada.urgent-soon,  /* Menos de 24h - Rojo */
+        .cita-card.confirmado.urgent-soon {
             border-left: 5px solid #dc3545 !important;
-            animation: pulseBorder 2s infinite;
+            background-color: rgba(255, 245, 245, 0.8) !important;
         }
 
-        @keyframes pulseBorder {
+        .cita-card.confirmada.urgent-close,  /* 1-2 días - Naranja */
+        .cita-card.confirmado.urgent-close {
+            border-left: 5px solid #fd7e14 !important;
+            background-color: rgba(255, 248, 240, 0.8) !important;
+        }
+
+        .cita-card.confirmada.coming-soon,   /* 3-5 días - Amarillo */
+        .cita-card.confirmado.coming-soon {
+            border-left: 5px solid #ffc107 !important;
+            background-color: rgba(255, 251, 240, 0.8) !important;
+        }
+
+        /* Animación de pulso solo para el badge (mejor que para toda la card) */
+        @keyframes pulseBadge {
             0% {
-                border-left-color: #dc3545;
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
             }
 
-            50% {
-                border-left-color: #ff6b6b;
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
             }
 
             100% {
-                border-left-color: #dc3545;
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
             }
         }
 
-        .cita-card.coming-soon {
-            border-left: 5px solid #fd7e14 !important;
+        .cita-card.confirmada.urgent-soon .date-badge,
+        .cita-card.confirmado.urgent-soon .date-badge {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            animation: pulseBadge 2s infinite;
+        }
+
+        /* Añadir estos estilos */
+        .restriccion-alerta {
+            background: #fff3cd;
+            color: #856404;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: -15px 0 20px 0;
+            border-left: 4px solid #ffeeba;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+            z-index: 10;
+            position: relative;
+        }
+
+        .restriccion-alerta i {
+            color: #ffc107;
+            margin-right: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal {
+            z-index: 9999;
+            /* MUY ALTO PARA ESTAR POR ENCIMA DE TODO */
+        }
+
+        .modal-content {
+            z-index: 10000;
+            /* ASEGURAR QUE ESTÉ POR ENCIMA */
+        }
+
+        /* AUMENTAR EL Z-INDEX DE SWEETALERT2 PARA QUE APAREZCA SOBRE EL MODAL */
+        .swal2-container {
+            z-index: 100000 !important; /* Aumentado a 100000 */
+        }
+
+        /* Estilos para campos deshabilitados */
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background-color: #f8f9fa !important;
+            color: #666 !important;
+            border-color: #ddd !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
         }
 
         .cita-header {
@@ -735,7 +812,7 @@
         .modal {
             display: none;
             position: fixed;
-            z-index: 2000;
+            z-index: 9999;
             left: 0;
             top: 0;
             width: 100%;
@@ -755,6 +832,8 @@
             max-width: 700px;
             max-height: 90vh;
             overflow-y: auto;
+            z-index: 10000;
+            position: relative;
         }
 
         .close-modal {
@@ -764,6 +843,8 @@
             font-weight: bold;
             cursor: pointer;
             transition: var(--transition);
+            z-index: 10001;
+            position: relative;
         }
 
         .close-modal:hover {
@@ -933,12 +1014,33 @@
                 padding: 0 8px;
                 font-size: 0.9rem;
             }
+
+            @media (max-width: 480px) {
+                .cita-actions {
+                    flex-direction: column;
+                }
+
+                .cita-actions .btn {
+                    width: 100%;
+                    margin-bottom: 8px;
+                    justify-content: center;
+                }
+
+                .service-card {
+                    flex-direction: column;
+                    text-align: center;
+                }
+
+                .filters-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
         }
     </style>
 </head>
 
 <body>
-   <a href="{{ route('cliente.dashboard') }}" class="back-button">
+    <a href="{{ route('cliente.dashboard') }}" class="back-button">
         <i class="fas fa-arrow-left"></i> Volver al Dashboard
     </a>
 
@@ -1043,15 +1145,20 @@
                     @foreach ($citas as $cita)
                         @php
                             $isFuture = $cita->fecha_hora > now();
-                            // Cambio aquí: usar floor() para redondear hacia abajo y mostrar solo números enteros
-                            $daysDiff = $isFuture ? floor(now()->diffInDays($cita->fecha_hora)) : null;
-                            $hoursRemaining = $isFuture ? floor(now()->diffInHours($cita->fecha_hora)) : null;
+                            $daysDiff = $isFuture ? now()->diffInDays($cita->fecha_hora, false) : null;
+                            $hoursRemaining = $isFuture ? now()->diffInHours($cita->fecha_hora, false) : null;
 
                             $cardClass = $cita->estado;
-                            if ($isFuture && $daysDiff <= 1 && $cita->estado == 'confirmada') {
-                                $cardClass .= ' urgent';
-                            } elseif ($isFuture && $daysDiff <= 3 && $cita->estado == 'confirmada') {
-                                $cardClass .= ' coming-soon';
+                            // LÓGICA DE URGENCIA SOLO PARA CITAS CONFIRMADAS
+                            if ($cita->estado == 'confirmada' && $isFuture) {
+                                if ($hoursRemaining <= 24) {
+                                    $cardClass .= ' urgent-soon'; // Menos de 24h - ROJO
+                                } elseif ($daysDiff >= 1 && $daysDiff <= 2) {
+                                    $cardClass .= ' urgent-close'; // 1-2 días - NARANJA
+                                } elseif ($daysDiff >= 3 && $daysDiff <= 5) {
+                                    $cardClass .= ' coming-soon'; // 3-5 días - AMARILLO
+                                }
+                                // Más de 5 días mantiene el estilo normal (verde)
                             }
 
                             $timeRemaining = '';
@@ -1070,7 +1177,7 @@
                                     <div class="date-badge {{ $cita->estado }}">
                                         <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
                                         <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
-                                        @if ($isFuture && $daysDiff <= 1 && $cita->estado == 'confirmada')
+                                        @if ($isFuture && $hoursRemaining <= 24 && $cita->estado == 'confirmada')
                                             <span class="days-remaining">!</span>
                                         @endif
                                     </div>
@@ -1137,7 +1244,7 @@
                                         <h4><i class="fas fa-check-circle"></i> Cita Confirmada</h4>
                                         <p>Tu cita ha sido <strong>confirmada</strong>. Por favor llega 10 minutos antes
                                             de la hora programada.</p>
-                                        @if ($daysDiff <= 1)
+                                        @if ($hoursRemaining <= 24)
                                             <p style="color: #dc3545; font-weight: 600;">
                                                 <i class="fas fa-exclamation-triangle"></i>
                                                 ¡Cita próxima! Recuerda asistir puntualmente.
@@ -1158,7 +1265,7 @@
                                     <button class="btn btn-sm btn-warning" onclick="editCita({{ $cita->id }})">
                                         <i class="fas fa-edit"></i> Modificar
                                     </button>
-                                    <button class="btn btn-sm btn-outline" onclick="editCita({{ $cita->id }})">
+                                    <button class="btn btn-sm btn-outline" onclick="cancelCita({{ $cita->id }})">
                                         <i class="fas fa-times"></i> Cancelar
                                     </button>
                                 </div>
@@ -1232,6 +1339,12 @@
             <h2 style="color: #4facfe; margin-bottom: 20px;">
                 <i class="fas fa-calendar-plus"></i> <span id="modalTitle">Nueva Cita</span>
             </h2>
+            <!-- ALERTA DE RESTRICCIÓN DE 24H  -->
+            <div id="restriccion24hAlert" class="restriccion-alerta" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>No puedes modificar fecha, hora o vehículo porque faltan menos de 24 horas para la cita. Solo
+                    puedes cambiar servicios y observaciones.</span>
+            </div>
 
             <form id="citaForm" method="POST" action="{{ route('cliente.citas.store') }}"
                 enctype="multipart/form-data">
@@ -1314,6 +1427,13 @@
         let serviciosFiltrados = [];
         let diasNoLaborables = [];
 
+        // Función para calcular horas restantes
+        function calcularHorasRestantes(fechaHoraCita) {
+            const ahora = new Date();
+            const fechaCita = new Date(fechaHoraCita);
+            return (fechaCita - ahora) / (1000 * 60 * 60); // Diferencia en horas
+        }
+
         // Función para abrir modal de cita
         async function openCitaModal(vehiculoId = null) {
             return new Promise(async (resolve, reject) => {
@@ -1360,6 +1480,14 @@
                         if (horaSelect) {
                             horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
                         }
+
+                        // Ocultar alerta de restricción
+                        document.getElementById('restriccion24hAlert').style.display = 'none';
+                        
+                        // Habilitar todos los campos
+                        document.getElementById('modal_vehiculo_id').disabled = false;
+                        document.getElementById('fecha').disabled = false;
+                        document.getElementById('hora').disabled = false;
                     }
 
                     // Cargar datos iniciales
@@ -2079,13 +2207,28 @@
                     observacionesInput.value = data.data.observaciones || '';
                 }
 
-                // 5. Cargar servicios por tipo de vehículo
+                // 5. Verificar restricción de 24 horas para citas confirmadas
+                const horasRestantes = calcularHorasRestantes(data.data.fecha_hora);
+                if (horasRestantes < 24 && data.data.estado === 'confirmada') {
+                    // Mostrar alerta y deshabilitar campos
+                    document.getElementById('restriccion24hAlert').style.display = 'block';
+                    document.getElementById('modal_vehiculo_id').disabled = true;
+                    document.getElementById('fecha').disabled = true;
+                    document.getElementById('hora').disabled = true;
+                } else {
+                    document.getElementById('restriccion24hAlert').style.display = 'none';
+                    document.getElementById('modal_vehiculo_id').disabled = false;
+                    document.getElementById('fecha').disabled = false;
+                    document.getElementById('hora').disabled = false;
+                }
+
+                // 6. Cargar servicios por tipo de vehículo
                 if (data.data.vehiculo_id) {
                     await cargarServiciosPorTipo();
                     await new Promise(resolve => setTimeout(resolve, 200));
                 }
 
-                // 6. Establecer fecha (esto disparará la carga de horarios)
+                // 7. Establecer fecha (esto disparará la carga de horarios)
                 if (fechaInput && data.data.fecha) {
                     fechaInput.value = data.data.fecha;
                     const changeEvent = new Event('change');
@@ -2095,12 +2238,12 @@
                     await new Promise(resolve => setTimeout(resolve, 800));
                 }
 
-                // 7. Configurar hora (DESPUÉS de que se carguen los horarios)
+                // 8. Configurar hora (DESPUÉS de que se carguen los horarios)
                 if (data.data.hora) {
                     await setSelectedHourForEdit(data.data.hora);
                 }
 
-                // 8. Seleccionar servicios
+                // 9. Seleccionar servicios
                 if (data.data.cita && data.data.cita.servicios) {
                     data.data.cita.servicios.forEach(servicio => {
                         const checkbox = document.querySelector(
@@ -2136,7 +2279,7 @@
             if (jsDay === 0) {
                 return 7; // Domingo
             }
-            return jsDay; // Lunes=1, Martes=2, etc.
+            return jsDay; // Luenes=1, Martes=2, etc.
         }
 
         // FUNCIÓN para obtener fecha en timezone local

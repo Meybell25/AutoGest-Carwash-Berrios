@@ -53,16 +53,12 @@
         }
 
         @keyframes float {
-
-            0%,
-            100% {
+            0%, 100% {
                 transform: translate(0, 0) rotate(0deg);
             }
-
             33% {
                 transform: translate(30px, -30px) rotate(120deg);
             }
-
             66% {
                 transform: translate(-20px, 20px) rotate(240deg);
             }
@@ -544,10 +540,61 @@
             box-shadow: var(--shadow-hover);
         }
 
+        /* ESTILOS MEJORADOS PARA LA PAGINACIÓN */
         .pagination-wrapper {
             margin-top: 30px;
             display: flex;
             justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .pagination li {
+            display: inline-block;
+        }
+
+        .pagination a,
+        .pagination span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 12px;
+            border-radius: var(--border-radius);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .pagination a:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+            color: #667eea;
+        }
+
+        .pagination .active span {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .pagination .disabled span {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.3);
         }
 
         /* Indicador de tiempo transcurrido */
@@ -585,10 +632,33 @@
             0% {
                 transform: rotate(0deg);
             }
-
             100% {
                 transform: rotate(360deg);
             }
+        }
+
+        /* Indicador de citas expiradas */
+        .expired-indicator {
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .observaciones-section {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .observacion-expiracion {
+            color: #d32f2f;
+            font-weight: 600;
+            font-style: italic;
         }
 
         @media (max-width: 768px) {
@@ -642,6 +712,18 @@
             .counter-item:last-child {
                 border-bottom: none;
             }
+
+            .pagination {
+                gap: 4px;
+            }
+
+            .pagination a,
+            .pagination span {
+                min-width: 32px;
+                height: 32px;
+                padding: 0 8px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -654,12 +736,11 @@
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-history"></i> Historial de Citas</h1>
-            <p>Registro completo de tus citas anteriores</p>
+            <p>Registro completo de tus citas anteriores - Ordenadas de más reciente a más antigua</p>
         </div>
 
-
         <!-- Filtros -->
-           <div class="filters-section">
+        <div class="filters-section">
             <!-- Contadores específicos para historial -->
             <div class="counters-container">
                 <div class="counter-item counter-total">
@@ -667,13 +748,11 @@
                     <span class="counter-label">Total Historial</span>
                 </div>
                 <div class="counter-item counter-finalizada">
-                    <span class="counter-value"
-                        id="finalizada-counter">{{ $citas->where('estado', 'finalizada')->count() }}</span>
+                    <span class="counter-value" id="finalizada-counter">{{ $citas->where('estado', 'finalizada')->count() }}</span>
                     <span class="counter-label">Finalizadas</span>
                 </div>
                 <div class="counter-item counter-cancelada">
-                    <span class="counter-value"
-                        id="cancelada-counter">{{ $citas->where('estado', 'cancelada')->count() }}</span>
+                    <span class="counter-value" id="cancelada-counter">{{ $citas->where('estado', 'cancelada')->count() }}</span>
                     <span class="counter-label">Canceladas</span>
                 </div>
             </div>
@@ -748,6 +827,10 @@
                                 $diasTranscurridos > 0
                                     ? 'Hace ' . $diasTranscurridos . ' día' . ($diasTranscurridos != 1 ? 's' : '')
                                     : 'Hoy';
+
+                            // Verificar si fue cancelada por expiración
+                            $esExpiracion = str_contains($cita->observaciones ?? '', 'Cita expirada') || 
+                                          str_contains($cita->observaciones ?? '', 'Cita no atendida');
                         @endphp
 
                         <div class="cita-card {{ $cita->estado }}" data-cita-id="{{ $cita->id }}">
@@ -773,9 +856,16 @@
                                         </div>
                                     </div>
                                 </div>
-                                <span class="status-badge status-{{ str_replace('_', '-', $cita->estado) }}">
-                                    {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
-                                </span>
+                                <div class="status-wrapper">
+                                    <span class="status-badge status-{{ str_replace('_', '-', $cita->estado) }}">
+                                        {{ ucfirst(str_replace('_', ' ', $cita->estado)) }}
+                                    </span>
+                                    @if ($esExpiracion)
+                                        <span class="expired-indicator">
+                                            <i class="fas fa-clock"></i> Expirada
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
 
                             <div class="cita-details">
@@ -785,21 +875,32 @@
                                         @foreach ($cita->servicios as $servicio)
                                             <li class="service-item">
                                                 <span class="service-name">{{ $servicio->nombre }}</span>
-                                                <span
-                                                    class="service-price">${{ number_format($servicio->precio, 2) }}</span>
+                                                <span class="service-price">${{ number_format($servicio->precio, 2) }}</span>
                                             </li>
                                         @endforeach
                                     </ul>
                                     <div style="border-top: 2px solid #667eea; margin-top: 10px; padding-top: 10px;">
-                                        <strong>Total Pagado:
-                                            ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
+                                        <strong>Total: ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
                                     </div>
                                 </div>
 
                                 @if ($cita->observaciones)
                                     <div class="detail-section">
                                         <h4><i class="fas fa-comment"></i> Observaciones</h4>
-                                        <p>{{ $cita->observaciones }}</p>
+                                        @php
+                                            $observaciones = explode("\n", $cita->observaciones);
+                                        @endphp
+                                        @foreach ($observaciones as $observacion)
+                                            @if (trim($observacion))
+                                                @if (str_contains($observacion, 'Cita expirada') || str_contains($observacion, 'Cita no atendida'))
+                                                    <p class="observacion-expiracion">
+                                                        <i class="fas fa-exclamation-triangle"></i> {{ trim($observacion) }}
+                                                    </p>
+                                                @else
+                                                    <p>{{ trim($observacion) }}</p>
+                                                @endif
+                                            @endif
+                                        @endforeach
                                     </div>
                                 @endif
 
@@ -807,32 +908,37 @@
                                 @if ($cita->estado == 'finalizada')
                                     <div class="detail-section">
                                         <h4><i class="fas fa-check-circle"></i> Servicio Completado</h4>
-                                        <p><strong>Fecha de finalización:</strong>
-                                            {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
+                                        <p><strong>Fecha programada:</strong> {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
                                         @if ($cita->updated_at != $cita->created_at)
-                                            <p><strong>Última actualización:</strong>
-                                                {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
+                                            <p><strong>Finalizada el:</strong> {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
                                         @endif
                                     </div>
                                 @elseif ($cita->estado == 'cancelada')
                                     <div class="detail-section">
                                         <h4><i class="fas fa-times-circle"></i> Cita Cancelada</h4>
-                                        <p><strong>Fecha original:</strong>
-                                            {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
+                                        <p><strong>Fecha programada:</strong> {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
                                         @if ($cita->updated_at != $cita->created_at)
-                                            <p><strong>Cancelada el:</strong>
-                                                {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
+                                            <p><strong>Cancelada el:</strong> {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
+                                        @endif
+                                        @if ($esExpiracion)
+                                            <div class="observaciones-section">
+                                                <p><strong>Motivo:</strong> 
+                                                    @if (str_contains($cita->observaciones, 'Cita expirada por inacción'))
+                                                        <span class="observacion-expiracion">Cancelada automáticamente por no ser confirmada a tiempo</span>
+                                                    @elseif (str_contains($cita->observaciones, 'Cita no atendida'))
+                                                        <span class="observacion-expiracion">Cancelada automáticamente por no ser atendida</span>
+                                                    @endif
+                                                </p>
+                                            </div>
                                         @endif
                                     </div>
                                 @endif
                             </div>
-
-                            <!-- No hay acciones disponibles en el historial -->
                         </div>
                     @endforeach
                 </div>
 
-                <!-- Paginación -->
+                <!-- Paginación mejorada -->
                 <div class="pagination-wrapper">
                     {{ $citas->appends(request()->query())->links() }}
                 </div>
@@ -841,8 +947,8 @@
                     <i class="fas fa-history"></i>
                     <h3>Sin historial de citas</h3>
                     <p>No tienes citas finalizadas o canceladas que coincidan con los filtros seleccionados</p>
-                    <a href="{{ route('cliente.citas.proximas') }}" class="btn btn-primary">
-                        <i class="fas fa-clock"></i> Ver Próximas Citas
+                    <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
+                        <i class="fas fa-clock"></i> Ver Mis Citas
                     </a>
                 </div>
             @endif
@@ -851,7 +957,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-       // Función para limpiar filtros
+        // Función para limpiar filtros
         function limpiarFiltros() {
             // Resetear el formulario
             document.getElementById('filtrosForm').reset();
@@ -911,6 +1017,9 @@
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
             });
+
+            // Mostrar información sobre el ordenamiento
+            console.log('Historial ordenado por fecha más reciente primero');
         });
     </script>
 </body>

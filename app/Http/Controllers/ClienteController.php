@@ -27,6 +27,9 @@ class ClienteController extends Controller
         }
 
         try {
+
+            $this->procesarCitasExpiradas();
+
             $vehiculos = $user->vehiculos()
                 ->withCount('citas')
                 ->orderByDesc('citas_count')
@@ -108,6 +111,8 @@ class ClienteController extends Controller
 
     public function citas(Request $request): View
     {
+        $this->procesarCitasExpiradas();
+
         $query = Cita::where('usuario_id', Auth::id())
             ->with(['vehiculo', 'servicios']);
 
@@ -358,7 +363,6 @@ class ClienteController extends Controller
                     'precio_total' => $servicios->sum('precio')
                 ]
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -593,6 +597,9 @@ class ClienteController extends Controller
                 ], 403);
             }
 
+            // Procesar citas expiradas antes de cargar datos
+            $this->procesarCitasExpiradas();
+
             // Obtener datos
             $vehiculos = $user->vehiculos()
                 ->withCount('citas')
@@ -676,7 +683,7 @@ class ClienteController extends Controller
             'servicios' => Servicio::activos()->where('categoria', $cita->vehiculo->tipo)->get(),
             'vehiculos' => Auth::user()->vehiculos,
             'horarios_disponibles' => $this->getHorariosDisponibles($cita->fecha_hora->format('Y-m-d')),
-            'dias_no_laborables' => DiaNoLaborable::futuros()->pluck('fecha')->map(function($fecha) {
+            'dias_no_laborables' => DiaNoLaborable::futuros()->pluck('fecha')->map(function ($fecha) {
                 return $fecha->format('Y-m-d');
             })
         ]);
@@ -954,47 +961,130 @@ class ClienteController extends Controller
         }
     }
 
-    public function historial()
+    public function historial(Request $request)
     {
+        // Procesar citas expiradas antes de mostrar historial
+        $this->procesarCitasExpiradas();
+
         $user = auth()->user();
 
-        // Actualizar citas expiradas
-        $user->citas()
-            ->expiradas()
-            ->each(function ($cita) {
-                $cita->marcarComoExpirada();
-            });
-
-        // Obtener citas para historial
-        $citas = $user->citas()
+        // Obtener citas para historial - SOLO finalizadas y canceladas
+        $query = $user->citas()
             ->with(['servicios', 'vehiculo'])
-            ->whereIn('estado', [Cita::ESTADO_FINALIZADA, Cita::ESTADO_CANCELADA])
-            ->orderBy('fecha_hora', 'desc');
+            ->whereIn('estado', [Cita::ESTADO_FINALIZADA, Cita::ESTADO_CANCELADA]);
 
-
-        if (request()->has('estado') && request('estado') != '') {
-            $citas->where('estado', request('estado'));
+        // Aplicar filtros
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
         }
 
-        if (request()->has('fecha_desde') && request('fecha_desde') != '') {
-            $citas->whereDate('fecha_hora', '>=', request('fecha_desde'));
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('fecha_hora', '>=', $request->fecha_desde);
         }
 
-        if (request()->has('fecha_hasta') && request('fecha_hasta') != '') {
-            $citas->whereDate('fecha_hora', '<=', request('fecha_hasta'));
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('fecha_hora', '<=', $request->fecha_hasta);
         }
 
-        if (request()->has('vehiculo_id') && request('vehiculo_id') != '') {
-            $citas->where('vehiculo_id', request('vehiculo_id'));
+        if ($request->filled('vehiculo_id')) {
+            $query->where('vehiculo_id', $request->vehiculo_id);
         }
 
-        // Paginar resultados
-        $citas = $citas->paginate(15)->withQueryString();
+        // ORDENAR POR FECHA MÁS RECIENTE PRIMERO (orden cronológico descendente)
+        $citas = $query->orderBy('fecha_hora', 'desc')->paginate(15);
+
+        // Mantener los parámetros de filtro en la paginación
+        $citas->appends($request->query());
 
         return view('cliente.historial', [
             'citas' => $citas,
             'user' => $user
         ]);
+    }
+
+
+    /**
+     * Procesar citas expiradas automáticamente
+     */
+    private function procesarCitasExpiradas()
+    {
+        try {
+            $user = Auth::user();
+
+            // Citas pendientes que expiraron (más de 24 horas sin confirmar)
+            $citasPendientesExpiradas = $user->citas()
+                ->where('estado', Cita::ESTADO_PENDIENTE)
+                ->where('fecha_hora', '<', now())
+                ->whereNotLike('observaciones', '%Cita expirada por inacción%')
+                ->get();
+
+            foreach ($citasPendientesExpiradas as $cita) {
+                $motivoExpiracion = 'Cita expirada por inacción';
+                $observaciones = $cita->observaciones
+                    ? $cita->observaciones . "\n" . $motivoExpiracion
+                    : $motivoExpiracion;
+
+                $cita->update([
+                    'estado' => Cita::ESTADO_CANCELADA,
+                    'observaciones' => $observaciones
+                ]);
+
+                // Crear notificación
+                $cita->usuario->notificaciones()->create([
+                    'titulo' => 'Cita cancelada por expiración',
+                    'mensaje' => "Tu cita para el {$cita->fecha_hora->format('d/m/Y H:i')} fue cancelada automáticamente por no ser confirmada a tiempo.",
+                    'tipo' => 'cancelacion',
+                    'fecha_envio' => now(),
+                    'leido' => false
+                ]);
+
+                Log::info("Cita pendiente expirada automáticamente", [
+                    'cita_id' => $cita->id,
+                    'usuario_id' => $cita->usuario_id,
+                    'fecha_hora' => $cita->fecha_hora
+                ]);
+            }
+
+            // Citas confirmadas que no fueron atendidas (más de 24 horas después de la fecha programada)
+            $citasConfirmadasExpiradas = $user->citas()
+                ->where('estado', Cita::ESTADO_CONFIRMADA)
+                ->where('fecha_hora', '<', now()->subHours(24))
+                ->whereNotLike('observaciones', '%Cita no atendida%')
+                ->get();
+
+            foreach ($citasConfirmadasExpiradas as $cita) {
+                $motivoExpiracion = 'Cita no atendida - Cancelada automáticamente';
+                $observaciones = $cita->observaciones
+                    ? $cita->observaciones . "\n" . $motivoExpiracion
+                    : $motivoExpiracion;
+
+                $cita->update([
+                    'estado' => Cita::ESTADO_CANCELADA,
+                    'observaciones' => $observaciones
+                ]);
+
+                // Crear notificación
+                /*    $cita->usuario->notificaciones()->create([
+                    'titulo' => 'Cita cancelada - No atendida',
+                    'mensaje' => "Tu cita para el {$cita->fecha_hora->format('d/m/Y H:i')} fue marcada como no atendida y cancelada automáticamente.",
+                    'tipo' => 'cancelacion',
+                    'fecha_envio' => now(),
+                    'leido' => false
+                ]);*/
+
+                Log::info("Cita confirmada no atendida cancelada automáticamente", [
+                    'cita_id' => $cita->id,
+                    'usuario_id' => $cita->usuario_id,
+                    'fecha_hora' => $cita->fecha_hora
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al procesar citas expiradas', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'usuario_id' => Auth::id()
+            ]);
+        }
     }
 
 
