@@ -53,12 +53,16 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0, 0) rotate(0deg);
             }
+
             33% {
                 transform: translate(30px, -30px) rotate(120deg);
             }
+
             66% {
                 transform: translate(-20px, 20px) rotate(240deg);
             }
@@ -540,7 +544,7 @@
             box-shadow: var(--shadow-hover);
         }
 
-        /* ESTILOS MEJORADOS PARA LA PAGINACIÓN */
+        /* PAGINACIÓN MEJORADA  */
         .pagination-wrapper {
             margin-top: 30px;
             display: flex;
@@ -632,6 +636,7 @@
             0% {
                 transform: rotate(0deg);
             }
+
             100% {
                 transform: rotate(360deg);
             }
@@ -713,6 +718,7 @@
                 border-bottom: none;
             }
 
+            /* Paginación responsiva */
             .pagination {
                 gap: 4px;
             }
@@ -744,15 +750,15 @@
             <!-- Contadores específicos para historial -->
             <div class="counters-container">
                 <div class="counter-item counter-total">
-                    <span class="counter-value" id="total-counter">{{ $citas->total() }}</span>
+                    <span class="counter-value" id="total-counter">{{ $contadores['total'] ?? 0 }}</span>
                     <span class="counter-label">Total Historial</span>
                 </div>
                 <div class="counter-item counter-finalizada">
-                    <span class="counter-value" id="finalizada-counter">{{ $citas->where('estado', 'finalizada')->count() }}</span>
+                    <span class="counter-value" id="finalizada-counter">{{ $contadores['finalizadas'] ?? 0 }}</span>
                     <span class="counter-label">Finalizadas</span>
                 </div>
                 <div class="counter-item counter-cancelada">
-                    <span class="counter-value" id="cancelada-counter">{{ $citas->where('estado', 'cancelada')->count() }}</span>
+                    <span class="counter-value" id="cancelada-counter">{{ $contadores['canceladas'] ?? 0 }}</span>
                     <span class="counter-label">Canceladas</span>
                 </div>
             </div>
@@ -813,7 +819,7 @@
                 </div>
             </form>
         </div>
-          
+
         <!-- Lista de citas del historial -->
         <div id="citas-container">
             @if ($citas->count() > 0)
@@ -829,8 +835,9 @@
                                     : 'Hoy';
 
                             // Verificar si fue cancelada por expiración
-                            $esExpiracion = str_contains($cita->observaciones ?? '', 'Cita expirada') || 
-                                          str_contains($cita->observaciones ?? '', 'Cita no atendida');
+                            $esExpiracion =
+                                str_contains($cita->observaciones ?? '', 'Cita expirada') ||
+                                str_contains($cita->observaciones ?? '', 'Cita no atendida');
                         @endphp
 
                         <div class="cita-card {{ $cita->estado }}" data-cita-id="{{ $cita->id }}">
@@ -875,12 +882,14 @@
                                         @foreach ($cita->servicios as $servicio)
                                             <li class="service-item">
                                                 <span class="service-name">{{ $servicio->nombre }}</span>
-                                                <span class="service-price">${{ number_format($servicio->precio, 2) }}</span>
+                                                <span
+                                                    class="service-price">${{ number_format($servicio->precio, 2) }}</span>
                                             </li>
                                         @endforeach
                                     </ul>
                                     <div style="border-top: 2px solid #667eea; margin-top: 10px; padding-top: 10px;">
-                                        <strong>Total: ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
+                                        <strong>Total:
+                                            ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
                                     </div>
                                 </div>
 
@@ -894,7 +903,8 @@
                                             @if (trim($observacion))
                                                 @if (str_contains($observacion, 'Cita expirada') || str_contains($observacion, 'Cita no atendida'))
                                                     <p class="observacion-expiracion">
-                                                        <i class="fas fa-exclamation-triangle"></i> {{ trim($observacion) }}
+                                                        <i class="fas fa-exclamation-triangle"></i>
+                                                        {{ trim($observacion) }}
                                                     </p>
                                                 @else
                                                     <p>{{ trim($observacion) }}</p>
@@ -908,25 +918,31 @@
                                 @if ($cita->estado == 'finalizada')
                                     <div class="detail-section">
                                         <h4><i class="fas fa-check-circle"></i> Servicio Completado</h4>
-                                        <p><strong>Fecha programada:</strong> {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
+                                        <p><strong>Fecha programada:</strong>
+                                            {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
                                         @if ($cita->updated_at != $cita->created_at)
-                                            <p><strong>Finalizada el:</strong> {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
+                                            <p><strong>Finalizada el:</strong>
+                                                {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
                                         @endif
                                     </div>
                                 @elseif ($cita->estado == 'cancelada')
                                     <div class="detail-section">
                                         <h4><i class="fas fa-times-circle"></i> Cita Cancelada</h4>
-                                        <p><strong>Fecha programada:</strong> {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
+                                        <p><strong>Fecha programada:</strong>
+                                            {{ $cita->fecha_hora->format('d/m/Y h:i A') }}</p>
                                         @if ($cita->updated_at != $cita->created_at)
-                                            <p><strong>Cancelada el:</strong> {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
+                                            <p><strong>Cancelada el:</strong>
+                                                {{ $cita->updated_at->format('d/m/Y h:i A') }}</p>
                                         @endif
                                         @if ($esExpiracion)
                                             <div class="observaciones-section">
-                                                <p><strong>Motivo:</strong> 
+                                                <p><strong>Motivo:</strong>
                                                     @if (str_contains($cita->observaciones, 'Cita expirada por inacción'))
-                                                        <span class="observacion-expiracion">Cancelada automáticamente por no ser confirmada a tiempo</span>
+                                                        <span class="observacion-expiracion">Cancelada automáticamente
+                                                            por no ser confirmada a tiempo</span>
                                                     @elseif (str_contains($cita->observaciones, 'Cita no atendida'))
-                                                        <span class="observacion-expiracion">Cancelada automáticamente por no ser atendida</span>
+                                                        <span class="observacion-expiracion">Cancelada automáticamente
+                                                            por no ser atendida</span>
                                                     @endif
                                                 </p>
                                             </div>
@@ -938,9 +954,52 @@
                     @endforeach
                 </div>
 
-                <!-- Paginación mejorada -->
+                <!-- Paginación mejorada - EXACTA COMO EN CITAS.BLADE -->
                 <div class="pagination-wrapper">
-                    {{ $citas->appends(request()->query())->links() }}
+                    @if ($citas->hasPages())
+                        <ul class="pagination">
+                            {{-- Previous Page Link --}}
+                            @if ($citas->onFirstPage())
+                                <li class="disabled" aria-disabled="true">
+                                    <span><i class="fas fa-chevron-left"></i></span>
+                                </li>
+                            @else
+                                <li>
+                                    <a href="{{ $citas->appends(request()->query())->previousPageUrl() }}"
+                                        rel="prev">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @foreach ($citas->appends(request()->query())->getUrlRange(1, $citas->lastPage()) as $page => $url)
+                                @if ($page == $citas->currentPage())
+                                    <li class="active" aria-current="page">
+                                        <span>{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a href="{{ $url }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+
+                            {{-- Next Page Link --}}
+                            @if ($citas->hasMorePages())
+                                <li>
+                                    <a href="{{ $citas->appends(request()->query())->nextPageUrl() }}"
+                                        rel="next">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="disabled" aria-disabled="true">
+                                    <span><i class="fas fa-chevron-right"></i></span>
+                                </li>
+                            @endif
+                        </ul>
+                    @endif
                 </div>
             @else
                 <div class="empty-state">
@@ -961,7 +1020,7 @@
         function limpiarFiltros() {
             // Resetear el formulario
             document.getElementById('filtrosForm').reset();
-            
+
             // Redirigir a la URL base sin parámetros
             window.location.href = '{{ route('cliente.citas.historial') }}';
         }
@@ -995,10 +1054,43 @@
             window.location.href = url;
         }
 
+        // Función para obtener contadores actualizados vía AJAX (opcional)
+        function actualizarContadores() {
+            const estado = document.getElementById('estado').value;
+            const fecha_desde = document.getElementById('fecha_desde').value;
+            const fecha_hasta = document.getElementById('fecha_hasta').value;
+            const vehiculo_id = document.getElementById('vehiculo_id').value;
+
+            // Construir parámetros
+            const params = new URLSearchParams();
+            if (estado) params.append('estado', estado);
+            if (fecha_desde) params.append('fecha_desde', fecha_desde);
+            if (fecha_hasta) params.append('fecha_hasta', fecha_hasta);
+            if (vehiculo_id) params.append('vehiculo_id', vehiculo_id);
+
+            fetch(`{{ route('cliente.citas.historial') }}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.contadores) {
+                        document.getElementById('total-counter').textContent = data.contadores.total;
+                        document.getElementById('finalizada-counter').textContent = data.contadores.finalizadas;
+                        document.getElementById('cancelada-counter').textContent = data.contadores.canceladas;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al actualizar contadores:', error);
+                });
+        }
+
         // Configurar event listeners para los filtros
         document.addEventListener('DOMContentLoaded', function() {
             const filters = ['estado', 'vehiculo_id', 'fecha_desde', 'fecha_hasta'];
-            
+
             filters.forEach(filterId => {
                 const element = document.getElementById(filterId);
                 if (element) {
