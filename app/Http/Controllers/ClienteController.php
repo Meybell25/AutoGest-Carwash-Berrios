@@ -164,236 +164,224 @@ class ClienteController extends Controller
         return response()->json(['is_active' => $user->estado]);
     }
 
-    public function storeCita(Request $request)
-    {
-        try {
-            // Validar estado del usuario
-            if (!Auth::user()->estado) {
-                return response()->json(['message' => 'Tu cuenta está inactiva.'], 403);
-            }
+   public function storeCita(Request $request)
+{
+    try {
+        // Validar estado del usuario
+        if (!Auth::user()->estado) {
+            return response()->json(['message' => 'Tu cuenta está inactiva.'], 403);
+        }
 
-            $validated = $request->validate([
-                'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
-                'fecha' => [
-                    'required',
-                    'date',
-                    'after:now',
-                    function ($attribute, $value, $fail) {
-                        // Validar que no sea domingo
-                        $fecha = Carbon::parse($value);
-                        if ($fecha->dayOfWeek === 0) {
-                            $fail('No se pueden agendar citas los domingos.');
-                        }
+        $validated = $request->validate([
+            'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
+            'fecha_hora' => [ // ✅ Cambiado a fecha_hora
+                'required',
+                'date',
+                'after:now',
+                function ($attribute, $value, $fail) {
+                    // Validar que no sea domingo
+                    $fecha = Carbon::parse($value);
+                    if ($fecha->dayOfWeek === 0) {
+                        $fail('No se pueden agendar citas los domingos.');
+                    }
 
-                        // Validar que no sea un día no laborable usando el modelo
-                        if (DiaNoLaborable::esNoLaborable($value)) {
-                            $diaNoLaborable = DiaNoLaborable::where('fecha', $fecha->format('Y-m-d'))->first();
-                            $motivosDisponibles = DiaNoLaborable::getMotivosDisponibles();
-                            $motivoTexto = $motivosDisponibles[$diaNoLaborable->motivo] ?? $diaNoLaborable->motivo;
-                            $fail("No se pueden agendar citas este día. Motivo: {$motivoTexto}");
-                        }
-                    },
-                ],
-                'hora' => [
-                    'required',
-                    'date_format:H:i',
-                    function ($attribute, $value, $fail) use ($request) {
-                        // Validar horario laboral usando el modelo Horario
-                        $fecha = Carbon::parse($request->fecha);
-                        $diaSemana = $fecha->dayOfWeek;
+                    // Validar que no sea un día no laborable usando el modelo
+                    if (DiaNoLaborable::esNoLaborable($value)) {
+                        $diaNoLaborable = DiaNoLaborable::whereDate('fecha', $fecha->format('Y-m-d'))->first();
+                        $motivosDisponibles = DiaNoLaborable::getMotivosDisponibles();
+                        $motivoTexto = $motivosDisponibles[$diaNoLaborable->motivo] ?? $diaNoLaborable->motivo;
+                        $fail("No se pueden agendar citas este día. Motivo: {$motivoTexto}");
+                    }
 
-                        // Convertir domingo (0) a 7 para coincidir con la BD
-                        $diaSemanaDB = $diaSemana === 0 ? 7 : $diaSemana;
+                    // Validar horario laboral
+                    $diaSemana = $fecha->dayOfWeek;
+                    $diaSemanaDB = $diaSemana === 0 ? 7 : $diaSemana;
 
-                        $horario = Horario::where('dia_semana', $diaSemanaDB)
-                            ->where('activo', true)
-                            ->first();
+                    $horario = Horario::where('dia_semana', $diaSemanaDB)
+                        ->where('activo', true)
+                        ->first();
 
-                        if (!$horario) {
-                            $fail('No hay horarios de atención configurados para este día.');
-                            return;
-                        }
+                    if (!$horario) {
+                        $fail('No hay horarios de atención configurados para este día.');
+                        return;
+                    }
 
-                        $horaSeleccionada = Carbon::parse($value);
-                        $horaInicio = Carbon::parse($horario->hora_inicio);
-                        $horaFin = Carbon::parse($horario->hora_fin);
+                    $horaSeleccionada = $fecha->format('H:i');
+                    $horaInicio = $horario->hora_inicio->format('H:i');
+                    $horaFin = $horario->hora_fin->format('H:i');
 
-                        if ($horaSeleccionada->lt($horaInicio) || $horaSeleccionada->gt($horaFin)) {
-                            $fail("El horario debe estar entre {$horario->hora_inicio} y {$horario->hora_fin}.");
-                        }
-                    },
-                ],
-                'servicios' => 'required|array|min:1',
-                'servicios.*' => 'exists:servicios,id',
-                'observaciones' => 'nullable|string|max:500'
-            ]);
+                    if ($horaSeleccionada < $horaInicio || $horaSeleccionada > $horaFin) {
+                        $fail("El horario debe estar entre {$horaInicio} y {$horaFin}.");
+                    }
+                },
+            ],
+            'servicios' => 'required|array|min:1',
+            'servicios.*' => 'exists:servicios,id',
+            'observaciones' => 'nullable|string|max:500'
+        ]);
 
-            // Combinar fecha y hora correctamente
-            $fechaCita = Carbon::createFromFormat(
-                'Y-m-d H:i',
-                $validated['fecha'] . ' ' . $validated['hora'],
-                config('app.timezone')
-            );
+        // Parsear fecha y hora (ya vienen combinadas)
+        $fechaCita = Carbon::parse($validated['fecha_hora'], config('app.timezone'));
 
-            // Validar que la fecha y hora no sean en el pasado
-            if ($fechaCita->lt(now())) {
-                throw new \Exception('No puedes agendar citas en fechas u horas pasadas.', 400);
-            }
+        // Validar que la fecha y hora no sean en el pasado
+        if ($fechaCita->lt(now())) {
+            throw new \Exception('No puedes agendar citas en fechas u horas pasadas.', 400);
+        }
 
-            // Validar 1 mes de anticipación
-            if ($fechaCita->gt(Carbon::now()->addMonth())) {
-                return response()->json([
-                    'message' => 'Solo se pueden agendar citas con máximo 1 mes de anticipación.',
-                    'fecha_maxima' => Carbon::now()->addMonth()->format('Y-m-d')
-                ], 400);
-            }
+        // Validar 1 mes de anticipación
+        if ($fechaCita->gt(Carbon::now()->addMonth())) {
+            return response()->json([
+                'message' => 'Solo se pueden agendar citas con máximo 1 mes de anticipación.',
+                'fecha_maxima' => Carbon::now()->addMonth()->format('Y-m-d')
+            ], 400);
+        }
 
-            // Validar tipo de vehículo vs servicios
-            $vehiculo = Vehiculo::find($validated['vehiculo_id']);
-            $servicios = Servicio::whereIn('id', $validated['servicios'])->get();
+        // Validar tipo de vehículo vs servicios
+        $vehiculo = Vehiculo::find($validated['vehiculo_id']);
+        $servicios = Servicio::whereIn('id', $validated['servicios'])->get();
 
-            $serviciosInvalidos = $servicios->where('categoria', '!=', $vehiculo->tipo)->count();
-            if ($serviciosInvalidos > 0) {
-                return response()->json([
-                    'message' => 'Algunos servicios seleccionados no son válidos para este tipo de vehículo.',
-                    'tipo_vehiculo' => $vehiculo->tipo,
-                    'servicios_validos' => Servicio::where('categoria', $vehiculo->tipo)->pluck('nombre')
-                ], 400);
-            }
+        $serviciosInvalidos = $servicios->where('categoria', '!=', $vehiculo->tipo)->count();
+        if ($serviciosInvalidos > 0) {
+            return response()->json([
+                'message' => 'Algunos servicios seleccionados no son válidos para este tipo de vehículo.',
+                'tipo_vehiculo' => $vehiculo->tipo,
+                'servicios_validos' => Servicio::where('categoria', $vehiculo->tipo)->pluck('nombre')
+            ], 400);
+        }
 
-            // Calcular duración total de servicios
-            $duracionTotal = $servicios->sum('duracion_min');
-            $horaFin = $fechaCita->copy()->addMinutes($duracionTotal);
+        // Calcular duración total de servicios
+        $duracionTotal = $servicios->sum('duracion_min');
+        $horaFin = $fechaCita->copy()->addMinutes($duracionTotal);
 
-            // Verificar que la cita termine dentro del horario laboral
-            $diaSemana = $fechaCita->dayOfWeek === 0 ? 7 : $fechaCita->dayOfWeek;
-            $horario = Horario::where('dia_semana', $diaSemana)->where('activo', true)->first();
+        // Verificar que la cita termine dentro del horario laboral
+        $diaSemana = $fechaCita->dayOfWeek === 0 ? 7 : $fechaCita->dayOfWeek;
+        $horario = Horario::where('dia_semana', $diaSemana)->where('activo', true)->first();
 
-            if ($horario && $horaFin->gt(Carbon::parse($fechaCita->format('Y-m-d') . ' ' . $horario->hora_fin))) {
-                return response()->json([
-                    'message' => 'Los servicios seleccionados no pueden completarse antes del cierre.',
-                    'duracion_total' => $duracionTotal,
-                    'hora_cierre' => $horario->hora_fin,
-                    'servicios_disponibles' => $this->getServiciosDisponiblesParaHora($fechaCita, $horario->hora_fin)
-                ], 400);
-            }
+        if ($horario && $horaFin->gt(Carbon::parse($fechaCita->format('Y-m-d') . ' ' . $horario->hora_fin->format('H:i:s')))) {
+            return response()->json([
+                'message' => 'Los servicios seleccionados no pueden completarse antes del cierre.',
+                'duracion_total' => $duracionTotal,
+                'hora_cierre' => $horario->hora_fin->format('H:i'),
+                'servicios_disponibles' => $this->getServiciosDisponiblesParaHora($fechaCita, $horario->hora_fin)
+            ], 400);
+        }
 
-            // Verificar colisión con otras citas (excluir cita actual si existe)
-            $citasQuery = Cita::where('estado', '!=', 'cancelada')
-                ->where(function ($query) use ($fechaCita, $horaFin) {
-                    $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
-                        ->orWhere(function ($q) use ($fechaCita, $horaFin) {
-                            $q->where('fecha_hora', '<', $fechaCita)
-                                ->whereRaw('DATE_ADD(fecha_hora, INTERVAL (
-                                SELECT SUM(servicios.duracion_min)
-                                FROM cita_servicio
-                                JOIN servicios ON cita_servicio.servicio_id = servicios.id
-                                WHERE cita_servicio.cita_id = citas.id
-                            ) MINUTE) > ?', [$fechaCita]);
-                        })
-                        ->orWhere(function ($q) use ($fechaCita, $horaFin) {
-                            $q->where('fecha_hora', '>', $fechaCita)
-                                ->where('fecha_hora', '<', $horaFin);
-                        });
-                });
-
-            // Excluir la cita actual si se está editando
-            if ($request->has('cita_id') && $request->cita_id) {
-                $citasQuery->where('id', '!=', $request->cita_id);
-            }
-
-            $citasSuperpuestas = $citasQuery->exists();
-
-            if ($citasSuperpuestas) {
-                $horariosDisponibles = $this->getAvailableTimes($fechaCita->format('Y-m-d'), $request->cita_id ?? null);
-                return response()->json([
-                    'message' => 'Existe un conflicto de horario con otra cita.',
-                    'horarios_disponibles' => $horariosDisponibles,
-                    'duracion_total' => $duracionTotal
-                ], 409);
-            }
-
-            DB::beginTransaction();
-
-            // Crear la cita
-            $cita = Cita::create([
-                'usuario_id' => Auth::id(),
-                'vehiculo_id' => $validated['vehiculo_id'],
-                'fecha_hora' => $fechaCita,
-                'estado' => Cita::ESTADO_PENDIENTE,
-                'observaciones' => $validated['observaciones'] ?? null
-            ]);
-
-            $serviciosConPrecio = $servicios->mapWithKeys(function ($servicio) {
-                return [$servicio->id => [
-                    'precio' => $servicio->precio
-                ]];
+        // Verificar colisión con otras citas (excluir cita actual si existe)
+        $citasQuery = Cita::where('estado', '!=', 'cancelada')
+            ->where(function ($query) use ($fechaCita, $horaFin) {
+                $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
+                    ->orWhere(function ($q) use ($fechaCita, $horaFin) {
+                        $q->where('fecha_hora', '<', $fechaCita)
+                            ->whereRaw('DATE_ADD(fecha_hora, INTERVAL (
+                            SELECT SUM(servicios.duracion_min)
+                            FROM cita_servicio
+                            JOIN servicios ON cita_servicio.servicio_id = servicios.id
+                            WHERE cita_servicio.cita_id = citas.id
+                        ) MINUTE) > ?', [$fechaCita]);
+                    })
+                    ->orWhere(function ($q) use ($fechaCita, $horaFin) {
+                        $q->where('fecha_hora', '>', $fechaCita)
+                            ->where('fecha_hora', '<', $horaFin);
+                    });
             });
 
-            $cita->servicios()->attach($serviciosConPrecio);
-
-            // Notificación
-            $cita->usuario->notificaciones()->create([
-                'titulo' => 'Cita agendada exitosamente',
-                'mensaje' => "Tu cita para el {$fechaCita->format('d/m/Y')} a las {$fechaCita->format('H:i')} ha sido agendada. Servicios: " . $servicios->pluck('nombre')->join(', '),
-                'tipo' => 'confirmacion',
-                'fecha_envio' => now(),
-                'leido' => false
-            ]);
-
-            // Registrar en bitácora
-            \App\Models\Bitacora::create([
-                'usuario_id' => Auth::id(),
-                'accion' => 'crear',
-                'tabla_afectada' => 'citas',
-                'registro_id' => $cita->id,
-                'detalles' => "Creó cita para {$fechaCita->format('d/m/Y H:i')} - Vehículo: {$vehiculo->marca} {$vehiculo->modelo}"
-            ]);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Cita creada exitosamente',
-                'data' => [
-                    'cita_id' => $cita->id,
-                    'fecha_hora' => $fechaCita->format('Y-m-d H:i:s'),
-                    'servicios_count' => count($validated['servicios']),
-                    'servicios_nombres' => $servicios->pluck('nombre')->join(', '),
-                    'duracion_total' => $duracionTotal,
-                    'hora_fin' => $horaFin->format('H:i'),
-                    'vehiculo_marca' => $vehiculo->marca,
-                    'vehiculo_modelo' => $vehiculo->modelo,
-                    'vehiculo_placa' => $vehiculo->placa,
-                    'precio_total' => $servicios->sum('precio')
-                ]
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error al crear cita', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'usuario_id' => Auth::id(),
-                'datos' => $validated ?? $request->all()
-            ]);
-
-            $statusCode = is_int($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600
-                ? $e->getCode()
-                : 500;
-
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage() ?: 'Error interno del servidor. Por favor, inténtalo de nuevo.',
-                'error_type' => get_class($e)
-            ], $statusCode);
+        // Excluir la cita actual si se está editando
+        if ($request->has('cita_id') && $request->cita_id) {
+            $citasQuery->where('id', '!=', $request->cita_id);
         }
+
+        $citasSuperpuestas = $citasQuery->exists();
+
+        if ($citasSuperpuestas) {
+            $horariosDisponibles = $this->getAvailableTimes($fechaCita->format('Y-m-d'), $request->cita_id ?? null);
+            return response()->json([
+                'message' => 'Existe un conflicto de horario con otra cita.',
+                'horarios_disponibles' => $horariosDisponibles,
+                'duracion_total' => $duracionTotal
+            ], 409);
+        }
+
+        DB::beginTransaction();
+
+        // Crear la cita
+        $cita = Cita::create([
+            'usuario_id' => Auth::id(),
+            'vehiculo_id' => $validated['vehiculo_id'],
+            'fecha_hora' => $fechaCita,
+            'estado' => Cita::ESTADO_PENDIENTE,
+            'observaciones' => $validated['observaciones'] ?? null
+        ]);
+
+        $serviciosConPrecio = $servicios->mapWithKeys(function ($servicio) {
+            return [$servicio->id => [
+                'precio' => $servicio->precio
+            ]];
+        });
+
+        $cita->servicios()->attach($serviciosConPrecio);
+
+        // Notificación
+        $cita->usuario->notificaciones()->create([
+            'titulo' => 'Cita agendada exitosamente',
+            'mensaje' => "Tu cita para el {$fechaCita->format('d/m/Y')} a las {$fechaCita->format('H:i')} ha sido agendada. Servicios: " . $servicios->pluck('nombre')->join(', '),
+            'tipo' => 'confirmacion',
+            'fecha_envio' => now(),
+            'leido' => false
+        ]);
+
+        // Registrar en bitácora
+        \App\Models\Bitacora::create([
+            'usuario_id' => Auth::id(),
+            'accion' => 'crear',
+            'tabla_afectada' => 'citas',
+            'registro_id' => $cita->id,
+            'detalles' => "Creó cita para {$fechaCita->format('d/m/Y H:i')} - Vehículo: {$vehiculo->marca} {$vehiculo->modelo}"
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cita creada exitosamente',
+            'data' => [
+                'cita_id' => $cita->id,
+                'fecha_hora' => $fechaCita->format('Y-m-d H:i:s'),
+                'servicios_count' => count($validated['servicios']),
+                'servicios_nombres' => $servicios->pluck('nombre')->join(', '),
+                'duracion_total' => $duracionTotal,
+                'hora_fin' => $horaFin->format('H:i'),
+                'vehiculo_marca' => $vehiculo->marca,
+                'vehiculo_modelo' => $vehiculo->modelo,
+                'vehiculo_placa' => $vehiculo->placa,
+                'precio_total' => $servicios->sum('precio')
+            ]
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error de validación',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error al crear cita', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'usuario_id' => Auth::id(),
+            'datos' => $validated ?? $request->all()
+        ]);
+
+        $statusCode = is_int($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600
+            ? $e->getCode()
+            : 500;
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage() ?: 'Error interno del servidor. Por favor, inténtalo de nuevo.',
+            'error_type' => get_class($e)
+        ], $statusCode);
     }
+}
 
     private function getAvailableTimes($date, $excludeCitaId = null)
     {
@@ -665,7 +653,6 @@ class ClienteController extends Controller
             ], 500);
         }
     }
-
     public function edit(Cita $cita)
     {
         if ($cita->usuario_id !== Auth::id()) {
@@ -682,220 +669,226 @@ class ClienteController extends Controller
             ], 400);
         }
 
+        // Calcular restricción de 24 horas
+        $fechaActual = now();
+        $fechaCita = Carbon::parse($cita->fecha_hora);
+        $horasRestantes = $fechaActual->diffInHours($fechaCita, false);
+        $restriccion_24h = $cita->estado === 'confirmada' && $horasRestantes < 24;
+
         return response()->json([
             'success' => true,
-            'cita' => $cita->load(['vehiculo', 'servicios']),
-            'servicios' => Servicio::activos()->where('categoria', $cita->vehiculo->tipo)->get(),
-            'vehiculos' => Auth::user()->vehiculos,
-            'horarios_disponibles' => $this->getHorariosDisponibles($cita->fecha_hora->format('Y-m-d')),
-            'dias_no_laborables' => DiaNoLaborable::futuros()->pluck('fecha')->map(function ($fecha) {
-                return $fecha->format('Y-m-d');
-            })
+            'data' => [
+                'cita' => $cita->load(['vehiculo', 'servicios']),
+                'servicios' => Servicio::activos()->where('categoria', $cita->vehiculo->tipo)->get(),
+                'vehiculos' => Auth::user()->vehiculos,
+                'horarios_disponibles' => $this->getHorariosDisponibles($cita->fecha_hora->format('Y-m-d')),
+                'dias_no_laborables' => DiaNoLaborable::futuros()->pluck('fecha')->map(function ($fecha) {
+                    return $fecha->format('Y-m-d');
+                }),
+                'restriccion_24h' => $restriccion_24h,
+                'vehiculo_id' => $cita->vehiculo_id,
+                'fecha' => $cita->fecha_hora->format('Y-m-d'),
+                'hora' => $cita->fecha_hora->format('H:i'),
+                'observaciones' => $cita->observaciones
+            ]
         ]);
     }
 
     public function updateCita(Request $request, Cita $cita)
-    {
-        // Forzar servicios como array (incluso si viene como string)
-        $request->merge(['servicios' => (array)$request->input('servicios', [])]);
+{
+    // Forzar servicios como array (incluso si viene como string)
+    $request->merge(['servicios' => (array)$request->input('servicios', [])]);
 
-        Log::debug('Datos recibidos para actualizar cita:', $request->all());
+    Log::debug('Datos recibidos para actualizar cita:', $request->all());
 
-        // Verificar permisos
-        if ($cita->usuario_id !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No tienes permiso para editar esta cita'
-            ], 403);
-        }
+    // Verificar permisos
+    if ($cita->usuario_id !== Auth::id()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No tienes permiso para editar esta cita'
+        ], 403);
+    }
 
-        if (!in_array($cita->estado, ['pendiente', 'confirmada'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Solo se pueden editar citas en estado pendiente o confirmada'
-            ], 400);
-        }
+    if (!in_array($cita->estado, ['pendiente', 'confirmada'])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Solo se pueden editar citas en estado pendiente o confirmada'
+        ], 400);
+    }
 
-        // Agregar el ID de la cita actual al request para validación
-        $request->merge(['cita_id' => $cita->id]);
-        try {
-            $validated = $request->validate([
-                'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
-                'fecha' => 'required|date|after_or_equal:today',
-                'hora' => 'required|date_format:H:i',
-                'servicios' => 'required|array|min:1',
-                'servicios.*' => 'exists:servicios,id',
-                'observaciones' => 'nullable|string|max:500'
-            ]);
+    // Agregar el ID de la cita actual al request para validación
+    $request->merge(['cita_id' => $cita->id]);
+    
+    try {
+        $validated = $request->validate([
+            'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
+            'fecha_hora' => 'required|date|after_or_equal:today', // ✅ Cambiado a fecha_hora
+            'servicios' => 'required|array|min:1',
+            'servicios.*' => 'exists:servicios,id',
+            'observaciones' => 'nullable|string|max:500'
+        ]);
 
-            // Bloquear cambios de fecha/hora/vehículo si faltan menos de 24 horas para cita confirmada
-            $fechaActual = now();
-            $fechaCitaOriginal = Carbon::parse($cita->fecha_hora);
-            $horasRestantes = $fechaActual->diffInHours($fechaCitaOriginal, false);
+        // Parsear fecha y hora (ya vienen combinadas)
+        $fechaCita = Carbon::parse($validated['fecha_hora'], config('app.timezone'));
 
-            if ($cita->estado === 'confirmada' && $horasRestantes < 24) {
-                // Verificar qué campos intentan modificar
-                $fechaCitaNueva = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
-                $haCambiadoFechaHora = !$fechaCitaOriginal->equalTo($fechaCitaNueva);
-                $haCambiadoVehiculo = $cita->vehiculo_id != $validated['vehiculo_id'];
+        // Bloquear cambios de fecha/hora/vehículo si faltan menos de 24 horas para cita confirmada
+        $fechaActual = now();
+        $fechaCitaOriginal = Carbon::parse($cita->fecha_hora);
+        $horasRestantes = $fechaActual->diffInHours($fechaCitaOriginal, false);
 
-                if ($haCambiadoFechaHora || $haCambiadoVehiculo) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'No puedes cambiar la fecha, hora o vehículo cuando faltan menos de 24 horas para la cita confirmada. Solo puedes modificar servicios u observaciones.'
-                    ], 400);
-                }
-            }
+        if ($cita->estado === 'confirmada' && $horasRestantes < 24) {
+            // Verificar qué campos intentan modificar
+            $haCambiadoFechaHora = !$fechaCitaOriginal->equalTo($fechaCita);
+            $haCambiadoVehiculo = $cita->vehiculo_id != $validated['vehiculo_id'];
 
-            // Crear request temporal para usar storeCita con exclusión
-            $tempRequest = new Request();
-            $tempRequest->replace($validated);
-            $tempRequest->merge(['cita_id' => $cita->id]); // Agregar ID para exclusión
-
-            DB::beginTransaction();
-
-            // Combinar fecha y hora
-            $fechaCita = Carbon::parse($validated['fecha'] . ' ' . $validated['hora']);
-
-            // Verificar si la fecha/hora ha cambiado
-            $fechaOriginal = Carbon::parse($cita->fecha_hora);
-            $haCambiadoFecha = !$fechaOriginal->equalTo($fechaCita);
-
-            // Si la cita estaba confirmada y cambió la fecha, cambiar a pendiente
-            $nuevoEstado = $cita->estado;
-            if ($cita->estado === 'confirmada' && $haCambiadoFecha) {
-                $nuevoEstado = 'pendiente';
-            }
-
-            // Validar que la nueva fecha/hora no sea en el pasado
-            if ($fechaCita->lt(now())) {
-                throw new \Exception('No puedes cambiar la cita a una fecha u hora pasada.', 400);
-            }
-
-            // Validaciones básicas
-            if ($fechaCita->isSunday()) {
-                throw new \Exception('No atendemos domingos.', 400);
-            }
-
-            if ($fechaCita->gt(Carbon::now()->addMonth())) {
-                throw new \Exception('Máximo 1 mes de anticipación.', 400);
-            }
-
-            if (DiaNoLaborable::whereDate('fecha', $fechaCita)->exists()) {
-                throw new \Exception('Día no laborable.', 400);
-            }
-
-            $hora = $fechaCita->format('H:i');
-            if ($hora < '08:00' || $hora > '18:00') {
-                throw new \Exception('Horario no laboral (8:00 AM - 6:00 PM).', 400);
-            }
-
-            // Validar tipo de vehículo vs servicios
-            $vehiculo = Vehiculo::find($validated['vehiculo_id']);
-            $servicios = Servicio::whereIn('id', $validated['servicios'])->get();
-
-            foreach ($servicios as $servicio) {
-                if ($servicio->categoria !== $vehiculo->tipo) {
-                    throw new \Exception('El servicio "' . $servicio->nombre . '" no está disponible para ' . $vehiculo->tipo . 's.', 400);
-                }
-            }
-
-            // Calcular duración total
-            $duracionTotal = $servicios->sum('duracion_min');
-            $horaFin = $fechaCita->copy()->addMinutes($duracionTotal);
-
-            if ($horaFin->format('H:i') > '18:00') {
-                throw new \Exception('Los servicios seleccionados exceden el horario de cierre.', 400);
-            }
-
-            // Verificar colisión excluyendo esta cita
-            $citasSuperpuestas = Cita::where('estado', '!=', 'cancelada')
-                ->where('id', '!=', $cita->id) // EXCLUSIÓN EXPLÍCITA
-                ->where(function ($query) use ($fechaCita, $horaFin) {
-                    $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
-                        ->orWhere(function ($q) use ($fechaCita, $horaFin) {
-                            $q->where('fecha_hora', '<', $fechaCita)
-                                ->whereRaw('DATE_ADD(fecha_hora, INTERVAL (
-                        SELECT SUM(servicios.duracion_min)
-                        FROM cita_servicio
-                        JOIN servicios ON cita_servicio.servicio_id = servicios.id
-                        WHERE cita_servicio.cita_id = citas.id
-                    ) MINUTE) > ?', [$fechaCita]);
-                        })
-                        ->orWhere(function ($q) use ($fechaCita, $horaFin) {
-                            $q->where('fecha_hora', '>', $fechaCita)
-                                ->where('fecha_hora', '<', $horaFin);
-                        });
-                })
-                ->exists();
-
-            if ($citasSuperpuestas) {
-                $horariosDisponibles = $this->getAvailableTimes($fechaCita->format('Y-m-d'), $cita->id);
+            if ($haCambiadoFechaHora || $haCambiadoVehiculo) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'El horario seleccionado está ocupado.',
-                    'data' => [
-                        'available_times' => $horariosDisponibles,
-                        'duracion_total' => $duracionTotal
-                    ]
-                ], 409);
+                    'message' => 'No puedes cambiar la fecha, hora o vehículo cuando faltan menos de 24 horas para la cita confirmada. Solo puedes modificar servicios u observaciones.'
+                ], 400);
             }
-
-            // Actualizar cita
-            $cita->update([
-                'vehiculo_id' => $validated['vehiculo_id'],
-                'fecha_hora' => $fechaCita,
-                'estado' => $nuevoEstado,
-                'observaciones' => $validated['observaciones'] ?? null
-            ]);
-
-            // Sincronizar servicios
-            $serviciosConPrecio = [];
-            foreach ($validated['servicios'] as $servicioId) {
-                $servicio = Servicio::find($servicioId);
-                $serviciosConPrecio[$servicioId] = ['precio' => $servicio->precio];
-            }
-            $cita->servicios()->sync($serviciosConPrecio);
-
-            DB::commit();
-
-            // Recargar la cita con relaciones
-            $cita->load(['vehiculo', 'servicios']);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Cita actualizada exitosamente',
-                'data' => [
-                    'cita_id' => $cita->id,
-                    'fecha_hora' => $fechaCita->format('Y-m-d H:i:s'),
-                    'servicios_nombres' => $cita->servicios->pluck('nombre')->join(', '),
-                    'vehiculo_marca' => $cita->vehiculo->marca,
-                    'vehiculo_modelo' => $cita->vehiculo->modelo,
-                    'vehiculo_placa' => $cita->vehiculo->placa ?? '',
-                    'nuevo_estado' => $nuevoEstado
-                ]
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error al actualizar cita: ' . $e->getMessage(), [
-                'cita_id' => $cita->id,
-                'request' => $request->all(),
-                'error' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
         }
+
+        DB::beginTransaction();
+
+        // Verificar si la fecha/hora ha cambiado
+        $haCambiadoFecha = !$fechaCitaOriginal->equalTo($fechaCita);
+
+        // Si la cita estaba confirmada y cambió la fecha, cambiar a pendiente
+        $nuevoEstado = $cita->estado;
+        if ($cita->estado === 'confirmada' && $haCambiadoFecha) {
+            $nuevoEstado = 'pendiente';
+        }
+
+        // Validar que la nueva fecha/hora no sea en el pasado
+        if ($fechaCita->lt(now())) {
+            throw new \Exception('No puedes cambiar la cita a una fecha u hora pasada.', 400);
+        }
+
+        // Validaciones básicas
+        if ($fechaCita->isSunday()) {
+            throw new \Exception('No atendemos domingos.', 400);
+        }
+
+        if ($fechaCita->gt(Carbon::now()->addMonth())) {
+            throw new \Exception('Máximo 1 mes de anticipación.', 400);
+        }
+
+        if (DiaNoLaborable::whereDate('fecha', $fechaCita)->exists()) {
+            throw new \Exception('Día no laborable.', 400);
+        }
+
+        $hora = $fechaCita->format('H:i');
+        if ($hora < '08:00' || $hora > '18:00') {
+            throw new \Exception('Horario no laboral (8:00 AM - 6:00 PM).', 400);
+        }
+
+        // Validar tipo de vehículo vs servicios
+        $vehiculo = Vehiculo::find($validated['vehiculo_id']);
+        $servicios = Servicio::whereIn('id', $validated['servicios'])->get();
+
+        foreach ($servicios as $servicio) {
+            if ($servicio->categoria !== $vehiculo->tipo) {
+                throw new \Exception('El servicio "' . $servicio->nombre . '" no está disponible para ' . $vehiculo->tipo . 's.', 400);
+            }
+        }
+
+        // Calcular duración total
+        $duracionTotal = $servicios->sum('duracion_min');
+        $horaFin = $fechaCita->copy()->addMinutes($duracionTotal);
+
+        if ($horaFin->format('H:i') > '18:00') {
+            throw new \Exception('Los servicios seleccionados exceden el horario de cierre.', 400);
+        }
+
+        // Verificar colisión excluyendo esta cita
+        $citasSuperpuestas = Cita::where('estado', '!=', 'cancelada')
+            ->where('id', '!=', $cita->id) // EXCLUSIÓN EXPLÍCITA
+            ->where(function ($query) use ($fechaCita, $horaFin) {
+                $query->whereBetween('fecha_hora', [$fechaCita, $horaFin])
+                    ->orWhere(function ($q) use ($fechaCita, $horaFin) {
+                        $q->where('fecha_hora', '<', $fechaCita)
+                            ->whereRaw('DATE_ADD(fecha_hora, INTERVAL (
+                    SELECT SUM(servicios.duracion_min)
+                    FROM cita_servicio
+                    JOIN servicios ON cita_servicio.servicio_id = servicios.id
+                    WHERE cita_servicio.cita_id = citas.id
+                ) MINUTE) > ?', [$fechaCita]);
+                    })
+                    ->orWhere(function ($q) use ($fechaCita, $horaFin) {
+                        $q->where('fecha_hora', '>', $fechaCita)
+                            ->where('fecha_hora', '<', $horaFin);
+                    });
+            })
+            ->exists();
+
+        if ($citasSuperpuestas) {
+            $horariosDisponibles = $this->getAvailableTimes($fechaCita->format('Y-m-d'), $cita->id);
+            return response()->json([
+                'success' => false,
+                'message' => 'El horario seleccionado está ocupado.',
+                'data' => [
+                    'available_times' => $horariosDisponibles,
+                    'duracion_total' => $duracionTotal
+                ]
+            ], 409);
+        }
+
+        // Actualizar cita
+        $cita->update([
+            'vehiculo_id' => $validated['vehiculo_id'],
+            'fecha_hora' => $fechaCita,
+            'estado' => $nuevoEstado,
+            'observaciones' => $validated['observaciones'] ?? null
+        ]);
+
+        // Sincronizar servicios
+        $serviciosConPrecio = [];
+        foreach ($validated['servicios'] as $servicioId) {
+            $servicio = Servicio::find($servicioId);
+            $serviciosConPrecio[$servicioId] = ['precio' => $servicio->precio];
+        }
+        $cita->servicios()->sync($serviciosConPrecio);
+
+        DB::commit();
+
+        // Recargar la cita con relaciones
+        $cita->load(['vehiculo', 'servicios']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cita actualizada exitosamente',
+            'data' => [
+                'cita_id' => $cita->id,
+                'fecha_hora' => $fechaCita->format('Y-m-d H:i:s'),
+                'servicios_nombres' => $cita->servicios->pluck('nombre')->join(', '),
+                'vehiculo_marca' => $cita->vehiculo->marca,
+                'vehiculo_modelo' => $cita->vehiculo->modelo,
+                'vehiculo_placa' => $cita->vehiculo->placa ?? '',
+                'nuevo_estado' => $nuevoEstado
+            ]
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Error de validación',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error al actualizar cita: ' . $e->getMessage(), [
+            'cita_id' => $cita->id,
+            'request' => $request->all(),
+            'error' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
 
     public function getHorariosOcupados(Request $request)
     {
