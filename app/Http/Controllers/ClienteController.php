@@ -261,8 +261,7 @@ class ClienteController extends Controller
             return response()->json([
                 'message' => 'Los servicios seleccionados no pueden completarse antes del cierre.',
                 'duracion_total' => $duracionTotal,
-                'hora_cierre' => $horario->hora_fin->format('H:i'),
-                'servicios_disponibles' => $this->getServiciosDisponiblesParaHora($fechaCita, $horario->hora_fin)
+                'hora_cierre' => $horario->hora_fin->format('H:i')
             ], 400);
         }
 

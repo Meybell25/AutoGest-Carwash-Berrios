@@ -3096,8 +3096,8 @@
 
     <script>
         /*=========================================================
-                FUNCIONAMIENTO DE CREAR CITAS
-                =========================================================*/
+        FUNCIONAMIENTO DE CREAR CITAS
+        =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3360,8 +3360,7 @@
 
             try {
 
-                const url =
-                    `/cliente/horarios-disponibles/${selectedDate}${excludeCitaId ? '?exclude=' + excludeCitaId : ''}`;
+                const url = `/cliente/horarios-disponibles/${selectedDate}${excludeCitaId ? '?exclude=' + excludeCitaId : ''}`;
                 console.log('Consultando horarios disponibles:', url);
 
                 const response = await fetch(url, {
@@ -3538,8 +3537,12 @@
         }
 
         // Configuracion del datepicker
+        // Configuracion del datepicker
         function setupDatePicker() {
             const fechaInput = document.getElementById('fecha');
+
+            // Agrega esta variable para controlar el estado
+            let isProcessing = false;
 
             // Establecer fechas mínima y máxima correctamente
             const hoy = new Date();
@@ -3556,10 +3559,14 @@
             });
 
             fechaInput.addEventListener('change', async function() {
+                if (isProcessing) return; // Evita ejecución múltiple
+                isProcessing = true;
+
                 console.log('📅 Fecha cambiada:', this.value);
 
                 if (!this.value) {
                     document.getElementById('hora').innerHTML = '<option value="">Seleccione una hora</option>';
+                    isProcessing = false;
                     return;
                 }
 
@@ -3577,6 +3584,7 @@
                         this.value = '';
                         document.getElementById('hora').innerHTML =
                             '<option value="">Seleccione una hora</option>';
+                        isProcessing = false;
                         return;
                     }
 
@@ -3590,11 +3598,12 @@
                                 showDateError(
                                     'Día no laborable',
                                     `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
-                             <strong>Motivo:</strong> ${data.motivo || 'Día no laborable'}`
+                     <strong>Motivo:</strong> ${data.motivo || 'Día no laborable'}`
                                 );
                                 this.value = '';
                                 document.getElementById('hora').innerHTML =
                                     '<option value="">Seleccione una hora</option>';
+                                isProcessing = false;
                                 return;
                             }
                         }
@@ -3606,11 +3615,12 @@
                             showDateError(
                                 'Día no laborable',
                                 `No se atienden citas el ${formatFechaBonita(selectedDate)}.<br>
-                         <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
+                 <strong>Motivo:</strong> ${diaNoLaborable.motivo || 'Día no laborable'}`
                             );
                             this.value = '';
                             document.getElementById('hora').innerHTML =
                                 '<option value="">Seleccione una hora</option>';
+                            isProcessing = false;
                             return;
                         }
                     }
@@ -3623,6 +3633,8 @@
                     console.error('Error al procesar fecha:', error);
                     showDateError('Error', 'Fecha inválida. Por favor selecciona una fecha válida.');
                     this.value = '';
+                } finally {
+                    isProcessing = false; // Siempre libera el lock
                 }
             });
         }
@@ -4243,10 +4255,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                <i class="fas fa-calendar-plus"></i>
-                                                                                Agendar Cita
-                                                                            </button>` : ''}
+                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                        <i class="fas fa-calendar-plus"></i>
+                                                                                        Agendar Cita
+                                                                                    </button>` : ''}
                 </div>
             `;
                     return;
@@ -4289,7 +4301,7 @@
                             ${diasRestantes <= 7 ? `<span class="days-remaining">${urgenciaText}</span>` : ''}
                         </div>
                         <div class="time-info">
-                            <div class="time">${hora}</div>
+                            <div class="time">${formatearSoloHoraAMPM(cita.fecha_hora)}</div>
                             <div class="service">
                                 ${cita.servicios.map(s => s.nombre).join(', ')}
                             </div>
@@ -4371,6 +4383,15 @@
                 });
                 location.reload();
             }
+        }
+
+        function formatearSoloHoraAMPM(fechaHora) {
+            const fecha = formatearFechaHoraFromServer(fechaHora);
+            return fecha.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true // Esto fuerza el formato AM/PM
+            });
         }
 
         async function generateAvailableTimesFromOccupied(fecha, horariosOcupados) {
@@ -4551,7 +4572,6 @@
             });
         }
 
-        // Manejar envío del formulario
         // Manejar envío del formulario
         document.addEventListener('DOMContentLoaded', function() {
             const citaForm = document.getElementById('citaForm');
@@ -4737,11 +4757,11 @@
                 <p>${errorMessage}</p>
                 ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
                 ${showAvailableTimes && availableTimes.length > 0 ? `
-                                                                                                                                                                                            <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
-                                                                                                                                                                                            <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
-                                                                                                                                                                                                ${availableTimes.map(time => `<li>${time}</li>`).join('')}
-                                                                                                                                                                                            </ul>
-                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                    <p style="margin-top: 10px;"><strong>Horarios disponibles:</strong></p>
+                                                                                                                                                                                                    <ul style="margin-top: 5px; max-height: 150px; overflow-y: auto;">
+                                                                                                                                                                                                        ${availableTimes.map(time => `<li>${time}</li>`).join('')}
+                                                                                                                                                                                                    </ul>
+                                                                                                                                                                                                ` : ''}
                 <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                     Por favor intenta nuevamente con un horario diferente.
                 </p>
@@ -5104,10 +5124,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -5219,8 +5239,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -5249,8 +5269,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

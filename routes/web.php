@@ -186,7 +186,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('dashboard.data');
 
         // Datos para formularios 
-        Route::get('/cliente/horarios-disponibles/{fecha}', [ClienteController::class, 'getHorariosDisponibles'])
+        Route::get('/horarios-disponibles/{fecha}', [ClienteController::class, 'getHorariosDisponibles'])
             ->name('cliente.horarios-disponibles.fecha');
 
         // Datos para formularios
