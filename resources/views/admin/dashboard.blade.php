@@ -3432,11 +3432,11 @@
     </div>
 
     <!-- Modal para nuevo/editar servicio - VERSIÓN MEJORADA -->
+    <!-- Modal para nuevo/editar servicio -->
     <div id="servicioModal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
             <span class="close-modal" onclick="closeModal('servicioModal')">&times;</span>
             
-            <!-- Usando tu formulario de servicios -->
             <div class="container-fluid">
                 <div class="row mb-4">
                     <div class="col-md-12">
@@ -3448,8 +3448,11 @@
 
                 <div class="card shadow mb-4">
                     <div class="card-body">
-                        <form id="servicioForm" action="#" method="POST">
+                        {{-- Formulario dinámico --}}
+                        <form id="servicioForm" action="{{ route('admin.servicios.store') }}" method="POST">
                             @csrf
+                            {{-- Este hidden se reemplazará con PUT en edición --}}
+                            <input type="hidden" name="_method" id="form_method" value="POST">
                             <input type="hidden" id="servicio_id" name="id">
 
                             <div class="row">
@@ -3457,21 +3460,17 @@
                                     <div class="form-group">
                                         <label for="nombre">Nombre del Servicio *</label>
                                         <input type="text" class="form-control" 
-                                               id="nombre" name="nombre" 
-                                               value="" required>
+                                            id="nombre" name="nombre" required>
                                     </div>
                                 </div>
                                 
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="categoria">Categoría *</label>
-                                        <select class="form-control" 
-                                                id="categoria" name="categoria" required>
+                                        <select class="form-control" id="categoria" name="categoria" required>
                                             <option value="">Seleccione una categoría</option>
                                             @foreach(['lavado', 'pulido', 'interior', 'completo'] as $categoria)
-                                                <option value="{{ $categoria }}">
-                                                    {{ ucfirst($categoria) }}
-                                                </option>
+                                                <option value="{{ $categoria }}">{{ ucfirst($categoria) }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -3480,28 +3479,23 @@
 
                             <div class="form-group">
                                 <label for="descripcion">Descripción</label>
-                                <textarea class="form-control" 
-                                          id="descripcion" name="descripcion" rows="2"></textarea>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="2"></textarea>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="precio">Precio ($) *</label>
-                                        <input type="number" step="0.01" min="0.01" 
-                                               class="form-control" 
-                                               id="precio" name="precio" 
-                                               value="" required>
+                                        <input type="number" step="0.01" min="0.01" class="form-control" 
+                                            id="precio" name="precio" required>
                                     </div>
                                 </div>
                                 
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="duracion_min">Duración (minutos) *</label>
-                                        <input type="number" min="5" 
-                                               class="form-control" 
-                                               id="duracion_min" name="duracion_min" 
-                                               value="" required>
+                                        <input type="number" min="5" class="form-control" 
+                                            id="duracion_min" name="duracion_min" required>
                                     </div>
                                 </div>
                                 
@@ -3531,6 +3525,7 @@
         </div>
     </div>
 
+    
     <!-- Footer -->
     <footer class="footer">
         <div class="sparkle"></div>
@@ -4568,29 +4563,35 @@
 
         // Scripts actualizados para manejar el formulario de servicios
         // Función para abrir el modal de nuevo servicio
-        function nuevoServicio() {
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Crear Nuevo Servicio';
-            document.getElementById('servicioForm').reset();
-            document.getElementById('servicio_id').value = '';
-            document.getElementById('servicioModal').style.display = 'block';
+        function openCreateModal() {
+        let form = document.getElementById('servicioForm');
+        form.action = "{{ route('admin.servicios.store') }}";
+        document.getElementById('form_method').value = 'POST';
+        form.reset();
+        document.getElementById('servicioModalTitle').innerHTML = 
+            '<i class="fas fa-plus-circle"></i> Crear Nuevo Servicio';
+        openModal('servicioModal');
         }
 
-        // Función para abrir el modal de edición
-        function editarServicio(servicioId) {
-            document.getElementById('servicioModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Servicio';
-            
-            // Simulación de datos - en una aplicación real harías una petición AJAX
-            // Estos son datos de ejemplo:
-            document.getElementById('servicio_id').value = servicioId;
-            document.getElementById('nombre').value = 'Lavado Premium';
-            document.getElementById('categoria').value = 'lavado';
-            document.getElementById('descripcion').value = 'Lavado completo exterior con cera y brillo profesional';
-            document.getElementById('precio').value = '45.00';
-            document.getElementById('duracion_min').value = '45';
-            document.getElementById('activo').value = '1';
-            
-            document.getElementById('servicioModal').style.display = 'block';
+        function openEditModal(id, servicio) {
+        let form = document.getElementById('servicioForm');
+        form.action = "/admin/servicios/" + id;
+        document.getElementById('form_method').value = 'PUT';
+
+        // Cargar datos en inputs
+        document.getElementById('servicio_id').value = id;
+        document.getElementById('nombre').value = servicio.nombre;
+        document.getElementById('categoria').value = servicio.categoria;
+        document.getElementById('descripcion').value = servicio.descripcion;
+        document.getElementById('precio').value = servicio.precio;
+        document.getElementById('duracion_min').value = servicio.duracion_min;
+        document.getElementById('activo').value = servicio.activo;
+
+        document.getElementById('servicioModalTitle').innerHTML = 
+            '<i class="fas fa-edit"></i> Editar Servicio';
+        openModal('servicioModal');
         }
+
 
         // Manejar envío del formulario
         document.getElementById('servicioForm').addEventListener('submit', function(e) {
