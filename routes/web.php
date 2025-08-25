@@ -226,6 +226,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
 
         // Servicios
         Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
+
     });
 
 // Rutas de perfil
@@ -344,3 +345,8 @@ Route::get('/check-timezone', function () {
         'db_time' => $dbTime[0]->current_time
     ]);
 });
+
+// routes/web.php
+Route::post('/cliente/debug-horarios', [ClienteController::class, 'debugHorarios'])
+    ->name('cliente.debug-horarios')
+    ->middleware('auth');
