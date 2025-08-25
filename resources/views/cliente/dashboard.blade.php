@@ -4640,103 +4640,103 @@
 
         // Manejar envío del formulario
         document.addEventListener('DOMContentLoaded', function() {
-                    const citaForm = document.getElementById('citaForm');
+            const citaForm = document.getElementById('citaForm');
 
-                    if (citaForm) {
-                        citaForm.addEventListener('submit', async function(e) {
-                                        e.preventDefault();
+            if (citaForm) {
+                citaForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
 
-                                        // Validar que al menos un servicio esté seleccionado
-                                        const serviciosSeleccionados = document.querySelectorAll(
-                                            'input[name="servicios[]"]:checked');
-                                        if (serviciosSeleccionados.length === 0) {
-                                            swalWithBootstrapButtons.fire('Error', 'Debes seleccionar al menos un servicio',
-                                                'error');
-                                            return;
-                                        }
+                    // Validar que al menos un servicio esté seleccionado
+                    const serviciosSeleccionados = document.querySelectorAll(
+                        'input[name="servicios[]"]:checked');
+                    if (serviciosSeleccionados.length === 0) {
+                        swalWithBootstrapButtons.fire('Error', 'Debes seleccionar al menos un servicio',
+                            'error');
+                        return;
+                    }
 
-                                        const isEdit = document.getElementById('form_cita_id').value;
+                    const isEdit = document.getElementById('form_cita_id').value;
 
-                                        // Mostrar loader
-                                        const swalInstance = swalWithBootstrapButtons.fire({
-                                            title: isEdit ? 'Actualizando cita...' : 'Procesando cita...',
-                                            html: isEdit ? 'Estamos actualizando tu cita, por favor espera' :
-                                                'Estamos reservando tu cita, por favor espera',
-                                            allowOutsideClick: false,
-                                            didOpen: () => Swal.showLoading()
-                                        });
+                    // Mostrar loader
+                    const swalInstance = swalWithBootstrapButtons.fire({
+                        title: isEdit ? 'Actualizando cita...' : 'Procesando cita...',
+                        html: isEdit ? 'Estamos actualizando tu cita, por favor espera' :
+                            'Estamos reservando tu cita, por favor espera',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
 
-                                        const form = this;
-                                        const formData = new FormData(form);
+                    const form = this;
+                    const formData = new FormData(form);
 
-                                        // ✅ CORRECCIÓN: Combinar fecha y hora y ELIMINAR los campos individuales
-                                        const fecha = document.getElementById('fecha').value;
-                                        const hora = document.getElementById('hora').value;
+                    // ✅ CORRECCIÓN: Combinar fecha y hora y ELIMINAR los campos individuales
+                    const fecha = document.getElementById('fecha').value;
+                    const hora = document.getElementById('hora').value;
 
-                                        if (!fecha || !hora) {
-                                            swalWithBootstrapButtons.fire({
-                                                title: 'Error',
-                                                text: 'Debes seleccionar fecha y hora',
-                                                icon: 'error'
-                                            });
-                                            swalInstance.close();
-                                            return;
-                                        }
+                    if (!fecha || !hora) {
+                        swalWithBootstrapButtons.fire({
+                            title: 'Error',
+                            text: 'Debes seleccionar fecha y hora',
+                            icon: 'error'
+                        });
+                        swalInstance.close();
+                        return;
+                    }
 
-                                        // Combinar correctamente fecha y hora para el servidor
-                                        const fechaHoraCompleta = `${fecha} ${hora}:00`;
-                                        console.log('Fecha/hora a enviar:', fechaHoraCompleta);
+                    // Combinar correctamente fecha y hora para el servidor
+                    const fechaHoraCompleta = `${fecha} ${hora}:00`;
+                    console.log('Fecha/hora a enviar:', fechaHoraCompleta);
 
-                                        // ✅ ELIMINAR campos individuales y agregar solo fecha_hora
-                                        formData.delete('fecha'); // Eliminar campo individual
-                                        formData.delete('hora'); // Eliminar campo individual
-                                        formData.append('fecha_hora', fechaHoraCompleta); // Agregar campo combinado
+                    // ✅ ELIMINAR campos individuales y agregar solo fecha_hora
+                    formData.delete('fecha'); // Eliminar campo individual
+                    formData.delete('hora'); // Eliminar campo individual
+                    formData.append('fecha_hora', fechaHoraCompleta); // Agregar campo combinado
 
-                                        // Agregar el ID de la cita si es edición
-                                        if (isEdit) {
-                                            formData.append('cita_id', isEdit);
-                                        }
+                    // Agregar el ID de la cita si es edición
+                    if (isEdit) {
+                        formData.append('cita_id', isEdit);
+                    }
 
-                                        // Configurar método HTTP correcto
-                                        const method = isEdit ? 'PUT' : 'POST';
+                    // Configurar método HTTP correcto
+                    const method = isEdit ? 'PUT' : 'POST';
 
-                                        // Para PUT necesitamos agregar _method
-                                        if (method === 'PUT') {
-                                            formData.append('_method', 'PUT');
-                                        }
+                    // Para PUT necesitamos agregar _method
+                    if (method === 'PUT') {
+                        formData.append('_method', 'PUT');
+                    }
 
-                                        console.log('Enviando formulario:', {
-                                            url: form.action,
-                                            method: method,
-                                            isEdit: isEdit,
-                                            fecha_hora: fechaHoraCompleta
-                                        });
+                    console.log('Enviando formulario:', {
+                        url: form.action,
+                        method: method,
+                        isEdit: isEdit,
+                        fecha_hora: fechaHoraCompleta
+                    });
 
-                                        try {
-                                            const response = await fetch(form.action, {
-                                                method: 'POST', // Siempre POST, Laravel maneja _method
-                                                headers: {
-                                                    'Accept': 'application/json',
-                                                    'X-Requested-With': 'XMLHttpRequest',
-                                                    'X-CSRF-TOKEN': document.querySelector(
-                                                        'meta[name="csrf-token"]').content
-                                                },
-                                                body: formData
-                                            });
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST', // Siempre POST, Laravel maneja _method
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').content
+                            },
+                            body: formData
+                        });
 
-                                            const result = await response.json();
-                                            await swalInstance.close();
+                        const result = await response.json();
+                        await swalInstance.close();
 
-                                            if (!response.ok) {
-                                                throw new Error(result.message || 'Error al procesar la cita');
-                                            }
+                        if (!response.ok) {
+                            throw new Error(result.message || 'Error al procesar la cita');
+                        }
 
-                                            // Éxito
-                                            closeCitaModal();
+                        // Éxito
+                        closeCitaModal();
 
-                                            await swalWithBootstrapButtons.fire({
-                                                title: isEdit ? '¡Cita actualizada!' : '¡Cita agendada!',
-                                                html: `
+                        await swalWithBootstrapButtons.fire({
+                            title: isEdit ? '¡Cita actualizada!' : '¡Cita agendada!',
+                            html: `
                 <div style="text-align: left; margin-top: 15px;">
                     <p><strong>Fecha:</strong> ${new Date(result.data.fecha_hora).toLocaleDateString('es-ES', { 
                         weekday: 'long', 
@@ -4753,35 +4753,35 @@
                     ${result.data.vehiculo_placa ? `<p><strong>Placa:</strong> ${result.data.vehiculo_placa}</p>` : ''}
                 </div>
             `,
-                                                icon: 'success',
-                                                confirmButtonText: 'Aceptar'
-                                            });
+                            icon: 'success',
+                            confirmButtonText: 'Aceptar'
+                        });
 
-                                            await updateCitasSections();
+                        await updateCitasSections();
 
-                                        } catch (error) {
-                                            console.error('Error:', error);
-                                            await swalInstance.close();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        await swalInstance.close();
 
-                                            let errorMessage = 'Ocurrió un error al procesar tu cita.';
-                                            let errorDetails = '';
-                                            let showAvailableTimes = false;
-                                            let availableTimes = [];
-                                            let esAdvertencia = false;
+                        let errorMessage = 'Ocurrió un error al procesar tu cita.';
+                        let errorDetails = '';
+                        let showAvailableTimes = false;
+                        let availableTimes = [];
+                        let esAdvertencia = false;
 
-                                            if (error.message) {
-                                                if (typeof error.message === 'string') {
-                                                    errorMessage = error.message;
+                        if (error.message) {
+                            if (typeof error.message === 'string') {
+                                errorMessage = error.message;
 
-                                                    // Manejar advertencias en lugar de errores
-                                                    if (error.message.includes('Atención:') || (error.es_advertencia !==
-                                                            undefined && error.es_advertencia)) {
-                                                        esAdvertencia = true;
+                                // ✅ Manejar advertencias en lugar de errores
+                                if (error.message.includes('Atención:') || (error.es_advertencia !==
+                                        undefined && error.es_advertencia)) {
+                                    esAdvertencia = true;
 
-                                                        // Mostrar confirmación para proceder con advertencia
-                                                        const result = await swalWithBootstrapButtons.fire({
-                                                            title: '⚠️ Advertencia',
-                                                            html: `
+                                    // Mostrar confirmación para proceder con advertencia
+                                    const result = await swalWithBootstrapButtons.fire({
+                                        title: '⚠️ Advertencia',
+                                        html: `
                         <div style="text-align: left;">
                             <p>${error.message}</p>
                             ${error.minutos_excedidos ? 
@@ -4792,36 +4792,36 @@
                             </p>
                         </div>
                     `,
-                                                            icon: 'warning',
-                                                            showCancelButton: true,
-                                                            confirmButtonText: 'Sí, continuar',
-                                                            cancelButtonText: 'No, cambiar horario'
-                                                        });
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Sí, continuar',
+                                        cancelButtonText: 'No, cambiar horario'
+                                    });
 
-                                                        if (result.isConfirmed) {
-                                                            await forceCreateCita(formData);
-                                                            return;
-                                                        }
-                                                        return;
-                                                    }
+                                    if (result.isConfirmed) {
+                                        await forceCreateCita(formData);
+                                        return;
+                                    }
+                                    return;
+                                }
 
-                                                    // Manejar otros errores específicos
-                                                    if (error.message.includes('No atendemos domingos')) {
-                                                        // ... manejo existente
-                                                    } else if (error.message.includes('horario ya está ocupado') ||
-                                                        error.message.includes('horario seleccionado está ocupado')) {
-                                                        // ... manejo existente
-                                                    }
-                                                } else if (error.message && error.message.message) {
-                                                    errorMessage = error.message.message;
-                                                    if (error.message.errors) {
-                                                        errorDetails = Object.values(error.message.errors).join('<br>');
-                                                    }
-                                                }
-                                            }
+                                // Manejar otros errores específicos
+                                if (error.message.includes('No atendemos domingos')) {
+                                    // ... manejo existente
+                                } else if (error.message.includes('horario ya está ocupado') ||
+                                    error.message.includes('horario seleccionado está ocupado')) {
+                                    // ... manejo existente
+                                }
+                            } else if (error.message && error.message.message) {
+                                errorMessage = error.message.message;
+                                if (error.message.errors) {
+                                    errorDetails = Object.values(error.message.errors).join('<br>');
+                                }
+                            }
+                        }
 
-                                            // Mostrar error normal
-                                            const errorHtml = `
+                        // Mostrar error normal
+                        const errorHtml = `
         <div style="text-align: left;">
             <p>${errorMessage}</p>
             ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
@@ -4837,368 +4837,345 @@
         </div>
     `;
 
-                                            await swalWithBootstrapButtons.fire({
-                                                title: isEdit ? 'Error al actualizar' : 'Error al agendar',
-                                                html: errorHtml,
-                                                icon: 'error',
-                                                confirmButtonColor: '#ff6b6b'
-                                            });
-                                        }
+                        await swalWithBootstrapButtons.fire({
+                            title: isEdit ? 'Error al actualizar' : 'Error al agendar',
+                            html: errorHtml,
+                            icon: 'error',
+                            confirmButtonColor: '#ff6b6b'
+                        });
+                    }
 
-                                        // Codigo para el scroll personalizado
-                                        document.addEventListener('DOMContentLoaded', function() {
-                                            // Configurar scroll personalizado para Próximas Citas
-                                            setupCustomScroll('proximas-citas-container',
-                                                'proximas-citas-scrollbar', 'proximas-citas-thumb');
+                });
+            }
+        });
 
-                                            // Configurar scroll personalizado para Historial
-                                            setupCustomScroll('historial-container', 'historial-scrollbar',
-                                                'historial-thumb');
-                                        });
+        // Codigo para el scroll personalizado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar scroll personalizado para Próximas Citas
+            setupCustomScroll('proximas-citas-container', 'proximas-citas-scrollbar', 'proximas-citas-thumb');
 
-                                        function setupCustomScroll(containerId, scrollbarId, thumbId) {
-                                            const container = document.getElementById(containerId);
-                                            const scrollbar = document.getElementById(scrollbarId);
-                                            const thumb = document.getElementById(thumbId);
+            // Configurar scroll personalizado para Historial
+            setupCustomScroll('historial-container', 'historial-scrollbar', 'historial-thumb');
+        });
 
-                                            if (!container || !scrollbar || !thumb) return;
+        function setupCustomScroll(containerId, scrollbarId, thumbId) {
+            const container = document.getElementById(containerId);
+            const scrollbar = document.getElementById(scrollbarId);
+            const thumb = document.getElementById(thumbId);
 
-                                            // Calcular la relación entre el tamaño del thumb y el contenido
-                                            function updateThumb() {
-                                                const scrollRatio = container.clientHeight / container.scrollHeight;
-                                                const thumbHeight = Math.max(scrollRatio * scrollbar.clientHeight, 30);
-                                                thumb.style.height = `${thumbHeight}px`;
+            if (!container || !scrollbar || !thumb) return;
 
-                                                const maxScroll = container.scrollHeight - container.clientHeight;
-                                                const thumbPosition = (container.scrollTop / maxScroll) * (scrollbar
-                                                    .clientHeight - thumbHeight);
-                                                thumb.style.top = `${thumbPosition}px`;
-                                            }
+            // Calcular la relación entre el tamaño del thumb y el contenido
+            function updateThumb() {
+                const scrollRatio = container.clientHeight / container.scrollHeight;
+                const thumbHeight = Math.max(scrollRatio * scrollbar.clientHeight, 30);
+                thumb.style.height = `${thumbHeight}px`;
 
-                                            // Actualizar al cargar y al redimensionar
-                                            updateThumb();
-                                            window.addEventListener('resize', updateThumb);
+                const maxScroll = container.scrollHeight - container.clientHeight;
+                const thumbPosition = (container.scrollTop / maxScroll) * (scrollbar.clientHeight - thumbHeight);
+                thumb.style.top = `${thumbPosition}px`;
+            }
 
-                                            // Mover el scroll al arrastrar el thumb
-                                            let isDragging = false;
+            // Actualizar al cargar y al redimensionar
+            updateThumb();
+            window.addEventListener('resize', updateThumb);
 
-                                            thumb.addEventListener('mousedown', function(e) {
-                                                isDragging = true;
-                                                const startY = e.clientY;
-                                                const startTop = parseFloat(thumb.style.top) || 0;
+            // Mover el scroll al arrastrar el thumb
+            let isDragging = false;
 
-                                                function moveThumb(e) {
-                                                    if (!isDragging) return;
+            thumb.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                const startY = e.clientY;
+                const startTop = parseFloat(thumb.style.top) || 0;
 
-                                                    const deltaY = e.clientY - startY;
-                                                    let newTop = startTop + deltaY;
+                function moveThumb(e) {
+                    if (!isDragging) return;
 
-                                                    const maxTop = scrollbar.clientHeight - thumb.clientHeight;
-                                                    newTop = Math.max(0, Math.min(maxTop, newTop));
+                    const deltaY = e.clientY - startY;
+                    let newTop = startTop + deltaY;
 
-                                                    thumb.style.top = `${newTop}px`;
+                    const maxTop = scrollbar.clientHeight - thumb.clientHeight;
+                    newTop = Math.max(0, Math.min(maxTop, newTop));
 
-                                                    // Mover el contenido
-                                                    const scrollRatio = newTop / (scrollbar.clientHeight - thumb
-                                                        .clientHeight);
-                                                    container.scrollTop = scrollRatio * (container.scrollHeight -
-                                                        container.clientHeight);
-                                                }
+                    thumb.style.top = `${newTop}px`;
 
-                                                function stopDrag() {
-                                                    isDragging = false;
-                                                    document.removeEventListener('mousemove', moveThumb);
-                                                    document.removeEventListener('mouseup', stopDrag);
-                                                }
+                    // Mover el contenido
+                    const scrollRatio = newTop / (scrollbar.clientHeight - thumb.clientHeight);
+                    container.scrollTop = scrollRatio * (container.scrollHeight - container.clientHeight);
+                }
 
-                                                document.addEventListener('mousemove', moveThumb);
-                                                document.addEventListener('mouseup', stopDrag);
-                                                e.preventDefault();
-                                            });
+                function stopDrag() {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', moveThumb);
+                    document.removeEventListener('mouseup', stopDrag);
+                }
 
-                                            // Mover el thumb al hacer scroll con la rueda del mouse
-                                            container.addEventListener('scroll', function() {
-                                                if (!isDragging) {
-                                                    updateThumb();
-                                                }
-                                            });
+                document.addEventListener('mousemove', moveThumb);
+                document.addEventListener('mouseup', stopDrag);
+                e.preventDefault();
+            });
 
-                                            // Permitir hacer clic en la barra para mover el scroll
-                                            scrollbar.addEventListener('click', function(e) {
-                                                if (e.target === thumb) return;
+            // Mover el thumb al hacer scroll con la rueda del mouse
+            container.addEventListener('scroll', function() {
+                if (!isDragging) {
+                    updateThumb();
+                }
+            });
 
-                                                const clickPosition = e.clientY - scrollbar.getBoundingClientRect()
-                                                    .top;
-                                                const thumbHeight = parseFloat(thumb.style.height);
-                                                const newTop = clickPosition - (thumbHeight / 2);
+            // Permitir hacer clic en la barra para mover el scroll
+            scrollbar.addEventListener('click', function(e) {
+                if (e.target === thumb) return;
 
-                                                const maxTop = scrollbar.clientHeight - thumbHeight;
-                                                const adjustedTop = Math.max(0, Math.min(maxTop, newTop));
+                const clickPosition = e.clientY - scrollbar.getBoundingClientRect().top;
+                const thumbHeight = parseFloat(thumb.style.height);
+                const newTop = clickPosition - (thumbHeight / 2);
 
-                                                thumb.style.top = `${adjustedTop}px`;
+                const maxTop = scrollbar.clientHeight - thumbHeight;
+                const adjustedTop = Math.max(0, Math.min(maxTop, newTop));
 
-                                                // Mover el contenido
-                                                const scrollRatio = adjustedTop / (scrollbar.clientHeight -
-                                                    thumbHeight);
-                                                container.scrollTop = scrollRatio * (container.scrollHeight -
-                                                    container.clientHeight);
-                                            });
-                                        }
+                thumb.style.top = `${adjustedTop}px`;
 
-                                        // Script para debug - funciones para probar el manejo de fechas
-                                        async function debugFechas(fechaStr = null) {
-                                            const hoy = new Date();
-                                            const fechaTest = fechaStr || getLocalDateString(hoy);
+                // Mover el contenido
+                const scrollRatio = adjustedTop / (scrollbar.clientHeight - thumbHeight);
+                container.scrollTop = scrollRatio * (container.scrollHeight - container.clientHeight);
+            });
+        }
 
-                                            console.group('🔍 DEBUG DE FECHAS');
-                                            console.log('📅 Fecha de prueba:', fechaTest);
+        // Script para debug - funciones para probar el manejo de fechas
+        async function debugFechas(fechaStr = null) {
+            const hoy = new Date();
+            const fechaTest = fechaStr || getLocalDateString(hoy);
 
-                                            // Test 1: Crear fecha local
-                                            const fechaLocal = createLocalDate(fechaTest);
-                                            console.log('📅 Fecha local creada:', fechaLocal);
-                                            console.log('📅 getDay() (JS):', fechaLocal.getDay(), '- Nombre:',
-                                                fechaLocal.toLocaleDateString('es-ES', {
-                                                    weekday: 'long'
-                                                }));
-                                            console.log('📅 Día backend convertido:', getBackendDayFromJSDay(fechaLocal
-                                                .getDay()));
+            console.group('🔍 DEBUG DE FECHAS');
+            console.log('📅 Fecha de prueba:', fechaTest);
 
-                                            // Test 2: Verificar con servidor
-                                            try {
-                                                const response = await fetch(
-                                                `/cliente/debug-fechas?fecha=${fechaTest}`, {
-                                                    headers: {
-                                                        'Accept': 'application/json',
-                                                        'X-Requested-With': 'XMLHttpRequest'
-                                                    }
-                                                });
+            // Test 1: Crear fecha local
+            const fechaLocal = createLocalDate(fechaTest);
+            console.log('📅 Fecha local creada:', fechaLocal);
+            console.log('📅 getDay() (JS):', fechaLocal.getDay(), '- Nombre:', fechaLocal.toLocaleDateString('es-ES', {
+                weekday: 'long'
+            }));
+            console.log('📅 Día backend convertido:', getBackendDayFromJSDay(fechaLocal.getDay()));
 
-                                                if (response.ok) {
-                                                    const data = await response.json();
-                                                    console.log('🗄️ Información del servidor:', data);
+            // Test 2: Verificar con servidor
+            try {
+                const response = await fetch(`/cliente/debug-fechas?fecha=${fechaTest}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
 
-                                                    // Comparar
-                                                    console.log('🔄 COMPARACIÓN:');
-                                                    console.log('   JS dayOfWeek:', fechaLocal.getDay());
-                                                    console.log('   Servidor dayOfWeek (JS format):', data
-                                                        .dia_semana_js);
-                                                    console.log('   JS convertido a backend:', getBackendDayFromJSDay(
-                                                        fechaLocal.getDay()));
-                                                    console.log('   Servidor dayOfWeekIso:', data.dia_semana_iso);
-                                                    console.log('   ✅ Coinciden?', getBackendDayFromJSDay(fechaLocal
-                                                        .getDay()) === data.dia_semana_iso);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('🗄️ Información del servidor:', data);
 
-                                                    // Mostrar horarios disponibles
-                                                    if (data.horarios_coincidentes && data.horarios_coincidentes
-                                                        .length > 0) {
-                                                        console.log('⏰ Horarios disponibles:', data
-                                                            .horarios_coincidentes);
-                                                    } else {
-                                                        console.log('❌ No hay horarios para este día');
-                                                    }
-                                                }
-                                            } catch (error) {
-                                                console.error('❌ Error al consultar servidor:', error);
-                                            }
+                    // Comparar
+                    console.log('🔄 COMPARACIÓN:');
+                    console.log('   JS dayOfWeek:', fechaLocal.getDay());
+                    console.log('   Servidor dayOfWeek (JS format):', data.dia_semana_js);
+                    console.log('   JS convertido a backend:', getBackendDayFromJSDay(fechaLocal.getDay()));
+                    console.log('   Servidor dayOfWeekIso:', data.dia_semana_iso);
+                    console.log('   ✅ Coinciden?', getBackendDayFromJSDay(fechaLocal.getDay()) === data.dia_semana_iso);
 
-                                            console.groupEnd();
-                                        }
+                    // Mostrar horarios disponibles
+                    if (data.horarios_coincidentes && data.horarios_coincidentes.length > 0) {
+                        console.log('⏰ Horarios disponibles:', data.horarios_coincidentes);
+                    } else {
+                        console.log('❌ No hay horarios para este día');
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Error al consultar servidor:', error);
+            }
 
-                                        // Test automático para los próximos 7 días
-                                        async function testProximos7Dias() {
-                                            console.group('🧪 TEST PRÓXIMOS 7 DÍAS');
+            console.groupEnd();
+        }
 
-                                            for (let i = 0; i < 7; i++) {
-                                                const fecha = new Date();
-                                                fecha.setDate(fecha.getDate() + i);
-                                                const fechaStr = getLocalDateString(fecha);
+        // Test automático para los próximos 7 días
+        async function testProximos7Dias() {
+            console.group('🧪 TEST PRÓXIMOS 7 DÍAS');
 
-                                                console.log(`\n--- DÍA ${i + 1}: ${fechaStr} ---`);
-                                                await debugFechas(fechaStr);
+            for (let i = 0; i < 7; i++) {
+                const fecha = new Date();
+                fecha.setDate(fecha.getDate() + i);
+                const fechaStr = getLocalDateString(fecha);
 
-                                                // Pequeña pausa para no saturar
-                                                await new Promise(resolve => setTimeout(resolve, 100));
-                                            }
+                console.log(`\n--- DÍA ${i + 1}: ${fechaStr} ---`);
+                await debugFechas(fechaStr);
 
-                                            console.groupEnd();
-                                        }
+                // Pequeña pausa para no saturar
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
 
-                                        // Función para test rápido en consola
-                                        function testFechaRapido() {
-                                            const hoy = new Date();
-                                            console.log('Hoy es:', hoy.toLocaleDateString('es-ES', {
-                                                weekday: 'long',
-                                                day: 'numeric',
-                                                month: 'long'
-                                            }));
-                                            console.log('getDay():', hoy.getDay());
-                                            console.log('Convertido a backend:', getBackendDayFromJSDay(hoy.getDay()));
+            console.groupEnd();
+        }
 
-                                            // Test crear fecha desde string
-                                            const fechaStr = getLocalDateString(hoy);
-                                            const fechaRecreada = createLocalDate(fechaStr);
-                                            console.log('Fecha string:', fechaStr);
-                                            console.log('Fecha recreada:', fechaRecreada);
-                                            console.log('¿Son el mismo día?',
-                                                hoy.getDate() === fechaRecreada.getDate() &&
-                                                hoy.getMonth() === fechaRecreada.getMonth() &&
-                                                hoy.getFullYear() === fechaRecreada.getFullYear()
-                                            );
-                                        }
+        // Función para test rápido en consola
+        function testFechaRapido() {
+            const hoy = new Date();
+            console.log('Hoy es:', hoy.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long'
+            }));
+            console.log('getDay():', hoy.getDay());
+            console.log('Convertido a backend:', getBackendDayFromJSDay(hoy.getDay()));
 
-                                        // Auto-ejecutar test básico cuando se carga la página
-                                        document.addEventListener('DOMContentLoaded', function() {
-                                            console.log('🚀 Sistema de fechas cargado');
+            // Test crear fecha desde string
+            const fechaStr = getLocalDateString(hoy);
+            const fechaRecreada = createLocalDate(fechaStr);
+            console.log('Fecha string:', fechaStr);
+            console.log('Fecha recreada:', fechaRecreada);
+            console.log('¿Son el mismo día?',
+                hoy.getDate() === fechaRecreada.getDate() &&
+                hoy.getMonth() === fechaRecreada.getMonth() &&
+                hoy.getFullYear() === fechaRecreada.getFullYear()
+            );
+        }
 
-                                            // Test básico
-                                            setTimeout(() => {
-                                                console.log('\n🔧 Ejecutando test básico de fechas...');
-                                                testFechaRapido();
-                                            }, 1000);
-                                        });
+        // Auto-ejecutar test básico cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Sistema de fechas cargado');
 
-                                        // Exponer funciones globalmente para uso en consola
-                                        window.debugFechas = debugFechas;
-                                        window.testProximos7Dias = testProximos7Dias;
-                                        window.testFechaRapido = testFechaRapido;
+            // Test básico
+            setTimeout(() => {
+                console.log('\n🔧 Ejecutando test básico de fechas...');
+                testFechaRapido();
+            }, 1000);
+        });
 
-                                        /*=========================================================
-                                            FUNCIONAMIENTO DE PERFIL DEL CLIENTE
-                                            =========================================================*/
+        // Exponer funciones globalmente para uso en consola
+        window.debugFechas = debugFechas;
+        window.testProximos7Dias = testProximos7Dias;
+        window.testFechaRapido = testFechaRapido;
 
-                                        // Funciones del modal
-                                        function openEditModal() {
-                                            const modal = document.getElementById('editProfileModal');
-                                            if (modal) {
-                                                modal.style.display = 'block';
-                                                document.getElementById('modalNombre')?.focus();
-                                            }
-                                        }
+        /*=========================================================
+            FUNCIONAMIENTO DE PERFIL DEL CLIENTE
+            =========================================================*/
 
-                                        function closeEditModal() {
-                                            const modal = document.getElementById('editProfileModal');
-                                            if (modal) modal.style.display = 'none';
-                                        }
+        // Funciones del modal
+        function openEditModal() {
+            const modal = document.getElementById('editProfileModal');
+            if (modal) {
+                modal.style.display = 'block';
+                document.getElementById('modalNombre')?.focus();
+            }
+        }
 
-                                        // Manejo del formulario AJAX con validaciones
-                                        document.getElementById('profileForm')?.addEventListener('submit', async function(
-                                        e) {
-                                            e.preventDefault();
+        function closeEditModal() {
+            const modal = document.getElementById('editProfileModal');
+            if (modal) modal.style.display = 'none';
+        }
 
-                                            // Obtener valores
-                                            const nombre = document.getElementById('modalNombre').value.trim();
-                                            const telefono = document.getElementById('modalTelefono').value
-                                                .trim();
+        // Manejo del formulario AJAX con validaciones
+        document.getElementById('profileForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-                                            // Validaciones
-                                            if (!nombre) {
-                                                swalWithBootstrapButtons.fire({
-                                                    title: 'Error',
-                                                    text: 'El nombre es requerido',
-                                                    icon: 'error'
-                                                });
-                                                document.getElementById('modalNombre').focus();
-                                                return;
-                                            }
+            // Obtener valores
+            const nombre = document.getElementById('modalNombre').value.trim();
+            const telefono = document.getElementById('modalTelefono').value.trim();
 
-                                            if (!telefono) {
-                                                swalWithBootstrapButtons.fire({
-                                                    title: 'Error',
-                                                    text: 'El teléfono es requerido',
-                                                    icon: 'error'
-                                                });
-                                                document.getElementById('modalTelefono').focus();
-                                                return;
-                                            }
+            // Validaciones
+            if (!nombre) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'El nombre es requerido',
+                    icon: 'error'
+                });
+                document.getElementById('modalNombre').focus();
+                return;
+            }
 
-                                            // Validación estricta: exactamente 8 dígitos
-                                            const telefonoRegex = /^\d{8}$/;
-                                            if (!telefonoRegex.test(telefono)) {
-                                                swalWithBootstrapButtons.fire({
-                                                    title: 'Error',
-                                                    text: 'El teléfono debe tener exactamente 8 dígitos numéricos',
-                                                    icon: 'error'
-                                                });
-                                                document.getElementById('modalTelefono').focus();
-                                                return;
-                                            }
+            if (!telefono) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'El teléfono es requerido',
+                    icon: 'error'
+                });
+                document.getElementById('modalTelefono').focus();
+                return;
+            }
 
-                                            try {
-                                                const response = await fetch(
-                                                    '{{ route('perfil.update-ajax') }}', {
-                                                        method: 'POST',
-                                                        headers: {
-                                                            'Content-Type': 'application/json',
-                                                            'Accept': 'application/json',
-                                                            'X-Requested-With': 'XMLHttpRequest'
-                                                        },
-                                                        body: JSON.stringify({
-                                                            nombre: nombre,
-                                                            telefono: telefono,
-                                                            _token: document.querySelector(
-                                                                    'meta[name="csrf-token"]')
-                                                                .content
-                                                        })
-                                                    });
+            // Validación estricta: exactamente 8 dígitos
+            const telefonoRegex = /^\d{8}$/;
+            if (!telefonoRegex.test(telefono)) {
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'El teléfono debe tener exactamente 8 dígitos numéricos',
+                    icon: 'error'
+                });
+                document.getElementById('modalTelefono').focus();
+                return;
+            }
 
-                                                const data = await response.json();
+            try {
+                const response = await fetch('{{ route('perfil.update-ajax') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        nombre: nombre,
+                        telefono: telefono,
+                        _token: document.querySelector('meta[name="csrf-token"]').content
+                    })
+                });
 
-                                                if (!response.ok) {
-                                                    throw new Error(data.message ||
-                                                        'Error en la respuesta del servidor');
-                                                }
+                const data = await response.json();
 
-                                                // Éxito - Cerrar modal y actualizar UI
-                                                closeEditModal();
-                                                swalWithBootstrapButtons.fire({
-                                                    title: '¡Éxito!',
-                                                    text: data.message ||
-                                                        'Perfil actualizado correctamente',
-                                                    icon: 'success'
-                                                });
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error en la respuesta del servidor');
+                }
 
-                                                // Actualizar la UI
-                                                if (document.querySelector('.profile-info h3')) {
-                                                    document.querySelector('.profile-info h3').textContent =
-                                                        nombre;
-                                                }
-                                                if (document.querySelector('.profile-info p:nth-of-type(2)')) {
-                                                    document.querySelector('.profile-info p:nth-of-type(2)')
-                                                        .innerHTML =
-                                                        `<i class="fas fa-phone"></i> ${telefono}`;
-                                                }
-                                                if (document.querySelector('.welcome-section h1')) {
-                                                    document.querySelector('.welcome-section h1').textContent =
-                                                        `¡Hola, ${nombre}!`;
-                                                }
+                // Éxito - Cerrar modal y actualizar UI
+                closeEditModal();
+                swalWithBootstrapButtons.fire({
+                    title: '¡Éxito!',
+                    text: data.message || 'Perfil actualizado correctamente',
+                    icon: 'success'
+                });
 
-                                            } catch (error) {
-                                                console.error('Error:', error);
-                                                swalWithBootstrapButtons.fire({
-                                                    title: 'Error',
-                                                    text: error.message ||
-                                                        'Error al actualizar el perfil',
-                                                    icon: 'error'
-                                                });
-                                            }
-                                        });
+                // Actualizar la UI
+                if (document.querySelector('.profile-info h3')) {
+                    document.querySelector('.profile-info h3').textContent = nombre;
+                }
+                if (document.querySelector('.profile-info p:nth-of-type(2)')) {
+                    document.querySelector('.profile-info p:nth-of-type(2)').innerHTML =
+                        `<i class="fas fa-phone"></i> ${telefono}`;
+                }
+                if (document.querySelector('.welcome-section h1')) {
+                    document.querySelector('.welcome-section h1').textContent = `¡Hola, ${nombre}!`;
+                }
 
-                                        // Cerrar modal al hacer clic fuera
-                                        window.addEventListener('click', function(event) {
-                                            if (event.target.classList.contains('modal')) {
-                                                closeEditModal();
-                                                closeCitaModal();
-                                            }
-                                        });
+            } catch (error) {
+                console.error('Error:', error);
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: error.message || 'Error al actualizar el perfil',
+                    icon: 'error'
+                });
+            }
+        });
+
+        // Cerrar modal al hacer clic fuera
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeEditModal();
+                closeCitaModal();
+            }
+        });
 
 
-                                        // Función para generar recibo
-                                        function generateReceipt(citaId) {
-                                            fetch(`/citas/${citaId}/recibo`)
-                                                .then(response => response.json())
-                                                .then(data => {
-                                                    const receiptContent = document.getElementById('receiptContent');
-                                                    receiptContent.innerHTML = `
+        // Función para generar recibo
+        function generateReceipt(citaId) {
+            fetch(`/citas/${citaId}/recibo`)
+                .then(response => response.json())
+                .then(data => {
+                    const receiptContent = document.getElementById('receiptContent');
+                    receiptContent.innerHTML = `
                         <div style="text-align: center; margin-bottom: 20px;">
                             <h2 style="color: #4facfe;">Carwash Berríos</h2>
                             <p>Recibo de Servicio</p>
@@ -5243,94 +5220,91 @@
                         </div>
                     `;
 
-                                                    document.getElementById('receiptModal').style.display = 'block';
-                                                });
-                                        }
+                    document.getElementById('receiptModal').style.display = 'block';
+                });
+        }
 
-                                        function closeReceiptModal() {
-                                            document.getElementById('receiptModal').style.display = 'none';
-                                        }
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
 
-                                        function printReceipt() {
-                                            const printContent = document.getElementById('receiptContent').innerHTML;
-                                            const originalContent = document.body.innerHTML;
+        function printReceipt() {
+            const printContent = document.getElementById('receiptContent').innerHTML;
+            const originalContent = document.body.innerHTML;
 
-                                            document.body.innerHTML = printContent;
-                                            window.print();
-                                            document.body.innerHTML = originalContent;
-                                            location.reload();
-                                        }
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            location.reload();
+        }
 
-                                        function downloadReceipt() {
-                                            // Aquí iría la lógica para generar y descargar el PDF
-                                            alert('Descargando recibo como PDF...');
-                                        }
+        function downloadReceipt() {
+            // Aquí iría la lógica para generar y descargar el PDF
+            alert('Descargando recibo como PDF...');
+        }
 
-                                        /*=========================================================
-                                        FUNCIONAMIENTO DE INTERACTIVIDAD Y ANIMACIONES
-                                        =========================================================*/
+        /*=========================================================
+        FUNCIONAMIENTO DE INTERACTIVIDAD Y ANIMACIONES
+        =========================================================*/
 
-                                        // Simulación de interactividad
-                                        document.addEventListener('DOMContentLoaded', function() {
-                                            // Animación de entrada para las cards
-                                            const cards = document.querySelectorAll('.card');
-                                            cards.forEach((card, index) => {
-                                                card.style.opacity = '0';
-                                                card.style.transform = 'translateY(20px)';
-                                                setTimeout(() => {
-                                                    card.style.transition = 'all 0.6s ease';
-                                                    card.style.opacity = '1';
-                                                    card.style.transform = 'translateY(0)';
-                                                }, index * 100);
-                                            });
+        // Simulación de interactividad
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animación de entrada para las cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
 
-                                            // Efecto hover mejorado para service cards
-                                            const serviceCards = document.querySelectorAll('.service-card');
-                                            serviceCards.forEach(card => {
-                                                card.addEventListener('mouseenter', function() {
-                                                    this.style.transform =
-                                                        'translateY(-8px) scale(1.02)';
-                                                });
-                                                card.addEventListener('mouseleave', function() {
-                                                    this.style.transform = 'translateY(0) scale(1)';
-                                                });
-                                            });
+            // Efecto hover mejorado para service cards
+            const serviceCards = document.querySelectorAll('.service-card');
+            serviceCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
 
-                                            // Marcas notificaciones como leídas al hacer clic
-                                            const notifications = document.querySelectorAll(
-                                                '.notification-item.unread');
-                                            notifications.forEach(notification => {
-                                                notification.addEventListener('click', function() {
-                                                    this.classList.remove('unread');
-                                                    this.classList.add('read');
-                                                });
-                                            });
+            // Marcas notificaciones como leídas al hacer clic
+            const notifications = document.querySelectorAll('.notification-item.unread');
+            notifications.forEach(notification => {
+                notification.addEventListener('click', function() {
+                    this.classList.remove('unread');
+                    this.classList.add('read');
+                });
+            });
 
-                                            // Efecto de pulsación para botones
-                                            const buttons = document.querySelectorAll('.btn');
-                                            buttons.forEach(button => {
-                                                button.addEventListener('click', function(e) {
-                                                    // Crear efecto ripple
-                                                    const ripple = document.createElement('span');
-                                                    const rect = this.getBoundingClientRect();
-                                                    const size = Math.max(rect.width, rect.height);
-                                                    const x = e.clientX - rect.left - size / 2;
-                                                    const y = e.clientY - rect.top - size / 2;
+            // Efecto de pulsación para botones
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Crear efecto ripple
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
 
-                                                    ripple.style.width = ripple.style.height =
-                                                        size + 'px';
-                                                    ripple.style.left = x + 'px';
-                                                    ripple.style.top = y + 'px';
-                                                    ripple.classList.add('ripple');
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
 
-                                                    this.appendChild(ripple);
+                    this.appendChild(ripple);
 
-                                                    setTimeout(() => {
-                                                        ripple.remove();
-                                                    }, 600);
-                                                });
-                                            });
-                                        });
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
     </script>
 
     <script>
