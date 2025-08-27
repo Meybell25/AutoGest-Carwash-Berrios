@@ -3096,8 +3096,8 @@
 
     <script>
         /*=========================================================
-            FUNCIONAMIENTO DE CREAR CITAS
-            =========================================================*/
+                    FUNCIONAMIENTO DE CREAR CITAS
+                    =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -4349,10 +4349,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                    <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                    Agendar Cita
-                                                                                                                                                </button>` : ''}
+                                                                                                                                                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                            <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                            Agendar Cita
+                                                                                                                                                        </button>` : ''}
                 </div>
             `;
                     return;
@@ -4750,7 +4750,6 @@
         }
 
         // Manejar envío del formulario
-        // Manejar envío del formulario - VERSIÓN CORREGIDA
         document.addEventListener('DOMContentLoaded', function() {
             const citaForm = document.getElementById('citaForm');
 
@@ -4835,48 +4834,109 @@
 
                         await swalInstance.close();
 
-                        // ✅ CAMBIO CRÍTICO: Verificar si es advertencia ANTES de verificar response.ok
+                        //  Verificar si es advertencia ANTES de verificar response.ok
                         if (result.es_advertencia === true) {
                             console.log('🔶 Advertencia de tiempo extra detectada:', result);
 
-                            let advertenciaHtml = `
-                        <div style="text-align: left;">
-                            <p>${result.message}</p>
-                    `;
+                            // CREAR MENSAJE AMIGABLE BASADO EN EL NIVEL DE URGENCIA
+                            let iconoAdvertencia = 'info';
+                            let colorConfirm = '#4facfe';
+                            let tituloAdvertencia = 'Información sobre tu cita';
 
-                            if (result.minutos_excedidos) {
-                                const tiempoExtra = result.horas_excedidas ?
-                                    `${result.horas_excedidas}h` :
-                                    `${result.minutos_excedidos} min`;
-                                advertenciaHtml += `
-                            <div style="margin: 15px 0; padding: 10px; background-color: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">
-                                <strong>Tiempo extra requerido:</strong> ${tiempoExtra}
-                            </div>
-                        `;
+                            if (result.nivel_urgencia === 'warning') {
+                                iconoAdvertencia = 'warning';
+                                colorConfirm = '#ffc107';
+                                tituloAdvertencia = 'Tiempo adicional requerido';
+                            } else if (result.nivel_urgencia === 'error') {
+                                iconoAdvertencia = 'error';
+                                colorConfirm = '#dc3545';
+                                tituloAdvertencia = 'Atención necesaria';
                             }
 
-                            if (result.mensaje_detallado) {
-                                advertenciaHtml +=
-                                    `<p style="color: #ff9800; margin-top: 10px;">${result.mensaje_detallado}</p>`;
+                            // CONSTRUIR HTML AMIGABLE PARA EL USUARIO
+                            let advertenciaHtml = `
+        <div style="text-align: left; line-height: 1.5;">
+            <div style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid ${colorConfirm};">
+                <p style="margin: 0; font-size: 16px; color: #333;">
+                    ${result.mensaje_usuario}
+                </p>
+            </div>
+    `;
+
+                            // AGREGAR DETALLES DE LA CITA SI ESTÁN DISPONIBLES
+                            if (result.detalles_cita) {
+                                const detalles = result.detalles_cita;
+                                advertenciaHtml += `
+            <div style="background-color: #ffffff; border: 1px solid #e9ecef; border-radius: 6px; padding: 15px; margin-bottom: 15px;">
+                <h6 style="margin: 0 0 10px 0; color: #495057; font-weight: bold;">📅 Detalles de tu cita:</h6>
+                <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px; font-size: 14px;">
+                    <span style="color: #6c757d;">🕐 Inicio:</span>
+                    <span style="font-weight: 500;">${detalles.hora_inicio}</span>
+                    
+                    <span style="color: #6c757d;">🏁 Finalización:</span>
+                    <span style="font-weight: 500;">${detalles.hora_finalizacion_estimada}</span>
+                    
+                    <span style="color: #6c757d;">⏱️ Duración:</span>
+                    <span style="font-weight: 500;">${detalles.duracion_servicios} minutos</span>
+                    
+                    <span style="color: #6c757d;">🏢 Cierre normal:</span>
+                    <span style="font-weight: 500;">${detalles.horario_cierre_normal}</span>
+                </div>
+            </div>
+        `;
+                            }
+
+                            // MOSTRAR BENEFICIOS SI ESTÁN DISPONIBLES
+                            if (result.beneficios && result.beneficios.length > 0) {
+                                advertenciaHtml += `
+            <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; padding: 15px; margin-bottom: 15px;">
+                <h6 style="margin: 0 0 10px 0; color: #155724; font-weight: bold;">✨ Beneficios de tu cita:</h6>
+                <ul style="margin: 0; padding-left: 20px; color: #155724;">
+        `;
+
+                                result.beneficios.forEach(beneficio => {
+                                    advertenciaHtml +=
+                                        `<li style="margin-bottom: 5px;">${beneficio}</li>`;
+                                });
+
+                                advertenciaHtml += `
+                </ul>
+            </div>
+        `;
+                            }
+
+                            // AGREGAR NOTA IMPORTANTE SI ESTÁ DISPONIBLE
+                            if (result.nota_importante) {
+                                advertenciaHtml += `
+            <div style="background-color: #cce5ff; border: 1px solid #80c1ff; border-radius: 6px; padding: 12px; margin-bottom: 15px;">
+                <p style="margin: 0; font-size: 14px; color: #0066cc;">
+                    <strong>💡 Ten en cuenta:</strong> ${result.nota_importante}
+                </p>
+            </div>
+        `;
                             }
 
                             advertenciaHtml += `
-                        <p style="margin-top: 15px; color: #666;">
-                            <i class="fas fa-info-circle"></i>
-                            El personal deberá trabajar tiempo adicional para completar todos los servicios.
-                        </p>
-                    </div>
-                `;
+            <div style="margin-top: 20px; text-align: center; font-size: 14px; color: #666;">
+                <p style="margin: 0;">¿Deseas confirmar tu cita con estas condiciones?</p>
+            </div>
+        </div>
+    `;
 
+                            // MOSTRAR DIÁLOGO DE CONFIRMACIÓN  AMIGABLE
                             const advertenciaResult = await swalWithBootstrapButtons.fire({
-                                title: 'Tiempo Extra Requerido',
+                                title: tituloAdvertencia,
                                 html: advertenciaHtml,
-                                icon: 'warning',
+                                icon: iconoAdvertencia,
                                 showCancelButton: true,
-                                confirmButtonText: 'Sí, continuar',
-                                cancelButtonText: 'No, cambiar horario',
-                                confirmButtonColor: '#ffc107',
-                                cancelButtonColor: '#6c757d'
+                                confirmButtonText: '✅ Sí, confirmar mi cita',
+                                cancelButtonText: '❌ No, cambiar horario',
+                                confirmButtonColor: colorConfirm,
+                                cancelButtonColor: '#6c757d',
+                                customClass: {
+                                    popup: 'swal-wide'
+                                },
+                                width: '600px'
                             });
 
                             if (advertenciaResult.isConfirmed) {
@@ -4884,11 +4944,15 @@
                                 await forceCreateCita(formData);
                             } else {
                                 console.log('❌ Usuario canceló la creación con tiempo extra');
+                                // Opcional: mostrar sugerencias de horarios alternativos
+                                if (result.detalles_cita && result.detalles_cita.hora_inicio) {
+                                    await mostrarSugerenciasHorarios(fecha, result.detalles_cita
+                                        .duracion_servicios);
+                                }
                             }
                             return;
                         }
-
-                        // ✅ DESPUÉS verificar errores normales
+                        //  DESPUÉS verificar errores normales
                         if (!response.ok) {
                             throw result;
                         }
@@ -4967,7 +5031,7 @@
 
                             // Manejar horarios disponibles en caso de conflicto
                             if (error.horarios_disponibles && Array.isArray(error
-                                .horarios_disponibles)) {
+                                    .horarios_disponibles)) {
                                 showAvailableTimes = true;
                                 availableTimes = error.horarios_disponibles;
                             } else if (error.data && error.data.available_times) {
@@ -5047,6 +5111,73 @@
 
             return infoContainer;
         }
+        
+        async function mostrarSugerenciasHorarios(fecha, duracionServicios) {
+            try {
+                const response = await fetch(`/cliente/horarios-disponibles/${fecha}`);
+                if (response.ok) {
+                    const horariosDisponibles = await response.json();
+
+                    if (horariosDisponibles.length > 0) {
+                        // Filtrar horarios que permitan completar los servicios antes del cierre
+                        const horariosSugeridos = horariosDisponibles.slice(0, 6); // Mostrar máximo 6 opciones
+
+                        let sugerenciasHtml = `
+                    <div style="text-align: left;">
+                        <p>Te sugerimos estos horarios alternativos:</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 15px 0;">
+                `;
+
+                        horariosSugeridos.forEach(hora => {
+                            sugerenciasHtml += `
+                        <button class="btn btn-outline-primary btn-sm" 
+                                onclick="seleccionarHorarioSugerido('${hora}')"
+                                style="margin: 2px;">
+                            ${hora}
+                        </button>
+                    `;
+                        });
+
+                        sugerenciasHtml += `
+                        </div>
+                        <p style="font-size: 14px; color: #666; text-align: center; margin-top: 15px;">
+                            Haz clic en cualquier horario para seleccionarlo automáticamente
+                        </p>
+                    </div>
+                `;
+
+                        await swalWithBootstrapButtons.fire({
+                            title: '🕐 Horarios alternativos',
+                            html: sugerenciasHtml,
+                            icon: 'info',
+                            confirmButtonText: 'Cerrar',
+                            width: '500px'
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error al cargar sugerencias de horarios:', error);
+            }
+        }
+
+
+        //  ESTILOS CSS PARA EL MODAL MÁS ANCHO
+        const style = document.createElement('style');
+        style.textContent = `
+    .swal-wide {
+        max-width: 90vw !important;
+    }
+    
+    .swal2-popup.swal-wide {
+        font-family: inherit;
+    }
+    
+    .swal2-popup.swal-wide .swal2-html-container {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+`;
+        document.head.appendChild(style);
 
         // Codigo para el scroll personalizado
         document.addEventListener('DOMContentLoaded', function() {
@@ -5187,14 +5318,14 @@
                             <p><strong>Conflictos encontrados:</strong> ${data.data.citas_superpuestas.length}</p>
                             
                             ${data.data.citas_superpuestas.map(cita => `
-                                                                                <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                                                                                    <p><strong>Cita ID:</strong> ${cita.id}</p>
-                                                                                    <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
-                                                                                    <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
-                                                                                    <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
-                                                                                    <p><strong>Estado:</strong> ${cita.estado}</p>
-                                                                                </div>
-                                                                            `).join('')}
+                                                                                        <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                                                                            <p><strong>Cita ID:</strong> ${cita.id}</p>
+                                                                                            <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
+                                                                                            <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
+                                                                                            <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
+                                                                                            <p><strong>Estado:</strong> ${cita.estado}</p>
+                                                                                        </div>
+                                                                                    `).join('')}
                             
                             <p><strong>Horarios disponibles:</strong> ${data.data.horarios_disponibles.join(', ') || 'Ninguno'}</p>
                         </div>
@@ -5504,10 +5635,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -5619,8 +5750,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -5649,8 +5780,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

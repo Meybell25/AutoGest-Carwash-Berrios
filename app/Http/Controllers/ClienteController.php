@@ -237,7 +237,6 @@ class ClienteController extends Controller
             // ===============================================
             // VERIFICACIÓN DE HORARIO LABORAL MÁS FLEXIBLE
             // ===============================================
-
             $diaSemana = $fechaCita->dayOfWeek === 0 ? 7 : $fechaCita->dayOfWeek;
             $horario = Horario::where('dia_semana', $diaSemana)->where('activo', true)->first();
 
@@ -246,21 +245,45 @@ class ClienteController extends Controller
 
                 if ($horaFin->gt($horaCierre)) {
                     $minutosExcedidos = $horaFin->diffInMinutes($horaCierre);
-                    $horasExcedidas = $minutosExcedidos / 60;
 
-                    // NUEVA LÓGICA MÁS PERMISIVA:
-                    // - Hasta 90 minutos extra: Solo advertencia (se puede forzar)
-                    // - Más de 90 minutos: Error firme (no se permite)
+                    // CALCULAR VALORES AMIGABLES PARA EL USUARIO
+                    $horasExtrasRedondeadas = round($minutosExcedidos / 60, 1);
+                    $tiempoFinalizacion = $horaFin->format('H:i');
+                    $horarioCierre = $horario->hora_fin->format('H:i');
 
+                    // MENSAJES MÁS AMIGABLES SEGÚN EL TIEMPO EXTRA
+                    $mensajeUsuario = '';
+                    $nivelUrgencia = 'info'; // info, warning, error
+
+                    if ($minutosExcedidos <= 30) {
+                        $mensajeUsuario = "Tu cita terminará aproximadamente a las {$tiempoFinalizacion}, unos minutos después del horario habitual.";
+                        $nivelUrgencia = 'info';
+                    } elseif ($minutosExcedidos <= 60) {
+                        $mensajeUsuario = "Tu cita terminará alrededor de las {$tiempoFinalizacion}, requiriendo aproximadamente {$horasExtrasRedondeadas} hora extra de atención.";
+                        $nivelUrgencia = 'warning';
+                    } elseif ($minutosExcedidos <= 90) {
+                        $mensajeUsuario = "Los servicios que seleccionaste requieren tiempo adicional considerable. Tu cita finalizaría aproximadamente a las {$tiempoFinalizacion}.";
+                        $nivelUrgencia = 'warning';
+                    } else {
+                        $mensajeUsuario = "Los servicios seleccionados requieren demasiado tiempo adicional. Por favor considera seleccionar un horario más temprano o reducir algunos servicios.";
+                        $nivelUrgencia = 'error';
+                    }
+
+                    //  LÓGICA MÁS PERMISIVA:
                     if ($forceCreate) {
                         // Si ya fue forzada, permitir hasta 90 minutos extra
                         if ($minutosExcedidos > 90) {
                             return response()->json([
-                                'message' => 'Los servicios seleccionados exceden significativamente el horario de cierre.',
-                                'duracion_total' => $duracionTotal,
-                                'hora_cierre' => $horario->hora_fin->format('H:i'),
-                                'minutos_excedidos' => $minutosExcedidos,
-                                'mensaje_detallado' => 'Por favor selecciona un horario más temprano o reduce los servicios.'
+                                'success' => false,
+                                'message' => 'No podemos procesar esta cita',
+                                'mensaje_usuario' => 'Los servicios que seleccionaste tomarían demasiado tiempo. Te sugerimos elegir un horario más temprano o considerar dividir los servicios en dos citas.',
+                                'sugerencias' => [
+                                    'Selecciona un horario antes de las ' . $fechaCita->copy()->subMinutes($duracionTotal)->addMinutes(90)->format('H:i'),
+                                    'Considera dividir los servicios en dos citas separadas',
+                                    'Contacta directamente al establecimiento para opciones especiales'
+                                ],
+                                'duracion_total_minutos' => $duracionTotal,
+                                'tiempo_disponible' => 90
                             ], 400);
                         }
 
@@ -275,27 +298,43 @@ class ClienteController extends Controller
                         // Primera validación - mostrar advertencia hasta 90 minutos
                         if ($minutosExcedidos <= 90) {
                             return response()->json([
-                                'message' => 'Los servicios seleccionados se extienden más allá del horario de cierre.',
-                                'duracion_total' => $duracionTotal,
-                                'hora_cierre' => $horario->hora_fin->format('H:i'),
-                                'hora_fin_estimada' => $horaFin->format('H:i'),
-                                'minutos_excedidos' => $minutosExcedidos,
-                                'horas_excedidas' => round($horasExcedidas, 1),
+                                'success' => true,
                                 'es_advertencia' => true,
-                                'mensaje_detallado' => $minutosExcedidos <= 30
-                                    ? 'Tiempo extra mínimo requerido.'
-                                    : 'Se requiere tiempo extra considerable. El personal deberá trabajar después del horario normal.'
+                                'message' => 'Tiempo adicional requerido',
+                                'mensaje_usuario' => $mensajeUsuario,
+                                'nivel_urgencia' => $nivelUrgencia,
+                                'detalles_cita' => [
+                                    'hora_inicio' => $fechaCita->format('H:i'),
+                                    'hora_finalizacion_estimada' => $tiempoFinalizacion,
+                                    'duracion_servicios' => $duracionTotal,
+                                    'tiempo_extra_minutos' => $minutosExcedidos,
+                                    'tiempo_extra_horas' => $horasExtrasRedondeadas,
+                                    'horario_cierre_normal' => $horarioCierre
+                                ],
+                                'beneficios' => [
+                                    'Recibirás atención personalizada sin prisa',
+                                    'Todos tus servicios se completarán en una sola visita',
+                                    'No necesitarás programar citas adicionales'
+                                ],
+                                'nota_importante' => $minutosExcedidos <= 30
+                                    ? 'El tiempo extra es mínimo y parte del servicio normal.'
+                                    : 'Nuestro equipo estará disponible para completar todos tus servicios.'
                             ], 200);
                         } else {
-                            // Más de 90 minutos - error firme
+                            // Más de 90 minutos - error firme pero amigable
                             return response()->json([
-                                'message' => 'Los servicios seleccionados exceden demasiado el horario de cierre.',
-                                'duracion_total' => $duracionTotal,
-                                'hora_cierre' => $horario->hora_fin->format('H:i'),
-                                'minutos_excedidos' => $minutosExcedidos,
-                                'mensaje_detallado' => 'Por favor selecciona un horario más temprano (antes de las ' .
-                                    $fechaCita->copy()->subMinutes($duracionTotal)->addMinutes(90)->format('H:i') .
-                                    ') o reduce los servicios seleccionados.'
+                                'success' => false,
+                                'message' => 'Horario no disponible',
+                                'mensaje_usuario' => $mensajeUsuario,
+                                'sugerencias' => [
+                                    'Programa tu cita antes de las ' . $fechaCita->copy()->subMinutes($duracionTotal)->addMinutes(90)->format('H:i'),
+                                    'Considera dividir los servicios en dos visitas',
+                                    'Selecciona menos servicios para esta cita',
+                                    'Elige otro día con más disponibilidad'
+                                ],
+                                'horarios_sugeridos' => $this->getAvailableTimes($fechaCita->format('Y-m-d')),
+                                'duracion_total_minutos' => $duracionTotal,
+                                'tiempo_maximo_permitido' => 90
                             ], 400);
                         }
                     }
