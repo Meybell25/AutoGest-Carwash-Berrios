@@ -234,43 +234,75 @@ class ClienteController extends Controller
             $duracionTotal = $servicios->sum('duracion_min');
             $horaFin = $fechaCita->copy()->addMinutes($duracionTotal);
 
-            // Verificar horario laboral
+            // ===============================================
+            // VERIFICACIÓN DE HORARIO LABORAL MÁS FLEXIBLE
+            // ===============================================
+
             $diaSemana = $fechaCita->dayOfWeek === 0 ? 7 : $fechaCita->dayOfWeek;
             $horario = Horario::where('dia_semana', $diaSemana)->where('activo', true)->first();
 
-            if ($horario && $horaFin->gt(Carbon::parse($fechaCita->format('Y-m-d') . ' ' . $horario->hora_fin->format('H:i:s')))) {
-                $minutosExcedidos = $horaFin->diffInMinutes(
-                    Carbon::parse($fechaCita->format('Y-m-d') . ' ' . $horario->hora_fin->format('H:i:s'))
-                );
+            if ($horario) {
+                $horaCierre = Carbon::parse($fechaCita->format('Y-m-d') . ' ' . $horario->hora_fin->format('H:i:s'));
 
-                if ($forceCreate) {
-                    Log::info('Cita con extensión de horario forzada', [
-                        'usuario_id' => Auth::id(),
-                        'minutos_excedidos' => $minutosExcedidos,
-                        'fecha_hora' => $fechaCita,
-                        'servicios' => $servicios->pluck('nombre')
-                    ]);
-                } else {
-                    if ($minutosExcedidos > 60) {
-                        return response()->json([
-                            'message' => 'Los servicios seleccionados exceden significativamente el horario de cierre.',
-                            'duracion_total' => $duracionTotal,
-                            'hora_cierre' => $horario->hora_fin->format('H:i'),
-                            'minutos_excedidos' => $minutosExcedidos
-                        ], 400);
+                if ($horaFin->gt($horaCierre)) {
+                    $minutosExcedidos = $horaFin->diffInMinutes($horaCierre);
+                    $horasExcedidas = $minutosExcedidos / 60;
+
+                    // NUEVA LÓGICA MÁS PERMISIVA:
+                    // - Hasta 90 minutos extra: Solo advertencia (se puede forzar)
+                    // - Más de 90 minutos: Error firme (no se permite)
+
+                    if ($forceCreate) {
+                        // Si ya fue forzada, permitir hasta 90 minutos extra
+                        if ($minutosExcedidos > 90) {
+                            return response()->json([
+                                'message' => 'Los servicios seleccionados exceden significativamente el horario de cierre.',
+                                'duracion_total' => $duracionTotal,
+                                'hora_cierre' => $horario->hora_fin->format('H:i'),
+                                'minutos_excedidos' => $minutosExcedidos,
+                                'mensaje_detallado' => 'Por favor selecciona un horario más temprano o reduce los servicios.'
+                            ], 400);
+                        }
+
+                        Log::info('Cita con extensión de horario forzada', [
+                            'usuario_id' => Auth::id(),
+                            'minutos_excedidos' => $minutosExcedidos,
+                            'fecha_hora' => $fechaCita,
+                            'servicios' => $servicios->pluck('nombre'),
+                            'duracion_total' => $duracionTotal
+                        ]);
+                    } else {
+                        // Primera validación - mostrar advertencia hasta 90 minutos
+                        if ($minutosExcedidos <= 90) {
+                            return response()->json([
+                                'message' => 'Los servicios seleccionados se extienden más allá del horario de cierre.',
+                                'duracion_total' => $duracionTotal,
+                                'hora_cierre' => $horario->hora_fin->format('H:i'),
+                                'hora_fin_estimada' => $horaFin->format('H:i'),
+                                'minutos_excedidos' => $minutosExcedidos,
+                                'horas_excedidas' => round($horasExcedidas, 1),
+                                'es_advertencia' => true,
+                                'mensaje_detallado' => $minutosExcedidos <= 30
+                                    ? 'Tiempo extra mínimo requerido.'
+                                    : 'Se requiere tiempo extra considerable. El personal deberá trabajar después del horario normal.'
+                            ], 200);
+                        } else {
+                            // Más de 90 minutos - error firme
+                            return response()->json([
+                                'message' => 'Los servicios seleccionados exceden demasiado el horario de cierre.',
+                                'duracion_total' => $duracionTotal,
+                                'hora_cierre' => $horario->hora_fin->format('H:i'),
+                                'minutos_excedidos' => $minutosExcedidos,
+                                'mensaje_detallado' => 'Por favor selecciona un horario más temprano (antes de las ' .
+                                    $fechaCita->copy()->subMinutes($duracionTotal)->addMinutes(90)->format('H:i') .
+                                    ') o reduce los servicios seleccionados.'
+                            ], 400);
+                        }
                     }
-
-                    return response()->json([
-                        'message' => 'Los servicios seleccionados exceden el horario de cierre.',
-                        'duracion_total' => $duracionTotal,
-                        'hora_cierre' => $horario->hora_fin->format('H:i'),
-                        'minutos_excedidos' => $minutosExcedidos,
-                        'es_advertencia' => true
-                    ], 200);
                 }
             }
 
-            // VERIFICACIÓN DE CONFLICTOS MEJORADA
+            // VERIFICACIÓN DE CONFLICTOS MEJORADA (intervalos de 60 minutos en lugar de 30)
             Log::info('Verificando conflictos de horario', [
                 'fecha_hora_inicio' => $fechaCita->format('Y-m-d H:i:s'),
                 'duracion_total' => $duracionTotal,
@@ -291,21 +323,27 @@ class ClienteController extends Controller
                     $duracionCitaExistente = $citaExistente->servicios->sum('duracion_min');
                     $finCitaExistente = $inicioCitaExistente->copy()->addMinutes($duracionCitaExistente);
 
-                    // Verificar superposición
+                    // BUFFER DE TIEMPO: 15 minutos entre citas para limpieza/preparación
+                    $bufferInicio = $inicioCitaExistente->copy()->subMinutes(15);
+                    $bufferFin = $finCitaExistente->copy()->addMinutes(15);
+
+                    // Verificar superposición con buffer
                     $hayConflicto = (
-                        // Nueva cita empieza durante cita existente
-                        ($fechaCita->gte($inicioCitaExistente) && $fechaCita->lt($finCitaExistente)) ||
-                        // Nueva cita termina durante cita existente  
-                        ($horaFin->gt($inicioCitaExistente) && $horaFin->lte($finCitaExistente)) ||
+                        // Nueva cita empieza durante cita existente (con buffer)
+                        ($fechaCita->gte($bufferInicio) && $fechaCita->lt($bufferFin)) ||
+                        // Nueva cita termina durante cita existente (con buffer)
+                        ($horaFin->gt($bufferInicio) && $horaFin->lte($bufferFin)) ||
                         // Nueva cita envuelve completamente a la existente
-                        ($fechaCita->lte($inicioCitaExistente) && $horaFin->gte($finCitaExistente))
+                        ($fechaCita->lte($bufferInicio) && $horaFin->gte($bufferFin))
                     );
 
                     if ($hayConflicto) {
-                        Log::info('Conflicto detectado', [
+                        Log::info('Conflicto detectado con buffer', [
                             'cita_existente_id' => $citaExistente->id,
                             'cita_existente_inicio' => $inicioCitaExistente->format('Y-m-d H:i:s'),
                             'cita_existente_fin' => $finCitaExistente->format('Y-m-d H:i:s'),
+                            'buffer_inicio' => $bufferInicio->format('Y-m-d H:i:s'),
+                            'buffer_fin' => $bufferFin->format('Y-m-d H:i:s'),
                             'nueva_cita_inicio' => $fechaCita->format('Y-m-d H:i:s'),
                             'nueva_cita_fin' => $horaFin->format('Y-m-d H:i:s')
                         ]);
@@ -442,11 +480,6 @@ class ClienteController extends Controller
                 ->where('activo', true)
                 ->get();
 
-            Log::info("Horarios programados para día ISO {$dayOfWeekISO}:", [
-                'count' => $horariosDisponibles->count(),
-                'horarios' => $horariosDisponibles->pluck('hora_inicio', 'hora_fin')->toArray()
-            ]);
-
             if ($horariosDisponibles->isEmpty()) {
                 Log::info("No hay horarios programados para este día");
                 return [];
@@ -459,39 +492,31 @@ class ClienteController extends Controller
 
             if ($excludeCitaId) {
                 $query->where('id', '!=', $excludeCitaId);
-                Log::info("Excluyendo cita ID: {$excludeCitaId}");
             }
 
             $citas = $query->get();
 
-            // Crear array de bloques de tiempo ocupados
+            // Crear array de bloques de tiempo ocupados con buffer
             $bloquesOcupados = [];
             foreach ($citas as $cita) {
                 $inicio = Carbon::parse($cita->fecha_hora);
                 $duracion = $cita->servicios->sum('duracion_min');
                 $fin = $inicio->copy()->addMinutes($duracion);
 
+                // Agregar buffer de 15 minutos antes y después
+                $inicioConBuffer = $inicio->copy()->subMinutes(15);
+                $finConBuffer = $fin->copy()->addMinutes(15);
+
                 $bloquesOcupados[] = [
-                    'inicio' => $inicio,
-                    'fin' => $fin,
-                    'cita_id' => $cita->id // Mantener info para debugging
+                    'inicio' => $inicioConBuffer,
+                    'fin' => $finConBuffer,
+                    'cita_id' => $cita->id
                 ];
             }
 
-            Log::info("Bloques ocupados encontrados:", [
-                'count' => count($bloquesOcupados),
-                'bloques' => array_map(function ($bloque) {
-                    return [
-                        'inicio' => $bloque['inicio']->format('H:i'),
-                        'fin' => $bloque['fin']->format('H:i'),
-                        'cita_id' => $bloque['cita_id']
-                    ];
-                }, $bloquesOcupados)
-            ]);
-
-            // Generar horarios disponibles
+            // Generar horarios disponibles (intervalos de 60 minutos en lugar de 30)
             $horariosLibres = [];
-            $intervalo = 30; // minutos
+            $intervalo = 60; // CAMBIO: 60 minutos en lugar de 30
 
             foreach ($horariosDisponibles as $horario) {
                 $horaInicio = $date->copy()->setTimeFromTimeString($horario->hora_inicio->format('H:i'));
@@ -500,19 +525,16 @@ class ClienteController extends Controller
                 $horaActual = $horaInicio->copy();
 
                 while ($horaActual->lt($horaCierre)) {
-                    $horaFinPropuesta = $horaActual->copy()->addMinutes($intervalo);
-
                     // Verificar si este bloque está disponible
                     $disponible = true;
                     foreach ($bloquesOcupados as $bloque) {
-                        if ($horaActual->lt($bloque['fin']) && $horaFinPropuesta->gt($bloque['inicio'])) {
+                        if ($horaActual->lt($bloque['fin']) && $horaActual->copy()->addMinutes($intervalo)->gt($bloque['inicio'])) {
                             $disponible = false;
-                            Log::debug("Horario {$horaActual->format('H:i')} ocupado por cita {$bloque['cita_id']}");
                             break;
                         }
                     }
 
-                    if ($disponible && $horaFinPropuesta->lte($horaCierre)) {
+                    if ($disponible) {
                         $horariosLibres[] = $horaActual->format('H:i');
                     }
 
@@ -520,7 +542,36 @@ class ClienteController extends Controller
                 }
             }
 
-            // Si la fecha es hoy, filtrar horarios que ya pasaron (
+            // Agregar horarios de 30 minutos también para mayor flexibilidad
+            foreach ($horariosDisponibles as $horario) {
+                $horaInicio = $date->copy()->setTimeFromTimeString($horario->hora_inicio->format('H:i'));
+                $horaCierre = $date->copy()->setTimeFromTimeString($horario->hora_fin->format('H:i'));
+
+                $horaActual = $horaInicio->copy()->addMinutes(30); // Comenzar en :30
+
+                while ($horaActual->lt($horaCierre)) {
+                    // Verificar si este bloque está disponible
+                    $disponible = true;
+                    foreach ($bloquesOcupados as $bloque) {
+                        if ($horaActual->lt($bloque['fin']) && $horaActual->copy()->addMinutes(30)->gt($bloque['inicio'])) {
+                            $disponible = false;
+                            break;
+                        }
+                    }
+
+                    if ($disponible) {
+                        $horariosLibres[] = $horaActual->format('H:i');
+                    }
+
+                    $horaActual->addMinutes(60); // Saltar a la próxima media hora disponible
+                }
+            }
+
+            // Ordenar y eliminar duplicados
+            $horariosLibres = array_unique($horariosLibres);
+            sort($horariosLibres);
+
+            // Si la fecha es hoy, filtrar horarios que ya pasaron
             if ($date->isToday()) {
                 $horaActualNow = Carbon::now();
                 $horariosLibres = array_filter($horariosLibres, function ($hora) use ($horaActualNow) {
@@ -528,16 +579,10 @@ class ClienteController extends Controller
                     return $horaCita->gt($horaActualNow);
                 });
 
-                // Reindexar el array
                 $horariosLibres = array_values($horariosLibres);
-
-                Log::info("Horarios disponibles después de filtrar los pasados para hoy:", [
-                    'count' => count($horariosLibres),
-                    'horarios' => $horariosLibres
-                ]);
             }
 
-            Log::info("Horarios libres generados:", [
+            Log::info("Horarios libres generados con intervalos mixtos:", [
                 'count' => count($horariosLibres),
                 'horarios' => $horariosLibres
             ]);
@@ -1283,41 +1328,41 @@ class ClienteController extends Controller
         ]);
     }
     /**
- * Obtener horarios disponibles para una fecha específica (método público para rutas)
- */
-public function getHorariosDisponiblesPorFecha($fecha, Request $request)
-{
-    try {
-        $excludeCitaId = $request->query('exclude');
+     * Obtener horarios disponibles para una fecha específica (método público para rutas)
+     */
+    public function getHorariosDisponiblesPorFecha($fecha, Request $request)
+    {
+        try {
+            $excludeCitaId = $request->query('exclude');
 
-        // Llamar al método privado existente
-        $horariosDisponibles = $this->getAvailableTimes($fecha, $excludeCitaId);
+            // Llamar al método privado existente
+            $horariosDisponibles = $this->getAvailableTimes($fecha, $excludeCitaId);
 
-        // Convertir a formato esperado por el frontend
-        $horariosFormatted = collect($horariosDisponibles)->map(function ($hora) {
-            return [
-                'hora' => $hora,
-                'disponible' => true  
-            ];
-        });
+            // Convertir a formato esperado por el frontend
+            $horariosFormatted = collect($horariosDisponibles)->map(function ($hora) {
+                return [
+                    'hora' => $hora,
+                    'disponible' => true
+                ];
+            });
 
-        Log::info("Horarios disponibles para fecha {$fecha}:", [
-            'exclude' => $excludeCitaId,
-            'horarios_count' => $horariosFormatted->count(),
-            'horarios' => $horariosFormatted->toArray()
-        ]);
+            Log::info("Horarios disponibles para fecha {$fecha}:", [
+                'exclude' => $excludeCitaId,
+                'horarios_count' => $horariosFormatted->count(),
+                'horarios' => $horariosFormatted->toArray()
+            ]);
 
-        return response()->json($horariosFormatted);
-    } catch (\Exception $e) {
-        Log::error('Error en getHorariosDisponiblesPorFecha:', [
-            'fecha' => $fecha,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
+            return response()->json($horariosFormatted);
+        } catch (\Exception $e) {
+            Log::error('Error en getHorariosDisponiblesPorFecha:', [
+                'fecha' => $fecha,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        return response()->json([], 500);
+            return response()->json([], 500);
+        }
     }
-}
 
     public function debugHorarios(Request $request)
     {
