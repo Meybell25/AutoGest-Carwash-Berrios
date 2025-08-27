@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\DiaNoLaborableController;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -186,8 +188,43 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('dashboard.data');
 
         // Datos para formularios 
-        Route::get('/horarios-disponibles/{fecha}', [ClienteController::class, 'getHorariosDisponibles'])
-            ->name('cliente.horarios-disponibles.fecha');
+
+        // En lugar de la closure larga, usa:
+        Route::get('/horarios-disponibles/{fecha}', [ClienteController::class, 'getHorariosDisponiblesPorFecha'])
+            ->name('horarios-disponibles.fecha');
+
+      /*  Route::get('/horarios-disponibles/{fecha}', function ($fecha, Request $request) {
+            try {
+                $excludeCitaId = $request->query('exclude');
+
+                // Usar el método del controlador
+                $controller = new \App\Http\Controllers\ClienteController();
+                $horariosDisponibles = $controller->getAvailableTimes($fecha, $excludeCitaId);
+
+                // Convertir a formato esperado por el frontend
+                $horariosFormatted = collect($horariosDisponibles)->map(function ($hora) {
+                    return [
+                        'hora' => $hora,
+                        'disponible' => true
+                    ];
+                });
+
+                Log::info("Horarios disponibles para fecha {$fecha}:", [
+                    'exclude' => $excludeCitaId,
+                    'horarios_count' => $horariosFormatted->count(),
+                    'horarios' => $horariosFormatted->toArray()
+                ]);
+
+                return response()->json($horariosFormatted);
+            } catch (\Exception $e) {
+                Log::error('Error en ruta horarios-disponibles:', [
+                    'fecha' => $fecha,
+                    'error' => $e->getMessage()
+                ]);
+
+                return response()->json([], 500);
+            }
+        })->name('horarios-disponibles.fecha');*/
 
         // Datos para formularios
         Route::get('/horarios-disponibles', function () {
@@ -226,7 +263,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
 
         // Servicios
         Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
-
     });
 
 // Rutas de perfil
