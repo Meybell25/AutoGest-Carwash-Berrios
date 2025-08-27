@@ -149,6 +149,8 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])->prefix('empleado')->name('empleado.')->group(function () {
     Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
     Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
+    Route::post('/citas/{cita}/estado', [EmpleadoController::class, 'cambiarEstado'])->name('citas.estado');
+    Route::post('/citas/finalizar', [EmpleadoController::class, 'finalizarCita'])->name('citas.finalizar');
     Route::get('/servicios', [ServicioController::class, 'empleadoIndex'])->name('servicios.index');
 });
 
