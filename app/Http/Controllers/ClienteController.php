@@ -246,10 +246,13 @@ class ClienteController extends Controller
                 if ($horaFin->gt($horaCierre)) {
                     $minutosExcedidos = $horaFin->diffInMinutes($horaCierre);
 
+                    // Obtener la hora de cierre normal correctamente
+                    $horaCierreNormal = $horario->hora_fin->format('H:i');
+
                     // CALCULAR VALORES AMIGABLES PARA EL USUARIO
                     $horasExtrasRedondeadas = round($minutosExcedidos / 60, 1);
                     $tiempoFinalizacion = $horaFin->format('H:i');
-                    $horarioCierre = $horario->hora_fin->format('H:i');
+                    $horaCierreNormal = Carbon::parse($horario->hora_fin)->format('H:i');
 
                     // MENSAJES MÁS AMIGABLES SEGÚN EL TIEMPO EXTRA
                     $mensajeUsuario = '';
@@ -309,7 +312,7 @@ class ClienteController extends Controller
                                     'duracion_servicios' => $duracionTotal,
                                     'tiempo_extra_minutos' => $minutosExcedidos,
                                     'tiempo_extra_horas' => $horasExtrasRedondeadas,
-                                    'horario_cierre_normal' => $horarioCierre
+                                    'horario_cierre_normal' => $horaCierreNormal,
                                 ],
                                 'beneficios' => [
                                     'Recibirás atención personalizada sin prisa',

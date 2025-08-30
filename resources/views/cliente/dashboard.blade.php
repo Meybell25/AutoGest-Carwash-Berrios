@@ -522,10 +522,25 @@
             animation: fadeIn 0.3s ease;
         }
 
+        /* Estilos para campos bloqueados (usar !important para asegurar) */
         .campo-bloqueado {
             background-color: #f8f9fa !important;
+            color: #666 !important;
+            border-color: #ddd !important;
             cursor: not-allowed !important;
             opacity: 0.7;
+        }
+
+        /* Para select también */
+        .campo-bloqueado select {
+            background-color: #f8f9fa !important;
+            color: #666 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* Para inputs readonly */
+        input[readonly].campo-bloqueado {
+            background-color: #f8f9fa !important;
         }
 
         .badge.bg-warning.text-dark {
@@ -3096,8 +3111,8 @@
 
     <script>
         /*=========================================================
-                        FUNCIONAMIENTO DE CREAR CITAS
-                        =========================================================*/
+                                FUNCIONAMIENTO DE CREAR CITAS
+                                =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3111,7 +3126,7 @@
                 confirmButton: 'btn btn-primary',
                 cancelButton: 'btn btn-outline mr-2'
             },
-            buttonsStyling: false
+            buttonsStyling: true
         });
 
         // Función para verificar si una fecha es no laborable
@@ -4100,10 +4115,14 @@
 
                 // Verificar restricción de 24 horas
                 if (data.data && data.data.restriccion_24h) {
-                    // Deshabilitar campos de fecha/hora/vehículo en el formulario
-                    document.getElementById('fecha').disabled = true;
-                    document.getElementById('hora').disabled = true;
-                    document.getElementById('vehiculo_id').disabled = true;
+                    document.getElementById('fecha').readOnly = true;
+                    document.getElementById('hora').readOnly = true;
+                    document.getElementById('vehiculo_id').readOnly = true;
+
+                    // Agregar clases visuales de bloqueo
+                    document.getElementById('fecha').classList.add('campo-bloqueado');
+                    document.getElementById('hora').classList.add('campo-bloqueado');
+                    document.getElementById('vehiculo_id').classList.add('campo-bloqueado');
 
                     // Mostrar mensaje al usuario
                     swalWithBootstrapButtons.fire({
@@ -4349,10 +4368,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                                                            <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                Agendar Cita
-                                                                                                                                                            </button>` : ''}
+                                                                                                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                        Agendar Cita
+                                                                                                                                                                    </button>` : ''}
                 </div>
             `;
                     return;
@@ -4949,11 +4968,6 @@
                                 await forceCreateCita(formData);
                             } else {
                                 console.log('❌ Usuario canceló la creación con tiempo extra');
-                                // Opcional: mostrar sugerencias de horarios alternativos
-                                if (result.detalles_cita && result.detalles_cita.hora_inicio) {
-                                    await mostrarSugerenciasHorarios(fecha, result.detalles_cita
-                                        .duracion_servicios);
-                                }
                             }
                             return;
                         }
@@ -5117,54 +5131,6 @@
             return infoContainer;
         }
 
-        async function mostrarSugerenciasHorarios(fecha, duracionServicios) {
-            try {
-                const response = await fetch(`/cliente/horarios-disponibles/${fecha}`);
-                if (response.ok) {
-                    const horariosDisponibles = await response.json();
-
-                    if (horariosDisponibles.length > 0) {
-                        // Filtrar horarios que permitan completar los servicios antes del cierre
-                        const horariosSugeridos = horariosDisponibles.slice(0, 6); // Mostrar máximo 6 opciones
-
-                        let sugerenciasHtml = `
-                    <div style="text-align: left;">
-                        <p>Te sugerimos estos horarios alternativos:</p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 15px 0;">
-                `;
-
-                        horariosSugeridos.forEach(hora => {
-                            sugerenciasHtml += `
-                        <button class="btn btn-outline-primary btn-sm" 
-                                onclick="seleccionarHorarioSugerido('${hora}')"
-                                style="margin: 2px;">
-                            ${hora}
-                        </button>
-                    `;
-                        });
-
-                        sugerenciasHtml += `
-                        </div>
-                        <p style="font-size: 14px; color: #666; text-align: center; margin-top: 15px;">
-                            Haz clic en cualquier horario para seleccionarlo automáticamente
-                        </p>
-                    </div>
-                `;
-
-                        await swalWithBootstrapButtons.fire({
-                            title: '🕐 Horarios alternativos',
-                            html: sugerenciasHtml,
-                            icon: 'info',
-                            confirmButtonText: 'Cerrar',
-                            width: '500px'
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Error al cargar sugerencias de horarios:', error);
-            }
-        }
-
 
         //  ESTILOS CSS PARA EL MODAL MÁS ANCHO
         const style = document.createElement('style');
@@ -5323,14 +5289,14 @@
                             <p><strong>Conflictos encontrados:</strong> ${data.data.citas_superpuestas.length}</p>
                             
                             ${data.data.citas_superpuestas.map(cita => `
-                                                                                            <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                                                                                                <p><strong>Cita ID:</strong> ${cita.id}</p>
-                                                                                                <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
-                                                                                                <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
-                                                                                                <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
-                                                                                                <p><strong>Estado:</strong> ${cita.estado}</p>
-                                                                                            </div>
-                                                                                        `).join('')}
+                                                                                                    <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                                                                                        <p><strong>Cita ID:</strong> ${cita.id}</p>
+                                                                                                        <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
+                                                                                                        <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
+                                                                                                        <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
+                                                                                                        <p><strong>Estado:</strong> ${cita.estado}</p>
+                                                                                                    </div>
+                                                                                                `).join('')}
                             
                             <p><strong>Horarios disponibles:</strong> ${data.data.horarios_disponibles.join(', ') || 'Ninguno'}</p>
                         </div>
@@ -5640,10 +5606,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -5755,8 +5721,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -5785,8 +5751,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

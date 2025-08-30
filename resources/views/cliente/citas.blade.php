@@ -68,6 +68,27 @@
             }
         }
 
+        /* Estilos para campos bloqueados (usar !important para asegurar) */
+        .campo-bloqueado {
+            background-color: #f8f9fa !important;
+            color: #666 !important;
+            border-color: #ddd !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+
+        /* Para select también */
+        .campo-bloqueado select {
+            background-color: #f8f9fa !important;
+            color: #666 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* Para inputs readonly */
+        input[readonly].campo-bloqueado {
+            background-color: #f8f9fa !important;
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -675,6 +696,68 @@
             gap: 8px;
         }
 
+        /* COLORES DE BADGE PARA TODOS LOS ESTADOS DE URGENCIA */
+        .date-badge.urgent-soon {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            animation: pulseBadge 2s infinite;
+        }
+
+        .date-badge.urgent-close {
+            background: linear-gradient(135deg, #fd7e14, #e55100) !important;
+        }
+
+        .date-badge.coming-soon {
+            background: linear-gradient(135deg, #ffc107, #ff8f00) !important;
+            color: #333 !important;
+        }
+
+        /* BORDES IZQUIERDOS PARA DETAIL-SECTION SEGÚN URGENCIA */
+        .detail-section.urgent-soon {
+            border-left: 4px solid #dc3545 !important;
+            background-color: rgba(220, 53, 69, 0.05) !important;
+        }
+
+        .detail-section.urgent-close {
+            border-left: 4px solid #fd7e14 !important;
+            background-color: rgba(253, 126, 20, 0.05) !important;
+        }
+
+        .detail-section.coming-soon {
+            border-left: 4px solid #ffc107 !important;
+            background-color: rgba(255, 193, 7, 0.05) !important;
+        }
+
+        /* Mantener los colores base para estados normales */
+        .detail-section.pendiente {
+            border-left: 4px solid #4facfe !important;
+        }
+
+        .detail-section.confirmada {
+            border-left: 4px solid #66bb6a !important;
+        }
+
+        .detail-section.en_proceso {
+            border-left: 4px solid #1b5e20 !important;
+        }
+
+        /* Animación de pulso para badges urgentes */
+        @keyframes pulseBadge {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+            }
+        }
+
         .service-list {
             list-style: none;
             padding: 0;
@@ -1192,14 +1275,23 @@
                             $hoursRemaining = $isFuture ? floor(now()->diffInHours($cita->fecha_hora, false)) : null;
 
                             $cardClass = $cita->estado;
+                            $badgeClass = $cita->estado;
+                            $borderClass = $cita->estado;
+
                             // LÓGICA DE URGENCIA SOLO PARA CITAS CONFIRMADAS
                             if ($cita->estado == 'confirmada' && $isFuture) {
                                 if ($hoursRemaining <= 24) {
                                     $cardClass .= ' urgent-soon'; // Menos de 24h - ROJO
+                                    $badgeClass .= ' urgent-soon';
+                                    $borderClass .= ' urgent-soon';
                                 } elseif ($daysDiff >= 1 && $daysDiff <= 2) {
                                     $cardClass .= ' urgent-close'; // 1-2 días - NARANJA
+                                    $badgeClass .= ' urgent-close';
+                                    $borderClass .= ' urgent-close';
                                 } elseif ($daysDiff >= 3 && $daysDiff <= 5) {
                                     $cardClass .= ' coming-soon'; // 3-5 días - AMARILLO
+                                    $badgeClass .= ' coming-soon';
+                                    $borderClass .= ' coming-soon';
                                 }
                                 // Más de 5 días mantiene el estilo normal (verde)
                             }
@@ -1251,7 +1343,8 @@
                             </div>
 
                             <div class="cita-details">
-                                <div class="detail-section">
+                                <!-- DETAIL-SECTION CON BORDES DE URGENCIA -->
+                                <div class="detail-section {{ $borderClass }}">
                                     <h4><i class="fas fa-tools"></i> Servicios Programados</h4>
                                     <ul class="service-list">
                                         @foreach ($cita->servicios as $servicio)
@@ -1269,7 +1362,7 @@
                                 </div>
 
                                 @if ($cita->observaciones)
-                                    <div class="detail-section">
+                                    <div class="detail-section {{ $borderClass }}">
                                         <h4><i class="fas fa-comment"></i> Observaciones</h4>
                                         <p>{{ $cita->observaciones }}</p>
                                     </div>
@@ -1277,13 +1370,13 @@
 
                                 <!-- Información adicional según el estado -->
                                 @if ($cita->estado == 'pendiente')
-                                    <div class="detail-section">
+                                    <div class="detail-section {{ $borderClass }}">
                                         <h4><i class="fas fa-info-circle"></i> Estado de la Cita</h4>
                                         <p>Tu cita está <strong>pendiente de confirmación</strong>. Recibirás una
                                             notificación cuando sea confirmada.</p>
                                     </div>
                                 @elseif ($cita->estado == 'confirmada')
-                                    <div class="detail-section">
+                                    <div class="detail-section {{ $borderClass }}">
                                         <h4><i class="fas fa-check-circle"></i> Cita Confirmada</h4>
                                         <p>Tu cita ha sido <strong>confirmada</strong>. Por favor llega 10 minutos antes
                                             de la hora programada.</p>
@@ -1295,7 +1388,7 @@
                                         @endif
                                     </div>
                                 @elseif ($cita->estado == 'en_proceso')
-                                    <div class="detail-section">
+                                    <div class="detail-section {{ $borderClass }}">
                                         <h4><i class="fas fa-cog"></i> En Proceso</h4>
                                         <p>Tu vehículo está siendo atendido. Te notificaremos cuando esté listo.</p>
                                     </div>
@@ -2290,7 +2383,7 @@
             });
         }
 
-        // Función para editar citas (MEJORADA)
+        // Función para editar citas 
         async function editCita(citaId) {
             console.log('Editando cita ID:', citaId);
 
@@ -2323,7 +2416,7 @@
 
                 // 2. Abrir modal limpio
                 await openCitaModal();
-                setModalMode(true); // Modo edición
+                setModalMode(true);
 
                 await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -2331,6 +2424,7 @@
                 const form = document.getElementById('citaForm');
                 const vehiculoSelect = document.getElementById('modal_vehiculo_id');
                 const fechaInput = document.getElementById('fecha');
+                const horaSelect = document.getElementById('hora');
                 const formCitaId = document.getElementById('form_cita_id');
                 const observacionesInput = document.getElementById('observaciones');
 
@@ -2358,45 +2452,52 @@
                     observacionesInput.value = data.data.observaciones || '';
                 }
 
-                // 5. Verificar restricción de 24 horas para citas confirmadas
+
                 const horasRestantes = calcularHorasRestantes(data.data.fecha_hora);
                 if (horasRestantes < 24 && data.data.estado === 'confirmada') {
-                    // Mostrar alerta y deshabilitar campos
+                    // Mostrar alerta
                     document.getElementById('restriccion24hAlert').style.display = 'block';
-                    document.getElementById('modal_vehiculo_id').disabled = true;
-                    document.getElementById('fecha').disabled = true;
-                    document.getElementById('hora').disabled = true;
+
+                    // ✅ BLOQUEO VISUAL SIN AFECTAR ENVÍO DE DATOS
+                    fechaInput.readOnly = true;
+                    horaSelect.readOnly = true;
+                    vehiculoSelect.readOnly = true;
+
+                    fechaInput.classList.add('campo-bloqueado');
+                    horaSelect.classList.add('campo-bloqueado');
+                    vehiculoSelect.classList.add('campo-bloqueado');
+
                 } else {
                     document.getElementById('restriccion24hAlert').style.display = 'none';
-                    document.getElementById('modal_vehiculo_id').disabled = false;
-                    document.getElementById('fecha').disabled = false;
-                    document.getElementById('hora').disabled = false;
+                    fechaInput.readOnly = false;
+                    horaSelect.readOnly = false;
+                    vehiculoSelect.readOnly = false;
+
+                    fechaInput.classList.remove('campo-bloqueado');
+                    horaSelect.classList.remove('campo-bloqueado');
+                    vehiculoSelect.classList.remove('campo-bloqueado');
                 }
 
-                // 6. Cargar servicios por tipo de vehículo
+                // 5. Cargar servicios
                 if (data.data.vehiculo_id) {
                     await cargarServiciosPorTipo();
                     await new Promise(resolve => setTimeout(resolve, 200));
                 }
 
-                // 7. Establecer fecha (esto disparará la carga de horarios)
+                // 6. Establecer fecha
                 if (fechaInput && data.data.fecha) {
                     fechaInput.value = data.data.fecha;
-
-                    // Simular evento change para cargar horarios
                     const changeEvent = new Event('change');
                     fechaInput.dispatchEvent(changeEvent);
-
-                    // Esperar a que se carguen los horarios
                     await new Promise(resolve => setTimeout(resolve, 800));
                 }
 
-                // 8. Configurar hora (DESPUÉS de que se carguen los horarios)
+                // 7. Configurar hora
                 if (data.data.hora) {
                     await setSelectedHourForEdit(data.data.hora);
                 }
 
-                // 9. Seleccionar servicios
+                // 8. Seleccionar servicios
                 if (data.data.cita && data.data.cita.servicios) {
                     data.data.cita.servicios.forEach(servicio => {
                         const checkbox = document.querySelector(
@@ -2644,11 +2745,6 @@
                                 await forceCreateCita(formData);
                             } else {
                                 console.log('❌ Usuario canceló la creación con tiempo extra');
-                                // Opcional: mostrar sugerencias de horarios alternativos
-                                if (result.detalles_cita && result.detalles_cita.hora_inicio) {
-                                    await mostrarSugerenciasHorarios(fecha, result.detalles_cita
-                                        .duracion_servicios);
-                                }
                             }
                             return;
                         }
@@ -2862,61 +2958,6 @@
             }
         }
 
-        // Función para mostrar sugerencias de horarios alternativos
-        async function mostrarSugerenciasHorarios(fecha, duracionServicios) {
-            try {
-                const response = await fetch(`/cliente/horarios-disponibles/${fecha}`);
-                if (response.ok) {
-                    const horariosDisponibles = await response.json();
-
-                    if (horariosDisponibles.length > 0) {
-                        // Filtrar horarios que permitan completar los servicios antes del cierre
-                        const horariosSugeridos = horariosDisponibles.slice(0, 6); // Mostrar máximo 6 opciones
-
-                        let sugerenciasHtml = `
-                    <div style="text-align: left;">
-                        <p>Te sugerimos estos horarios alternativos:</p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 15px 0;">
-                `;
-
-                        horariosSugeridos.forEach(hora => {
-                            sugerenciasHtml += `
-                        <button class="btn btn-outline-primary btn-sm" 
-                                onclick="seleccionarHorarioSugerido('${hora}')"
-                                style="margin: 2px;">
-                            ${hora}
-                        </button>
-                    `;
-                        });
-
-                        sugerenciasHtml += `
-                        </div>
-                        <p style="font-size: 14px; color: #666; text-align: center; margin-top: 15px;">
-                            Haz clic en cualquier horario para seleccionarlo automáticamente
-                        </p>
-                    </div>
-                `;
-
-                        await swalWithBootstrapButtons.fire({
-                            title: '🕐 Horarios alternativos',
-                            html: sugerenciasHtml,
-                            icon: 'info',
-                            confirmButtonText: 'Cerrar',
-                            width: '500px'
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Error al cargar sugerencias de horarios:', error);
-            }
-        }
-
-        // Función para seleccionar horario sugerido
-        function seleccionarHorarioSugerido(hora) {
-            const horaSelect = document.getElementById('hora');
-            horaSelect.value = hora;
-            Swal.close();
-        }
 
         //  ESTILOS CSS PARA EL MODAL MÁS ANCHO
         const style = document.createElement('style');
