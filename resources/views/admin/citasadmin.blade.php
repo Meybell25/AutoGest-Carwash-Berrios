@@ -151,6 +151,7 @@
         }
 
         .btn-details:hover {
+            color: white;
             background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
             box-shadow: 0 8px 25px rgba(56, 142, 60, 0.4);
         }
@@ -191,6 +192,113 @@
         .card-body {
             padding: 0 30px 30px;
         }
+         /* Estilos para las estadísticas */
+        .stats-card {
+            margin-bottom: 25px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-item {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #00695c, #2e7d32);
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .stats-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stats-breakdown {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 16px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stats-breakdown-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .breakdown-count {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-dot-pendiente { background: #ef6c00; }
+        .status-dot-confirmada { background: #0277bd; }
+        .status-dot-en_proceso { background: #6a1b9a; }
+        .status-dot-finalizada { background: #2e7d32; }
+        .status-dot-cancelada { background: #ad1457; }
 
         /* MEJORAS EN LOS FILTROS */
         .filters-card .card-body {
@@ -387,7 +495,7 @@
             opacity: 0.5;
         }
 
-        /* MEJORAS EN EL MODAL */
+     /* Modal detaller */
         .modal-content {
             border: none;
             border-radius: 20px;
@@ -445,10 +553,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border: none;
+            color: white;
+            transition: var(--transition);
         }
 
         .btn-close:hover {
             background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .btn-close::before {
+            content: '\f00d';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
         }
 
         .modal-body {
@@ -461,6 +579,7 @@
             padding: 20px 30px;
             border-top: 1px solid #e9ecef;
         }
+
 
         /* Estilos para las secciones del modal */
         .modal-section {
@@ -649,8 +768,7 @@
                     <i class="fas fa-calendar" style="color: white !important; font-size: 1.3rem;"></i>
                 </div>
                 <div>
-                    <h1
-                        style="margin: 0; font-size: 1.8rem; background: linear-gradient(135deg, #00695c 0%, #2e7d32 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <h1 style="margin: 0; font-size: 1.8rem; background: linear-gradient(135deg, #00695c 0%, #2e7d32 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         Administración de Citas</h1>
                     <p style="margin: 0; color: var(--text-secondary);">Gestiona y actualiza el estado de todas las
                         citas del sistema</p>
@@ -661,6 +779,115 @@
                     <i class="fas fa-arrow-left"></i>
                     Volver al Dashboard
                 </a>
+            </div>
+        </div>
+
+        <!-- Estadísticas de Citas -->
+        <div class="card stats-card">
+            <div class="card-header">
+                <h2 style="font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--text-primary); margin-bottom: 0;">
+                    <i class="fas fa-chart-bar"></i>
+                    Resumen de Citas
+                </h2>
+            </div>
+            <div class="card-body">
+                <!-- Información de filtros activos -->
+                @if(!empty($estadisticas['filtros_activos']))
+                    <div class="filter-info">
+                        <div class="filter-info-title">
+                            <i class="fas fa-filter"></i>
+                            Filtros Aplicados
+                        </div>
+                        @if(isset($estadisticas['filtros_activos']['usuario_nombre']))
+                            <div class="filter-detail">
+                                <strong>Cliente:</strong> {{ $estadisticas['filtros_activos']['usuario_nombre'] }}
+                            </div>
+                        @elseif(isset($estadisticas['filtros_activos']['busqueda']))
+                            <div class="filter-detail">
+                                <strong>Búsqueda:</strong> "{{ $estadisticas['filtros_activos']['busqueda'] }}"
+                            </div>
+                        @endif
+                        @if(isset($estadisticas['filtros_activos']['estado']))
+                            <div class="filter-detail">
+                                <strong>Estado:</strong> {{ ucfirst($estadisticas['filtros_activos']['estado']) }}
+                            </div>
+                        @endif
+                        @if(isset($estadisticas['filtros_activos']['fecha']))
+                            <div class="filter-detail">
+                                <strong>Fecha:</strong> {{ $estadisticas['filtros_activos']['fecha'] }}
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
+                <!-- Estadística principal -->
+                <div class="stats-grid">
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $estadisticas['total'] }}</span>
+                        <span class="stats-label">
+                            @if(!empty($estadisticas['filtros_activos']))
+                                Citas Filtradas
+                            @else
+                                Total de Citas
+                            @endif
+                        </span>
+                    </div>
+
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $estadisticas['por_estado']['pendiente'] }}</span>
+                        <span class="stats-label">Pendientes</span>
+                    </div>
+
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $estadisticas['por_estado']['confirmada'] }}</span>
+                        <span class="stats-label">Confirmadas</span>
+                    </div>
+
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $estadisticas['por_estado']['en_proceso'] }}</span>
+                        <span class="stats-label">En Proceso</span>
+                    </div>
+
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $estadisticas['por_estado']['finalizada'] }}</span>
+                        <span class="stats-label">Finalizadas</span>
+                    </div>
+
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $estadisticas['por_estado']['cancelada'] }}</span>
+                        <span class="stats-label">Canceladas</span>
+                    </div>
+                </div>
+
+                <!-- Desglose detallado -->
+                @if($estadisticas['total'] > 0)
+                    <div class="stats-breakdown">
+                        <div class="stats-breakdown-title">
+                            <i class="fas fa-list-ul"></i>
+                            Desglose por Estado
+                            @if(isset($estadisticas['filtros_activos']['usuario_nombre']))
+                                - {{ $estadisticas['filtros_activos']['usuario_nombre'] }}
+                            @endif
+                        </div>
+                        
+                        @foreach(['pendiente' => 'Pendiente', 'confirmada' => 'Confirmada', 'en_proceso' => 'En Proceso', 'finalizada' => 'Finalizada', 'cancelada' => 'Cancelada'] as $estado => $label)
+                            @if($estadisticas['por_estado'][$estado] > 0)
+                                <div class="breakdown-item">
+                                    <div class="breakdown-status">
+                                        <div class="status-dot status-dot-{{ $estado }}"></div>
+                                        {{ $label }}
+                                    </div>
+                                    <div class="breakdown-count">
+                                        {{ $estadisticas['por_estado'][$estado] }} 
+                                        <small style="color: var(--text-secondary); font-weight: normal;">
+                                            ({{ round(($estadisticas['por_estado'][$estado] / $estadisticas['total']) * 100, 1) }}%)
+                                        </small>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -713,10 +940,12 @@
         <!-- Tabla de citas  -->
         <div class="card">
             <div class="card-header">
-                <h2
-                    style="font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--text-primary); margin-bottom: 10px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--text-primary); margin-bottom: 10px;">
                     <i class="fas fa-list"></i>
                     Lista de Citas
+                    <small style="font-size: 0.9rem; font-weight: 500; color: var(--text-secondary);">
+                        ({{ $citas->total() }} {{ $citas->total() == 1 ? 'registro' : 'registros' }})
+                    </small>
                 </h2>
                 @if (request()->anyFilled(['estado', 'fecha', 'buscar']))
                     <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0;">
@@ -766,27 +995,17 @@
                                     </td>
                                     <td>${{ number_format($cita->total, 2) }}</td>
                                     <td>
-                                        <span
-                                            class="appointment-status status-{{ $cita->estado }}">{{ $cita->estado_formatted }}</span>
+                                        <span class="appointment-status status-{{ $cita->estado }}">{{ $cita->estado_formatted }}</span>
                                     </td>
                                     <td>
                                         <select class="estado-select" data-cita-id="{{ $cita->id }}">
-                                            <option value="pendiente"
-                                                {{ $cita->estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                                            <option value="confirmada"
-                                                {{ $cita->estado == 'confirmada' ? 'selected' : '' }}>Confirmada
-                                            </option>
-                                            <option value="en_proceso"
-                                                {{ $cita->estado == 'en_proceso' ? 'selected' : '' }}>En Proceso
-                                            </option>
-                                            <option value="finalizada"
-                                                {{ $cita->estado == 'finalizada' ? 'selected' : '' }}>Finalizada
-                                            </option>
-                                            <option value="cancelada"
-                                                {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
+                                            <option value="pendiente" {{ $cita->estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                                            <option value="confirmada" {{ $cita->estado == 'confirmada' ? 'selected' : '' }}>Confirmada</option>
+                                            <option value="en_proceso" {{ $cita->estado == 'en_proceso' ? 'selected' : '' }}>En Proceso</option>
+                                            <option value="finalizada" {{ $cita->estado == 'finalizada' ? 'selected' : '' }}>Finalizada</option>
+                                            <option value="cancelada" {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
                                         </select>
-                                        <button class="btn btn-details mt-2 w-100 view-details"
-                                            data-cita-id="{{ $cita->id }}">
+                                        <button class="btn btn-details mt-2 w-100 view-details" data-cita-id="{{ $cita->id }}">
                                             <i class="fas fa-eye me-1"></i> Detalles
                                         </button>
                                     </td>
@@ -799,8 +1018,7 @@
                                         <p>No hay actividades registradas en el sistema</p>
                                         @if (request()->anyFilled(['estado', 'fecha', 'buscar']))
                                             <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
-                                            <a href="{{ route('admin.citasadmin.index') }}"
-                                                class="btn btn-primary mt-2">
+                                            <a href="{{ route('admin.citasadmin.index') }}" class="btn btn-primary mt-2">
                                                 <i class="fas fa-broom me-1"></i> Limpiar filtros
                                             </a>
                                         @endif
@@ -821,8 +1039,7 @@
                         @endif
 
                         @foreach (range(1, $citas->lastPage()) as $page)
-                            <a href="{{ $citas->url($page) }}"
-                                class="page-link {{ $citas->currentPage() == $page ? 'active' : '' }}">{{ $page }}</a>
+                            <a href="{{ $citas->url($page) }}" class="page-link {{ $citas->currentPage() == $page ? 'active' : '' }}">{{ $page }}</a>
                         @endforeach
 
                         @if ($citas->hasMorePages())
@@ -927,6 +1144,11 @@
                                 timer: 2000,
                                 showConfirmButton: false
                             });
+
+                            // recargar página para actualizar estadísticas
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000);
                         } else {
                             Swal.fire({
                                 icon: 'error',
@@ -980,23 +1202,20 @@
                             let serviciosHTML = '';
                             if (data.servicios && data.servicios.length > 0) {
                                 data.servicios.forEach(servicio => {
-                                    const precio = servicio.pivot?.precio || servicio
-                                        .precio || 0;
+                                    const precio = servicio.pivot?.precio || servicio.precio || 0;
                                     serviciosHTML += `
                                     <div class="service-item">
                                         <span class="service-name">${servicio.nombre}</span>
-                                        <span class="service-price">$${precio.toFixed(2)}</span>
+                                        <span class="service-price">${precio.toFixed(2)}</span>
                                     </div>
                                 `;
                                 });
                             } else {
-                                serviciosHTML =
-                                    '<p class="text-muted text-center">No hay servicios registrados</p>';
+                                serviciosHTML = '<p class="text-muted text-center">No hay servicios registrados</p>';
                             }
 
                             // Obtener el tipo formateado del vehículo
-                            const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo
-                                .tipo || 'No especificado';
+                            const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado';
 
                             document.getElementById('detalles-cita-content').innerHTML = `
                             <div class="modal-section">
@@ -1084,13 +1303,12 @@
                                 <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
                                     <i class="fas fa-receipt me-2"></i> Total a Pagar
                                 </div>
-                                <div class="total-amount">$${data.total.toFixed(2)}</div>
+                                <div class="total-amount">${data.total.toFixed(2)}</div>
                             </div>
                         `;
 
                             // Mostrar el modal
-                            const modal = new bootstrap.Modal(document.getElementById(
-                                'detallesCitaModal'));
+                            const modal = new bootstrap.Modal(document.getElementById('detallesCitaModal'));
                             modal.show();
                         })
                         .catch(error => {
@@ -1099,8 +1317,7 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: error.message ||
-                                    'No se pudieron cargar los detalles de la cita'
+                                text: error.message || 'No se pudieron cargar los detalles de la cita'
                             });
                         });
                 });

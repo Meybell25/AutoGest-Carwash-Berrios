@@ -114,6 +114,36 @@
             flex-wrap: wrap;
         }
 
+        .status-pendiente {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2) !important;
+            color: #ef6c00 !important;
+            border: 1px solid #ffcc80 !important;
+        }
+
+        .status-confirmada {
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc) !important;
+            color: #0277bd !important;
+            border: 1px solid #81d4fa !important;
+        }
+
+        .status-en_proceso {
+            background: linear-gradient(135deg, #f1e6ff, #e1bee7);
+            color: #6a1b9a;
+            border: 1px solid #ce93d8;
+        }
+
+        .status-finalizada {
+            background: linear-gradient(135deg, #e0f2e0, #c8e6c9);
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .status-cancelada {
+            background: linear-gradient(135deg, #fde7f3, #f8bbd9);
+            color: #ad1457;
+            border: 1px solid #f48fb1;
+        }
+
         .btn {
             padding: 10px 18px;
             border: none;
@@ -500,6 +530,7 @@
             margin-top: 5px;
             color: var(--text-secondary);
         }
+
 
         @media (max-width: 768px) {
             .header {
@@ -1829,9 +1860,9 @@
                             <i class="fas fa-edit"></i>
                         </button>
                         ${user.rol != 'admin' ? `
-                        <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>` : ''}
+                                <button class="action-btn btn-delete" title="Eliminar" onclick="confirmarEliminar(${user.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>` : ''}
                         <button class="action-btn btn-info" title="Ver Registros" onclick="mostrarRegistrosUsuario(${user.id})">
                             <i class="fas fa-car"></i>
                         </button>
@@ -2034,17 +2065,44 @@
                 const servicios = cita.servicios.map(s => s.nombre).join(', ');
                 const total = cita.servicios.reduce((sum, s) => sum + s.precio, 0);
 
+                // Determinar la clase CSS para el estado
+                let statusClass = '';
+                let statusText = '';
+
+                switch (cita.estado) {
+                    case 'pendiente':
+                        statusClass = 'status-pendiente';
+                        statusText = 'Pendiente';
+                        break;
+                    case 'confirmada':
+                        statusClass = 'status-confirmada';
+                        statusText = 'Confirmada';
+                        break;
+                    case 'en_proceso':
+                        statusClass = 'status-en_proceso';
+                        statusText = 'En Proceso';
+                        break;
+                    case 'finalizada':
+                    case 'completada':
+                        statusClass = 'status-finalizada';
+                        statusText = 'Finalizada';
+                        break;
+                    case 'cancelada':
+                        statusClass = 'status-cancelada';
+                        statusText = 'Cancelada';
+                        break;
+                    default:
+                        statusClass = 'status-pendiente';
+                        statusText = cita.estado;
+                }
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
             <td data-label="ID">${cita.id}</td>
             <td data-label="Fecha">${new Date(cita.fecha_hora).toLocaleDateString()}</td>
             <td data-label="Hora">${new Date(cita.fecha_hora).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
             <td data-label="Estado">
-                ${cita.estado === 'pendiente' ? 
-                    '<span class="badge badge-warning">Pendiente</span>' : 
-                 cita.estado === 'completada' ? 
-                    '<span class="badge badge-success">Completada</span>' : 
-                    '<span class="badge badge-danger">Cancelada</span>'}
+                <span class="badge ${statusClass}">${statusText}</span>
             </td>
             <td data-label="Servicios">${servicios}</td>
             <td data-label="Total">$${total.toFixed(2)}</td>

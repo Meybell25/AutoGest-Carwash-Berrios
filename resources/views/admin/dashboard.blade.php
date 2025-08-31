@@ -1632,6 +1632,62 @@
         }
 
         /* ======================
+            Estilos para la tabla de citas de hoy
+            ====================== */
+
+        #citasHoyTable tr[data-estado="cancelada"] {
+            opacity: 0.7;
+            background-color: rgba(245, 245, 245, 0.5);
+        }
+
+        #citasHoyTable tr[data-estado="finalizada"] {
+            background-color: rgba(232, 245, 233, 0.3);
+        }
+
+        #citasHoyTable tr[data-estado="en_proceso"] {
+            background-color: rgba(225, 245, 254, 0.3);
+        }
+
+        /* Mejora para badges de estado */
+        .badge-pendiente {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            color: #ef6c00;
+            border: 1px solid #ffcc80;
+        }
+
+        .badge-confirmada {
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+            color: #0277bd;
+            border: 1px solid #81d4fa;
+        }
+
+        .badge-en_proceso {
+            background: linear-gradient(135deg, #f1e6ff, #e1bee7);
+            color: #6a1b9a;
+            border: 1px solid #ce93d8;
+        }
+
+        .badge-finalizada {
+            background: linear-gradient(135deg, #e0f2e0, #c8e6c9);
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .badge-cancelada {
+            background: linear-gradient(135deg, #fde7f3, #f8bbd9);
+            color: #ad1457;
+            border: 1px solid #f48fb1;
+        }
+
+        .badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        /* ======================
             FORMULARIOS
             ====================== */
         .search-filter-container {
@@ -2842,7 +2898,7 @@
                     </div>
                 </div>
 
-                <!-- Contenedor para Gestión de Gastos - VERSIÓN SIMPLIFICADA -->
+                <!-- Contenedor para Gestión de Gastos-->
                 <div class="card">
                     <div class="card-header">
                         <h2>
@@ -3092,18 +3148,20 @@
                             <div class="card-header-icon icon-container">
                                 <i class="fas fa-calendar-day"></i>
                             </div>
-                            Últimas Citas
+                            Últimas Citas - Hoy ({{ now()->format('d/m/Y') }})
                         </h2>
                     </div>
                     <div class="card-body">
                         <div class="search-filter-container">
                             <div class="search-box">
-                                <input type="text" placeholder="Buscar citas..." class="form-control">
+                                <input type="text" id="searchCitas" placeholder="Buscar citas..."
+                                    class="form-control">
                             </div>
                             <div class="filter-select">
-                                <select class="form-control">
+                                <select id="filterEstado" class="form-control">
                                     <option value="">Todos los estados</option>
                                     <option value="pendiente">Pendiente</option>
+                                    <option value="confirmada">Confirmada</option>
                                     <option value="en_proceso">En Proceso</option>
                                     <option value="finalizada">Finalizada</option>
                                     <option value="cancelada">Cancelada</option>
@@ -3125,15 +3183,22 @@
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($ultimas_citas as $cita)
-                                        <tr>
+                                <tbody id="citasHoyTable">
+                                    @php
+                                        // Obtener citas de hoy ordenadas por hora
+                                        $citasHoy = \App\Models\Cita::with(['usuario', 'vehiculo', 'servicios'])
+                                            ->whereDate('fecha_hora', today())
+                                            ->orderBy('fecha_hora', 'asc')
+                                            ->get();
+                                    @endphp
+
+                                    @forelse($citasHoy as $cita)
+                                        <tr data-estado="{{ $cita->estado }}">
                                             <td data-label="ID">#{{ $cita->id }}</td>
                                             <td data-label="Cliente">{{ $cita->usuario->nombre }}</td>
                                             <td data-label="Vehículo">{{ $cita->vehiculo->marca }}
                                                 {{ $cita->vehiculo->modelo }}</td>
-                                            <td data-label="Fecha/Hora">{{ $cita->fecha_hora->format('d/m/Y H:i') }}
-                                            </td>
+                                            <td data-label="Fecha/Hora">{{ $cita->fecha_hora->format('H:i') }}</td>
                                             <td data-label="Servicios">
                                                 @foreach ($cita->servicios as $index => $servicio)
                                                     <span
@@ -3143,22 +3208,13 @@
                                             <td data-label="Total">
                                                 ${{ number_format($cita->servicios->sum('pivot.precio'), 2) }}</td>
                                             <td data-label="Estado">
-                                                <span
-                                                    class="badge badge-{{ $cita->estado == 'pendiente'
-                                                        ? 'pendiente'
-                                                        : ($cita->estado == 'confirmado'
-                                                            ? 'confirmado'
-                                                            : ($cita->estado == 'en_proceso'
-                                                                ? 'en_proceso'
-                                                                : ($cita->estado == 'finalizada'
-                                                                    ? 'finalizada'
-                                                                    : 'cancelada'))) }}">
+                                                <span class="badge badge-{{ $cita->estado }}">
                                                     {{ $cita->estado_formatted }}
                                                 </span>
                                             </td>
                                             <td data-label="Acciones">
                                                 <div class="table-actions">
-                                                    <button class="table-btn btn-view" title="Ver"
+                                                    <button class="table-btn btn-view" title="Ver detalles"
                                                         onclick="verDetalleCita({{ $cita->id }})">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -3173,573 +3229,578 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="empty-state">
+                                                <i class="fas fa-calendar-times"></i>
+                                                <h4>No hay citas para hoy</h4>
+                                                <p>No hay citas programadas para el día de hoy</p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
-
-                        <div class="pagination">
-                            <a href="#" class="page-link">&laquo;</a>
-                            <a href="#" class="page-link active">1</a>
-                            <a href="#" class="page-link">2</a>
-                            <a href="#" class="page-link">3</a>
-                            <a href="#" class="page-link">&raquo;</a>
-                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Sección Sidebar -->
-            <div class="sidebar-section">
-                <!-- Card de Perfil -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="card-header-icon icon-container">
-                                <i class="fas fa-user-tie"></i>
+                <!-- Sección Sidebar -->
+                <div class="sidebar-section">
+                    <!-- Card de Perfil -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>
+                                <div class="card-header-icon icon-container">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                Mi Perfil
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="profile-card">
+                                <div class="profile-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="profile-name">{{ Auth::user()->nombre }}</div>
+                                <div class="profile-role">Administrador</div>
+
+                                <div class="profile-info">
+                                    <div class="profile-info-item">
+                                        <i class="fas fa-envelope" style="color: white;"></i>
+                                        <span>{{ Auth::user()->email }}</span>
+                                    </div>
+                                    <div class="profile-info-item">
+                                        <i class="fas fa-phone" style="color: white;"></i>
+                                        <span>{{ Auth::user()->telefono ?? 'No especificado' }}</span>
+                                    </div>
+                                    <div class="profile-info-item">
+                                        <i class="fas fa-calendar" style="color: white;"></i>
+                                        <span>Miembro desde {{ Auth::user()->created_at->format('M Y') }}</span>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
+                                    onclick="mostrarModal('perfilModal')">
+                                    <i class="fas fa-edit"></i> Editar Perfil
+                                </button>
                             </div>
-                            Mi Perfil
-                        </h2>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="profile-card">
-                            <div class="profile-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="profile-name">{{ Auth::user()->nombre }}</div>
-                            <div class="profile-role">Administrador</div>
 
-                            <div class="profile-info">
-                                <div class="profile-info-item">
-                                    <i class="fas fa-envelope" style="color: white;"></i>
-                                    <span>{{ Auth::user()->email }}</span>
+                    <!-- Resumen de Usuarios -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>
+                                <div class="card-header-icon icon-container">
+                                    <i class="fas fa-users"></i>
                                 </div>
-                                <div class="profile-info-item">
-                                    <i class="fas fa-phone" style="color: white;"></i>
-                                    <span>{{ Auth::user()->telefono ?? 'No especificado' }}</span>
+                                Resumen de Usuarios
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary);">
+                                        {{ $stats['usuarios_totales'] ?? 0 }}</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-secondary);">Usuarios Totales
+                                    </div>
                                 </div>
-                                <div class="profile-info-item">
-                                    <i class="fas fa-calendar" style="color: white;"></i>
-                                    <span>Miembro desde {{ Auth::user()->created_at->format('M Y') }}</span>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--success);">
+                                        {{ $stats['nuevos_clientes_mes'] ?? 0 }}</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-secondary);">Nuevos
+                                        ({{ now()->translatedFormat('F') }})</div>
                                 </div>
                             </div>
 
-                            <button class="btn btn-outline" style="width: 100%; margin-top: 20px;"
-                                onclick="mostrarModal('perfilModal')">
-                                <i class="fas fa-edit"></i> Editar Perfil
+                            <div style="margin-bottom: 15px;">
+                                <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--text-primary);">
+                                    Distribución por Rol
+                                </h3>
+                                <div class="chart-container" style="height: 200px;">
+                                    <canvas id="usuariosChart"></canvas>
+                                </div>
+                            </div>
+
+                            <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline"
+                                style="width: 100%;">
+                                <i class="fas fa-list"></i> Ver Todos los Usuarios
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Servicios Populares -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>
+                                <div class="card-header-icon icon-container">
+                                    <i class="fas fa-award"></i>
+                                </div>
+                                Servicios Populares
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            @foreach ($servicios_populares as $servicio)
+                                <div class="service-history-item" style="margin-bottom: 10px;">
+                                    <div class="service-icon" style="background: var(--secondary-gradient);">
+                                        <i class="fas fa-spray-can"></i>
+                                    </div>
+                                    <div class="service-details">
+                                        <h4>{{ $servicio->nombre }}</h4>
+                                        <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion }} min
+                                        </p>
+                                        <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces
+                                            este
+                                            mes</p>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline"
+                                        onclick="editarServicio({{ $servicio->id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+
+                            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                                onclick="nuevoServicio()">
+                                <i class="fas fa-plus"></i> Agregar Servicio
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <!-- Resumen de Usuarios -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="card-header-icon icon-container">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            Resumen de Usuarios
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: var(--primary);">
-                                    {{ $stats['usuarios_totales'] ?? 0 }}</div>
-                                <div style="font-size: 0.9rem; color: var(--text-secondary);">Usuarios Totales</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: var(--success);">
-                                    {{ $stats['nuevos_clientes_mes'] ?? 0 }}</div>
-                                <div style="font-size: 0.9rem; color: var(--text-secondary);">Nuevos
-                                    ({{ now()->translatedFormat('F') }})</div>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 15px;">
-                            <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--text-primary);">
-                                Distribución por Rol
-                            </h3>
-                            <div class="chart-container" style="height: 200px;">
-                                <canvas id="usuariosChart"></canvas>
-                            </div>
-                        </div>
-
-                        <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline" style="width: 100%;">
-                            <i class="fas fa-list"></i> Ver Todos los Usuarios
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Servicios Populares -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="card-header-icon icon-container">
-                                <i class="fas fa-award"></i>
-                            </div>
-                            Servicios Populares
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        @foreach ($servicios_populares as $servicio)
-                            <div class="service-history-item" style="margin-bottom: 10px;">
-                                <div class="service-icon" style="background: var(--secondary-gradient);">
-                                    <i class="fas fa-spray-can"></i>
+                    <!-- Notificaciones del Sistema -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>
+                                <div class="card-header-icon icon-container">
+                                    <i class="fas fa-exclamation-triangle"></i>
                                 </div>
-                                <div class="service-details">
-                                    <h4>{{ $servicio->nombre }}</h4>
-                                    <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion }} min</p>
-                                    <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces este
-                                        mes</p>
-                                </div>
-                                <button class="btn btn-sm btn-outline" onclick="editarServicio({{ $servicio->id }})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </div>
-                        @endforeach
-
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;"
-                            onclick="nuevoServicio()">
-                            <i class="fas fa-plus"></i> Agregar Servicio
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Notificaciones del Sistema -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="card-header-icon icon-container">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            Alertas del Sistema
-                        </h2>
-                    </div>
-                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                        @foreach ($alertas as $alerta)
-                            <div class="notification-item {{ $alerta->leida ? 'read' : 'unread' }}">
-                                <div class="notification-icon {{ $alerta->tipo }}">
-                                    <i class="fas fa-{{ $alerta->icono }}"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <h4>{{ $alerta->titulo }}</h4>
-                                    <p>{{ $alerta->mensaje }}</p>
-                                    <small>{{ $alerta->created_at->diffForHumans() }}</small>
-                                </div>
-                            </div>
-                        @endforeach
-
-                        @if (count($alertas) == 0)
-                            <div class="empty-state" style="padding: 20px;">
-                                <i class="fas fa-check-circle"></i>
-                                <h3>No hay alertas</h3>
-                                <p>No hay notificaciones importantes en este momento</p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal para ver detalle de cita -->
-            <div id="detalleCitaModal" class="modal">
-                <div class="modal-content" style="max-width: 700px;">
-                    <span class="close-modal" onclick="closeModal('detalleCitaModal')">&times;</span>
-                    <div id="detalleCitaContent">
-                        <!-- Contenido dinámico -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal para editar cita -->
-            <div id="editarCitaModal" class="modal">
-                <div class="modal-content" style="max-width: 700px;">
-                    <span class="close-modal" onclick="closeModal('editarCitaModal')">&times;</span>
-                    <h2 style="color: var(--primary); margin-bottom: 20px;">
-                        <i class="fas fa-edit"></i> Editar Cita
-                    </h2>
-                    <form id="editarCitaForm">
-                        <!-- Formulario se llenará dinámicamente -->
-                    </form>
-                </div>
-            </div>
-
-            <!-- Modal para nuevo/editar servicio -->
-            <div id="servicioModal" class="modal">
-                <div class="modal-content">
-                    <span class="close-modal" onclick="closeModal('servicioModal')">&times;</span>
-                    <h2 id="servicioModalTitle">
-                        <i class="fas fa-plus"></i> Nuevo Servicio
-                    </h2>
-                    <form id="servicioForm">
-                        <input type="hidden" id="servicio_id" name="id">
-
-                        <div class="form-group">
-                            <label for="servicio_nombre">Nombre del Servicio:</label>
-                            <input type="text" id="servicio_nombre" name="nombre" required class="form-control"
-                                placeholder="Ej: Lavado Premium">
+                                Alertas del Sistema
+                            </h2>
                         </div>
-
-                        <div class="form-group">
-                            <label for="servicio_descripcion">Descripción:</label>
-                            <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control"
-                                placeholder="Describe los detalles del servicio..."></textarea>
-                        </div>
-
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="servicio_precio">Precio ($):</label>
-                                <input type="number" step="0.01" id="servicio_precio" name="precio" required
-                                    class="form-control" placeholder="0.00">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="servicio_duracion">Duración (min):</label>
-                                <input type="number" id="servicio_duracion" name="duracion" required
-                                    class="form-control" placeholder="30">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="servicio_activo">Estado:</label>
-                            <select id="servicio_activo" name="activo" class="form-control">
-                                <option value="1">Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-save"></i> Guardar Servicio
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Modal para gestión de horarios -->
-            <div id="horarioModal" class="modal">
-                <div class="modal-content" style="max-width: 500px;">
-                    <span class="close-modal" onclick="closeModal('horarioModal')">&times;</span>
-                    <h2 id="horarioModalTitle">
-                        <i class="fas fa-clock"></i> Agregar Horario
-                    </h2>
-                    <form id="horarioForm">
-                        <input type="hidden" id="horario_id" name="id">
-
-                        <div class="form-group">
-                            <label for="horario_dia">Día de la semana:</label>
-                            <select id="horario_dia" class="form-control" required>
-                                <option value="">Seleccione un día</option>
-                                <option value="0">Domingo</option>
-                                <option value="1">Lunes</option>
-                                <option value="2">Martes</option>
-                                <option value="3">Miércoles</option>
-                                <option value="4">Jueves</option>
-                                <option value="5">Viernes</option>
-                                <option value="6">Sábado</option>
-                            </select>
-                        </div>
-
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="horario_inicio">Hora de inicio:</label>
-                                <input type="time" id="horario_inicio" class="form-control" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="horario_fin">Hora de fin:</label>
-                                <input type="time" id="horario_fin" class="form-control" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="horario_activo">Estado:</label>
-                            <select id="horario_activo" class="form-control">
-                                <option value="1" selected>Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-save"></i> Guardar Horario
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-
-
-            <!-- Modal para Días No Laborables -->
-            <div id="diaNoLaborableModal" class="modal">
-                <div class="modal-content">
-                    <span class="close-modal" onclick="closeModal('diaNoLaborableModal')">&times;</span>
-                    <h2 id="diaNoLaborableModalTitle">
-                        <i class="fas fa-calendar-times"></i> Agregar Día No Laborable
-                    </h2>
-                    <form id="diaNoLaborableForm">
-                        <div class="form-group">
-                            <label for="diaNoLaborableFecha">Fecha:</label>
-                            <input type="date" id="diaNoLaborableFecha" name="fecha" required
-                                class="form-control">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="diaNoLaborableMotivo">Motivo (opcional):</label>
-                            <input type="text" id="diaNoLaborableMotivo" name="motivo" class="form-control"
-                                placeholder="Ej: Feriado nacional">
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-save"></i> Guardar
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Modal para Gastos (Bootstrap) -->
-            <div class="modal fade modal-gastos" id="gastoModal" tabindex="-1" aria-labelledby="gastoModalTitle"
-                aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="gastoModalTitle">
-                                <i class="fas fa-money-bill-wave me-2"></i>
-                                Registrar Gasto
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <!-- Alerta para mensajes -->
-                            <div id="alertaGastoModal" class="alert" style="display: none;"></div>
-
-                            <form id="gastoForm">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="gastoTipo" class="form-label">Tipo de Gasto</label>
-                                        <select id="gastoTipo" name="tipo" class="form-control" required>
-                                            <option value="">Seleccione tipo</option>
-                                            <option value="stock">📦 Stock</option>
-                                            <option value="sueldos">👥 Sueldos</option>
-                                            <option value="personal">👤 Personal</option>
-                                            <option value="mantenimiento">🔧 Mantenimiento</option>
-                                            <option value="otro">📄 Otro</option>
-                                        </select>
+                        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                            @foreach ($alertas as $alerta)
+                                <div class="notification-item {{ $alerta->leida ? 'read' : 'unread' }}">
+                                    <div class="notification-icon {{ $alerta->tipo }}">
+                                        <i class="fas fa-{{ $alerta->icono }}"></i>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label for="gastoMonto" class="form-label">Monto</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">$</span>
-                                            <input type="number" step="0.01" id="gastoMonto" name="monto"
-                                                required class="form-control" placeholder="0.00">
+                                    <div class="notification-content">
+                                        <h4>{{ $alerta->titulo }}</h4>
+                                        <p>{{ $alerta->mensaje }}</p>
+                                        <small>{{ $alerta->created_at->diffForHumans() }}</small>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            @if (count($alertas) == 0)
+                                <div class="empty-state" style="padding: 20px;">
+                                    <i class="fas fa-check-circle"></i>
+                                    <h3>No hay alertas</h3>
+                                    <p>No hay notificaciones importantes en este momento</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal para ver detalle de cita -->
+                <div id="detalleCitaModal" class="modal">
+                    <div class="modal-content" style="max-width: 700px;">
+                        <span class="close-modal" onclick="closeModal('detalleCitaModal')">&times;</span>
+                        <div id="detalleCitaContent">
+                            <!-- Contenido dinámico -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal para editar cita -->
+                <div id="editarCitaModal" class="modal">
+                    <div class="modal-content" style="max-width: 700px;">
+                        <span class="close-modal" onclick="closeModal('editarCitaModal')">&times;</span>
+                        <h2 style="color: var(--primary); margin-bottom: 20px;">
+                            <i class="fas fa-edit"></i> Editar Cita
+                        </h2>
+                        <form id="editarCitaForm">
+                            <!-- Formulario se llenará dinámicamente -->
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal para nuevo/editar servicio -->
+                <div id="servicioModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal" onclick="closeModal('servicioModal')">&times;</span>
+                        <h2 id="servicioModalTitle">
+                            <i class="fas fa-plus"></i> Nuevo Servicio
+                        </h2>
+                        <form id="servicioForm">
+                            <input type="hidden" id="servicio_id" name="id">
+
+                            <div class="form-group">
+                                <label for="servicio_nombre">Nombre del Servicio:</label>
+                                <input type="text" id="servicio_nombre" name="nombre" required
+                                    class="form-control" placeholder="Ej: Lavado Premium">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="servicio_descripcion">Descripción:</label>
+                                <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control"
+                                    placeholder="Describe los detalles del servicio..."></textarea>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="servicio_precio">Precio ($):</label>
+                                    <input type="number" step="0.01" id="servicio_precio" name="precio"
+                                        required class="form-control" placeholder="0.00">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="servicio_duracion">Duración (min):</label>
+                                    <input type="number" id="servicio_duracion" name="duracion" required
+                                        class="form-control" placeholder="30">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="servicio_activo">Estado:</label>
+                                <select id="servicio_activo" name="activo" class="form-control">
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <i class="fas fa-save"></i> Guardar Servicio
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal para gestión de horarios -->
+                <div id="horarioModal" class="modal">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <span class="close-modal" onclick="closeModal('horarioModal')">&times;</span>
+                        <h2 id="horarioModalTitle">
+                            <i class="fas fa-clock"></i> Agregar Horario
+                        </h2>
+                        <form id="horarioForm">
+                            <input type="hidden" id="horario_id" name="id">
+
+                            <div class="form-group">
+                                <label for="horario_dia">Día de la semana:</label>
+                                <select id="horario_dia" class="form-control" required>
+                                    <option value="">Seleccione un día</option>
+                                    <option value="0">Domingo</option>
+                                    <option value="1">Lunes</option>
+                                    <option value="2">Martes</option>
+                                    <option value="3">Miércoles</option>
+                                    <option value="4">Jueves</option>
+                                    <option value="5">Viernes</option>
+                                    <option value="6">Sábado</option>
+                                </select>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="horario_inicio">Hora de inicio:</label>
+                                    <input type="time" id="horario_inicio" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="horario_fin">Hora de fin:</label>
+                                    <input type="time" id="horario_fin" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="horario_activo">Estado:</label>
+                                <select id="horario_activo" class="form-control">
+                                    <option value="1" selected>Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <i class="fas fa-save"></i> Guardar Horario
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+
+
+                <!-- Modal para Días No Laborables -->
+                <div id="diaNoLaborableModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal" onclick="closeModal('diaNoLaborableModal')">&times;</span>
+                        <h2 id="diaNoLaborableModalTitle">
+                            <i class="fas fa-calendar-times"></i> Agregar Día No Laborable
+                        </h2>
+                        <form id="diaNoLaborableForm">
+                            <div class="form-group">
+                                <label for="diaNoLaborableFecha">Fecha:</label>
+                                <input type="date" id="diaNoLaborableFecha" name="fecha" required
+                                    class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="diaNoLaborableMotivo">Motivo (opcional):</label>
+                                <input type="text" id="diaNoLaborableMotivo" name="motivo" class="form-control"
+                                    placeholder="Ej: Feriado nacional">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal para Gastos (Bootstrap) -->
+                <div class="modal fade modal-gastos" id="gastoModal" tabindex="-1"
+                    aria-labelledby="gastoModalTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="gastoModalTitle">
+                                    <i class="fas fa-money-bill-wave me-2"></i>
+                                    Registrar Gasto
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Alerta para mensajes -->
+                                <div id="alertaGastoModal" class="alert" style="display: none;"></div>
+
+                                <form id="gastoForm">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="gastoTipo" class="form-label">Tipo de Gasto</label>
+                                            <select id="gastoTipo" name="tipo" class="form-control" required>
+                                                <option value="">Seleccione tipo</option>
+                                                <option value="stock">📦 Stock</option>
+                                                <option value="sueldos">👥 Sueldos</option>
+                                                <option value="personal">👤 Personal</option>
+                                                <option value="mantenimiento">🔧 Mantenimiento</option>
+                                                <option value="otro">📄 Otro</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="gastoMonto" class="form-label">Monto</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number" step="0.01" id="gastoMonto" name="monto"
+                                                    required class="form-control" placeholder="0.00">
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="mb-3">
-                                    <label for="gastoDetalle" class="form-label">Detalle del Gasto</label>
-                                    <textarea id="gastoDetalle" name="detalle" rows="3" required class="form-control"
-                                        placeholder="Descripción detallada del gasto..."></textarea>
-                                </div>
+                                    <div class="mb-3">
+                                        <label for="gastoDetalle" class="form-label">Detalle del Gasto</label>
+                                        <textarea id="gastoDetalle" name="detalle" rows="3" required class="form-control"
+                                            placeholder="Descripción detallada del gasto..."></textarea>
+                                    </div>
 
-                                <div class="mb-3">
-                                    <label for="gastoFecha" class="form-label">Fecha del Gasto</label>
-                                    <input type="date" id="gastoFecha" name="fecha" class="form-control"
-                                        value="{{ date('Y-m-d') }}">
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-1"></i>
-                                Cancelar
-                            </button>
-                            <button type="button" class="btn btn-primary" id="btnGuardarGasto">
-                                <i class="fas fa-save me-1"></i>
-                                Registrar Gasto
-                            </button>
+                                    <div class="mb-3">
+                                        <label for="gastoFecha" class="form-label">Fecha del Gasto</label>
+                                        <input type="date" id="gastoFecha" name="fecha" class="form-control"
+                                            value="{{ date('Y-m-d') }}">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-1"></i>
+                                    Cancelar
+                                </button>
+                                <button type="button" class="btn btn-primary" id="btnGuardarGasto">
+                                    <i class="fas fa-save me-1"></i>
+                                    Registrar Gasto
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Modal para ver detalles del gasto -->
-            <div id="detalleGastoModal" class="modal"
-                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-                <div class="modal-content"
-                    style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
-                    <span class="close-modal" onclick="closeModal('detalleGastoModal')"
-                        style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</span>
-                    <h2 id="detalleGastoModalTitle" style="color: var(--primary); margin-bottom: 20px;">
-                        <i class="fas fa-receipt"></i> Detalle del Gasto
-                    </h2>
-                    <div id="detalleGastoContent">
-                        <!-- Contenido dinámico se insertará aquí -->
+                <!-- Modal para ver detalles del gasto -->
+                <div id="detalleGastoModal" class="modal"
+                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+                    <div class="modal-content"
+                        style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
+                        <span class="close-modal" onclick="closeModal('detalleGastoModal')"
+                            style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</span>
+                        <h2 id="detalleGastoModalTitle" style="color: var(--primary); margin-bottom: 20px;">
+                            <i class="fas fa-receipt"></i> Detalle del Gasto
+                        </h2>
+                        <div id="detalleGastoContent">
+                            <!-- Contenido dinámico se insertará aquí -->
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Modal para editar perfil -->
-            <div id="perfilModal" class="modal">
-                <div class="modal-content" style="max-width: 500px;">
-                    <span class="close-modal" onclick="closeModal('perfilModal')">&times;</span>
-                    <h2 style="color: var(--primary); margin-bottom: 20px;">
-                        <i class="fas fa-user-edit"></i> Editar Perfil
-                    </h2>
-                    <form id="perfilForm">
-                        @csrf
-                        <div class="form-group">
-                            <label for="perfil_nombre">Nombre:</label>
-                            <input type="text" id="perfil_nombre" name="nombre" required class="form-control"
-                                value="{{ Auth::user()->nombre }}">
-                        </div>
+                <!-- Modal para editar perfil -->
+                <div id="perfilModal" class="modal">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <span class="close-modal" onclick="closeModal('perfilModal')">&times;</span>
+                        <h2 style="color: var(--primary); margin-bottom: 20px;">
+                            <i class="fas fa-user-edit"></i> Editar Perfil
+                        </h2>
+                        <form id="perfilForm">
+                            @csrf
+                            <div class="form-group">
+                                <label for="perfil_nombre">Nombre:</label>
+                                <input type="text" id="perfil_nombre" name="nombre" required
+                                    class="form-control" value="{{ Auth::user()->nombre }}">
+                            </div>
 
-                        <div class="form-group">
-                            <label for="perfil_telefono">Teléfono:</label>
-                            <input type="tel" id="perfil_telefono" name="telefono" class="form-control"
-                                value="{{ Auth::user()->telefono ?? '' }}">
-                        </div>
+                            <div class="form-group">
+                                <label for="perfil_telefono">Teléfono:</label>
+                                <input type="tel" id="perfil_telefono" name="telefono" class="form-control"
+                                    value="{{ Auth::user()->telefono ?? '' }}">
+                            </div>
 
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-save"></i> Guardar Cambios
-                        </button>
-                    </form>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
-    </div>
 
 
-    <!-- Modal para crear nuevo usuario -->
-    <div id="usuarioModal" class="modal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div class="modal-content"
-            style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
-            <span class="close-modal" onclick="closeModal('usuarioModal')"
-                style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</span>
+        <!-- Modal para crear nuevo usuario -->
+        <div id="usuarioModal" class="modal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div class="modal-content"
+                style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
+                <span class="close-modal" onclick="closeModal('usuarioModal')"
+                    style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</span>
 
-            <h2 id="modalUsuarioTitle"
-                style="margin-bottom: 20px; font-size: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-user-plus"></i>
-                <span id="modalTitleText">Crear Nuevo Usuario</span>
-            </h2>
+                <h2 id="modalUsuarioTitle"
+                    style="margin-bottom: 20px; font-size: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-user-plus"></i>
+                    <span id="modalTitleText">Crear Nuevo Usuario</span>
+                </h2>
 
-            <form id="usuarioForm" style="margin-top: 20px;">
-                @csrf
-                <input type="hidden" id="usuario_id" name="id">
+                <form id="usuarioForm" style="margin-top: 20px;">
+                    @csrf
+                    <input type="hidden" id="usuario_id" name="id">
 
-                <div class="form-grid"
-                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div class="form-group">
-                        <label for="nombre"
-                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Nombre
-                            Completo</label>
-                        <input type="text" id="nombre" name="nombre" class="form-control" required
-                            placeholder="Ej: Juan Pérez">
+                    <div class="form-grid"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="nombre"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Nombre
+                                Completo</label>
+                            <input type="text" id="nombre" name="nombre" class="form-control" required
+                                placeholder="Ej: Juan Pérez">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Correo
+                                Electrónico</label>
+                            <input type="email" id="email" name="email" class="form-control" required
+                                placeholder="Ej: juan@example.com" readonly>
+                            <div id="email-error" class="hidden text-sm text-red-600 mt-1"></div>
+                            <small id="emailHelp"
+                                style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
+                                El correo electrónico no puede ser modificado
+                            </small>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="email"
-                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Correo
-                            Electrónico</label>
-                        <input type="email" id="email" name="email" class="form-control" required
-                            placeholder="Ej: juan@example.com" readonly>
-                        <div id="email-error" class="hidden text-sm text-red-600 mt-1"></div>
-                        <small id="emailHelp"
-                            style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
-                            El correo electrónico no puede ser modificado
-                        </small>
-                    </div>
-                </div>
+                    <div class="form-grid"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="telefono"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Teléfono</label>
+                            <input type="tel" id="telefono" name="telefono" class="form-control"
+                                placeholder="Ej: 75855197" pattern="[0-9]{8}" maxlength="8">
+                        </div>
 
-                <div class="form-grid"
-                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div class="form-group">
-                        <label for="telefono"
-                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Teléfono</label>
-                        <input type="tel" id="telefono" name="telefono" class="form-control"
-                            placeholder="Ej: 75855197" pattern="[0-9]{8}" maxlength="8">
+                        <div class="form-group">
+                            <label for="rol"
+                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Rol</label>
+                            <select id="rol" name="rol" class="form-control" required readonly>
+                                <option value="cliente">Cliente</option>
+                                <option value="empleado">Empleado</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                            <small id="rolHelp"
+                                style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
+                                El rol no puede ser modificado después de crear el usuario
+                            </small>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="rol"
-                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Rol</label>
-                        <select id="rol" name="rol" class="form-control" required readonly>
-                            <option value="cliente">Cliente</option>
-                            <option value="empleado">Empleado</option>
-                            <option value="admin">Administrador</option>
+                    <!-- Sección de contraseñas -->
+                    <div id="passwordFields" style="display: block; margin-bottom: 15px;">
+                        <div class="password-fields-container">
+                            <div class="form-group">
+                                <label for="password"
+                                    style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Contraseña</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="password" name="password" class="form-control"
+                                        placeholder="Mínimo 8 caracteres" style="padding-right: 40px;">
+                                    <button type="button" onclick="togglePassword('password')"
+                                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                                        <i class="fas fa-eye" id="passwordEye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-requirements">
+                                    <div class="password-strength-meter">
+                                        <div class="password-strength-meter-fill" id="passwordStrengthBar"></div>
+                                    </div>
+                                    <div class="password-strength-text" id="passwordStrengthText">Fortaleza de la
+                                        contraseña</div>
+                                    <ul style="columns: 2; column-gap: 20px; margin-top: 10px;">
+                                        <li id="req-length">Mínimo 8 caracteres</li>
+                                        <li id="req-uppercase">1 letra mayúscula</li>
+                                        <li id="req-lowercase">1 letra minúscula</li>
+                                        <li id="req-number">1 número</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="form-group confirm-password-field">
+                                <label for="password_confirmation"
+                                    style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Confirmar
+                                    Contraseña</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="password_confirmation" name="password_confirmation"
+                                        class="form-control" placeholder="Repite la contraseña"
+                                        style="padding-right: 40px;">
+                                    <button type="button" onclick="togglePassword('password_confirmation')"
+                                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                                        <i class="fas fa-eye" id="passwordConfirmationEye"></i>
+                                    </button>
+                                </div>
+                                <div id="passwordMatchMessage" class="password-match-message"
+                                    style="margin-top: 5px; font-size: 0.8rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="estado"
+                            style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Estado</label>
+                        <select id="estado" name="estado" class="form-control">
+                            <option value="1" selected>Activo</option>
+                            <option value="0">Inactivo</option>
                         </select>
-                        <small id="rolHelp"
-                            style="color: var(--text-secondary); display: block; margin-top: 5px; display: none;">
-                            El rol no puede ser modificado después de crear el usuario
-                        </small>
                     </div>
-                </div>
 
-                <!-- Sección de contraseñas -->
-                <div id="passwordFields" style="display: block; margin-bottom: 15px;">
-                    <div class="password-fields-container">
-                        <div class="form-group">
-                            <label for="password"
-                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Contraseña</label>
-                            <div style="position: relative;">
-                                <input type="password" id="password" name="password" class="form-control"
-                                    placeholder="Mínimo 8 caracteres" style="padding-right: 40px;">
-                                <button type="button" onclick="togglePassword('password')"
-                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
-                                    <i class="fas fa-eye" id="passwordEye"></i>
-                                </button>
-                            </div>
-                            <div class="password-requirements">
-                                <div class="password-strength-meter">
-                                    <div class="password-strength-meter-fill" id="passwordStrengthBar"></div>
-                                </div>
-                                <div class="password-strength-text" id="passwordStrengthText">Fortaleza de la
-                                    contraseña</div>
-                                <ul style="columns: 2; column-gap: 20px; margin-top: 10px;">
-                                    <li id="req-length">Mínimo 8 caracteres</li>
-                                    <li id="req-uppercase">1 letra mayúscula</li>
-                                    <li id="req-lowercase">1 letra minúscula</li>
-                                    <li id="req-number">1 número</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="form-group confirm-password-field">
-                            <label for="password_confirmation"
-                                style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Confirmar
-                                Contraseña</label>
-                            <div style="position: relative;">
-                                <input type="password" id="password_confirmation" name="password_confirmation"
-                                    class="form-control" placeholder="Repite la contraseña"
-                                    style="padding-right: 40px;">
-                                <button type="button" onclick="togglePassword('password_confirmation')"
-                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary);">
-                                    <i class="fas fa-eye" id="passwordConfirmationEye"></i>
-                                </button>
-                            </div>
-                            <div id="passwordMatchMessage" class="password-match-message"
-                                style="margin-top: 5px; font-size: 0.8rem;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="estado"
-                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Estado</label>
-                    <select id="estado" name="estado" class="form-control">
-                        <option value="1" selected>Activo</option>
-                        <option value="0">Inactivo</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
-                    <i class="fas fa-save"></i> Guardar Usuario
-                </button>
-            </form>
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; padding: 12px; font-size: 1rem;">
+                        <i class="fas fa-save"></i> Guardar Usuario
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
 
     </div>
 
@@ -3828,31 +3889,31 @@
 
         // Cargar días no laborables desde la API
         /* async function cargarDiasNoLaborables() {
-                                                                                 try {
-                                                                                     const response = await fetch('/dias-no-laborables');
-                                                                                     if (!response.ok) throw new Error('Error al cargar días no laborables');
+                                                                                                 try {
+                                                                                                     const response = await fetch('/dias-no-laborables');
+                                                                                                     if (!response.ok) throw new Error('Error al cargar días no laborables');
 
-                                                                                     diasNoLaborables = await response.json();
-                                                                                     actualizarTablaDiasNoLaborables();
-                                                                                 } catch (error) {
-                                                                                     console.error('Error al cargar días no laborables:', error);
-                                                                                     Toast.fire({
-                                                                                         icon: 'error',
-                                                                                         title: 'Error al cargar días no laborables',
-                                                                                         text: error.message
-                                                                                     });
-                                                                                 }
-                                                                             }
+                                                                                                     diasNoLaborables = await response.json();
+                                                                                                     actualizarTablaDiasNoLaborables();
+                                                                                                 } catch (error) {
+                                                                                                     console.error('Error al cargar días no laborables:', error);
+                                                                                                     Toast.fire({
+                                                                                                         icon: 'error',
+                                                                                                         title: 'Error al cargar días no laborables',
+                                                                                                         text: error.message
+                                                                                                     });
+                                                                                                 }
+                                                                                             }
 
-                                                                             // Actualizar la tabla con los días no laborables
-                                                                             function actualizarTablaDiasNoLaborables() {
-                                                                                 const tbody = document.querySelector('#diasNoLaborablesTable tbody');
-                                                                                 if (!tbody) return;
+                                                                                             // Actualizar la tabla con los días no laborables
+                                                                                             function actualizarTablaDiasNoLaborables() {
+                                                                                                 const tbody = document.querySelector('#diasNoLaborablesTable tbody');
+                                                                                                 if (!tbody) return;
 
-                                                                                 tbody.innerHTML = '';
+                                                                                                 tbody.innerHTML = '';
 
-                                                                                 if (diasNoLaborables.length === 0) {
-                                                                                     tbody.innerHTML = `
+                                                                                                 if (diasNoLaborables.length === 0) {
+                                                                                                     tbody.innerHTML = `
          <tr>
              <td colspan="3" style="text-align: center; padding: 20px;">
                  <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
@@ -3860,20 +3921,20 @@
              </td>
          </tr>
      `;
-                                                                                     return;
-                                                                                 }
+                                                                                                     return;
+                                                                                                 }
 
-                                                                                 diasNoLaborables.forEach(dia => {
-                                                                                     const fecha = new Date(dia.fecha);
-                                                                                     const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-                                                                                         day: '2-digit',
-                                                                                         month: '2-digit',
-                                                                                         year: 'numeric'
-                                                                                     });
+                                                                                                 diasNoLaborables.forEach(dia => {
+                                                                                                     const fecha = new Date(dia.fecha);
+                                                                                                     const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                                                                                                         day: '2-digit',
+                                                                                                         month: '2-digit',
+                                                                                                         year: 'numeric'
+                                                                                                     });
 
-                                                                                     const row = document.createElement('tr');
-                                                                                     row.setAttribute('data-id', dia.id);
-                                                                                     row.innerHTML = `
+                                                                                                     const row = document.createElement('tr');
+                                                                                                     row.setAttribute('data-id', dia.id);
+                                                                                                     row.innerHTML = `
          <td data-label="Fecha">${fechaFormateada}</td>
          <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
          <td data-label="Acciones">
@@ -3887,9 +3948,9 @@
              </div>
          </td>
      `;
-                                                                                     tbody.appendChild(row);
-                                                                                 });
-                                                                             }*/
+                                                                                                     tbody.appendChild(row);
+                                                                                                 });
+                                                                                             }*/
 
         // Mostrar modal para agregar/editar día no laborable
         /*function mostrarModalDiaNoLaborable(diaId = null) {
@@ -4047,6 +4108,197 @@
             }
         });*/
 
+        // =============================================
+        // FUNCIONES DE VER CITAS DE HOY PARA EDITAR Y CANCELAR
+        // =============================================
+        // Filtrar citas por estado y búsqueda
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchCitas');
+            const estadoFilter = document.getElementById('filterEstado');
+            const citasTable = document.getElementById('citasHoyTable');
+
+            if (searchInput && estadoFilter && citasTable) {
+                searchInput.addEventListener('input', filtrarCitas);
+                estadoFilter.addEventListener('change', filtrarCitas);
+            }
+
+            function filtrarCitas() {
+                const searchText = searchInput.value.toLowerCase();
+                const estadoValue = estadoFilter.value;
+                const rows = citasTable.getElementsByTagName('tr');
+
+                for (let row of rows) {
+                    let mostrar = true;
+                    const cells = row.getElementsByTagName('td');
+                    const estado = row.getAttribute('data-estado');
+
+                    // Filtrar por estado
+                    if (estadoValue && estado !== estadoValue) {
+                        mostrar = false;
+                    }
+
+                    // Filtrar por texto de búsqueda
+                    if (mostrar && searchText) {
+                        let textoEncontrado = false;
+                        for (let cell of cells) {
+                            if (cell.textContent.toLowerCase().includes(searchText)) {
+                                textoEncontrado = true;
+                                break;
+                            }
+                        }
+                        mostrar = textoEncontrado;
+                    }
+
+                    row.style.display = mostrar ? '' : 'none';
+                }
+            }
+        });
+
+        // Función para ver detalles de la cita
+        // Función para ver detalles de la cita (ajustada para tu modal existente)
+        function verDetalleCita(citaId) {
+            fetch(`/admin/citasadmin/${citaId}/detalles`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al cargar los detalles');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    // Crear contenido del modal
+                    const modalContent = `
+                <h2 style="color: var(--primary); margin-bottom: 20px;">
+                    <i class="fas fa-calendar-check"></i> Detalle de Cita #${data.id}
+                </h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                            <i class="fas fa-user"></i> Información del Cliente
+                        </h3>
+                        <p><strong>Nombre:</strong> ${data.usuario.nombre}</p>
+                        <p><strong>Teléfono:</strong> ${data.usuario.telefono || 'No proporcionado'}</p>
+                        <p><strong>Email:</strong> ${data.usuario.email}</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                            <i class="fas fa-car"></i> Información del Vehículo
+                        </h3>
+                        <p><strong>Marca/Modelo:</strong> ${data.vehiculo.marca} ${data.vehiculo.modelo}</p>
+                        <p><strong>Placa:</strong> ${data.vehiculo.placa}</p>
+                        <p><strong>Tipo:</strong> ${data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado'}</p>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                        <i class="fas fa-calendar-alt"></i> Detalles de la Cita
+                    </h3>
+                    <p><strong>Fecha/Hora:</strong> ${new Date(data.fecha_hora).toLocaleString('es-ES')}</p>
+                    <p><strong>Estado:</strong> <span class="badge badge-${data.estado}">${data.estado_formatted}</span></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
+                        <i class="fas fa-concierge-bell"></i> Servicios
+                    </h3>
+                    <div style="display: grid; gap: 10px;">
+                        ${data.servicios.map(servicio => `
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <span>${servicio.nombre}</span>
+                                    <span><strong>$${(servicio.pivot?.precio || servicio.precio || 0).toFixed(2)}</strong></span>
+                                </div>
+                            `).join('')}
+                    </div>
+                </div>
+                <div style="background: linear-gradient(135deg, #e8f5e8, #f0f8f0); padding: 20px; border-radius: 12px; text-align: center; border: 2px solid var(--primary);">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 10px; color: var(--primary);">
+                        <i class="fas fa-receipt"></i> Total a Pagar
+                    </h3>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">
+                        $${data.total.toFixed(2)}
+                    </div>
+                </div>
+            `;
+
+                    // Mostrar en el modal existente
+                    document.getElementById('detalleCitaContent').innerHTML = modalContent;
+
+                    // Usar tu función existente para mostrar el modal
+                    mostrarModal('detalleCitaModal');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'No se pudieron cargar los detalles de la cita'
+                    });
+                });
+        }
+
+        // Función para editar cita (redirige a la página de administración de citas)
+        function editarCita(citaId) {
+            window.location.href = `/admin/citasadmin?buscar=${citaId}`;
+        }
+
+        // Función para cancelar cita
+        function cancelarCita(citaId) {
+            Swal.fire({
+                title: '¿Cancelar esta cita?',
+                text: "Esta acción cambiará el estado de la cita a 'cancelada'",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, cancelar',
+                cancelButtonText: 'No, mantener'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Actualizar estado via AJAX
+                    fetch(`/admin/citasadmin/${citaId}/actualizar-estado`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                estado: 'cancelada'
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '¡Éxito!',
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: data.message
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error al cancelar la cita'
+                            });
+                        });
+                }
+            });
+        }
 
         // =============================================
         // FUNCIONES DE USUARIO Y VALIDACIÓN
@@ -7621,16 +7873,16 @@
                         const info = getTipoGastoInfo(tipo);
                         const porcentaje = (gastosPorTipo[tipo].monto / montoTotal) * 100;
                         return `
-                                                    <div class="mb-2">
-                                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                                            <small>${info.emoji} ${info.nombre}</small>
-                                                            <small><strong>${porcentaje.toFixed(1)}%</strong></small>
-                                                        </div>
-                                                        <div class="progress" style="height: 4px;">
-                                                            <div class="progress-bar" style="width: ${porcentaje}%; background: ${info.color}"></div>
-                                                        </div>
-                                                    </div>
-                                                `;
+                                                                    <div class="mb-2">
+                                                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                            <small>${info.emoji} ${info.nombre}</small>
+                                                                            <small><strong>${porcentaje.toFixed(1)}%</strong></small>
+                                                                        </div>
+                                                                        <div class="progress" style="height: 4px;">
+                                                                            <div class="progress-bar" style="width: ${porcentaje}%; background: ${info.color}"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                `;
                     }).join('')}
                 </div>
             `;

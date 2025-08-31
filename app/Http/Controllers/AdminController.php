@@ -540,18 +540,24 @@ class AdminController extends Controller
         $query = Cita::with(['usuario', 'vehiculo', 'servicios'])
             ->orderBy('fecha_hora', 'desc');
 
-        // Aplicar filtros
+        // Query para estadísticas (sin paginación)
+        $statsQuery = Cita::with(['usuario', 'vehiculo', 'servicios']);
+
+        // Aplicar filtros a ambos queries
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
+            $statsQuery->where('estado', $request->estado);
         }
 
         if ($request->filled('fecha')) {
             $query->whereDate('fecha_hora', $request->fecha);
+            $statsQuery->whereDate('fecha_hora', $request->fecha);
         }
 
         if ($request->filled('buscar')) {
             $searchTerm = $request->buscar;
-            $query->where(function ($q) use ($searchTerm) {
+
+            $searchFilter = function ($q) use ($searchTerm) {
                 $q->whereHas('usuario', function ($q) use ($searchTerm) {
                     $q->where('nombre', 'like', "%{$searchTerm}%")
                         ->orWhere('email', 'like', "%{$searchTerm}%");
@@ -560,13 +566,67 @@ class AdminController extends Controller
                         ->orWhere('marca', 'like', "%{$searchTerm}%")
                         ->orWhere('modelo', 'like', "%{$searchTerm}%");
                 });
-            });
+            };
+
+            $query->where($searchFilter);
+            $statsQuery->where($searchFilter);
         }
+
+        // Obtener estadísticas
+        $estadisticas = $this->getCitasEstadisticas($statsQuery, $request);
 
         $citas = $query->paginate(15)->withQueryString();
 
-        return view('admin.citasadmin', compact('citas'));
+        return view('admin.citasadmin', compact('citas', 'estadisticas'));
     }
+
+    /**
+     * Calcula las estadísticas de las citas filtradas
+     */
+    protected function getCitasEstadisticas($query, Request $request): array
+    {
+        // Clonar query para cada estadística
+        $totalCitas = $query->count();
+
+        $estadisticasPorEstado = [
+            'pendiente' => (clone $query)->where('estado', 'pendiente')->count(),
+            'confirmada' => (clone $query)->where('estado', 'confirmada')->count(),
+            'en_proceso' => (clone $query)->where('estado', 'en_proceso')->count(),
+            'finalizada' => (clone $query)->where('estado', 'finalizada')->count(),
+            'cancelada' => (clone $query)->where('estado', 'cancelada')->count(),
+        ];
+
+        $estadisticas = [
+            'total' => $totalCitas,
+            'por_estado' => $estadisticasPorEstado,
+            'filtros_activos' => []
+        ];
+
+        // Información sobre filtros activos
+        if ($request->filled('buscar')) {
+            $estadisticas['filtros_activos']['busqueda'] = $request->buscar;
+
+            // Si es búsqueda por usuario, obtener nombre del usuario encontrado
+            $usuarioEncontrado = Usuario::where('nombre', 'like', "%{$request->buscar}%")
+                ->orWhere('email', 'like', "%{$request->buscar}%")
+                ->first();
+
+            if ($usuarioEncontrado) {
+                $estadisticas['filtros_activos']['usuario_nombre'] = $usuarioEncontrado->nombre;
+            }
+        }
+
+        if ($request->filled('estado')) {
+            $estadisticas['filtros_activos']['estado'] = $request->estado;
+        }
+
+        if ($request->filled('fecha')) {
+            $estadisticas['filtros_activos']['fecha'] = $request->fecha;
+        }
+
+        return $estadisticas;
+    }
+
 
     /**
      * Obtiene los detalles completos de una cita
