@@ -96,10 +96,11 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::post('/', [AdminController::class, 'storeCita'])->name('store');
         });
 
-        // Rutas de Admin - Agregar esta ruta dentro del grupo de admin
+        // Rutas de Admin 
         Route::prefix('citasadmin')->name('citasadmin.')->group(function () {
             Route::get('/', [AdminController::class, 'citasAdmin'])->name('index');
             Route::put('/{cita}/actualizar-estado', [AdminController::class, 'actualizarEstadoCita'])->name('actualizar-estado');
+            Route::get('/{cita}/detalles', [AdminController::class, 'getCitaDetalles'])->name('detalles');
         });
 
         Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');

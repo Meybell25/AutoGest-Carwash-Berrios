@@ -633,7 +633,7 @@ class AdminController extends Controller
 
                 // Validar que no se cancele una cita en proceso sin justificación
                 if ($cita->estado === 'en_proceso') {
-                    // Aquí podrías agregar validaciones adicionales si necesitas una razón
+                    // Aquí podria agregarse validaciones adicionales si necesita
                 }
             }
 
