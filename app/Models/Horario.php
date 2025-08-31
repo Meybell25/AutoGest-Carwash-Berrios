@@ -186,3 +186,4 @@ class Horario extends Model
         return null;
     }
 }
+
