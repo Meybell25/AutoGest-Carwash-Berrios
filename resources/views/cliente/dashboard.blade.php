@@ -1476,6 +1476,48 @@
                 width: 100%;
             }
 
+            .quick-book-btn {
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .quick-book-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+            }
+
+            .quick-book-btn:active {
+                transform: translateY(-1px);
+            }
+
+            /* Efecto de loading para botones de agendado rápido */
+            .quick-book-btn.loading {
+                pointer-events: none;
+                background: #6c757d !important;
+                color: transparent !important;
+            }
+
+            .quick-book-btn.loading::after {
+                content: '';
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                border: 2px solid transparent;
+                border-top: 2px solid white;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                top: 50%;
+                left: 50%;
+                margin-left: -8px;
+                margin-top: -8px;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
             .notification-item {
                 padding: 12px;
             }
@@ -2594,49 +2636,52 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div class="services-grid">
-                            <div class="service-card">
-                                <div class="service-icon">
-                                    <i class="fas fa-spray-can"></i>
+                        <div class="services-grid" id="servicesGrid">
+                            @if(isset($servicios) && $servicios->count() > 0)
+                                @foreach($servicios->groupBy('categoria') as $categoria => $serviciosCategoria)
+                                    @foreach($serviciosCategoria as $servicio)
+                                        <div class="service-card" data-servicio-id="{{ $servicio->id }}" data-categoria="{{ $servicio->categoria }}">
+                                            <div class="service-icon">
+                                                @switch($servicio->categoria)
+                                                    @case('auto')
+                                                        <i class="fas fa-car"></i>
+                                                        @break
+                                                    @case('suv')
+                                                        <i class="fas fa-truck"></i>
+                                                        @break
+                                                    @case('moto')
+                                                        <i class="fas fa-motorcycle"></i>
+                                                        @break
+                                                    @default
+                                                        <i class="fas fa-spray-can"></i>
+                                                @endswitch
+                                            </div>
+                                            <h3>{{ $servicio->nombre }}</h3>
+                                            <p class="description">{{ $servicio->descripcion }}</p>
+                                            <div class="price">${{ number_format($servicio->precio, 2) }}</div>
+                                            <div class="duration">⏱️ {{ $servicio->duracion_formatted }}</div>
+                                            <button class="btn btn-primary quick-book-btn" onclick="quickBookService({{ $servicio->id }}, '{{ $servicio->categoria }}', this)">
+                                                <i class="fas fa-calendar-plus"></i>
+                                                Agendar Ahora
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                @endforeach
+                            @else
+                                <div class="service-card">
+                                    <div class="service-icon">
+                                        <i class="fas fa-spray-can"></i>
+                                    </div>
+                                    <h3>Lavado Completo</h3>
+                                    <p class="description">Exterior e interior completo, aspirado y limpieza de tapicería</p>
+                                    <div class="price">$25.00</div>
+                                    <div class="duration">⏱️ 30-40 min</div>
+                                    <button class="btn btn-primary" onclick="showNoServicesAlert()">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Agendar Ahora
+                                    </button>
                                 </div>
-                                <h3>Lavado Completo</h3>
-                                <p class="description">Exterior e interior completo, aspirado y limpieza de tapicería
-                                </p>
-                                <div class="price">$25.00</div>
-                                <div class="duration">⏱️ 30-40 min</div>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Ahora
-                                </button>
-                            </div>
-
-                            <div class="service-card">
-                                <div class="service-icon">
-                                    <i class="fa-solid fa-ring"></i>
-                                </div>
-                                <h3>Lavado Premium</h3>
-                                <p class="description">Servicio completo + encerado, protección UV y brillado</p>
-                                <div class="price">$35.00</div>
-                                <div class="duration">⏱️ 45-60 min</div>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Ahora
-                                </button>
-                            </div>
-
-                            <div class="service-card">
-                                <div class="service-icon">
-                                    <i class="fas fa-gem"></i>
-                                </div>
-                                <h3>Detallado VIP</h3>
-                                <p class="description">Servicio premium completo, pulido, cera premium y protección</p>
-                                <div class="price">$55.00</div>
-                                <div class="duration">⏱️ 90-120 min</div>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Ahora
-                                </button>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -5419,6 +5464,399 @@
             } else {
                 Swal.fire('Info', 'Selecciona fecha y hora primero', 'info');
             }
+        }
+
+        /*=========================================================
+                        FUNCIONALIDAD DE AGENDADO RÁPIDO
+                        =========================================================*/
+
+        // Función principal para agendar servicio rápidamente
+        async function quickBookService(servicioId, categoria, buttonElement) {
+            // Agregar efecto de loading al botón
+            if (buttonElement) {
+                buttonElement.classList.add('loading');
+                buttonElement.disabled = true;
+            }
+
+            try {
+                console.log('Iniciando agendado rápido para servicio:', servicioId, 'categoría:', categoria);
+                
+                // Verificar si el usuario tiene vehículos
+                const vehiculosCompatibles = await getVehiculosCompatibles(categoria);
+                
+                if (vehiculosCompatibles.length === 0) {
+                    await showNoVehiclesAlert(categoria);
+                    return;
+                }
+
+                // Siempre permitir al usuario elegir el vehículo para mayor claridad
+                const vehiculoSeleccionado = await selectVehicleDialog(vehiculosCompatibles, categoria);
+                if (!vehiculoSeleccionado) return; // Usuario canceló
+
+                // Mostrar diálogo de selección de fecha y hora
+                const citaData = await selectDateTimeDialog(servicioId, vehiculoSeleccionado.id);
+                if (!citaData) return; // Usuario canceló
+
+                // Crear la cita
+                await createQuickBooking(vehiculoSeleccionado.id, servicioId, citaData);
+
+            } catch (error) {
+                console.error('Error en agendado rápido:', error);
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Hubo un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.',
+                    icon: 'error'
+                });
+            } finally {
+                // Remover efecto de loading al botón
+                if (buttonElement) {
+                    buttonElement.classList.remove('loading');
+                    buttonElement.disabled = false;
+                }
+            }
+        }
+
+        // Obtener vehículos compatibles con la categoría del servicio
+        async function getVehiculosCompatibles(categoria) {
+            const vehiculos = @json($mis_vehiculos ?? []);
+            
+            // Filtrar vehículos por categoría compatible
+            return vehiculos.filter(vehiculo => {
+                return vehiculo.tipo.toLowerCase() === categoria.toLowerCase();
+            });
+        }
+
+        // Mostrar alerta cuando no hay vehículos compatibles
+        async function showNoVehiclesAlert(categoria) {
+            const result = await swalWithBootstrapButtons.fire({
+                title: 'Sin vehículos compatibles',
+                html: `
+                    <p>No tienes vehículos de tipo <strong>${categoria}</strong> registrados.</p>
+                    <p>¿Te gustaría registrar un nuevo vehículo?</p>
+                `,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Registrar Vehículo',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                window.location.href = '{{ route("vehiculos.create") }}';
+            }
+        }
+
+        // Diálogo para seleccionar vehículo
+        async function selectVehicleDialog(vehiculos, categoria) {
+            const vehiculosCount = vehiculos.length;
+            const categoryName = categoria === 'sedan' ? 'sedán' : categoria === 'pickup' ? 'SUV/Pickup' : categoria;
+            
+            const { value: vehiculoId } = await swalWithBootstrapButtons.fire({
+                title: `Selecciona tu vehículo ${categoryName.toUpperCase()}`,
+                html: `
+                    <div style="text-align: left;">
+                        <p style="margin-bottom: 15px;">
+                            ${vehiculosCount === 1 ? 
+                                `Confirma el vehículo para tu servicio:` : 
+                                `Tienes ${vehiculosCount} vehículos compatibles. ¿Cuál deseas lavar?`
+                            }
+                        </p>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            ${vehiculos.map(v => `
+                                <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
+                                       onmouseover="this.style.backgroundColor='#f0f8ff'" 
+                                       onmouseout="this.style.backgroundColor='white'">
+                                    <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
+                                    <div>
+                                        <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
+                                        ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
+                                        <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
+                                        ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
+                                    </div>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `,
+                icon: 'car',
+                showCancelButton: true,
+                confirmButtonText: vehiculosCount === 1 ? 'Confirmar vehículo' : 'Continuar con este vehículo',
+                cancelButtonText: 'Cancelar',
+                width: '500px',
+                preConfirm: () => {
+                    const selected = document.querySelector('input[name="vehicle-select"]:checked');
+                    if (!selected) {
+                        Swal.showValidationMessage('Debes seleccionar un vehículo');
+                        return false;
+                    }
+                    return parseInt(selected.value);
+                }
+            });
+
+            if (vehiculoId) {
+                return vehiculos.find(v => v.id === vehiculoId);
+            }
+            return null;
+        }
+
+        // Diálogo para seleccionar fecha y hora
+        async function selectDateTimeDialog(servicioId, vehiculoId) {
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + 1);
+            
+            const { value: formData } = await swalWithBootstrapButtons.fire({
+                title: 'Selecciona fecha y hora',
+                html: `
+                    <div style="text-align: left;">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Fecha:</label>
+                            <input type="date" id="swal-date-input" class="swal2-input" 
+                                   min="${today.toISOString().split('T')[0]}" 
+                                   max="${maxDate.toISOString().split('T')[0]}" 
+                                   style="width: 100%;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Hora:</label>
+                            <select id="swal-hour-input" class="swal2-input" style="width: 100%;">
+                                <option value="">Primero selecciona una fecha</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Observaciones (opcional):</label>
+                            <textarea id="swal-observations-input" class="swal2-textarea" 
+                                      placeholder="Información adicional sobre el servicio..." 
+                                      style="width: 100%; height: 60px;"></textarea>
+                        </div>
+                    </div>
+                `,
+                icon: 'calendar',
+                showCancelButton: true,
+                confirmButtonText: 'Agendar Cita',
+                cancelButtonText: 'Cancelar',
+                width: '500px',
+                didOpen: () => {
+                    const dateInput = document.getElementById('swal-date-input');
+                    const hourInput = document.getElementById('swal-hour-input');
+                    
+                    dateInput.addEventListener('change', async function() {
+                        if (this.value) {
+                            hourInput.innerHTML = '<option value="">Cargando horarios...</option>';
+                            const horarios = await loadAvailableHoursForQuickBook(this.value);
+                            
+                            if (horarios.length === 0) {
+                                hourInput.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                            } else {
+                                hourInput.innerHTML = '<option value="">Selecciona una hora</option>' +
+                                    horarios.map(h => `<option value="${h}">${h}</option>`).join('');
+                            }
+                        }
+                    });
+                },
+                preConfirm: () => {
+                    const fecha = document.getElementById('swal-date-input').value;
+                    const hora = document.getElementById('swal-hour-input').value;
+                    const observaciones = document.getElementById('swal-observations-input').value;
+                    
+                    if (!fecha) {
+                        Swal.showValidationMessage('Debes seleccionar una fecha');
+                        return false;
+                    }
+                    if (!hora) {
+                        Swal.showValidationMessage('Debes seleccionar una hora');
+                        return false;
+                    }
+                    
+                    return {
+                        fecha: fecha,
+                        hora: hora,
+                        observaciones: observaciones
+                    };
+                }
+            });
+
+            return formData;
+        }
+
+        // Cargar horarios disponibles para el agendado rápido
+        async function loadAvailableHoursForQuickBook(fecha) {
+            try {
+                const baseUrl = '{{ url("/cliente/horarios-disponibles") }}';
+                const response = await fetch(`${baseUrl}/${fecha}`);
+                if (!response.ok) {
+                    throw new Error('Error al cargar horarios');
+                }
+                
+                const horarios = await response.json();
+                return horarios.map(h => h.hora).filter(h => h);
+            } catch (error) {
+                console.error('Error cargando horarios para agendado rápido:', error);
+                return [];
+            }
+        }
+
+        // Crear la cita con agendado rápido
+        async function createQuickBooking(vehiculoId, servicioId, citaData) {
+            try {
+                const fechaHora = `${citaData.fecha} ${citaData.hora}`;
+                
+                // Debug: verificar token CSRF
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                console.log('CSRF Token:', csrfToken ? 'Existe' : 'No encontrado');
+                
+                const requestData = {
+                    vehiculo_id: vehiculoId,
+                    fecha_hora: fechaHora,
+                    servicios: [servicioId],
+                    observaciones: citaData.observaciones || null
+                };
+                
+                console.log('Datos a enviar:', requestData);
+                
+                const response = await fetch('{{ route("cliente.citas.store-simple") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (data.success) {
+                    // Cita creada exitosamente
+                    const citaData = data.data || {};
+                    await swalWithBootstrapButtons.fire({
+                        title: '¡Cita agendada!',
+                        html: `
+                            <div style="text-align: center;">
+                                <i class="fas fa-check-circle" style="color: #28a745; font-size: 3rem; margin-bottom: 15px;"></i>
+                                <p><strong>Tu cita ha sido agendada exitosamente</strong></p>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left;">
+                                    <p><strong>Fecha:</strong> ${new Date(fechaHora).toLocaleDateString('es-ES', { 
+                                        weekday: 'long', 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric' 
+                                    })}</p>
+                                    <p><strong>Hora:</strong> ${citaData.hora || 'No disponible'}</p>
+                                    <p><strong>Servicio:</strong> ${citaData.servicios_nombres || 'Servicio seleccionado'}</p>
+                                    <p><strong>Vehículo:</strong> ${citaData.vehiculo_marca || ''} ${citaData.vehiculo_modelo || ''}</p>
+                                    ${citaData.duracion_total ? `<p><strong>Duración estimada:</strong> ${citaData.duracion_total} minutos</p>` : ''}
+                                    <p><strong>Precio:</strong> $${citaData.precio_total || '0.00'}</p>
+                                </div>
+                                <p style="color: #6c757d; font-size: 0.9rem;">
+                                    Recibirás una confirmación pronto. Puedes ver el estado de tu cita en la sección "Próximas Citas".
+                                </p>
+                            </div>
+                        `,
+                        icon: 'success',
+                        confirmButtonText: 'Perfecto',
+                        timer: 0,
+                        showConfirmButton: true
+                    });
+
+                    // Recargar datos del dashboard
+                    location.reload();
+
+                } else if (data.es_advertencia) {
+                    // Mostrar advertencia de tiempo extra
+                    const confirmarExtension = await swalWithBootstrapButtons.fire({
+                        title: data.message,
+                        html: `
+                            <div style="text-align: left;">
+                                <p style="margin-bottom: 15px;">${data.mensaje_usuario}</p>
+                                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                    <h4 style="margin-top: 0; color: #1976d2;">Detalles de la cita:</h4>
+                                    <p><strong>Hora de inicio:</strong> ${data.detalles_cita.hora_inicio}</p>
+                                    <p><strong>Hora estimada de finalización:</strong> ${data.detalles_cita.hora_finalizacion_estimada}</p>
+                                    <p><strong>Tiempo extra requerido:</strong> ${data.detalles_cita.tiempo_extra_minutos} minutos</p>
+                                </div>
+                                <div style="background: #f1f8e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                    <h4 style="margin-top: 0; color: #388e3c;">Beneficios:</h4>
+                                    <ul style="margin: 0; padding-left: 20px;">
+                                        ${data.beneficios.map(b => `<li>${b}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <p style="color: #6c757d; font-size: 0.9rem; margin-bottom: 0;">
+                                    ${data.nota_importante}
+                                </p>
+                            </div>
+                        `,
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, agendar con tiempo extra',
+                        cancelButtonText: 'Cancelar y elegir otro horario'
+                    });
+
+                    if (confirmarExtension.isConfirmed) {
+                        // Reenviar solicitud con fuerza
+                        await createQuickBookingForced(vehiculoId, servicioId, citaData);
+                    }
+
+                } else {
+                    // Error al crear la cita
+                    let errorMessage = data.message || 'Error desconocido';
+                    let htmlContent = `<p>${errorMessage}</p>`;
+
+                    if (data.horarios_disponibles && data.horarios_disponibles.length > 0) {
+                        htmlContent += `
+                            <div style="margin-top: 15px; text-align: left;">
+                                <p><strong>Horarios disponibles para esta fecha:</strong></p>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 5px; margin-top: 10px;">
+                                    ${data.horarios_disponibles.slice(0, 12).map(h => 
+                                        `<span style="background: #e9ecef; padding: 5px 8px; border-radius: 4px; text-align: center; font-size: 0.9rem;">${h}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    await swalWithBootstrapButtons.fire({
+                        title: 'No se pudo agendar',
+                        html: htmlContent,
+                        icon: 'error',
+                        confirmButtonText: 'Entendido'
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error al crear cita rápida:', error);
+                
+                // Mostrar más detalles del error
+                let errorMessage = 'No se pudo procesar tu solicitud.';
+                if (error.message) {
+                    errorMessage += ' Detalle: ' + error.message;
+                }
+                
+                await swalWithBootstrapButtons.fire({
+                    title: 'Error de conexión',
+                    text: errorMessage,
+                    icon: 'error',
+                    footer: 'Por favor, verifica tu conexión e inténtalo de nuevo.'
+                });
+            }
+        }
+
+        // Crear cita con fuerza (tiempo extra confirmado)
+        async function createQuickBookingForced(vehiculoId, servicioId, citaData) {
+            return await createQuickBooking(vehiculoId, servicioId, citaData); // Ya tiene X-Force-Create: true
+        }
+
+        // Función para mostrar alerta cuando no hay servicios disponibles (fallback)
+        function showNoServicesAlert() {
+            swalWithBootstrapButtons.fire({
+                title: 'Servicio no disponible',
+                text: 'Este servicio no está disponible temporalmente. Por favor, contacta directamente al establecimiento.',
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
         }
 
         // Script para debug - funciones para probar el manejo de fechas
