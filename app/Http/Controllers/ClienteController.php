@@ -243,9 +243,16 @@ class ClienteController extends Controller
             if ($horario) {
                 $horaCierre = Carbon::parse($fechaCita->format('Y-m-d') . ' ' . $horario->hora_fin->format('H:i:s'));
 
-                if ($horaFin->gt($horaCierre)) {
-                    $minutosExcedidos = $horaFin->diffInMinutes($horaCierre);
+                // CORRECCIÓN: Calcular diferencia CORRECTAMENTE (puede ser negativa)
+                $minutosExcedidos = $horaFin->diffInMinutes($horaCierre, false); // false para diferencia con signo
 
+                // Si es negativo, la cita termina ANTES del cierre (no hay exceso)
+                if ($minutosExcedidos < 0) {
+                    $minutosExcedidos = 0; // No hay tiempo extra
+                }
+
+                // SOLO mostrar advertencia si realmente hay exceso
+                if ($minutosExcedidos > 0) {
                     // Obtener la hora de cierre normal correctamente
                     $horaCierreNormal = $horario->hora_fin->format('H:i');
 
@@ -344,7 +351,7 @@ class ClienteController extends Controller
                 }
             }
 
-            // VERIFICACIÓN DE CONFLICTOS MEJORADA (intervalos de 60 minutos en lugar de 30)
+            // VERIFICACIÓN DE CONFLICTOS MEJORADA 
             Log::info('Verificando conflictos de horario', [
                 'fecha_hora_inicio' => $fechaCita->format('Y-m-d H:i:s'),
                 'duracion_total' => $duracionTotal,

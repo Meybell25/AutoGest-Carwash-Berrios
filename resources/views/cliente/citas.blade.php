@@ -732,11 +732,13 @@
             border-left: 4px solid #4facfe !important;
         }
 
-        .detail-section.confirmada {
+        .detail-section.confirmada,
+        .detail-section.confirmado {
             border-left: 4px solid #66bb6a !important;
         }
 
-        .detail-section.en_proceso {
+        .detail-section.en_proceso,
+        .detail-section.en-proceso {
             border-left: 4px solid #1b5e20 !important;
         }
 
@@ -1276,24 +1278,23 @@
 
                             $cardClass = $cita->estado;
                             $badgeClass = $cita->estado;
-                            $borderClass = $cita->estado;
+                            $detailClass = $cita->estado;
 
                             // LÓGICA DE URGENCIA SOLO PARA CITAS CONFIRMADAS
                             if ($cita->estado == 'confirmada' && $isFuture) {
                                 if ($hoursRemaining <= 24) {
-                                    $cardClass .= ' urgent-soon'; // Menos de 24h - ROJO
+                                    $cardClass .= ' urgent-soon';
                                     $badgeClass .= ' urgent-soon';
-                                    $borderClass .= ' urgent-soon';
+                                    $detailClass .= ' urgent-soon';
                                 } elseif ($daysDiff >= 1 && $daysDiff <= 2) {
-                                    $cardClass .= ' urgent-close'; // 1-2 días - NARANJA
+                                    $cardClass .= ' urgent-close';
                                     $badgeClass .= ' urgent-close';
-                                    $borderClass .= ' urgent-close';
+                                    $detailClass .= ' urgent-close';
                                 } elseif ($daysDiff >= 3 && $daysDiff <= 5) {
-                                    $cardClass .= ' coming-soon'; // 3-5 días - AMARILLO
+                                    $cardClass .= ' coming-soon';
                                     $badgeClass .= ' coming-soon';
-                                    $borderClass .= ' coming-soon';
+                                    $detailClass .= ' coming-soon';
                                 }
-                                // Más de 5 días mantiene el estilo normal (verde)
                             }
 
                             $timeRemaining = '';
@@ -1306,10 +1307,12 @@
                             }
                         @endphp
 
+
                         <div class="cita-card {{ $cardClass }}" data-cita-id="{{ $cita->id }}">
                             <div class="cita-header">
                                 <div class="cita-date-time">
-                                    <div class="date-badge {{ $cita->estado }}">
+                                    <!-- Aplicar la clase de badge corregida -->
+                                    <div class="date-badge {{ $badgeClass }}">
                                         <span class="day">{{ $cita->fecha_hora->format('d') }}</span>
                                         <span class="month">{{ $cita->fecha_hora->format('M') }}</span>
                                         @if ($isFuture && $hoursRemaining <= 24 && $cita->estado == 'confirmada')
@@ -1343,8 +1346,8 @@
                             </div>
 
                             <div class="cita-details">
-                                <!-- DETAIL-SECTION CON BORDES DE URGENCIA -->
-                                <div class="detail-section {{ $borderClass }}">
+                                <!-- Aplicar la clase de detalle corregida -->
+                                <div class="detail-section {{ $detailClass }}">
                                     <h4><i class="fas fa-tools"></i> Servicios Programados</h4>
                                     <ul class="service-list">
                                         @foreach ($cita->servicios as $servicio)
@@ -1362,7 +1365,8 @@
                                 </div>
 
                                 @if ($cita->observaciones)
-                                    <div class="detail-section {{ $borderClass }}">
+                                    <!-- Aplicar la clase de detalle corregida -->
+                                    <div class="detail-section {{ $detailClass }}">
                                         <h4><i class="fas fa-comment"></i> Observaciones</h4>
                                         <p>{{ $cita->observaciones }}</p>
                                     </div>
@@ -1370,13 +1374,15 @@
 
                                 <!-- Información adicional según el estado -->
                                 @if ($cita->estado == 'pendiente')
-                                    <div class="detail-section {{ $borderClass }}">
+                                    <!-- Aplicar la clase de detalle corregida -->
+                                    <div class="detail-section {{ $detailClass }}">
                                         <h4><i class="fas fa-info-circle"></i> Estado de la Cita</h4>
                                         <p>Tu cita está <strong>pendiente de confirmación</strong>. Recibirás una
                                             notificación cuando sea confirmada.</p>
                                     </div>
                                 @elseif ($cita->estado == 'confirmada')
-                                    <div class="detail-section {{ $borderClass }}">
+                                    <!-- Aplicar la clase de detalle corregida -->
+                                    <div class="detail-section {{ $detailClass }}">
                                         <h4><i class="fas fa-check-circle"></i> Cita Confirmada</h4>
                                         <p>Tu cita ha sido <strong>confirmada</strong>. Por favor llega 10 minutos antes
                                             de la hora programada.</p>
@@ -1388,7 +1394,8 @@
                                         @endif
                                     </div>
                                 @elseif ($cita->estado == 'en_proceso')
-                                    <div class="detail-section {{ $borderClass }}">
+                                    <!-- Aplicar la clase de detalle corregida -->
+                                    <div class="detail-section {{ $detailClass }}">
                                         <h4><i class="fas fa-cog"></i> En Proceso</h4>
                                         <p>Tu vehículo está siendo atendido. Te notificaremos cuando esté listo.</p>
                                     </div>
@@ -1550,6 +1557,8 @@
     <script>
         // Configuración global de SweetAlert
         const swalWithBootstrapButtons = Swal.mixin({
+            confirmButtonColor: '#4facfe',
+            cancelButtonColor: '#6c757d',
             customClass: {
                 confirmButton: 'btn btn-primary',
                 cancelButton: 'btn btn-outline mr-2'
@@ -1774,10 +1783,9 @@
             }
         }
 
-        // Función para cargar horas disponibles (MEJORADA)
+        // Función para cargar horas disponibles 
         async function loadAvailableHours(selectedDate, excludeCitaId = null) {
             const horaSelect = document.getElementById('hora');
-
             console.log('Cargando horarios para fecha:', selectedDate, '| Excluir cita:', excludeCitaId);
 
             horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
@@ -1804,7 +1812,7 @@
                     return;
                 }
 
-                // Obtener horarios ocupados
+                // Obtener horarios ocupados CON DURACIONES REALES
                 let citasExistentes = [];
                 try {
                     const url =
@@ -1822,18 +1830,20 @@
 
                     const data = await response.json();
                     citasExistentes = data.horariosOcupados || [];
-
                     console.log('Horarios ocupados recibidos:', citasExistentes);
                 } catch (error) {
                     console.error('Error al obtener horarios ocupados:', error);
                     // Continuar sin horarios ocupados
                 }
 
+                // Obtener la duración REAL de los servicios seleccionados
+                const duracionTotal = calcularDuracionServiciosSeleccionados();
+                console.log('Duración total de servicios seleccionados:', duracionTotal, 'minutos');
+
                 // Generar opciones de horario
                 horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
                 const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeekBackend);
-
                 console.log('Horarios disponibles para día', dayOfWeekBackend, ':', horariosDia);
 
                 if (horariosDia.length === 0) {
@@ -1850,34 +1860,47 @@
                     let horaActual = new Date();
                     horaActual.setHours(inicioH, inicioM, 0, 0);
 
-                    const horaFin = new Date();
-                    horaFin.setHours(finH, finM, 0, 0);
+                    const horaFinHorario = new Date();
+                    horaFinHorario.setHours(finH, finM, 0, 0);
 
-                    while (horaActual < horaFin) {
+                    while (horaActual < horaFinHorario) {
                         const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
                             horaActual.getMinutes().toString().padStart(2, '0');
 
-                        // Verificar colisión con citas existentes
+                        // CORRECCIÓN: Usar la duración REAL de los servicios
+                        const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
+                        const finPropuesta = new Date(inicioPropuesta.getTime() + duracionTotal * 60000);
+
+                        // Verificar colisión con citas existentes (CON DURACIÓN REAL)
                         const estaOcupado = citasExistentes.some(cita => {
                             try {
                                 const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
                                 const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
                                     60000);
 
-                                const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
-                                const finPropuesta = new Date(inicioPropuesta.getTime() +
-                                    calcularDuracionServiciosSeleccionados() * 60000);
+                                // Verificar superposición con buffers de 15 minutos
+                                const inicioCitaConBuffer = new Date(inicioCita.getTime() - 15 * 60000);
+                                const finCitaConBuffer = new Date(finCita.getTime() + 15 * 60000);
 
                                 return (
-                                    (inicioPropuesta >= inicioCita && inicioPropuesta < finCita) ||
-                                    (finPropuesta > inicioCita && finPropuesta <= finCita) ||
-                                    (inicioPropuesta <= inicioCita && finPropuesta >= finCita)
+                                    // Nueva cita empieza durante cita existente (con buffer)
+                                    (inicioPropuesta >= inicioCitaConBuffer && inicioPropuesta <
+                                        finCitaConBuffer) ||
+                                    // Nueva cita termina durante cita existente (con buffer)
+                                    (finPropuesta > inicioCitaConBuffer && finPropuesta <=
+                                        finCitaConBuffer) ||
+                                    // Nueva cita envuelve completamente a la existente
+                                    (inicioPropuesta <= inicioCitaConBuffer && finPropuesta >=
+                                        finCitaConBuffer)
                                 );
                             } catch (e) {
                                 console.error('Error al verificar colisión:', e);
                                 return false;
                             }
                         });
+
+                        // Verificar que la cita completa quepa en el horario laboral
+                        const cabeEnHorarioLaboral = finPropuesta <= horaFinHorario;
 
                         const option = document.createElement('option');
                         option.value = horaStr;
@@ -1887,6 +1910,10 @@
                             option.disabled = true;
                             option.textContent += ' (Ocupado)';
                             option.style.color = '#ff6b6b';
+                        } else if (!cabeEnHorarioLaboral) {
+                            option.disabled = true;
+                            option.textContent += ' (Fuera de horario)';
+                            option.style.color = '#ff9800';
                         } else {
                             horariosGenerados++;
                         }
@@ -1908,7 +1935,7 @@
             }
         }
 
-        // Configuración del datepicker (MEJORADA)
+        // Configuración del datepicker 
         function setupDatePicker() {
             const fechaInput = document.getElementById('fecha');
 
@@ -2180,6 +2207,9 @@
         // Función auxiliar para validar duración de servicios 
         function validateServiceDuration(horaSeleccionada, duracionTotal) {
             try {
+                // Solo validar si la duración es mayor a 0
+                if (duracionTotal <= 0) return;
+
                 const [horas, minutos] = horaSeleccionada.split(':').map(Number);
                 const horaInicio = new Date();
                 horaInicio.setHours(horas, minutos, 0, 0);
@@ -2189,56 +2219,60 @@
                 const horaCierre = new Date();
                 horaCierre.setHours(18, 0, 0, 0);
 
-                if (horaFin > horaCierre) {
-                    const minutosExtra = Math.floor((horaFin - horaCierre) / 60000);
-                    const horasExtra = (minutosExtra / 60).toFixed(1);
+                // Calcular diferencia CORRECTAMENTE (puede ser negativa)
+                const minutosDiferencia = (horaFin - horaCierre) / 60000;
 
-                    console.warn(`⚠️ Los servicios seleccionados requieren ${minutosExtra} minutos extra (${horasExtra}h)`);
+                // Solo mostrar advertencia si realmente excede el horario
+                if (minutosDiferencia > 0) {
+                    const horasExtra = (minutosDiferencia / 60).toFixed(1);
+
+                    console.warn(
+                        `⚠️ Los servicios seleccionados requieren ${minutosDiferencia} minutos extra (${horasExtra}h)`);
 
                     // Mostrar información visual según la duración extra
                     const horaSelect = document.getElementById('hora');
                     const duracionInfo = document.getElementById('duracion-info') || createDuracionInfo();
 
-                    if (minutosExtra <= 30) {
+                    if (minutosDiferencia <= 30) {
                         // Tiempo extra mínimo - advertencia suave
                         horaSelect.style.borderColor = '#ffa500';
                         duracionInfo.className = 'alert alert-warning mt-2';
                         duracionInfo.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-clock mr-2"></i>
-                        <span>Tiempo extra: ${minutosExtra} min (${horasExtra}h) - Aceptable</span>
-                    </div>
-                `;
-                    } else if (minutosExtra <= 60) {
+            <div class="d-flex align-items-center">
+                <i class="fas fa-clock mr-2"></i>
+                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Aceptable</span>
+            </div>
+        `;
+                    } else if (minutosDiferencia <= 60) {
                         // Tiempo extra moderado - advertencia media
                         horaSelect.style.borderColor = '#ff9800';
                         duracionInfo.className = 'alert alert-warning mt-2';
                         duracionInfo.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        <span>Tiempo extra: ${minutosExtra} min (${horasExtra}h) - Requiere confirmación</span>
-                    </div>
-                `;
-                    } else if (minutosExtra <= 90) {
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Requiere confirmación</span>
+            </div>
+        `;
+                    } else if (minutosDiferencia <= 90) {
                         // Tiempo extra considerable - advertencia fuerte
                         horaSelect.style.borderColor = '#ff6b6b';
                         duracionInfo.className = 'alert alert-danger mt-2';
                         duracionInfo.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        <span>Tiempo extra: ${minutosExtra} min (${horasExtra}h) - Considerable</span>
-                    </div>
-                `;
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Considerable</span>
+            </div>
+        `;
                     } else {
                         // Tiempo excesivo - error
                         horaSelect.style.borderColor = '#dc3545';
                         duracionInfo.className = 'alert alert-danger mt-2';
                         duracionInfo.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-times-circle mr-2"></i>
-                        <span>Tiempo extra: ${minutosExtra} min (${horasExtra}h) - Demasiado largo</span>
-                    </div>
-                `;
+            <div class="d-flex align-items-center">
+                <i class="fas fa-times-circle mr-2"></i>
+                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Demasiado largo</span>
+            </div>
+        `;
                     }
 
                     // Remover advertencia después de 5 segundos
@@ -2946,18 +2980,53 @@
                     // Recargar la página para ver los cambios
                     location.reload();
                 } else {
-                    throw new Error(result.message || 'Error al forzar creación de cita');
+                    // Verificar si hay un conflicto de horario específico
+                    if (result.message && result.message.includes('conflicto')) {
+                        // Mostrar horarios disponibles si vienen en la respuesta
+                        let errorHtml = `
+                            <div style="text-align: left;">
+                                <p>${result.message}</p>
+                        `;
+
+                        if (result.horarios_disponibles && result.horarios_disponibles.length > 0) {
+                            errorHtml += `
+                                <div style="margin-top: 15px;">
+                                    <p><strong>Horarios disponibles:</strong></p>
+                                    <div style="max-height: 150px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px;">
+                                        ${result.horarios_disponibles.map(time => `<span class="badge badge-primary mr-1 mb-1">${time}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        errorHtml += `</div>`;
+
+                        throw new Error(errorHtml);
+                    } else {
+                        throw new Error(result.message || 'Error al forzar creación de cita');
+                    }
                 }
             } catch (error) {
                 console.error('Error al forzar creación:', error);
-                swalWithBootstrapButtons.fire({
-                    title: 'Error',
-                    text: error.message || 'No se pudo completar la reserva',
-                    icon: 'error'
-                });
+
+                // Mostrar error con formato adecuado
+                if (error.message.includes('<div')) {
+                    // Es un error con HTML formateado
+                    await swalWithBootstrapButtons.fire({
+                        title: 'Error de conflicto',
+                        html: error.message,
+                        icon: 'error'
+                    });
+                } else {
+                    // Es un error de texto plano
+                    await swalWithBootstrapButtons.fire({
+                        title: 'Error',
+                        text: error.message || 'No se pudo completar la reserva',
+                        icon: 'error'
+                    });
+                }
             }
         }
-
 
         //  ESTILOS CSS PARA EL MODAL MÁS ANCHO
         const style = document.createElement('style');

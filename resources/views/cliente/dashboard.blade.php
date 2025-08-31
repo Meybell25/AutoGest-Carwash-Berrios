@@ -3111,8 +3111,8 @@
 
     <script>
         /*=========================================================
-                                FUNCIONAMIENTO DE CREAR CITAS
-                                =========================================================*/
+                FUNCIONAMIENTO DE CREAR CITAS
+                =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3368,74 +3368,152 @@
         // Función para cargar horas disponibles 
         async function loadAvailableHours(selectedDate, excludeCitaId = null) {
             const horaSelect = document.getElementById('hora');
-
             console.log('Cargando horarios para fecha:', selectedDate, '| Excluir cita:', excludeCitaId);
 
             horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
 
             try {
-                const url =
-                    `/cliente/horarios-disponibles/${selectedDate}${excludeCitaId ? '?exclude=' + excludeCitaId : ''}`;
-                console.log('Consultando horarios disponibles:', url);
+                // Usar la fecha local correctamente
+                const fechaLocal = createLocalDate(selectedDate);
+                const dayOfWeekJS = fechaLocal.getDay(); // 0=Domingo, 1=Lunes, etc.
+                const dayOfWeekBackend = getBackendDayFromJSDay(dayOfWeekJS);
 
-                const response = await fetch(url, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
+                console.log('Fecha seleccionada:', selectedDate);
+                console.log('Día JS:', dayOfWeekJS, 'Día Backend:', dayOfWeekBackend);
 
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status}`);
-                }
-
-                const horariosData = await response.json();
-                console.log('Datos de horarios recibidos:', horariosData);
-
-                horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
-
-                if (horariosData.length === 0) {
-                    horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                // Validar si es domingo
+                if (dayOfWeekJS === 0) {
+                    horaSelect.innerHTML = '<option value="">No hay horarios (No atendemos domingos)</option>';
                     return;
                 }
 
-                // Ordenar horarios por hora
-                const horariosOrdenados = horariosData.sort((a, b) => {
-                    const timeA = a.hora || a;
-                    const timeB = b.hora || b;
-                    return timeA.localeCompare(timeB);
-                });
+                // Verificar día no laborable
+                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === selectedDate);
+                if (diaNoLaborable) {
+                    horaSelect.innerHTML = `<option value="">${diaNoLaborable.motivo || 'Día no laborable'}</option>`;
+                    return;
+                }
 
-                // Llenar el select con los horarios disponibles ordenados
-                horariosOrdenados.forEach(item => {
-                    const option = document.createElement('option');
-                    const horaValue = item.hora || item;
-                    option.value = horaValue;
-                    option.textContent = horaValue;
+                // Obtener horarios ocupados CON DURACIONES REALES
+                let citasExistentes = [];
+                try {
+                    const url =
+                        `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
+                    console.log('Consultando horarios ocupados:', url);
 
-                    // Verificar disponibilidad si viene como objeto
-                    if (typeof item === 'object' && !item.disponible) {
-                        option.disabled = true;
-                        option.textContent += ' (Ocupado)';
-                        option.style.color = '#ff6b6b';
-                        option.style.fontWeight = 'bold';
+                    const response = await fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) throw new Error(`Error ${response.status}`);
+
+                    const data = await response.json();
+                    citasExistentes = data.horariosOcupados || [];
+                    console.log('Horarios ocupados recibidos:', citasExistentes);
+                } catch (error) {
+                    console.error('Error al obtener horarios ocupados:', error);
+                    // Continuar sin horarios ocupados
+                }
+
+                // Obtener la duración REAL de los servicios seleccionados
+                const duracionTotal = calcularDuracionServiciosSeleccionados();
+                console.log('Duración total de servicios seleccionados:', duracionTotal, 'minutos');
+
+                // Generar opciones de horario
+                horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+
+                const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeekBackend);
+                console.log('Horarios disponibles para día', dayOfWeekBackend, ':', horariosDia);
+
+                if (horariosDia.length === 0) {
+                    horaSelect.innerHTML = '<option value="">No hay horarios programados</option>';
+                    return;
+                }
+
+                let horariosGenerados = 0;
+
+                horariosDia.forEach(horario => {
+                    const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
+                    const [finH, finM] = horario.hora_fin.split(':').map(Number);
+
+                    let horaActual = new Date();
+                    horaActual.setHours(inicioH, inicioM, 0, 0);
+
+                    const horaFinHorario = new Date();
+                    horaFinHorario.setHours(finH, finM, 0, 0);
+
+                    while (horaActual < horaFinHorario) {
+                        const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
+                            horaActual.getMinutes().toString().padStart(2, '0');
+
+                        // CORRECCIÓN: Usar la duración REAL de los servicios
+                        const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
+                        const finPropuesta = new Date(inicioPropuesta.getTime() + duracionTotal * 60000);
+
+                        // Verificar colisión con citas existentes (CON DURACIÓN REAL)
+                        const estaOcupado = citasExistentes.some(cita => {
+                            try {
+                                const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
+                                const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
+                                    60000);
+
+                                // Verificar superposición con buffers de 15 minutos
+                                const inicioCitaConBuffer = new Date(inicioCita.getTime() - 15 * 60000);
+                                const finCitaConBuffer = new Date(finCita.getTime() + 15 * 60000);
+
+                                return (
+                                    // Nueva cita empieza durante cita existente (con buffer)
+                                    (inicioPropuesta >= inicioCitaConBuffer && inicioPropuesta <
+                                        finCitaConBuffer) ||
+                                    // Nueva cita termina durante cita existente (con buffer)
+                                    (finPropuesta > inicioCitaConBuffer && finPropuesta <=
+                                        finCitaConBuffer) ||
+                                    // Nueva cita envuelve completamente a la existente
+                                    (inicioPropuesta <= inicioCitaConBuffer && finPropuesta >=
+                                        finCitaConBuffer)
+                                );
+                            } catch (e) {
+                                console.error('Error al verificar colisión:', e);
+                                return false;
+                            }
+                        });
+
+                        // Verificar que la cita completa quepa en el horario laboral
+                        const cabeEnHorarioLaboral = finPropuesta <= horaFinHorario;
+
+                        const option = document.createElement('option');
+                        option.value = horaStr;
+                        option.textContent = horaStr;
+
+                        if (estaOcupado) {
+                            option.disabled = true;
+                            option.textContent += ' (Ocupado)';
+                            option.style.color = '#ff6b6b';
+                        } else if (!cabeEnHorarioLaboral) {
+                            option.disabled = true;
+                            option.textContent += ' (Fuera de horario)';
+                            option.style.color = '#ff9800';
+                        } else {
+                            horariosGenerados++;
+                        }
+
+                        horaSelect.appendChild(option);
+                        horaActual.setMinutes(horaActual.getMinutes() + 30);
                     }
-
-                    horaSelect.appendChild(option);
                 });
 
-                console.log(`Horarios cargados exitosamente: ${horariosOrdenados.length} opciones`);
+                if (horariosGenerados === 0 && horaSelect.options.length > 1) {
+                    horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                }
+
+                console.log(`Horarios cargados - Generados: ${horariosGenerados}`);
 
             } catch (error) {
                 console.error('Error en loadAvailableHours:', error);
                 horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
-
-                // Fallback: intentar cargar horarios de forma local si hay error
-                try {
-                    await loadAvailableHoursFallback(selectedDate, excludeCitaId);
-                } catch (fallbackError) {
-                    console.error('Error en fallback también:', fallbackError);
-                }
             }
         }
 
@@ -3855,6 +3933,9 @@
         // Función auxiliar para validar duración de servicios 
         function validateServiceDuration(horaSeleccionada, duracionTotal) {
             try {
+                // Solo validar si la duración es mayor a 0
+                if (duracionTotal <= 0) return;
+
                 const [horas, minutos] = horaSeleccionada.split(':').map(Number);
                 const horaInicio = new Date();
                 horaInicio.setHours(horas, minutos, 0, 0);
@@ -3864,56 +3945,60 @@
                 const horaCierre = new Date();
                 horaCierre.setHours(18, 0, 0, 0);
 
-                if (horaFin > horaCierre) {
-                    const minutosExtra = Math.floor((horaFin - horaCierre) / 60000);
-                    const horasExtra = (minutosExtra / 60).toFixed(1);
+                // Calcular diferencia CORRECTAMENTE (puede ser negativa)
+                const minutosDiferencia = (horaFin - horaCierre) / 60000;
 
-                    console.warn(`⚠️ Los servicios seleccionados requieren ${minutosExtra} minutos extra (${horasExtra}h)`);
+                // Solo mostrar advertencia si realmente excede el horario
+                if (minutosDiferencia > 0) {
+                    const horasExtra = (minutosDiferencia / 60).toFixed(1);
+
+                    console.warn(
+                        `⚠️ Los servicios seleccionados requieren ${minutosDiferencia} minutos extra (${horasExtra}h)`);
 
                     // Mostrar información visual según la duración extra
                     const horaSelect = document.getElementById('hora');
                     const duracionInfo = document.getElementById('duracion-info') || createDuracionInfo();
 
-                    if (minutosExtra <= 30) {
+                    if (minutosDiferencia <= 30) {
                         // Tiempo extra mínimo - advertencia suave
                         horaSelect.style.borderColor = '#ffa500';
                         duracionInfo.className = 'alert alert-warning mt-2';
                         duracionInfo.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-clock mr-2"></i>
-                        <span>Tiempo extra: ${minutosExtra} min (${horasExtra}h) - Aceptable</span>
-                    </div>
-                `;
-                    } else if (minutosExtra <= 60) {
+            <div class="d-flex align-items-center">
+                <i class="fas fa-clock mr-2"></i>
+                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Aceptable</span>
+            </div>
+        `;
+                    } else if (minutosDiferencia <= 60) {
                         // Tiempo extra moderado - advertencia media
                         horaSelect.style.borderColor = '#ff9800';
                         duracionInfo.className = 'alert alert-warning mt-2';
                         duracionInfo.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        <span>Tiempo extra: ${minutosExtra} min (${horasExtra}h) - Requiere confirmación</span>
-                    </div>
-                `;
-                    } else if (minutosExtra <= 90) {
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Requiere confirmación</span>
+            </div>
+        `;
+                    } else if (minutosDiferencia <= 90) {
                         // Tiempo extra considerable - advertencia fuerte
                         horaSelect.style.borderColor = '#ff6b6b';
                         duracionInfo.className = 'alert alert-danger mt-2';
                         duracionInfo.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        <span>Tiempo extra: ${minutosExtra} min (${horasExtra}h) - Considerable</span>
-                    </div>
-                `;
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Considerable</span>
+            </div>
+        `;
                     } else {
                         // Tiempo excesivo - error
                         horaSelect.style.borderColor = '#dc3545';
                         duracionInfo.className = 'alert alert-danger mt-2';
                         duracionInfo.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-times-circle mr-2"></i>
-                        <span>Tiempo extra: ${minutosExtra} min (${horasExtra}h) - Demasiado largo</span>
-                    </div>
-                `;
+            <div class="d-flex align-items-center">
+                <i class="fas fa-times-circle mr-2"></i>
+                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Demasiado largo</span>
+            </div>
+        `;
                     }
 
                     // Remover advertencia después de 5 segundos
@@ -4368,10 +4453,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                        Agendar Cita
-                                                                                                                                                                    </button>` : ''}
+                                                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                    <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                    Agendar Cita
+                                                                                                                                                                                </button>` : ''}
                 </div>
             `;
                     return;
@@ -5289,14 +5374,14 @@
                             <p><strong>Conflictos encontrados:</strong> ${data.data.citas_superpuestas.length}</p>
                             
                             ${data.data.citas_superpuestas.map(cita => `
-                                                                                                    <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                                                                                                        <p><strong>Cita ID:</strong> ${cita.id}</p>
-                                                                                                        <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
-                                                                                                        <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
-                                                                                                        <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
-                                                                                                        <p><strong>Estado:</strong> ${cita.estado}</p>
-                                                                                                    </div>
-                                                                                                `).join('')}
+                                                                                                                <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                                                                                                    <p><strong>Cita ID:</strong> ${cita.id}</p>
+                                                                                                                    <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
+                                                                                                                    <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
+                                                                                                                    <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
+                                                                                                                    <p><strong>Estado:</strong> ${cita.estado}</p>
+                                                                                                                </div>
+                                                                                                            `).join('')}
                             
                             <p><strong>Horarios disponibles:</strong> ${data.data.horarios_disponibles.join(', ') || 'Ninguno'}</p>
                         </div>
@@ -5606,10 +5691,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
+                                        <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                        </tr>
+                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -5721,8 +5806,8 @@
 
     <script>
         /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    =========================================================*/
+                FUNCIONAMIENTO DE MODAL VEHICULOS
+                =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -5751,8 +5836,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                =========================================================*/
+                            FUNCIONAMIENTO DE CRUD VEHICULOS
+                            =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

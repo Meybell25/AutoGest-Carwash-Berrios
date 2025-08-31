@@ -96,7 +96,7 @@ class Horario extends Model
         }
 
         $hora = $hora ?? now()->format('H:i');
-        
+
         return $hora >= $this->hora_inicio_formateada && 
                $hora <= $this->hora_fin_formateada;
     }
@@ -109,7 +109,7 @@ class Horario extends Model
 
         $inicio = strtotime($this->hora_inicio_formateada);
         $fin = strtotime($this->hora_fin_formateada);
-        
+
         return ($fin - $inicio) / 60;
     }
 
@@ -123,7 +123,7 @@ class Horario extends Model
     public static function estaAbiertoAhora(): bool
     {
         $horarioHoy = self::getHorarioHoy();
-        
+
         if (!$horarioHoy) {
             return false;
         }
