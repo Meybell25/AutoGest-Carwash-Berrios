@@ -53,25 +53,27 @@ class AdminController extends Controller
     {
         $mesActual = now()->month;
         $anoActual = now()->year;
+        $hoy = now()->format('Y-m-d');
 
         return [
-            'total_usuarios' => Usuario::count(),
-            'total_clientes' => Usuario::where('rol', 'cliente')->count(),
-            'total_empleados' => Usuario::where('rol', 'empleado')->count(),
-            'total_citas' => Cita::count(),
-            'citas_pendientes' => Cita::where('estado', 'pendiente')->count(),
-            'total_vehiculos' => Vehiculo::count(),
-            'total_servicios' => Servicio::where('activo', true)->count(),
             'usuarios_totales' => Usuario::count(),
-            'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')
-                ->whereMonth('created_at', $mesActual)
-                ->whereYear('created_at', $anoActual)
+            'citas_confirmadas_hoy' => Cita::whereDate('fecha_hora', $hoy)
+                ->where('estado', 'confirmada')
                 ->count(),
-            'citas_hoy' => Cita::whereDate('created_at', today())->count(),
             'ingresos_hoy' => Cita::whereDate('created_at', today())
                 ->with('servicios')
                 ->get()
                 ->sum(fn($cita) => $cita->servicios->sum('precio')),
+            'citas_pendientes' => Cita::where('estado', 'pendiente')->count(),
+            'ingresos_mensuales' => Cita::whereMonth('created_at', $mesActual)
+                ->whereYear('created_at', $anoActual)
+                ->with('servicios')
+                ->get()
+                ->sum(fn($cita) => $cita->servicios->sum('precio')),
+            'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')
+                ->whereMonth('created_at', $mesActual)
+                ->whereYear('created_at', $anoActual)
+                ->count(),
             'citas_canceladas_mes' => Cita::where('estado', 'cancelada')
                 ->whereMonth('created_at', now()->month)
                 ->count()
@@ -528,6 +530,49 @@ class AdminController extends Controller
         return response()->json([
             'available' => !$exists,
             'message' => $exists ? 'Este correo electrónico ya está registrado' : 'Email disponible'
+        ]);
+    }
+
+    /**
+     * Muestra la administración de citas
+     */
+    public function citasAdmin(): View
+    {
+        $citas = Cita::with(['usuario', 'vehiculo', 'servicios'])
+            ->orderBy('fecha_hora', 'desc')
+            ->paginate(10);
+
+        return view('admin.citasadmin', compact('citas'));
+    }
+
+    /**
+     * Actualiza el estado de una cita
+     */
+    public function actualizarEstadoCita(Request $request, $id)
+    {
+        $cita = Cita::findOrFail($id);
+
+        $request->validate([
+            'estado' => 'required|in:pendiente,confirmada,en_proceso,finalizada,cancelada'
+        ]);
+
+        $estadoAnterior = $cita->estado;
+        $cita->estado = $request->estado;
+        $cita->save();
+
+        // Registrar en bitácora
+        Log::channel('admin_actions')->info("Estado de cita actualizado", [
+            'admin_id' => auth()->id(),
+            'cita_id' => $cita->id,
+            'estado_anterior' => $estadoAnterior,
+            'estado_nuevo' => $cita->estado,
+            'fecha' => now()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado de cita actualizado correctamente',
+            'nuevo_estado' => $cita->estado_formatted
         ]);
     }
 }

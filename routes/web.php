@@ -96,6 +96,12 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::post('/', [AdminController::class, 'storeCita'])->name('store');
         });
 
+        // Rutas de Admin - Agregar esta ruta dentro del grupo de admin
+        Route::prefix('citasadmin')->name('citasadmin.')->group(function () {
+            Route::get('/', [AdminController::class, 'citasAdmin'])->name('index');
+            Route::put('/{cita}/actualizar-estado', [AdminController::class, 'actualizarEstadoCita'])->name('actualizar-estado');
+        });
+
         Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
         Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
 
@@ -193,7 +199,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::get('/horarios-disponibles/{fecha}', [ClienteController::class, 'getHorariosDisponiblesPorFecha'])
             ->name('horarios-disponibles.fecha');
 
-      /*  Route::get('/horarios-disponibles/{fecha}', function ($fecha, Request $request) {
+        /*  Route::get('/horarios-disponibles/{fecha}', function ($fecha, Request $request) {
             try {
                 $excludeCitaId = $request->query('exclude');
 
