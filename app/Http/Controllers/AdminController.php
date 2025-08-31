@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 class AdminController extends Controller
 {
     /**
-     * Muestra el dashboard del administrador
+     * Muestra el dashboard del administrador 
      */
     public function dashboard(): View
     {
