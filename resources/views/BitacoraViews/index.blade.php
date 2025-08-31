@@ -769,7 +769,7 @@
             // Limpiar filtros
             document.getElementById('limpiarFiltros').addEventListener('click', function() {
                 document.getElementById('filtrosForm').reset();
-                window.location.href = "{{ route('admin.bitacora') }}";
+                window.location.href = "{{ route('admin.bitacora.index') }}";
             });
 
             // Validar fechas
