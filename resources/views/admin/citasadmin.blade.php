@@ -459,6 +459,7 @@
             align-items: center;
             gap: 10px;
             margin-top: 30px;
+            flex-wrap: wrap;
         }
 
         .page-link {
@@ -861,7 +862,7 @@
                         <span class="stats-label">Confirmadas</span>
                     </div>
 
-                    <div class="stats-item {
+                    <div class="stats-item">
                         <span class="stats-number">{{ $estadisticas['por_estado']['en_proceso'] }}</span>
                         <span class="stats-label">En Proceso</span>
                     </div>
@@ -967,7 +968,7 @@
                     </small>
                 </h2>
                 @if (request()->anyFilled(['estado', 'fecha', 'buscar']))
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0;">
+                    <p style="font-size: 0.9rem; color: var(--text-secondary; margin-bottom: 0;">
                         Filtros aplicados:
                         @if (request('estado'))
                             <span class="filter-badge">Estado: {{ ucfirst(request('estado')) }}</span>
@@ -1162,6 +1163,8 @@
                 
                 // Configurar modales
                 setupModals();
+                
+                console.log('Sistema de Pagos inicializado correctamente');
             }
             
             // 1. INICIALIZACIÓN DE SELECTS DE ESTADO
@@ -1344,114 +1347,181 @@
             
             // 7.1 CONFIGURAR EVENTOS DEL MODAL DE PAGO
             function setupPagoModalEvents() {
-                // Calcular vuelto cuando cambia el monto recibido
-                const montoRecibidoInput = document.getElementById('monto-recibido');
-                if (montoRecibidoInput) {
-                    montoRecibidoInput.addEventListener('input', calcularVuelto);
-                }
-                
-                // Cambiar visibilidad de campos según método de pago
-                const metodoPagoSelect = document.getElementById('metodo-pago');
-                if (metodoPagoSelect) {
-                    metodoPagoSelect.addEventListener('change', toggleCamposPago);
-                    // Ejecutar una vez al cargar para establecer el estado inicial
-                    toggleCamposPago();
-                }
-                
-                // Aplicar descuento
-                const aplicarDescuentoBtn = document.getElementById('aplicar-descuento-general');
-                if (aplicarDescuentoBtn) {
-                    aplicarDescuentoBtn.addEventListener('click', aplicarDescuento);
-                }
-                
-                // Quitar descuento
-                const quitarDescuentoBtn = document.getElementById('quitar-descuento-general');
-                if (quitarDescuentoBtn) {
-                    quitarDescuentoBtn.addEventListener('click', quitarDescuento);
-                }
-                
-                // Registrar pago
-                const formPago = document.getElementById('form-pago');
-                if (formPago) {
-                    formPago.addEventListener('submit', registrarPago);
-                }
+                // Esperar un breve momento para asegurar que el DOM esté listo
+                setTimeout(() => {
+                    try {
+                        // Calcular vuelto cuando cambia el monto recibido
+                        const montoRecibidoInput = document.getElementById('monto-recibido');
+                        if (montoRecibidoInput) {
+                            montoRecibidoInput.addEventListener('input', calcularVuelto);
+                        } else {
+                            console.warn("Elemento 'monto-recibido' no encontrado.");
+                        }
+                        
+                        // Cambiar visibilidad de campos según método de pago
+                        const metodoPagoSelect = document.getElementById('metodo-pago');
+                        if (metodoPagoSelect) {
+                            metodoPagoSelect.addEventListener('change', toggleCamposPago);
+                            // Ejecutar una vez al cargar para establecer el estado inicial
+                            toggleCamposPago();
+                        } else {
+                            console.warn("Elemento 'metodo-pago' no encontrado.");
+                        }
+                        
+                        // Aplicar descuento
+                        const aplicarDescuentoBtn = document.getElementById('aplicar-descuento-general');
+                        if (aplicarDescuentoBtn) {
+                            aplicarDescuentoBtn.addEventListener('click', aplicarDescuento);
+                        } else {
+                            console.warn("Elemento 'aplicar-descuento-general' no encontrado.");
+                        }
+                        
+                        // Quitar descuento
+                        const quitarDescuentoBtn = document.getElementById('quitar-descuento-general');
+                        if (quitarDescuentoBtn) {
+                            quitarDescuentoBtn.addEventListener('click', quitarDescuento);
+                        } else {
+                            console.warn("Elemento 'quitar-descuento-general' no encontrado.");
+                        }
+                        
+                        // Registrar pago
+                        const formPago = document.getElementById('form-pago');
+                        if (formPago) {
+                            formPago.addEventListener('submit', registrarPago);
+                        } else {
+                            console.warn("Elemento 'form-pago' no encontrado.");
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error al configurar eventos del modal:', error);
+                    }
+                }, 100);
             }
             
             // 7.2 CALCULAR VUELTO
             function calcularVuelto() {
-                const montoRecibido = parseFloat(document.getElementById('monto-recibido').value) || 0;
-                const totalGeneral = parseFloat(document.getElementById('total-general').textContent.replace('$', '')) || 0;
-                const vueltoCalculado = document.getElementById('vuelto-calculado');
-                
-                if (montoRecibido >= totalGeneral) {
-                    const vuelto = montoRecibido - totalGeneral;
-                    vueltoCalculado.value = `$${vuelto.toFixed(2)}`;
-                } else {
-                    vueltoCalculado.value = '$0.00';
+                try {
+                    const montoRecibido = parseFloat(document.getElementById('monto-recibido')?.value) || 0;
+                    const totalElement = document.getElementById('total-general');
+                    const total = totalElement ? parseFloat(totalElement.textContent.replace('$', '')) : 0;
+                    const vueltoCalculado = document.getElementById('vuelto-calculado');
+                    
+                    if (vueltoCalculado && montoRecibido >= total) {
+                        const vuelto = montoRecibido - total;
+                        vueltoCalculado.value = `$${vuelto.toFixed(2)}`;
+                    } else if (vueltoCalculado) {
+                        vueltoCalculado.value = '$0.00';
+                    }
+                } catch (error) {
+                    console.error('Error al calcular vuelto:', error);
                 }
             }
             
             // 7.3 TOGGLE CAMPOS DE PAGO SEGÚN MÉTODO
             function toggleCamposPago() {
-                const metodoPago = document.getElementById('metodo-pago').value;
-                
-                // Ocultar todos los campos primero
-                document.getElementById('campo-efectivo').classList.add('d-none');
-                document.getElementById('campo-transferencia').classList.add('d-none');
-                document.getElementById('campo-pasarela').classList.add('d-none');
-                
-                // Mostrar el campo correspondiente
-                if (metodoPago === 'efectivo') {
-                    document.getElementById('campo-efectivo').classList.remove('d-none');
-                    calcularVuelto(); // Calcular vuelto inicial
-                } else if (metodoPago === 'transferencia') {
-                    document.getElementById('campo-transferencia').classList.remove('d-none');
-                } else if (metodoPago === 'pasarela') {
-                    document.getElementById('campo-pasarela').classList.remove('d-none');
+                try {
+                    const metodoPagoSelect = document.getElementById('metodo-pago');
+                    if (!metodoPagoSelect) {
+                        console.warn("Elemento 'metodo-pago' no encontrado en toggleCamposPago");
+                        return;
+                    }
+                    
+                    const metodoPago = metodoPagoSelect.value;
+                    
+                    // Ocultar todos los campos primero de manera segura
+                    const campoEfectivo = document.getElementById('campo-efectivo');
+                    const campoTransferencia = document.getElementById('campo-transferencia');
+                    const campoPasarela = document.getElementById('campo-pasarela');
+                    
+                    [campoEfectivo, campoTransferencia, campoPasarela].forEach(campo => {
+                        if (campo) campo.classList.add('d-none');
+                    });
+                    
+                    // Mostrar el campo correspondiente de manera segura
+                    if (metodoPago === 'efectivo' && campoEfectivo) {
+                        campoEfectivo.classList.remove('d-none');
+                        calcularVuelto(); // Calcular vuelto inicial
+                    } else if (metodoPago === 'transferencia' && campoTransferencia) {
+                        campoTransferencia.classList.remove('d-none');
+                    } else if (metodoPago === 'pasarela' && campoPasarela) {
+                        campoPasarela.classList.remove('d-none');
+                    }
+                } catch (error) {
+                    console.error('Error en toggleCamposPago:', error);
                 }
             }
             
             // 7.4 APLICAR DESCUENTO
             function aplicarDescuento() {
-                const porcentajeDescuento = parseFloat(document.getElementById('porcentaje-descuento').value) || 0;
-                const totalOriginal = parseFloat(document.getElementById('total-original').textContent.replace('$', '')) || 0;
-                
-                if (porcentajeDescuento > 0 && porcentajeDescuento <= 100) {
-                    const descuento = totalOriginal * (porcentajeDescuento / 100);
-                    const totalConDescuento = totalOriginal - descuento;
+                try {
+                    const porcentajeDescuento = parseFloat(document.getElementById('porcentaje-descuento')?.value) || 0;
+                    const totalOriginalElement = document.getElementById('total-original');
+                    const totalOriginal = totalOriginalElement ? parseFloat(totalOriginalElement.textContent.replace('$', '')) : 0;
                     
-                    document.getElementById('descuento-aplicado').textContent = `-$${descuento.toFixed(2)}`;
-                    document.getElementById('total-general').textContent = `$${totalConDescuento.toFixed(2)}`;
-                    
-                    // Mostrar elementos de descuento aplicado
-                    document.getElementById('descuento-info').classList.remove('d-none');
-                    document.getElementById('sin-descuento').classList.add('d-none');
-                    document.getElementById('con-descuento').classList.remove('d-none');
-                    
-                    // Recalcular vuelto si es pago en efectivo
-                    if (document.getElementById('metodo-pago').value === 'efectivo') {
-                        calcularVuelto();
+                    if (porcentajeDescuento > 0 && porcentajeDescuento <= 100) {
+                        const descuento = totalOriginal * (porcentajeDescuento / 100);
+                        const totalConDescuento = totalOriginal - descuento;
+                        
+                        const descuentoAplicadoElement = document.getElementById('descuento-aplicado');
+                        const totalGeneralElement = document.getElementById('total-general');
+                        
+                        if (descuentoAplicadoElement && totalGeneralElement) {
+                            descuentoAplicadoElement.textContent = `-$${descuento.toFixed(2)}`;
+                            totalGeneralElement.textContent = `$${totalConDescuento.toFixed(2)}`;
+                            
+                            // Mostrar elementos de descuento aplicado
+                            const descuentoInfo = document.getElementById('descuento-info');
+                            const sinDescuento = document.getElementById('sin-descuento');
+                            const conDescuento = document.getElementById('con-descuento');
+                            
+                            if (descuentoInfo) descuentoInfo.classList.remove('d-none');
+                            if (sinDescuento) sinDescuento.classList.add('d-none');
+                            if (conDescuento) conDescuento.classList.remove('d-none');
+                            
+                            // Recalcular vuelto si es pago en efectivo
+                            if (document.getElementById('metodo-pago')?.value === 'efectivo') {
+                                calcularVuelto();
+                            }
+                        }
+                    } else {
+                        showAlert('warning', 'Descuento inválido', 'Por favor ingrese un porcentaje válido entre 1 y 100.');
                     }
-                } else {
-                    showAlert('warning', 'Descuento inválido', 'Por favor ingrese un porcentaje válido entre 1 y 100.');
+                } catch (error) {
+                    console.error('Error al aplicar descuento:', error);
+                    showAlert('error', 'Error', 'Ocurrió un error al aplicar el descuento');
                 }
             }
             
             // 7.5 QUITAR DESCUENTO
             function quitarDescuento() {
-                const totalOriginal = parseFloat(document.getElementById('total-original').textContent.replace('$', '')) || 0;
-                
-                document.getElementById('descuento-aplicado').textContent = '$0.00';
-                document.getElementById('total-general').textContent = `$${totalOriginal.toFixed(2)}`;
-                document.getElementById('porcentaje-descuento').value = '';
-                
-                // Ocultar elementos de descuento aplicado
-                document.getElementById('sin-descuento').classList.remove('d-none');
-                document.getElementById('con-descuento').classList.add('d-none');
-                
-                // Recalcular vuelto si es pago en efectivo
-                if (document.getElementById('metodo-pago').value === 'efectivo') {
-                    calcularVuelto();
+                try {
+                    const totalOriginalElement = document.getElementById('total-original');
+                    const totalOriginal = totalOriginalElement ? parseFloat(totalOriginalElement.textContent.replace('$', '')) : 0;
+                    
+                    const descuentoAplicadoElement = document.getElementById('descuento-aplicado');
+                    const totalGeneralElement = document.getElementById('total-general');
+                    const porcentajeDescuentoElement = document.getElementById('porcentaje-descuento');
+                    
+                    if (descuentoAplicadoElement && totalGeneralElement && porcentajeDescuentoElement) {
+                        descuentoAplicadoElement.textContent = '$0.00';
+                        totalGeneralElement.textContent = `$${totalOriginal.toFixed(2)}`;
+                        porcentajeDescuentoElement.value = '';
+                        
+                        // Ocultar elementos de descuento aplicado
+                        const sinDescuento = document.getElementById('sin-descuento');
+                        const conDescuento = document.getElementById('con-descuento');
+                        
+                        if (sinDescuento) sinDescuento.classList.remove('d-none');
+                        if (conDescuento) conDescuento.classList.add('d-none');
+                        
+                        // Recalcular vuelto si es pago en efectivo
+                        if (document.getElementById('metodo-pago')?.value === 'efectivo') {
+                            calcularVuelto();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al quitar descuento:', error);
+                    showAlert('error', 'Error', 'Ocurrió un error al quitar el descuento');
                 }
             }
             
@@ -1469,11 +1539,13 @@
                 
                 isProcessingPayment = true;
                 const btnRegistrar = document.getElementById('btn-registrar-pago');
-                const originalText = btnRegistrar.innerHTML;
+                const originalText = btnRegistrar?.innerHTML;
                 
                 try {
-                    btnRegistrar.disabled = true;
-                    btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                    if (btnRegistrar) {
+                        btnRegistrar.disabled = true;
+                        btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                    }
                     
                     showLoading('Registrando pago...');
                     
@@ -1512,8 +1584,10 @@
                     showAlert('error', 'Error', error.message || 'Ocurrió un error al registrar el pago');
                 } finally {
                     isProcessingPayment = false;
-                    btnRegistrar.disabled = false;
-                    btnRegistrar.innerHTML = originalText;
+                    if (btnRegistrar) {
+                        btnRegistrar.disabled = false;
+                        btnRegistrar.innerHTML = originalText;
+                    }
                 }
             }
             
@@ -1557,7 +1631,10 @@
             
             // 10. ACTUALIZAR CONTENIDO DEL MODAL DE DETALLES
             function updateDetallesModal(data) {
-                document.getElementById('cita-id').textContent = data.id;
+                const citaIdElement = document.getElementById('cita-id');
+                if (citaIdElement) {
+                    citaIdElement.textContent = data.id;
+                }
                 
                 let serviciosHTML = '';
                 if (data.servicios && data.servicios.length > 0) {
@@ -1666,7 +1743,10 @@
                     </div>
                 `;
                 
-                document.getElementById('detalles-cita-content').innerHTML = contenidoHTML;
+                const detallesContent = document.getElementById('detalles-cita-content');
+                if (detallesContent) {
+                    detallesContent.innerHTML = contenidoHTML;
+                }
             }
             
             // 11. CONFIGURAR MODALES
@@ -1802,8 +1882,6 @@
                 showLoading: showLoading,
                 hideLoading: hideLoading
             };
-            
-            console.log('Sistema de Pagos inicializado correctamente');
         });
     </script>
 </body>
