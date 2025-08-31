@@ -3931,100 +3931,104 @@
 
 
         // Función auxiliar para validar duración de servicios 
-        function validateServiceDuration(horaSeleccionada, duracionTotal) {
-            try {
-                // Solo validar si la duración es mayor a 0
-                if (duracionTotal <= 0) return;
+      function validateServiceDuration(horaSeleccionada, duracionTotal) {
+    try {
+        // Solo validar si la duración es mayor a 0
+        if (duracionTotal <= 0) return;
 
-                const [horas, minutos] = horaSeleccionada.split(':').map(Number);
-                const horaInicio = new Date();
-                horaInicio.setHours(horas, minutos, 0, 0);
-                const horaFin = new Date(horaInicio.getTime() + duracionTotal * 60000);
+        const [horas, minutos] = horaSeleccionada.split(':').map(Number);
+        
+        // CORRECCIÓN: Calcular solo la HORA de finalización, no la fecha completa
+        const horaFinServicio = (horas * 60 + minutos + duracionTotal) / 60;
+        const horasFin = Math.floor(horaFinServicio);
+        const minutosFin = Math.round((horaFinServicio - horasFin) * 60);
+        
+        // Horario de cierre estándar: 6:00 PM (18:00)
+        const horaCierreHoras = 18;
+        const horaCierreMinutos = 0;
 
-                // Horario de cierre estándar: 6:00 PM (18:00)
-                const horaCierre = new Date();
-                horaCierre.setHours(18, 0, 0, 0);
+        // CORRECCIÓN: Calcular diferencia en minutos SOLO de hora
+        const minutosFinTotal = horasFin * 60 + minutosFin;
+        const minutosCierreTotal = horaCierreHoras * 60 + horaCierreMinutos;
+        
+        const minutosDiferencia = minutosFinTotal - minutosCierreTotal;
 
-                // Calcular diferencia CORRECTAMENTE (puede ser negativa)
-                const minutosDiferencia = (horaFin - horaCierre) / 60000;
+        // Solo mostrar advertencia si realmente excede el horario
+        if (minutosDiferencia > 0) {
+            const horasExtra = (minutosDiferencia / 60).toFixed(1);
 
-                // Solo mostrar advertencia si realmente excede el horario
-                if (minutosDiferencia > 0) {
-                    const horasExtra = (minutosDiferencia / 60).toFixed(1);
+            console.warn(`⚠️ Los servicios seleccionados requieren ${minutosDiferencia} minutos extra (${horasExtra}h)`);
 
-                    console.warn(
-                        `⚠️ Los servicios seleccionados requieren ${minutosDiferencia} minutos extra (${horasExtra}h)`);
+            // Mostrar información visual según la duración extra
+            const horaSelect = document.getElementById('hora');
+            const duracionInfo = document.getElementById('duracion-info') || createDuracionInfo();
 
-                    // Mostrar información visual según la duración extra
-                    const horaSelect = document.getElementById('hora');
-                    const duracionInfo = document.getElementById('duracion-info') || createDuracionInfo();
+            if (minutosDiferencia <= 30) {
+                // Tiempo extra mínimo - advertencia suave
+                horaSelect.style.borderColor = '#ffa500';
+                duracionInfo.className = 'alert alert-warning mt-2';
+                duracionInfo.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-clock mr-2"></i>
+                        <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Aceptable</span>
+                    </div>
+                `;
+            } else if (minutosDiferencia <= 60) {
+                // Tiempo extra moderado - advertencia media
+                horaSelect.style.borderColor = '#ff9800';
+                duracionInfo.className = 'alert alert-warning mt-2';
+                duracionInfo.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Requiere confirmación</span>
+                    </div>
+                `;
+            } else if (minutosDiferencia <= 90) {
+                // Tiempo extra considerable - advertencia fuerte
+                horaSelect.style.borderColor = '#ff6b6b';
+                duracionInfo.className = 'alert alert-danger mt-2';
+                duracionInfo.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Considerable</span>
+                    </div>
+                `;
+            } else {
+                // Tiempo excesivo - error
+                horaSelect.style.borderColor = '#dc3545';
+                duracionInfo.className = 'alert alert-danger mt-2';
+                duracionInfo.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Demasiado largo</span>
+                    </div>
+                `;
+            }
 
-                    if (minutosDiferencia <= 30) {
-                        // Tiempo extra mínimo - advertencia suave
-                        horaSelect.style.borderColor = '#ffa500';
-                        duracionInfo.className = 'alert alert-warning mt-2';
-                        duracionInfo.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-clock mr-2"></i>
-                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Aceptable</span>
-            </div>
-        `;
-                    } else if (minutosDiferencia <= 60) {
-                        // Tiempo extra moderado - advertencia media
-                        horaSelect.style.borderColor = '#ff9800';
-                        duracionInfo.className = 'alert alert-warning mt-2';
-                        duracionInfo.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle mr-2"></i>
-                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Requiere confirmación</span>
-            </div>
-        `;
-                    } else if (minutosDiferencia <= 90) {
-                        // Tiempo extra considerable - advertencia fuerte
-                        horaSelect.style.borderColor = '#ff6b6b';
-                        duracionInfo.className = 'alert alert-danger mt-2';
-                        duracionInfo.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle mr-2"></i>
-                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Considerable</span>
-            </div>
-        `;
-                    } else {
-                        // Tiempo excesivo - error
-                        horaSelect.style.borderColor = '#dc3545';
-                        duracionInfo.className = 'alert alert-danger mt-2';
-                        duracionInfo.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-times-circle mr-2"></i>
-                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Demasiado largo</span>
-            </div>
-        `;
-                    }
-
-                    // Remover advertencia después de 5 segundos
-                    setTimeout(() => {
-                        if (horaSelect) {
-                            horaSelect.style.borderColor = '';
-                        }
-                        if (duracionInfo) {
-                            duracionInfo.remove();
-                        }
-                    }, 5000);
-                } else {
-                    // Limpiar advertencias si no hay exceso
-                    const duracionInfo = document.getElementById('duracion-info');
-                    if (duracionInfo) {
-                        duracionInfo.remove();
-                    }
-                    const horaSelect = document.getElementById('hora');
-                    if (horaSelect) {
-                        horaSelect.style.borderColor = '';
-                    }
+            // Remover advertencia después de 5 segundos
+            setTimeout(() => {
+                if (horaSelect) {
+                    horaSelect.style.borderColor = '';
                 }
-            } catch (error) {
-                console.error('Error al validar duración:', error);
+                if (duracionInfo) {
+                    duracionInfo.remove();
+                }
+            }, 5000);
+        } else {
+            // Limpiar advertencias si no hay exceso
+            const duracionInfo = document.getElementById('duracion-info');
+            if (duracionInfo) {
+                duracionInfo.remove();
+            }
+            const horaSelect = document.getElementById('hora');
+            if (horaSelect) {
+                horaSelect.style.borderColor = '';
             }
         }
+    } catch (error) {
+        console.error('Error al validar duración:', error);
+    }
+}
 
         function createDuracionInfo() {
             const horaSelect = document.getElementById('hora');

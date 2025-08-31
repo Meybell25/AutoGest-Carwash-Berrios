@@ -2211,16 +2211,21 @@
                 if (duracionTotal <= 0) return;
 
                 const [horas, minutos] = horaSeleccionada.split(':').map(Number);
-                const horaInicio = new Date();
-                horaInicio.setHours(horas, minutos, 0, 0);
-                const horaFin = new Date(horaInicio.getTime() + duracionTotal * 60000);
+
+                // CORRECCIÓN: Calcular solo la HORA de finalización, no la fecha completa
+                const horaFinServicio = (horas * 60 + minutos + duracionTotal) / 60;
+                const horasFin = Math.floor(horaFinServicio);
+                const minutosFin = Math.round((horaFinServicio - horasFin) * 60);
 
                 // Horario de cierre estándar: 6:00 PM (18:00)
-                const horaCierre = new Date();
-                horaCierre.setHours(18, 0, 0, 0);
+                const horaCierreHoras = 18;
+                const horaCierreMinutos = 0;
 
-                // Calcular diferencia CORRECTAMENTE (puede ser negativa)
-                const minutosDiferencia = (horaFin - horaCierre) / 60000;
+                // CORRECCIÓN: Calcular diferencia en minutos SOLO de hora
+                const minutosFinTotal = horasFin * 60 + minutosFin;
+                const minutosCierreTotal = horaCierreHoras * 60 + horaCierreMinutos;
+
+                const minutosDiferencia = minutosFinTotal - minutosCierreTotal;
 
                 // Solo mostrar advertencia si realmente excede el horario
                 if (minutosDiferencia > 0) {
@@ -2238,41 +2243,41 @@
                         horaSelect.style.borderColor = '#ffa500';
                         duracionInfo.className = 'alert alert-warning mt-2';
                         duracionInfo.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-clock mr-2"></i>
-                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Aceptable</span>
-            </div>
-        `;
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-clock mr-2"></i>
+                        <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Aceptable</span>
+                    </div>
+                `;
                     } else if (minutosDiferencia <= 60) {
                         // Tiempo extra moderado - advertencia media
                         horaSelect.style.borderColor = '#ff9800';
                         duracionInfo.className = 'alert alert-warning mt-2';
                         duracionInfo.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle mr-2"></i>
-                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Requiere confirmación</span>
-            </div>
-        `;
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Requiere confirmación</span>
+                    </div>
+                `;
                     } else if (minutosDiferencia <= 90) {
                         // Tiempo extra considerable - advertencia fuerte
                         horaSelect.style.borderColor = '#ff6b6b';
                         duracionInfo.className = 'alert alert-danger mt-2';
                         duracionInfo.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle mr-2"></i>
-                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Considerable</span>
-            </div>
-        `;
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Considerable</span>
+                    </div>
+                `;
                     } else {
                         // Tiempo excesivo - error
                         horaSelect.style.borderColor = '#dc3545';
                         duracionInfo.className = 'alert alert-danger mt-2';
                         duracionInfo.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-times-circle mr-2"></i>
-                <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Demasiado largo</span>
-            </div>
-        `;
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Demasiado largo</span>
+                    </div>
+                `;
                     }
 
                     // Remover advertencia después de 5 segundos
