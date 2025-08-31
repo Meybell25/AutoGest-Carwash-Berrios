@@ -154,6 +154,17 @@
             box-shadow: 0 8px 25px rgba(0, 105, 92, 0.4);
         }
 
+        .btn-secondary {
+            background: var(--dark-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(38, 50, 56, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #263238 0%, #1c262b 100%);
+            box-shadow: 0 8px 25px rgba(38, 50, 56, 0.4);
+        }
+
         /* ======================
         ESTILOS DE BITÁCORA 
         ====================== */
@@ -365,6 +376,33 @@
             color: white;
         }
 
+        /* Resultados */
+        .resultados-info {
+            background: var(--light);
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .resultados-texto {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .resultados-contador {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
         /* Íconos */
         .icon-container {
             width: 45px;
@@ -434,6 +472,11 @@
                 padding: 12px 8px;
                 font-size: 0.85rem;
             }
+
+            .resultados-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
 
         @media (max-width: 576px) {
@@ -485,7 +528,7 @@
             </div>
             <div class="bitacora-card-body">
                 <!-- Filtros -->
-                <form method="GET" class="search-filter-container">
+                <form method="GET" class="search-filter-container" id="filtrosForm">
                     <div class="filter-group">
                         <label for="usuario_id" class="form-label">Usuario</label>
                         <select name="usuario_id" id="usuario_id" class="form-control">
@@ -511,7 +554,30 @@
                             <i class="fas fa-filter"></i> Filtrar
                         </button>
                     </div>
+
+                    <div class="filter-group filter-button">
+                        <button type="button" id="limpiarFiltros" class="btn btn-secondary" style="width: 100%; padding: 12px;">
+                            <i class="fas fa-broom"></i> Limpiar
+                        </button>
+                    </div>
                 </form>
+
+                <!-- Información de resultados -->
+                <div class="resultados-info">
+                    <div class="resultados-texto">
+                        Mostrando <span class="resultados-contador">{{ $logs->total() }}</span> registros
+                        @if(request()->has('usuario_id') || request()->has('fecha_inicio') || request()->has('fecha_fin'))
+                            <span style="font-size: 0.9rem; color: var(--text-secondary); display: block; margin-top: 5px;">
+                                (Filtros aplicados)
+                            </span>
+                        @endif
+                    </div>
+                    <div>
+                        <a href="{{ route('admin.bitacora.export') }}?{{ http_build_query(request()->all()) }}" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Exportar
+                        </a>
+                    </div>
+                </div>
 
                 <!-- Tabla con IP -->
                 <div style="overflow-x: auto; margin-top: 20px;">
@@ -546,9 +612,11 @@
                 </div>
 
                 <!-- Paginación -->
+                @if($logs->hasPages())
                 <div class="pagination">
-                    {{ $logs->links() }}
+                    {{ $logs->appends(request()->query())->links() }}
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -586,6 +654,40 @@
                     confirmButtonText: 'Entendido'
                 });
             @endif
+
+            // Limpiar filtros
+            document.getElementById('limpiarFiltros').addEventListener('click', function() {
+                // Resetear formulario
+                document.getElementById('filtrosForm').reset();
+                
+                // Redirigir sin parámetros de búsqueda
+                window.location.href = "{{ route('admin.bitacora') }}";
+            });
+
+            // Validar que fecha fin no sea menor que fecha inicio
+            document.getElementById('fecha_inicio').addEventListener('change', function() {
+                const fechaInicio = new Date(this.value);
+                const fechaFin = new Date(document.getElementById('fecha_fin').value);
+                
+                if (fechaFin && fechaInicio > fechaFin) {
+                    document.getElementById('fecha_fin').value = this.value;
+                }
+            });
+
+            document.getElementById('fecha_fin').addEventListener('change', function() {
+                const fechaFin = new Date(this.value);
+                const fechaInicio = new Date(document.getElementById('fecha_inicio').value);
+                
+                if (fechaInicio && fechaFin < fechaInicio) {
+                    Swal.fire({
+                        title: 'Error de fechas',
+                        text: 'La fecha final no puede ser anterior a la fecha inicial',
+                        icon: 'warning',
+                        confirmButtonText: 'Entendido'
+                    });
+                    this.value = document.getElementById('fecha_inicio').value;
+                }
+            });
         });
     </script>
 </body>
