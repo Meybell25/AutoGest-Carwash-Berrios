@@ -4436,7 +4436,7 @@
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
                                                                                                                                                                                         <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                            <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
                                                                                                                                                                                             Agendar Cita
                                                                                                                                                                                         </button>` : ''}
                 </div>
@@ -5128,20 +5128,21 @@
 
                         // Mostrar error normal con horarios disponibles si aplica
                         let errorHtml = `
-                    <div style="text-align: left;">
-                        <p>${errorMessage}</p>
-                        ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
-                `;
+    <div style="text-align: left;">
+        <p>⚠️ <strong>Horario no disponible</strong></p>
+        <p>Ya existe una cita programada a esta hora.</p>
+        ${errorDetails ? `<p style="color: #dc3545; margin-top: 10px;">${errorDetails}</p>` : ''}
+`;
 
                         if (showAvailableTimes && availableTimes.length > 0) {
                             errorHtml += `
-                        <div style="margin-top: 15px;">
-                            <p><strong>Horarios disponibles:</strong></p>
-                            <div style="max-height: 150px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px;">
-                                ${availableTimes.map(time => `<span class="badge badge-primary mr-1 mb-1">${time}</span>`).join('')}
-                            </div>
-                        </div>
-                    `;
+        <div style="margin-top: 15px;">
+            <p><strong>💡 Horarios disponibles sugeridos:</strong></p>
+            <div style="max-height: 150px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px; background-color: #f8f9fa;">
+                ${availableTimes.map(time => `<span class="badge badge-success mr-1 mb-1">${time}</span>`).join('')}
+            </div>
+        </div>
+    `;
                         }
 
                         errorHtml += `
@@ -5356,14 +5357,14 @@
                             <p><strong>Conflictos encontrados:</strong> ${data.data.citas_superpuestas.length}</p>
                             
                             ${data.data.citas_superpuestas.map(cita => `
-                                                                                                                        <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                                                                                                                            <p><strong>Cita ID:</strong> ${cita.id}</p>
-                                                                                                                            <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
-                                                                                                                            <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
-                                                                                                                            <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
-                                                                                                                            <p><strong>Estado:</strong> ${cita.estado}</p>
-                                                                                                                        </div>
-                                                                                                                    `).join('')}
+                                                                                                                            <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                                                                                                                <p><strong>Cita ID:</strong> ${cita.id}</p>
+                                                                                                                                <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
+                                                                                                                                <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
+                                                                                                                                <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
+                                                                                                                                <p><strong>Estado:</strong> ${cita.estado}</p>
+                                                                                                                            </div>
+                                                                                                                        `).join('')}
                             
                             <p><strong>Horarios disponibles:</strong> ${data.data.horarios_disponibles.join(', ') || 'Ninguno'}</p>
                         </div>
@@ -5788,8 +5789,8 @@
 
     <script>
         /*=========================================================
-                        FUNCIONAMIENTO DE MODAL VEHICULOS
-                        =========================================================*/
+                            FUNCIONAMIENTO DE MODAL VEHICULOS
+                            =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -5818,8 +5819,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                            FUNCIONAMIENTO DE CRUD VEHICULOS
-                                            =========================================================*/
+                                                    FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                    =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
