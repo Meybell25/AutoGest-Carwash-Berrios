@@ -27,13 +27,12 @@ class Bitacora extends Model
     // Desactivar timestamps automáticos ya que usamos 'fecha'
     public $timestamps = false;
 
-    // Tipos de acciones comunes
+    // Tipos de acciones
     const ACCION_LOGIN = 'login';
     const ACCION_CREAR_CITA = 'crear_cita';
     const ACCION_ACTUALIZAR_CITA = 'actualizar_cita';
     const ACCION_CANCELAR_CITA = 'cancelar_cita';
     const ACCION_REGISTRAR_VEHICULO = 'registrar_vehiculo';
-    const ACCION_PROCESAR_PAGO = 'procesar_pago';
     const ACCION_CREAR_USUARIO = 'crear_usuario';
     const ACCION_ACTUALIZAR_USUARIO = 'actualizar_usuario';
     const ACCION_ELIMINAR_USUARIO = 'eliminar_usuario';
@@ -44,7 +43,6 @@ class Bitacora extends Model
     const ACCION_ELIMINAR_SERVICIO = 'eliminar_servicio';
     const ACCION_ACTUALIZAR_PERFIL = 'actualizar_perfil';
     const ACCION_ACTUALIZAR_EMAIL = 'actualizar_email';
-    const ACCION_ACTUALIZAR_PASSWORD = 'actualizar_password';
 
     // Relaciones
     public function usuario()

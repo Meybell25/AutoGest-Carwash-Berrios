@@ -64,7 +64,6 @@ class PerfilController extends Controller
     ]);
 
     Auth::user()->update(['password' => Hash::make($request->password)]);
-    Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_PASSWORD, null, $request->ip());
 
     return back()->with('success', 'Contraseña actualizada correctamente');
 }

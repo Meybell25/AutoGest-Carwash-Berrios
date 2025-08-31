@@ -94,6 +94,9 @@ class AuthController extends Controller
             'estado' => true,
         ]);
 
+        // Registrar creación de usuario en bitácora
+        \App\Models\Bitacora::registrar(\App\Models\Bitacora::ACCION_CREAR_USUARIO, $user->id, $request->ip());
+
         // Limpiar caché de estadísticas
         Cache::forget('dashboard_stats');
 

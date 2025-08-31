@@ -262,50 +262,56 @@ class AdminController extends Controller
      * Almacena un nuevo usuario desde el panel de administración
      */
     public function storeUser(Request $request)
-    {
-        DB::beginTransaction();
+{
+    DB::beginTransaction();
 
-        try {
-            $validated = $request->validate([
-                'nombre' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:usuarios',
-                'telefono' => 'nullable|string|max:20',
-                'rol' => 'required|in:cliente,empleado,admin',
-                'password' => 'required|string|min:8|confirmed',
-                'estado' => 'required|boolean'
-            ]);
+    try {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:usuarios',
+            'telefono' => 'nullable|string|max:20',
+            'rol' => 'required|in:cliente,empleado,admin',
+            'password' => 'required|string|min:8|confirmed',
+            'estado' => 'required|boolean'
+        ]);
 
-            $user = Usuario::create([
-                'nombre' => $validated['nombre'],
-                'email' => $validated['email'],
-                'telefono' => $validated['telefono'],
-                'rol' => $validated['rol'],
-                'password' => Hash::make($validated['password']),
-                'estado' => $validated['estado']
-            ]);
+        $user = Usuario::create([
+            'nombre' => $validated['nombre'],
+            'email' => $validated['email'],
+            'telefono' => $validated['telefono'],
+            'rol' => $validated['rol'],
+            'password' => Hash::make($validated['password']),
+            'estado' => $validated['estado']
+        ]);
 
-            DB::commit();
+        DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Usuario creado correctamente',
-                'user' => $user
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al crear usuario: ' . $e->getMessage()
-            ], 500);
-        }
+        // Registrar actualización de usuario
+        \App\Models\Bitacora::registrar(\App\Models\Bitacora::ACCION_ACTUALIZAR_USUARIO, auth()->id(), request()->ip());
+
+        // Registrar creación de usuario (panel admin)
+        \App\Models\Bitacora::registrar(\App\Models\Bitacora::ACCION_CREAR_USUARIO, auth()->id(), $request->ip());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Usuario creado correctamente',
+            'user' => $user
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Error de validación',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al crear usuario: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     // Obtener todos los usuarios para filtrado
     public function getAllUsers(Request $request)
@@ -481,12 +487,8 @@ class AdminController extends Controller
         // Eliminar
         $usuario->delete();
 
-        // Registrar en logs
-        Log::channel('admin_actions')->info("Usuario eliminado", [
-            'admin_id' => auth()->id(),
-            'user_id' => $usuario->id,
-            'ip' => request()->ip()
-        ]);
+        // Registrar en bitácora
+        \App\Models\Bitacora::registrar(\App\Models\Bitacora::ACCION_ELIMINAR_USUARIO, auth()->id(), request()->ip());
 
         return response()->json([
             'success' => true,
