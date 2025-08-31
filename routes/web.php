@@ -104,6 +104,8 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
 
         Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
         Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
+        Route::get('/bitacora/export-excel', [BitacoraController::class, 'exportExcel'])->name('bitacora.export-excel');
+        Route::get('/bitacora/export-pdf', [BitacoraController::class, 'exportPdf'])->name('bitacora.export-pdf');
 
         Route::prefix('servicios')->name('servicios.')->group(function () {
             Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
