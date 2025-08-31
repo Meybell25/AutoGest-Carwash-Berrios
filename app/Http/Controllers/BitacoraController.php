@@ -31,7 +31,7 @@ class BitacoraController extends Controller
     }
 
     /**
-     * Exportar bitácora a Excel
+     * Exportar bitácora a Excel 
      */
     public function exportExcel(Request $request)
     {
