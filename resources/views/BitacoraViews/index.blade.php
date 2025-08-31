@@ -468,7 +468,7 @@
                 <h1>Bitácora del Sistema</h1>
             </div>
             <div class="header-actions">
-                <a href="#" class="btn btn-primary">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-primary">
                     <i class="fas fa-arrow-left"></i>
                     Volver al Dashboard
                 </a>
@@ -490,20 +490,20 @@
                         <label for="usuario_id" class="form-label">Usuario</label>
                         <select name="usuario_id" id="usuario_id" class="form-control">
                             <option value="">Todos los usuarios</option>
-                            <option value="1">Administrador</option>
-                            <option value="2">Empleado 1</option>
-                            <option value="3">Empleado 2</option>
+                            @foreach($usuarios as $id => $nombre)
+                                <option value="{{ $id }}" {{ request('usuario_id') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
+                            @endforeach
                         </select>
                     </div>
                     
                     <div class="filter-group">
                         <label for="fecha_inicio" class="form-label">Desde</label>
-                        <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="">
+                        <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="{{ request('fecha_inicio') }}">
                     </div>
                     
                     <div class="filter-group">
                         <label for="fecha_fin" class="form-label">Hasta</label>
-                        <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="">
+                        <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ request('fecha_fin') }}">
                     </div>
                     
                     <div class="filter-group filter-button">
@@ -525,46 +525,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>15/03/2023 10:25:36</td>
-                                <td>Administrador</td>
-                                <td>Inició sesión en el sistema</td>
-                                <td>192.168.1.10</td>
-                            </tr>
-                            <tr>
-                                <td>15/03/2023 10:30:15</td>
-                                <td>Administrador</td>
-                                <td>Creó un nuevo usuario</td>
-                                <td>192.168.1.10</td>
-                            </tr>
-                            <tr>
-                                <td>15/03/2023 11:05:42</td>
-                                <td>Empleado 1</td>
-                                <td>Registró un nuevo servicio</td>
-                                <td>192.168.1.15</td>
-                            </tr>
-                            <tr>
-                                <td>15/03/2023 12:30:18</td>
-                                <td>Empleado 2</td>
-                                <td>Actualizó información de cliente</td>
-                                <td>192.168.1.20</td>
-                            </tr>
-                            <tr>
-                                <td>15/03/2023 14:15:33</td>
-                                <td>Administrador</td>
-                                <td>Generó reporte de ventas</td>
-                                <td>192.168.1.10</td>
-                            </tr>
+                            @forelse($logs as $log)
+                                <tr>
+                                    <td>{{ $log->fecha->format('d/m/Y H:i:s') }}</td>
+                                    <td>{{ $log->usuario->nombre ?? 'Sistema' }}</td>
+                                    <td>{{ $log->accion }}</td>
+                                    <td>{{ $log->ip }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="empty-state">
+                                        <i class="fas fa-info-circle"></i>
+                                        <h3>No se encontraron registros</h3>
+                                        <p>No hay actividades registradas en el sistema</p>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Paginación -->
                 <div class="pagination">
-                    <a href="#" class="page-link active">1</a>
-                    <a href="#" class="page-link">2</a>
-                    <a href="#" class="page-link">3</a>
-                    <a href="#" class="page-link">Siguiente</a>
+                    {{ $logs->links() }}
                 </div>
             </div>
         </div>
@@ -573,32 +556,36 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Simulación de datos y funcionalidades
         document.addEventListener('DOMContentLoaded', function() {
-            // Simular mensajes de éxito/error
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('success')) {
+            // Mostrar mensajes de éxito/error
+            @if (session('success'))
                 Swal.fire({
                     title: '¡Éxito!',
-                    text: 'Operación realizada correctamente',
+                    text: '{{ session('success') }}',
                     icon: 'success',
                     confirmButtonText: 'Aceptar'
                 });
-            }
-            
-            // Funcionalidad de filtrado
-            const filterForm = document.querySelector('form');
-            filterForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Simular filtrado
+            @endif
+
+            @if (session('error'))
                 Swal.fire({
-                    title: 'Filtrando',
-                    text: 'Aplicando filtros...',
-                    icon: 'info',
-                    showConfirmButton: false,
-                    timer: 1000
+                    title: 'Error',
+                    text: '{{ session('error') }}',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
                 });
-            });
+            @endif
+
+            @if ($errors->any())
+                Swal.fire({
+                    title: 'Error',
+                    html: `@foreach ($errors->all() as $error)
+                        • {{ $error }}<br>
+                    @endforeach`,
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+            @endif
         });
     </script>
 </body>
