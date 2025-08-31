@@ -3111,8 +3111,8 @@
 
     <script>
         /*=========================================================
-                FUNCIONAMIENTO DE CREAR CITAS
-                =========================================================*/
+                        FUNCIONAMIENTO DE CREAR CITAS
+                        =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3366,6 +3366,7 @@
         }
 
         // Función para cargar horas disponibles 
+        // Función para cargar horas disponibles (VERSIÓN CORREGIDA)
         async function loadAvailableHours(selectedDate, excludeCitaId = null) {
             const horaSelect = document.getElementById('hora');
             console.log('Cargando horarios para fecha:', selectedDate, '| Excluir cita:', excludeCitaId);
@@ -3394,7 +3395,7 @@
                     return;
                 }
 
-                // Obtener horarios ocupados CON DURACIONES REALES
+                // Obtener horarios ocupados
                 let citasExistentes = [];
                 try {
                     const url =
@@ -3417,10 +3418,6 @@
                     console.error('Error al obtener horarios ocupados:', error);
                     // Continuar sin horarios ocupados
                 }
-
-                // Obtener la duración REAL de los servicios seleccionados
-                const duracionTotal = calcularDuracionServiciosSeleccionados();
-                console.log('Duración total de servicios seleccionados:', duracionTotal, 'minutos');
 
                 // Generar opciones de horario
                 horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
@@ -3449,40 +3446,23 @@
                         const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
                             horaActual.getMinutes().toString().padStart(2, '0');
 
-                        // CORRECCIÓN: Usar la duración REAL de los servicios
+                        // CORRECCIÓN: Solo verificar disponibilidad básica, no duración completa
                         const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
-                        const finPropuesta = new Date(inicioPropuesta.getTime() + duracionTotal * 60000);
 
-                        // Verificar colisión con citas existentes (CON DURACIÓN REAL)
+                        // Verificar colisión con citas existentes (SOLO inicio, no duración completa)
                         const estaOcupado = citasExistentes.some(cita => {
                             try {
                                 const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
                                 const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
                                     60000);
 
-                                // Verificar superposición con buffers de 15 minutos
-                                const inicioCitaConBuffer = new Date(inicioCita.getTime() - 15 * 60000);
-                                const finCitaConBuffer = new Date(finCita.getTime() + 15 * 60000);
-
-                                return (
-                                    // Nueva cita empieza durante cita existente (con buffer)
-                                    (inicioPropuesta >= inicioCitaConBuffer && inicioPropuesta <
-                                        finCitaConBuffer) ||
-                                    // Nueva cita termina durante cita existente (con buffer)
-                                    (finPropuesta > inicioCitaConBuffer && finPropuesta <=
-                                        finCitaConBuffer) ||
-                                    // Nueva cita envuelve completamente a la existente
-                                    (inicioPropuesta <= inicioCitaConBuffer && finPropuesta >=
-                                        finCitaConBuffer)
-                                );
+                                // Solo verificar si el horario propuesto está dentro de una cita existente
+                                return inicioPropuesta >= inicioCita && inicioPropuesta < finCita;
                             } catch (e) {
                                 console.error('Error al verificar colisión:', e);
                                 return false;
                             }
                         });
-
-                        // Verificar que la cita completa quepa en el horario laboral
-                        const cabeEnHorarioLaboral = finPropuesta <= horaFinHorario;
 
                         const option = document.createElement('option');
                         option.value = horaStr;
@@ -3492,12 +3472,9 @@
                             option.disabled = true;
                             option.textContent += ' (Ocupado)';
                             option.style.color = '#ff6b6b';
-                        } else if (!cabeEnHorarioLaboral) {
-                            option.disabled = true;
-                            option.textContent += ' (Fuera de horario)';
-                            option.style.color = '#ff9800';
                         } else {
                             horariosGenerados++;
+                            // La validación de duración se hará después cuando seleccionen servicios
                         }
 
                         horaSelect.appendChild(option);
@@ -3507,9 +3484,9 @@
 
                 if (horariosGenerados === 0 && horaSelect.options.length > 1) {
                     horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                } else {
+                    console.log(`Horarios cargados - Generados: ${horariosGenerados}`);
                 }
-
-                console.log(`Horarios cargados - Generados: ${horariosGenerados}`);
 
             } catch (error) {
                 console.error('Error en loadAvailableHours:', error);
@@ -3931,104 +3908,105 @@
 
 
         // Función auxiliar para validar duración de servicios 
-      function validateServiceDuration(horaSeleccionada, duracionTotal) {
-    try {
-        // Solo validar si la duración es mayor a 0
-        if (duracionTotal <= 0) return;
+        function validateServiceDuration(horaSeleccionada, duracionTotal) {
+            try {
+                // Solo validar si la duración es mayor a 0
+                if (duracionTotal <= 0) return;
 
-        const [horas, minutos] = horaSeleccionada.split(':').map(Number);
-        
-        // CORRECCIÓN: Calcular solo la HORA de finalización, no la fecha completa
-        const horaFinServicio = (horas * 60 + minutos + duracionTotal) / 60;
-        const horasFin = Math.floor(horaFinServicio);
-        const minutosFin = Math.round((horaFinServicio - horasFin) * 60);
-        
-        // Horario de cierre estándar: 6:00 PM (18:00)
-        const horaCierreHoras = 18;
-        const horaCierreMinutos = 0;
+                const [horas, minutos] = horaSeleccionada.split(':').map(Number);
 
-        // CORRECCIÓN: Calcular diferencia en minutos SOLO de hora
-        const minutosFinTotal = horasFin * 60 + minutosFin;
-        const minutosCierreTotal = horaCierreHoras * 60 + horaCierreMinutos;
-        
-        const minutosDiferencia = minutosFinTotal - minutosCierreTotal;
+                // CORRECCIÓN: Calcular solo la HORA de finalización, no la fecha completa
+                const horaFinServicio = (horas * 60 + minutos + duracionTotal) / 60;
+                const horasFin = Math.floor(horaFinServicio);
+                const minutosFin = Math.round((horaFinServicio - horasFin) * 60);
 
-        // Solo mostrar advertencia si realmente excede el horario
-        if (minutosDiferencia > 0) {
-            const horasExtra = (minutosDiferencia / 60).toFixed(1);
+                // Horario de cierre estándar: 6:00 PM (18:00)
+                const horaCierreHoras = 18;
+                const horaCierreMinutos = 0;
 
-            console.warn(`⚠️ Los servicios seleccionados requieren ${minutosDiferencia} minutos extra (${horasExtra}h)`);
+                // CORRECCIÓN: Calcular diferencia en minutos SOLO de hora
+                const minutosFinTotal = horasFin * 60 + minutosFin;
+                const minutosCierreTotal = horaCierreHoras * 60 + horaCierreMinutos;
 
-            // Mostrar información visual según la duración extra
-            const horaSelect = document.getElementById('hora');
-            const duracionInfo = document.getElementById('duracion-info') || createDuracionInfo();
+                const minutosDiferencia = minutosFinTotal - minutosCierreTotal;
 
-            if (minutosDiferencia <= 30) {
-                // Tiempo extra mínimo - advertencia suave
-                horaSelect.style.borderColor = '#ffa500';
-                duracionInfo.className = 'alert alert-warning mt-2';
-                duracionInfo.innerHTML = `
+                // Solo mostrar advertencia si realmente excede el horario
+                if (minutosDiferencia > 0) {
+                    const horasExtra = (minutosDiferencia / 60).toFixed(1);
+
+                    console.warn(
+                        `⚠️ Los servicios seleccionados requieren ${minutosDiferencia} minutos extra (${horasExtra}h)`);
+
+                    // Mostrar información visual según la duración extra
+                    const horaSelect = document.getElementById('hora');
+                    const duracionInfo = document.getElementById('duracion-info') || createDuracionInfo();
+
+                    if (minutosDiferencia <= 30) {
+                        // Tiempo extra mínimo - advertencia suave
+                        horaSelect.style.borderColor = '#ffa500';
+                        duracionInfo.className = 'alert alert-warning mt-2';
+                        duracionInfo.innerHTML = `
                     <div class="d-flex align-items-center">
                         <i class="fas fa-clock mr-2"></i>
                         <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Aceptable</span>
                     </div>
                 `;
-            } else if (minutosDiferencia <= 60) {
-                // Tiempo extra moderado - advertencia media
-                horaSelect.style.borderColor = '#ff9800';
-                duracionInfo.className = 'alert alert-warning mt-2';
-                duracionInfo.innerHTML = `
+                    } else if (minutosDiferencia <= 60) {
+                        // Tiempo extra moderado - advertencia media
+                        horaSelect.style.borderColor = '#ff9800';
+                        duracionInfo.className = 'alert alert-warning mt-2';
+                        duracionInfo.innerHTML = `
                     <div class="d-flex align-items-center">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
                         <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Requiere confirmación</span>
                     </div>
                 `;
-            } else if (minutosDiferencia <= 90) {
-                // Tiempo extra considerable - advertencia fuerte
-                horaSelect.style.borderColor = '#ff6b6b';
-                duracionInfo.className = 'alert alert-danger mt-2';
-                duracionInfo.innerHTML = `
+                    } else if (minutosDiferencia <= 90) {
+                        // Tiempo extra considerable - advertencia fuerte
+                        horaSelect.style.borderColor = '#ff6b6b';
+                        duracionInfo.className = 'alert alert-danger mt-2';
+                        duracionInfo.innerHTML = `
                     <div class="d-flex align-items-center">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
                         <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Considerable</span>
                     </div>
                 `;
-            } else {
-                // Tiempo excesivo - error
-                horaSelect.style.borderColor = '#dc3545';
-                duracionInfo.className = 'alert alert-danger mt-2';
-                duracionInfo.innerHTML = `
+                    } else {
+                        // Tiempo excesivo - error
+                        horaSelect.style.borderColor = '#dc3545';
+                        duracionInfo.className = 'alert alert-danger mt-2';
+                        duracionInfo.innerHTML = `
                     <div class="d-flex align-items-center">
                         <i class="fas fa-times-circle mr-2"></i>
                         <span>Tiempo extra: ${Math.round(minutosDiferencia)} min (${horasExtra}h) - Demasiado largo</span>
                     </div>
                 `;
-            }
+                    }
 
-            // Remover advertencia después de 5 segundos
-            setTimeout(() => {
-                if (horaSelect) {
-                    horaSelect.style.borderColor = '';
+                    // Remover advertencia después de 5 segundos
+                    setTimeout(() => {
+                        if (horaSelect) {
+                            horaSelect.style.borderColor = '';
+                        }
+                        if (duracionInfo) {
+                            duracionInfo.remove();
+                        }
+                    }, 5000);
+                } else {
+                    // Limpiar advertencias si no hay exceso
+                    const duracionInfo = document.getElementById('duracion-info');
+                    if (duracionInfo) {
+                        duracionInfo.remove();
+                    }
+                    const horaSelect = document.getElementById('hora');
+                    if (horaSelect) {
+                        horaSelect.style.borderColor = '';
+                    }
                 }
-                if (duracionInfo) {
-                    duracionInfo.remove();
-                }
-            }, 5000);
-        } else {
-            // Limpiar advertencias si no hay exceso
-            const duracionInfo = document.getElementById('duracion-info');
-            if (duracionInfo) {
-                duracionInfo.remove();
-            }
-            const horaSelect = document.getElementById('hora');
-            if (horaSelect) {
-                horaSelect.style.borderColor = '';
+            } catch (error) {
+                console.error('Error al validar duración:', error);
             }
         }
-    } catch (error) {
-        console.error('Error al validar duración:', error);
-    }
-}
 
         function createDuracionInfo() {
             const horaSelect = document.getElementById('hora');
@@ -4061,51 +4039,51 @@
             return `${mins}min`;
         }
 
-        async function setSelectedHourForEdit(hora24, maxAttempts = 5) {
-            const horaSimple = hora24.split(':').slice(0, 2).join(':');
-            console.log('Configurando hora para edición (formateada):', horaSimple);
-            let attempts = 0;
+        async function setSelectedHourForEdit(hora24, maxAttempts = 10, interval = 300) {
+            return new Promise((resolve) => {
+                let attempts = 0;
 
-            console.log('Configurando hora para edición:', hora24);
-
-            while (attempts < maxAttempts) {
-                const horaSelect = document.getElementById('hora');
-
-                if (!horaSelect || horaSelect.options.length <= 1) {
-                    console.log(`Esperando que se carguen las opciones de hora... intento ${attempts + 1}`);
-                    await new Promise(resolve => setTimeout(resolve, 300));
+                const checkInterval = setInterval(() => {
+                    const horaSelect = document.getElementById('hora');
                     attempts++;
-                    continue;
-                }
 
-                // Buscar la hora en las opciones disponibles
-                let horaEncontrada = false;
-                for (let option of horaSelect.options) {
-                    if (option.value === hora24 && !option.disabled) {
-                        horaSelect.value = hora24;
-                        horaEncontrada = true;
-                        console.log(' Hora de edición configurada:', hora24);
-                        return true;
+                    if (!horaSelect || horaSelect.options.length <= 1) {
+                        if (attempts >= maxAttempts) {
+                            clearInterval(checkInterval);
+                            // Forzar la creación de la opción
+                            const newOption = document.createElement('option');
+                            newOption.value = hora24;
+                            newOption.textContent = `${hora24} (Actual)`;
+                            horaSelect.appendChild(newOption);
+                            horaSelect.value = hora24;
+                            resolve(true);
+                        }
+                        return;
                     }
-                }
 
-                // Si la hora no está disponible, agregarla (es una edición válida)
-                if (!horaEncontrada && attempts === maxAttempts - 1) {
-                    console.log('⚠️ Hora de edición no encontrada en opciones, agregando:', hora24);
-                    const option = document.createElement('option');
-                    option.value = hora24;
-                    option.textContent = hora24 + ' (Horario actual)';
-                    option.selected = true;
-                    horaSelect.appendChild(option);
-                    return true;
-                }
+                    // Buscar la hora exacta
+                    for (let option of horaSelect.options) {
+                        if (option.value === hora24) {
+                            horaSelect.value = hora24;
+                            clearInterval(checkInterval);
+                            console.log('Hora establecida exitosamente:', hora24);
+                            resolve(true);
+                            return;
+                        }
+                    }
 
-                attempts++;
-                await new Promise(resolve => setTimeout(resolve, 300));
-            }
-
-            console.error(' No se pudo configurar la hora para edición:', hora24);
-            return false;
+                    // Si no se encuentra después de intentos, crear la opción
+                    if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        const newOption = document.createElement('option');
+                        newOption.value = hora24;
+                        newOption.textContent = `${hora24} (Actual)`;
+                        horaSelect.appendChild(newOption);
+                        horaSelect.value = hora24;
+                        resolve(true);
+                    }
+                }, interval);
+            });
         }
 
         function cancelCita(citaId) {
@@ -4457,10 +4435,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                    <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                                    Agendar Cita
-                                                                                                                                                                                </button>` : ''}
+                                                                                                                                                                                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                            <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                            Agendar Cita
+                                                                                                                                                                                        </button>` : ''}
                 </div>
             `;
                     return;
@@ -5378,14 +5356,14 @@
                             <p><strong>Conflictos encontrados:</strong> ${data.data.citas_superpuestas.length}</p>
                             
                             ${data.data.citas_superpuestas.map(cita => `
-                                                                                                                <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                                                                                                                    <p><strong>Cita ID:</strong> ${cita.id}</p>
-                                                                                                                    <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
-                                                                                                                    <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
-                                                                                                                    <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
-                                                                                                                    <p><strong>Estado:</strong> ${cita.estado}</p>
-                                                                                                                </div>
-                                                                                                            `).join('')}
+                                                                                                                        <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                                                                                                            <p><strong>Cita ID:</strong> ${cita.id}</p>
+                                                                                                                            <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
+                                                                                                                            <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
+                                                                                                                            <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
+                                                                                                                            <p><strong>Estado:</strong> ${cita.estado}</p>
+                                                                                                                        </div>
+                                                                                                                    `).join('')}
                             
                             <p><strong>Horarios disponibles:</strong> ${data.data.horarios_disponibles.join(', ') || 'Ninguno'}</p>
                         </div>
@@ -5695,10 +5673,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                        <tr>
-                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                        </tr>
-                                        `).join('')}
+                                                <tr>
+                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                </tr>
+                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -5810,8 +5788,8 @@
 
     <script>
         /*=========================================================
-                FUNCIONAMIENTO DE MODAL VEHICULOS
-                =========================================================*/
+                        FUNCIONAMIENTO DE MODAL VEHICULOS
+                        =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -5840,8 +5818,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                            FUNCIONAMIENTO DE CRUD VEHICULOS
-                            =========================================================*/
+                                            FUNCIONAMIENTO DE CRUD VEHICULOS
+                                            =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

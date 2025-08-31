@@ -1784,156 +1784,131 @@
         }
 
         // Función para cargar horas disponibles 
-        async function loadAvailableHours(selectedDate, excludeCitaId = null) {
-            const horaSelect = document.getElementById('hora');
-            console.log('Cargando horarios para fecha:', selectedDate, '| Excluir cita:', excludeCitaId);
+       // Función para cargar horas disponibles (VERSIÓN CORREGIDA)
+async function loadAvailableHours(selectedDate, excludeCitaId = null) {
+    const horaSelect = document.getElementById('hora');
+    console.log('Cargando horarios para fecha:', selectedDate, '| Excluir cita:', excludeCitaId);
 
-            horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
+    horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
 
-            try {
-                // Usar la fecha local correctamente
-                const fechaLocal = createLocalDate(selectedDate);
-                const dayOfWeekJS = fechaLocal.getDay(); // 0=Domingo, 1=Lunes, etc.
-                const dayOfWeekBackend = getBackendDayFromJSDay(dayOfWeekJS);
+    try {
+        // Usar la fecha local correctamente
+        const fechaLocal = createLocalDate(selectedDate);
+        const dayOfWeekJS = fechaLocal.getDay(); // 0=Domingo, 1=Lunes, etc.
+        const dayOfWeekBackend = getBackendDayFromJSDay(dayOfWeekJS);
 
-                console.log('Fecha seleccionada:', selectedDate);
-                console.log('Día JS:', dayOfWeekJS, 'Día Backend:', dayOfWeekBackend);
+        console.log('Fecha seleccionada:', selectedDate);
+        console.log('Día JS:', dayOfWeekJS, 'Día Backend:', dayOfWeekBackend);
 
-                // Validar si es domingo
-                if (dayOfWeekJS === 0) {
-                    horaSelect.innerHTML = '<option value="">No hay horarios (No atendemos domingos)</option>';
-                    return;
+        // Validar si es domingo
+        if (dayOfWeekJS === 0) {
+            horaSelect.innerHTML = '<option value="">No hay horarios (No atendemos domingos)</option>';
+            return;
+        }
+
+        // Verificar día no laborable
+        const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === selectedDate);
+        if (diaNoLaborable) {
+            horaSelect.innerHTML = `<option value="">${diaNoLaborable.motivo || 'Día no laborable'}</option>`;
+            return;
+        }
+
+        // Obtener horarios ocupados
+        let citasExistentes = [];
+        try {
+            const url = `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
+            console.log('Consultando horarios ocupados:', url);
+
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
+            });
 
-                // Verificar día no laborable
-                const diaNoLaborable = diasNoLaborables.find(dia => dia.fecha === selectedDate);
-                if (diaNoLaborable) {
-                    horaSelect.innerHTML = `<option value="">${diaNoLaborable.motivo || 'Día no laborable'}</option>`;
-                    return;
-                }
+            if (!response.ok) throw new Error(`Error ${response.status}`);
 
-                // Obtener horarios ocupados CON DURACIONES REALES
-                let citasExistentes = [];
-                try {
-                    const url =
-                        `/cliente/citas/horarios-ocupados?fecha=${selectedDate}${excludeCitaId ? `&exclude=${excludeCitaId}` : ''}`;
-                    console.log('Consultando horarios ocupados:', url);
+            const data = await response.json();
+            citasExistentes = data.horariosOcupados || [];
+            console.log('Horarios ocupados recibidos:', citasExistentes);
+        } catch (error) {
+            console.error('Error al obtener horarios ocupados:', error);
+            // Continuar sin horarios ocupados
+        }
 
-                    const response = await fetch(url, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
+        // Generar opciones de horario
+        horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
 
-                    if (!response.ok) throw new Error(`Error ${response.status}`);
+        const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeekBackend);
+        console.log('Horarios disponibles para día', dayOfWeekBackend, ':', horariosDia);
 
-                    const data = await response.json();
-                    citasExistentes = data.horariosOcupados || [];
-                    console.log('Horarios ocupados recibidos:', citasExistentes);
-                } catch (error) {
-                    console.error('Error al obtener horarios ocupados:', error);
-                    // Continuar sin horarios ocupados
-                }
+        if (horariosDia.length === 0) {
+            horaSelect.innerHTML = '<option value="">No hay horarios programados</option>';
+            return;
+        }
 
-                // Obtener la duración REAL de los servicios seleccionados
-                const duracionTotal = calcularDuracionServiciosSeleccionados();
-                console.log('Duración total de servicios seleccionados:', duracionTotal, 'minutos');
+        let horariosGenerados = 0;
 
-                // Generar opciones de horario
-                horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+        horariosDia.forEach(horario => {
+            const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
+            const [finH, finM] = horario.hora_fin.split(':').map(Number);
 
-                const horariosDia = horariosDisponibles.filter(h => h.dia_semana == dayOfWeekBackend);
-                console.log('Horarios disponibles para día', dayOfWeekBackend, ':', horariosDia);
+            let horaActual = new Date();
+            horaActual.setHours(inicioH, inicioM, 0, 0);
 
-                if (horariosDia.length === 0) {
-                    horaSelect.innerHTML = '<option value="">No hay horarios programados</option>';
-                    return;
-                }
+            const horaFinHorario = new Date();
+            horaFinHorario.setHours(finH, finM, 0, 0);
 
-                let horariosGenerados = 0;
+            while (horaActual < horaFinHorario) {
+                const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
+                    horaActual.getMinutes().toString().padStart(2, '0');
 
-                horariosDia.forEach(horario => {
-                    const [inicioH, inicioM] = horario.hora_inicio.split(':').map(Number);
-                    const [finH, finM] = horario.hora_fin.split(':').map(Number);
+                // CORRECCIÓN: Solo verificar disponibilidad básica, no duración completa
+                const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
+                
+                // Verificar colisión con citas existentes (SOLO inicio, no duración completa)
+                const estaOcupado = citasExistentes.some(cita => {
+                    try {
+                        const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
+                        const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) * 60000);
 
-                    let horaActual = new Date();
-                    horaActual.setHours(inicioH, inicioM, 0, 0);
-
-                    const horaFinHorario = new Date();
-                    horaFinHorario.setHours(finH, finM, 0, 0);
-
-                    while (horaActual < horaFinHorario) {
-                        const horaStr = horaActual.getHours().toString().padStart(2, '0') + ':' +
-                            horaActual.getMinutes().toString().padStart(2, '0');
-
-                        // CORRECCIÓN: Usar la duración REAL de los servicios
-                        const inicioPropuesta = new Date(`${selectedDate}T${horaStr}`);
-                        const finPropuesta = new Date(inicioPropuesta.getTime() + duracionTotal * 60000);
-
-                        // Verificar colisión con citas existentes (CON DURACIÓN REAL)
-                        const estaOcupado = citasExistentes.some(cita => {
-                            try {
-                                const inicioCita = new Date(`${selectedDate}T${cita.hora_inicio}`);
-                                const finCita = new Date(inicioCita.getTime() + (cita.duracion || 30) *
-                                    60000);
-
-                                // Verificar superposición con buffers de 15 minutos
-                                const inicioCitaConBuffer = new Date(inicioCita.getTime() - 15 * 60000);
-                                const finCitaConBuffer = new Date(finCita.getTime() + 15 * 60000);
-
-                                return (
-                                    // Nueva cita empieza durante cita existente (con buffer)
-                                    (inicioPropuesta >= inicioCitaConBuffer && inicioPropuesta <
-                                        finCitaConBuffer) ||
-                                    // Nueva cita termina durante cita existente (con buffer)
-                                    (finPropuesta > inicioCitaConBuffer && finPropuesta <=
-                                        finCitaConBuffer) ||
-                                    // Nueva cita envuelve completamente a la existente
-                                    (inicioPropuesta <= inicioCitaConBuffer && finPropuesta >=
-                                        finCitaConBuffer)
-                                );
-                            } catch (e) {
-                                console.error('Error al verificar colisión:', e);
-                                return false;
-                            }
-                        });
-
-                        // Verificar que la cita completa quepa en el horario laboral
-                        const cabeEnHorarioLaboral = finPropuesta <= horaFinHorario;
-
-                        const option = document.createElement('option');
-                        option.value = horaStr;
-                        option.textContent = horaStr;
-
-                        if (estaOcupado) {
-                            option.disabled = true;
-                            option.textContent += ' (Ocupado)';
-                            option.style.color = '#ff6b6b';
-                        } else if (!cabeEnHorarioLaboral) {
-                            option.disabled = true;
-                            option.textContent += ' (Fuera de horario)';
-                            option.style.color = '#ff9800';
-                        } else {
-                            horariosGenerados++;
-                        }
-
-                        horaSelect.appendChild(option);
-                        horaActual.setMinutes(horaActual.getMinutes() + 30);
+                        // Solo verificar si el horario propuesto está dentro de una cita existente
+                        return inicioPropuesta >= inicioCita && inicioPropuesta < finCita;
+                    } catch (e) {
+                        console.error('Error al verificar colisión:', e);
+                        return false;
                     }
                 });
 
-                if (horariosGenerados === 0 && horaSelect.options.length > 1) {
-                    horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                const option = document.createElement('option');
+                option.value = horaStr;
+                option.textContent = horaStr;
+
+                if (estaOcupado) {
+                    option.disabled = true;
+                    option.textContent += ' (Ocupado)';
+                    option.style.color = '#ff6b6b';
+                } else {
+                    horariosGenerados++;
+                    // La validación de duración se hará después cuando seleccionen servicios
                 }
 
-                console.log(`Horarios cargados - Generados: ${horariosGenerados}`);
-
-            } catch (error) {
-                console.error('Error en loadAvailableHours:', error);
-                horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+                horaSelect.appendChild(option);
+                horaActual.setMinutes(horaActual.getMinutes() + 30);
             }
+        });
+
+        if (horariosGenerados === 0 && horaSelect.options.length > 1) {
+            horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+        } else {
+            console.log(`Horarios cargados - Generados: ${horariosGenerados}`);
         }
+
+    } catch (error) {
+        console.error('Error en loadAvailableHours:', error);
+        horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+    }
+}
 
         // Configuración del datepicker 
         function setupDatePicker() {
@@ -2329,42 +2304,52 @@
             return `${mins}min`;
         }
 
-        async function setSelectedHourForEdit(hora24, maxAttempts = 10, interval = 300) {
-            let attempts = 0;
+      async function setSelectedHourForEdit(hora24, maxAttempts = 10, interval = 300) {
+    return new Promise((resolve) => {
+        let attempts = 0;
+        
+        const checkInterval = setInterval(() => {
+            const horaSelect = document.getElementById('hora');
+            attempts++;
 
-            return new Promise((resolve) => {
-                const checkInterval = setInterval(() => {
-                    const horaSelect = document.getElementById('hora');
-                    attempts++;
+            if (!horaSelect || horaSelect.options.length <= 1) {
+                if (attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                    // Forzar la creación de la opción
+                    const newOption = document.createElement('option');
+                    newOption.value = hora24;
+                    newOption.textContent = `${hora24} (Actual)`;
+                    horaSelect.appendChild(newOption);
+                    horaSelect.value = hora24;
+                    resolve(true);
+                }
+                return;
+            }
 
-                    // Si encontramos la hora y está disponible
-                    const targetOption = Array.from(horaSelect.options).find(
-                        opt => opt.value === hora24 && !opt.disabled
-                    );
+            // Buscar la hora exacta
+            for (let option of horaSelect.options) {
+                if (option.value === hora24) {
+                    horaSelect.value = hora24;
+                    clearInterval(checkInterval);
+                    console.log('Hora establecida exitosamente:', hora24);
+                    resolve(true);
+                    return;
+                }
+            }
 
-                    if (targetOption) {
-                        horaSelect.value = hora24;
-                        console.log('Hora establecida exitosamente:', hora24);
-                        clearInterval(checkInterval);
-                        resolve(true);
-                    }
-                    // Si se agotaron los intentos
-                    else if (attempts >= maxAttempts) {
-                        console.warn('No se pudo establecer la hora después de intentos');
-                        clearInterval(checkInterval);
-
-                        // Forzar la creación de la opción si no existe
-                        const newOption = document.createElement('option');
-                        newOption.value = hora24;
-                        newOption.textContent = `${hora24} (Actual)`;
-                        horaSelect.appendChild(newOption);
-                        horaSelect.value = hora24;
-
-                        resolve(false);
-                    }
-                }, interval);
-            });
-        }
+            // Si no se encuentra después de intentos, crear la opción
+            if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+                const newOption = document.createElement('option');
+                newOption.value = hora24;
+                newOption.textContent = `${hora24} (Actual)`;
+                horaSelect.appendChild(newOption);
+                horaSelect.value = hora24;
+                resolve(true);
+            }
+        }, interval);
+    });
+}
 
         // Función para cancelar citas
         function cancelCita(citaId) {
