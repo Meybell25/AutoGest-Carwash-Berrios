@@ -582,6 +582,7 @@
             content: '\f00d';
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
+            font-size: 14px;
         }
 
         .modal-body {
@@ -667,7 +668,7 @@
         .service-price {
             font-weight: 700;
             color: var(--primary);
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
 
         .total-section {
@@ -860,7 +861,7 @@
                         <span class="stats-label">Confirmadas</span>
                     </div>
 
-                    <div class="stats-item">
+                    <div class="stats-item {
                         <span class="stats-number">{{ $estadisticas['por_estado']['en_proceso'] }}</span>
                         <span class="stats-label">En Proceso</span>
                     </div>
@@ -1133,513 +1134,678 @@
         </div>
     </div>
 
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Sistema de Pagos JavaScript -->
     <script>
-        // sistema-pagos.js - Sistema completo de gestión de pagos
-        // Incluir este script en tu vista admin.citasadmin
-
         document.addEventListener('DOMContentLoaded', function() {
-
-                    // Variables globales
-                    let isProcessingPayment = false;
-                    let currentCitaId = null;
-                    let paymentModal = null;
-
-                    // Inicialización
-                    initializePagosSystem();
-
-                    function initializePagosSystem() {
-                        // Inicializar selects de estado con validación de pago
-                        initializeEstadoSelects();
-
-                        // Configurar botones de pago
-                        setupPagoButtons();
-
-                        // Configurar botones de detalles
-                        setupDetallesButtons();
-
-                        // Configurar modales
-                        setupModals();
+            
+            // Variables globales
+            let isProcessingPayment = false;
+            let currentCitaId = null;
+            let paymentModal = null;
+            
+            // Inicialización
+            initializePagosSystem();
+            
+            function initializePagosSystem() {
+                // Inicializar selects de estado con validación de pago
+                initializeEstadoSelects();
+                
+                // Configurar botones de pago
+                setupPagoButtons();
+                
+                // Configurar botones de detalles
+                setupDetallesButtons();
+                
+                // Configurar modales
+                setupModals();
+            }
+            
+            // 1. INICIALIZACIÓN DE SELECTS DE ESTADO
+            function initializeEstadoSelects() {
+                document.querySelectorAll('.estado-select').forEach(select => {
+                    select._currentValue = select.value;
+                    select._previousValue = select.value;
+                    
+                    select.addEventListener('change', function() {
+                        handleEstadoChange(this);
+                    });
+                });
+            }
+            
+            // 2. MANEJO DE CAMBIO DE ESTADO
+            async function handleEstadoChange(selectElement) {
+                const citaId = selectElement.getAttribute('data-cita-id');
+                const nuevoEstado = selectElement.value;
+                const estadoActual = selectElement._currentValue;
+                
+                // Validar cambio a finalizada
+                if (nuevoEstado === 'finalizada') {
+                    const verificacion = await verificarPagoCita(citaId);
+                    
+                    if (!verificacion.success || !verificacion.tiene_pago_completado) {
+                        showAlert('warning', 'Pago requerido', 
+                            'No se puede finalizar la cita sin un pago registrado. Por favor, registre el pago primero.');
+                        selectElement.value = estadoActual;
+                        return;
                     }
-
-                    // 1. INICIALIZACIÓN DE SELECTS DE ESTADO
-                    function initializeEstadoSelects() {
-                        document.querySelectorAll('.estado-select').forEach(select => {
-                            select._currentValue = select.value;
-                            select._previousValue = select.value;
-
-                            select.addEventListener('change', function() {
-                                handleEstadoChange(this);
-                            });
-                        });
+                }
+                
+                // Confirmación para cancelación
+                if (nuevoEstado === 'cancelada') {
+                    const confirmacion = await showConfirmation(
+                        '¿Confirmar cancelación?',
+                        'Esta acción cancelará la cita. ¿Estás seguro?',
+                        'warning'
+                    );
+                    
+                    if (!confirmacion) {
+                        selectElement.value = selectElement._previousValue;
+                        return;
                     }
-
-                    // 2. MANEJO DE CAMBIO DE ESTADO
-                    async function handleEstadoChange(selectElement) {
-                        const citaId = selectElement.getAttribute('data-cita-id');
-                        const nuevoEstado = selectElement.value;
-                        const estadoActual = selectElement._currentValue;
-
-                        // Validar cambio a finalizada
-                        if (nuevoEstado === 'finalizada') {
-                            const verificacion = await verificarPagoCita(citaId);
-
-                            if (!verificacion.success || !verificacion.tiene_pago_completado) {
-                                showAlert('warning', 'Pago requerido',
-                                    'No se puede finalizar la cita sin un pago registrado. Por favor, registre el pago primero.'
-                                    );
-                                selectElement.value = estadoActual;
-                                return;
-                            }
+                }
+                
+                // Actualizar estado
+                await actualizarEstadoCita(citaId, nuevoEstado, selectElement);
+            }
+            
+            // 3. VERIFICAR PAGO DE CITA
+            async function verificarPagoCita(citaId) {
+                try {
+                    const response = await fetch(`/admin/pagos/${citaId}/verificar-pago`);
+                    const data = await response.json();
+                    
+                    return {
+                        success: response.ok,
+                        tiene_pago_completado: data.tiene_pago_completado || false,
+                        pago: data.pago || null
+                    };
+                } catch (error) {
+                    console.error('Error al verificar pago:', error);
+                    return { success: false, tiene_pago_completado: false };
+                }
+            }
+            
+            // 4. ACTUALIZAR ESTADO DE CITA
+            async function actualizarEstadoCita(citaId, nuevoEstado, selectElement) {
+                try {
+                    showLoading('Actualizando estado...');
+                    
+                    const response = await fetch(`/admin/citasadmin/${citaId}/actualizar-estado`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ estado: nuevoEstado })
+                    });
+                    
+                    const data = await response.json();
+                    hideLoading();
+                    
+                    if (data.success) {
+                        // Actualizar badge de estado
+                        updateEstadoBadge(citaId, nuevoEstado, data.nuevo_estado);
+                        
+                        // Actualizar valores de control
+                        if (selectElement) {
+                            selectElement._previousValue = nuevoEstado;
+                            selectElement._currentValue = nuevoEstado;
                         }
-
-                        // Confirmación para cancelación
-                        if (nuevoEstado === 'cancelada') {
-                            const confirmacion = await showConfirmation(
-                                '¿Confirmar cancelación?',
-                                'Esta acción cancelará la cita. ¿Estás seguro?',
-                                'warning'
-                            );
-
-                            if (!confirmacion) {
-                                selectElement.value = selectElement._previousValue;
-                                return;
-                            }
+                        
+                        showAlert('success', '¡Éxito!', data.message, 2000);
+                        
+                        // Recargar después de 2 segundos para actualizar botones y estadísticas
+                        setTimeout(() => window.location.reload(), 2000);
+                        
+                    } else {
+                        throw new Error(data.message);
+                    }
+                    
+                } catch (error) {
+                    hideLoading();
+                    console.error('Error al actualizar estado:', error);
+                    
+                    showAlert('error', 'Error', error.message || 'Ocurrió un error al actualizar el estado');
+                    
+                    // Revertir cambio en el select
+                    if (selectElement) {
+                        selectElement.value = selectElement._previousValue;
+                    }
+                }
+            }
+            
+            // 5. ACTUALIZAR BADGE DE ESTADO
+            function updateEstadoBadge(citaId, estadoCodigo, estadoTexto) {
+                const row = document.querySelector(`.estado-select[data-cita-id="${citaId}"]`)?.closest('tr');
+                if (!row) return;
+                
+                const badge = row.querySelector('.appointment-status');
+                if (badge) {
+                    badge.className = `appointment-status status-${estadoCodigo}`;
+                    badge.textContent = estadoTexto;
+                }
+            }
+            
+            // 6. CONFIGURAR BOTONES DE PAGO
+            function setupPagoButtons() {
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('btn-pagar') || e.target.closest('.btn-pagar')) {
+                        e.preventDefault();
+                        
+                        const button = e.target.classList.contains('btn-pagar') ? e.target : e.target.closest('.btn-pagar');
+                        const citaId = button.getAttribute('data-cita-id');
+                        
+                        if (!citaId) {
+                            showAlert('error', 'Error', 'ID de cita no encontrado');
+                            return;
                         }
-
-                        // Actualizar estado
-                        await actualizarEstadoCita(citaId, nuevoEstado, selectElement);
+                        
+                        openPagoModal(citaId);
                     }
-
-                    // 3. VERIFICAR PAGO DE CITA
-                    async function verificarPagoCita(citaId) {
-                        try {
-                            const response = await fetch(`/admin/pagos/${citaId}/verificar-pago`);
-                            const data = await response.json();
-
-                            return {
-                                success: response.ok,
-                                tiene_pago_completado: data.tiene_pago_completado || false,
-                                pago: data.pago || null
-                            };
-                        } catch (error) {
-                            console.error('Error al verificar pago:', error);
-                            return {
-                                success: false,
-                                tiene_pago_completado: false
-                            };
-                        }
+                });
+            }
+            
+            // 7. ABRIR MODAL DE PAGO
+            async function openPagoModal(citaId) {
+                try {
+                    showLoading('Cargando formulario de pago...');
+                    currentCitaId = citaId;
+                    
+                    const response = await fetch(`/admin/pagos/${citaId}/modal`);
+                    const data = await response.json();
+                    
+                    hideLoading();
+                    
+                    if (data.success) {
+                        document.getElementById('pago-modal-content').innerHTML = data.html;
+                        
+                        // Configurar eventos para el modal de pago
+                        setupPagoModalEvents();
+                        
+                        // Mostrar modal
+                        paymentModal = new bootstrap.Modal(document.getElementById('pagoModal'));
+                        paymentModal.show();
+                        
+                    } else {
+                        throw new Error(data.message);
                     }
-
-                    // 4. ACTUALIZAR ESTADO DE CITA
-                    async function actualizarEstadoCita(citaId, nuevoEstado, selectElement) {
-                        try {
-                            showLoading('Actualizando estado...');
-
-                            const response = await fetch(`/admin/citasadmin/${citaId}/actualizar-estado`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    estado: nuevoEstado
-                                })
-                            });
-
-                            const data = await response.json();
-                            hideLoading();
-
-                            if (data.success) {
-                                // Actualizar badge de estado
-                                updateEstadoBadge(citaId, nuevoEstado, data.nuevo_estado);
-
-                                // Actualizar valores de control
-                                if (selectElement) {
-                                    selectElement._previousValue = nuevoEstado;
-                                    selectElement._currentValue = nuevoEstado;
-                                }
-
-                                showAlert('success', '¡Éxito!', data.message, 2000);
-
-                                // Recargar después de 2 segundos para actualizar botones y estadísticas
-                                setTimeout(() => window.location.reload(), 2000);
-
-                            } else {
-                                throw new Error(data.message);
+                    
+                } catch (error) {
+                    hideLoading();
+                    console.error('Error al cargar modal de pago:', error);
+                    showAlert('error', 'Error', 'No se pudo cargar el formulario de pago: ' + error.message);
+                }
+            }
+            
+            // 7.1 CONFIGURAR EVENTOS DEL MODAL DE PAGO
+            function setupPagoModalEvents() {
+                // Calcular vuelto cuando cambia el monto recibido
+                const montoRecibidoInput = document.getElementById('monto-recibido');
+                if (montoRecibidoInput) {
+                    montoRecibidoInput.addEventListener('input', calcularVuelto);
+                }
+                
+                // Cambiar visibilidad de campos según método de pago
+                const metodoPagoSelect = document.getElementById('metodo-pago');
+                if (metodoPagoSelect) {
+                    metodoPagoSelect.addEventListener('change', toggleCamposPago);
+                    // Ejecutar una vez al cargar para establecer el estado inicial
+                    toggleCamposPago();
+                }
+                
+                // Aplicar descuento
+                const aplicarDescuentoBtn = document.getElementById('aplicar-descuento-general');
+                if (aplicarDescuentoBtn) {
+                    aplicarDescuentoBtn.addEventListener('click', aplicarDescuento);
+                }
+                
+                // Quitar descuento
+                const quitarDescuentoBtn = document.getElementById('quitar-descuento-general');
+                if (quitarDescuentoBtn) {
+                    quitarDescuentoBtn.addEventListener('click', quitarDescuento);
+                }
+                
+                // Registrar pago
+                const formPago = document.getElementById('form-pago');
+                if (formPago) {
+                    formPago.addEventListener('submit', registrarPago);
+                }
+            }
+            
+            // 7.2 CALCULAR VUELTO
+            function calcularVuelto() {
+                const montoRecibido = parseFloat(document.getElementById('monto-recibido').value) || 0;
+                const totalGeneral = parseFloat(document.getElementById('total-general').textContent.replace('$', '')) || 0;
+                const vueltoCalculado = document.getElementById('vuelto-calculado');
+                
+                if (montoRecibido >= totalGeneral) {
+                    const vuelto = montoRecibido - totalGeneral;
+                    vueltoCalculado.value = `$${vuelto.toFixed(2)}`;
+                } else {
+                    vueltoCalculado.value = '$0.00';
+                }
+            }
+            
+            // 7.3 TOGGLE CAMPOS DE PAGO SEGÚN MÉTODO
+            function toggleCamposPago() {
+                const metodoPago = document.getElementById('metodo-pago').value;
+                
+                // Ocultar todos los campos primero
+                document.getElementById('campo-efectivo').classList.add('d-none');
+                document.getElementById('campo-transferencia').classList.add('d-none');
+                document.getElementById('campo-pasarela').classList.add('d-none');
+                
+                // Mostrar el campo correspondiente
+                if (metodoPago === 'efectivo') {
+                    document.getElementById('campo-efectivo').classList.remove('d-none');
+                    calcularVuelto(); // Calcular vuelto inicial
+                } else if (metodoPago === 'transferencia') {
+                    document.getElementById('campo-transferencia').classList.remove('d-none');
+                } else if (metodoPago === 'pasarela') {
+                    document.getElementById('campo-pasarela').classList.remove('d-none');
+                }
+            }
+            
+            // 7.4 APLICAR DESCUENTO
+            function aplicarDescuento() {
+                const porcentajeDescuento = parseFloat(document.getElementById('porcentaje-descuento').value) || 0;
+                const totalOriginal = parseFloat(document.getElementById('total-original').textContent.replace('$', '')) || 0;
+                
+                if (porcentajeDescuento > 0 && porcentajeDescuento <= 100) {
+                    const descuento = totalOriginal * (porcentajeDescuento / 100);
+                    const totalConDescuento = totalOriginal - descuento;
+                    
+                    document.getElementById('descuento-aplicado').textContent = `-$${descuento.toFixed(2)}`;
+                    document.getElementById('total-general').textContent = `$${totalConDescuento.toFixed(2)}`;
+                    
+                    // Mostrar elementos de descuento aplicado
+                    document.getElementById('descuento-info').classList.remove('d-none');
+                    document.getElementById('sin-descuento').classList.add('d-none');
+                    document.getElementById('con-descuento').classList.remove('d-none');
+                    
+                    // Recalcular vuelto si es pago en efectivo
+                    if (document.getElementById('metodo-pago').value === 'efectivo') {
+                        calcularVuelto();
+                    }
+                } else {
+                    showAlert('warning', 'Descuento inválido', 'Por favor ingrese un porcentaje válido entre 1 y 100.');
+                }
+            }
+            
+            // 7.5 QUITAR DESCUENTO
+            function quitarDescuento() {
+                const totalOriginal = parseFloat(document.getElementById('total-original').textContent.replace('$', '')) || 0;
+                
+                document.getElementById('descuento-aplicado').textContent = '$0.00';
+                document.getElementById('total-general').textContent = `$${totalOriginal.toFixed(2)}`;
+                document.getElementById('porcentaje-descuento').value = '';
+                
+                // Ocultar elementos de descuento aplicado
+                document.getElementById('sin-descuento').classList.remove('d-none');
+                document.getElementById('con-descuento').classList.add('d-none');
+                
+                // Recalcular vuelto si es pago en efectivo
+                if (document.getElementById('metodo-pago').value === 'efectivo') {
+                    calcularVuelto();
+                }
+            }
+            
+            // 7.6 REGISTRAR PAGO
+            async function registrarPago(e) {
+                e.preventDefault();
+                
+                if (isProcessingPayment) return;
+                
+                // Validar formulario
+                if (!validatePaymentForm()) {
+                    showAlert('warning', 'Formulario incompleto', 'Por favor complete todos los campos requeridos correctamente.');
+                    return;
+                }
+                
+                isProcessingPayment = true;
+                const btnRegistrar = document.getElementById('btn-registrar-pago');
+                const originalText = btnRegistrar.innerHTML;
+                
+                try {
+                    btnRegistrar.disabled = true;
+                    btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                    
+                    showLoading('Registrando pago...');
+                    
+                    const formData = new FormData(document.getElementById('form-pago'));
+                    
+                    const response = await fetch(`/admin/pagos/${currentCitaId}/registrar`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    hideLoading();
+                    
+                    if (data.success) {
+                        showAlert('success', '¡Pago registrado!', data.message, 2000);
+                        
+                        // Cerrar modal después de 2 segundos
+                        setTimeout(() => {
+                            if (paymentModal) {
+                                paymentModal.hide();
                             }
-
-                        } catch (error) {
-                            hideLoading();
-                            console.error('Error al actualizar estado:', error);
-
-                            showAlert('error', 'Error', error.message || 'Ocurrió un error al actualizar el estado');
-
-                            // Revertir cambio en el select
-                            if (selectElement) {
-                                selectElement.value = selectElement._previousValue;
-                            }
-                        }
+                            // Recargar página para actualizar estado
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        throw new Error(data.message || 'Error al registrar el pago');
                     }
-
-                    // 5. ACTUALIZAR BADGE DE ESTADO
-                    function updateEstadoBadge(citaId, estadoCodigo, estadoTexto) {
-                        const row = document.querySelector(`.estado-select[data-cita-id="${citaId}"]`)?.closest('tr');
-                        if (!row) return;
-
-                        const badge = row.querySelector('.appointment-status');
-                        if (badge) {
-                            badge.className = `appointment-status status-${estadoCodigo}`;
-                            badge.textContent = estadoTexto;
-                        }
+                    
+                } catch (error) {
+                    hideLoading();
+                    console.error('Error al registrar pago:', error);
+                    showAlert('error', 'Error', error.message || 'Ocurrió un error al registrar el pago');
+                } finally {
+                    isProcessingPayment = false;
+                    btnRegistrar.disabled = false;
+                    btnRegistrar.innerHTML = originalText;
+                }
+            }
+            
+            // 8. CONFIGURAR BOTONES DE DETALLES
+            function setupDetallesButtons() {
+                document.querySelectorAll('.view-details').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const citaId = this.getAttribute('data-cita-id');
+                        openDetallesModal(citaId);
+                    });
+                });
+            }
+            
+            // 9. ABRIR MODAL DE DETALLES
+            async function openDetallesModal(citaId) {
+                try {
+                    showLoading('Cargando detalles...');
+                    
+                    const response = await fetch(`/admin/citasadmin/${citaId}/detalles`);
+                    const data = await response.json();
+                    
+                    hideLoading();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
                     }
-
-                    // 6. CONFIGURAR BOTONES DE PAGO
-                    function setupPagoButtons() {
-                        document.addEventListener('click', function(e) {
-                            if (e.target.classList.contains('btn-pagar') || e.target.closest('.btn-pagar')) {
-                                e.preventDefault();
-
-                                const button = e.target.classList.contains('btn-pagar') ? e.target : e.target
-                                    .closest('.btn-pagar');
-                                const citaId = button.getAttribute('data-cita-id');
-
-                                if (!citaId) {
-                                    showAlert('error', 'Error', 'ID de cita no encontrado');
-                                    return;
-                                }
-
-                                openPagoModal(citaId);
-                            }
-                        });
-                    }
-
-                    // 7. ABRIR MODAL DE PAGO
-                    async function openPagoModal(citaId) {
-                        try {
-                            showLoading('Cargando formulario de pago...');
-                            currentCitaId = citaId;
-
-                            const response = await fetch(`/admin/pagos/${citaId}/modal`);
-                            const data = await response.json();
-
-                            hideLoading();
-
-                            if (data.success) {
-                                document.getElementById('pago-modal-content').innerHTML = data.html;
-
-                                // Mostrar modal
-                                paymentModal = new bootstrap.Modal(document.getElementById('pagoModal'));
-                                paymentModal.show();
-
-                            } else {
-                                throw new Error(data.message);
-                            }
-
-                        } catch (error) {
-                            hideLoading();
-                            console.error('Error al cargar modal de pago:', error);
-                            showAlert('error', 'Error', 'No se pudo cargar el formulario de pago: ' + error.message);
-                        }
-                    }
-
-                    // 8. CONFIGURAR BOTONES DE DETALLES
-                    function setupDetallesButtons() {
-                        document.querySelectorAll('.view-details').forEach(button => {
-                            button.addEventListener('click', function() {
-                                const citaId = this.getAttribute('data-cita-id');
-                                openDetallesModal(citaId);
-                            });
-                        });
-                    }
-
-                    // 9. ABRIR MODAL DE DETALLES
-                    async function openDetallesModal(citaId) {
-                        try {
-                            showLoading('Cargando detalles...');
-
-                            const response = await fetch(`/admin/citasadmin/${citaId}/detalles`);
-                            const data = await response.json();
-
-                            hideLoading();
-
-                            if (data.error) {
-                                throw new Error(data.error);
-                            }
-
-                            // Actualizar contenido del modal
-                            updateDetallesModal(data);
-
-                            // Mostrar modal
-                            const modal = new bootstrap.Modal(document.getElementById('detallesCitaModal'));
-                            modal.show();
-
-                        } catch (error) {
-                            hideLoading();
-                            console.error('Error al cargar detalles:', error);
-                            showAlert('error', 'Error', 'No se pudieron cargar los detalles: ' + error.message);
-                        }
-                    }
-
-                    // 10. ACTUALIZAR CONTENIDO DEL MODAL DE DETALLES
-                    function updateDetallesModal(data) {
-                        document.getElementById('cita-id').textContent = data.id;
-
-                        let serviciosHTML = '';
-                        if (data.servicios && data.servicios.length > 0) {
-                            data.servicios.forEach(servicio => {
-                                const precio = servicio.pivot?.precio || servicio.precio || 0;
-                                serviciosHTML += `
-                    <div class="service-item">
-                        <span class="service-name">${servicio.nombre}</span>
-                        <span class="service-price">$${precio.toFixed(2)}</span>
+                    
+                    // Actualizar contenido del modal
+                    updateDetallesModal(data);
+                    
+                    // Mostrar modal
+                    const modal = new bootstrap.Modal(document.getElementById('detallesCitaModal'));
+                    modal.show();
+                    
+                } catch (error) {
+                    hideLoading();
+                    console.error('Error al cargar detalles:', error);
+                    showAlert('error', 'Error', 'No se pudieron cargar los detalles: ' + error.message);
+                }
+            }
+            
+            // 10. ACTUALIZAR CONTENIDO DEL MODAL DE DETALLES
+            function updateDetallesModal(data) {
+                document.getElementById('cita-id').textContent = data.id;
+                
+                let serviciosHTML = '';
+                if (data.servicios && data.servicios.length > 0) {
+                    data.servicios.forEach(servicio => {
+                        const precio = servicio.pivot?.precio || servicio.precio || 0;
+                        serviciosHTML += `
+                            <div class="service-item">
+                                <span class="service-name">${servicio.nombre}</span>
+                                <span class="service-price">$${precio.toFixed(2)}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    serviciosHTML = '<p class="text-muted text-center">No hay servicios registrados</p>';
+                }
+                
+                const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado';
+                
+                const contenidoHTML = `
+                    <div class="modal-section">
+                        <div class="modal-section-title">
+                            <i class="fas fa-user"></i> Información del Cliente
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Nombre:</span>
+                            <span class="modal-info-value">${data.usuario.nombre}</span>
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Email:</span>
+                            <span class="modal-info-value">${data.usuario.email}</span>
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Teléfono:</span>
+                            <span class="modal-info-value">${data.usuario.telefono || 'No proporcionado'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-section">
+                        <div class="modal-section-title">
+                            <i class="fas fa-car"></i> Información del Vehículo
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Marca/Modelo:</span>
+                            <span class="modal-info-value">${data.vehiculo.marca} ${data.vehiculo.modelo}</span>
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Placa:</span>
+                            <span class="modal-info-value">${data.vehiculo.placa}</span>
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Tipo:</span>
+                            <span class="modal-info-value">${tipoVehiculo}</span>
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Color:</span>
+                            <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
+                        </div>
+                        ${data.vehiculo.descripcion ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Descripción:</span>
+                                <span class="modal-info-value">${data.vehiculo.descripcion}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="modal-section">
+                        <div class="modal-section-title">
+                            <i class="fas fa-calendar-alt"></i> Detalles de la Cita
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Fecha/Hora:</span>
+                            <span class="modal-info-value">${new Date(data.fecha_hora).toLocaleString('es-ES')}</span>
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Estado:</span>
+                            <span class="modal-info-value">
+                                <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span>
+                            </span>
+                        </div>
+                        ${data.observaciones ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Observaciones:</span>
+                                <span class="modal-info-value">${data.observaciones}</span>
+                            </div>
+                        ` : ''}
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Fecha de creación:</span>
+                            <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-section">
+                        <div class="modal-section-title">
+                            <i class="fas fa-tools"></i> Servicios Seleccionados
+                        </div>
+                        <div class="services-grid">
+                            ${serviciosHTML}
+                        </div>
+                    </div>
+                    
+                    <div class="modal-section total-section">
+                        <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                            <i class="fas fa-receipt me-2"></i> Total a Pagar
+                        </div>
+                        <div class="total-amount">$${data.total.toFixed(2)}</div>
                     </div>
                 `;
-                            });
-                        } else {
-                            serviciosHTML = '<p class="text-muted text-center">No hay servicios registrados</p>';
-                        }
-
-                        const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado';
-
-                        const contenidoHTML = `
-            <div class="modal-section">
-                <div class="modal-section-title">
-                    <i class="fas fa-user"></i> Información del Cliente
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Nombre:</span>
-                    <span class="modal-info-value">${data.usuario.nombre}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Email:</span>
-                    <span class="modal-info-value">${data.usuario.email}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Teléfono:</span>
-                    <span class="modal-info-value">${data.usuario.telefono || 'No proporcionado'}</span>
-                </div>
-            </div>
+                
+                document.getElementById('detalles-cita-content').innerHTML = contenidoHTML;
+            }
             
-            <div class="modal-section">
-                <div class="modal-section-title">
-                    <i class="fas fa-car"></i> Información del Vehículo
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Marca/Modelo:</span>
-                    <span class="modal-info-value">${data.vehiculo.marca} ${data.vehiculo.modelo}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Placa:</span>
-                    <span class="modal-info-value">${data.vehiculo.placa}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Tipo:</span>
-                    <span class="modal-info-value">${tipoVehiculo}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Color:</span>
-                    <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
-                </div>
-                ${data.vehiculo.descripcion ? `
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Descripción:</span>
-                            <span class="modal-info-value">${data.vehiculo.descripcion}</span>
-                        </div>
-                    ` : ''}
-            </div>
-            
-            <div class="modal-section">
-                <div class="modal-section-title">
-                    <i class="fas fa-calendar-alt"></i> Detalles de la Cita
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Fecha/Hora:</span>
-                    <span class="modal-info-value">${new Date(data.fecha_hora).toLocaleString('es-ES')}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Estado:</span>
-                    <span class="modal-info-value">
-                        <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span>
-                    </span>
-                </div>
-                ${data.observaciones ? `
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Observaciones:</span>
-                            <span class="modal-info-value">${data.observaciones}</span>
-                        </div>
-                    ` : ''}
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Fecha de creación:</span>
-                    <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
-                </div>
-            </div>
-            
-            <div class="modal-section">
-                <div class="modal-section-title">
-                    <i class="fas fa-tools"></i> Servicios Seleccionados
-                </div>
-                <div class="services-grid">
-                    ${serviciosHTML}
-                </div>
-            </div>
-            
-            <div class="modal-section total-section">
-                <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
-                    <i class="fas fa-receipt me-2"></i> Total a Pagar
-                </div>
-                <div class="total-amount">${data.total.toFixed(2)}</div>
-            </div>
-        `;
-
-                        document.getElementById('detalles-cita-content').innerHTML = contenidoHTML;
-                    }
-
-                    // 11. CONFIGURAR MODALES
-                    function setupModals() {
-                        // Limpiar formulario al cerrar modal de pago
-                        const pagoModalElement = document.getElementById('pagoModal');
-                        if (pagoModalElement) {
-                            pagoModalElement.addEventListener('hidden.bs.modal', function() {
-                                resetPagoForm();
-                            });
-                        }
-                    }
-
-                    // 12. RESETEAR FORMULARIO DE PAGO
-                    function resetPagoForm() {
-                        const form = document.getElementById('form-pago');
-                        if (form) {
-                            form.reset();
-                        }
-
-                        const vueltoCalculado = document.getElementById('vuelto-calculado');
-                        if (vueltoCalculado) {
-                            vueltoCalculado.value = '$0.00';
-                        }
-
-                        // Limpiar errores
-                        document.querySelectorAll('.is-invalid').forEach(el => {
-                            el.classList.remove('is-invalid');
-                        });
-
-                        isProcessingPayment = false;
-                        currentCitaId = null;
-
-                        const btnRegistrar = document.getElementById('btn-registrar-pago');
-                        if (btnRegistrar) {
-                            btnRegistrar.disabled = false;
-                            btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Pago';
-                        }
-                    }
-
-                    // 13. FUNCIONES DE UI - ALERTS
-                    function showAlert(type, title, message, timer = null) {
-                        const config = {
-                            icon: type,
-                            title: title,
-                            text: message
-                        };
-
-                        if (timer) {
-                            config.timer = timer;
-                            config.showConfirmButton = false;
-                        }
-
-                        return Swal.fire(config);
-                    }
-
-                    // 14. MOSTRAR CONFIRMACIÓN
-                    function showConfirmation(title, message, type = 'warning') {
-                        return Swal.fire({
-                            title: title,
-                            text: message,
-                            icon: type,
-                            showCancelButton: true,
-                            confirmButtonColor: type === 'warning' ? '#d33' : '#3085d6',
-                            cancelButtonColor: '#6c757d',
-                            confirmButtonText: 'Sí, continuar',
-                            cancelButtonText: 'Cancelar'
-                        }).then(result => result.isConfirmed);
-                    }
-
-                    // 15. MOSTRAR/OCULTAR LOADING
-                    function showLoading(message = 'Procesando...') {
-                        Swal.fire({
-                            title: message,
-                            allowOutsideClick: false,
-                            allowEscapeKey: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-                    }
-
-                    function hideLoading() {
-                        Swal.close();
-                    }
-
-                    // 16. MANEJO DE ERRORES GLOBALES
-                    window.addEventListener('error', function(e) {
-                        if (isProcessingPayment) {
-                            hideLoading();
-                            showAlert('error', 'Error',
-                                'Ocurrió un error inesperado. Por favor, intente nuevamente.');
-                            isProcessingPayment = false;
-                        }
+            // 11. CONFIGURAR MODALES
+            function setupModals() {
+                // Limpiar formulario al cerrar modal de pago
+                const pagoModalElement = document.getElementById('pagoModal');
+                if (pagoModalElement) {
+                    pagoModalElement.addEventListener('hidden.bs.modal', function() {
+                        resetPagoForm();
                     });
-
-                    // 17. FUNCIONES AUXILIARES PARA VALIDACIÓN
-                    function validatePaymentForm() {
-                        const metodo = document.getElementById('metodo-pago')?.value;
-                        if (!metodo) return false;
-
-                        let isValid = true;
-
-                        if (metodo === 'efectivo') {
-                            const montoRecibido = parseFloat(document.getElementById('monto-recibido')?.value) || 0;
-                            const totalElement = document.getElementById('total-general');
-                            const total = totalElement ? parseFloat(totalElement.textContent.replace(', '
-                                    ')) : 0;
-
-                                    if (montoRecibido < total) {
-                                        document.getElementById('monto-recibido')?.classList.add('is-invalid');
-                                        isValid = false;
-                                    }
-                                }
-                                else if (['transferencia', 'pasarela'].includes(metodo)) {
-                                    const referenciaInput = metodo === 'transferencia' ?
-                                        document.getElementById('referencia-input') :
-                                        document.getElementById('pasarela-referencia');
-
-                                    if (!referenciaInput || referenciaInput.value.trim().length < 6) {
-                                        referenciaInput?.classList.add('is-invalid');
-                                        isValid = false;
-                                    }
-                                }
-
-                                return isValid;
-                            }
-
-                            // 18. EXPONIENDO FUNCIONES GLOBALES NECESARIAS
-                            window.PagosSystem = {
-                                openPagoModal: openPagoModal,
-                                openDetallesModal: openDetallesModal,
-                                verificarPagoCita: verificarPagoCita,
-                                validatePaymentForm: validatePaymentForm,
-                                showAlert: showAlert,
-                                showLoading: showLoading,
-                                hideLoading: hideLoading
-                            };
-
-                            console.log('Sistema de Pagos inicializado correctamente');
-                        });
+                }
+            }
+            
+            // 12. RESETEAR FORMULARIO DE PAGO
+            function resetPagoForm() {
+                const form = document.getElementById('form-pago');
+                if (form) {
+                    form.reset();
+                }
+                
+                const vueltoCalculado = document.getElementById('vuelto-calculado');
+                if (vueltoCalculado) {
+                    vueltoCalculado.value = '$0.00';
+                }
+                
+                // Limpiar errores
+                document.querySelectorAll('.is-invalid').forEach(el => {
+                    el.classList.remove('is-invalid');
+                });
+                
+                isProcessingPayment = false;
+                currentCitaId = null;
+                
+                const btnRegistrar = document.getElementById('btn-registrar-pago');
+                if (btnRegistrar) {
+                    btnRegistrar.disabled = false;
+                    btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Pago';
+                }
+            }
+            
+            // 13. FUNCIONES DE UI - ALERTS
+            function showAlert(type, title, message, timer = null) {
+                const config = {
+                    icon: type,
+                    title: title,
+                    text: message
+                };
+                
+                if (timer) {
+                    config.timer = timer;
+                    config.showConfirmButton = false;
+                }
+                
+                return Swal.fire(config);
+            }
+            
+            // 14. MOSTRAR CONFIRMACIÓN
+            function showConfirmation(title, message, type = 'warning') {
+                return Swal.fire({
+                    title: title,
+                    text: message,
+                    icon: type,
+                    showCancelButton: true,
+                    confirmButtonColor: type === 'warning' ? '#d33' : '#3085d6',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, continuar',
+                    cancelButtonText: 'Cancelar'
+                }).then(result => result.isConfirmed);
+            }
+            
+            // 15. MOSTRAR/OCULTAR LOADING
+            function showLoading(message = 'Procesando...') {
+                Swal.fire({
+                    title: message,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            }
+            
+            function hideLoading() {
+                Swal.close();
+            }
+            
+            // 16. MANEJO DE ERRORES GLOBALES
+            window.addEventListener('error', function(e) {
+                if (isProcessingPayment) {
+                    hideLoading();
+                    showAlert('error', 'Error', 'Ocurrió un error inesperado. Por favor, intente nuevamente.');
+                    isProcessingPayment = false;
+                }
+            });
+            
+            // 17. FUNCIONES AUXILIARES PARA VALIDACIÓN
+            function validatePaymentForm() {
+                const metodo = document.getElementById('metodo-pago')?.value;
+                if (!metodo) return false;
+                
+                let isValid = true;
+                
+                if (metodo === 'efectivo') {
+                    const montoRecibido = parseFloat(document.getElementById('monto-recibido')?.value) || 0;
+                    const totalElement = document.getElementById('total-general');
+                    const total = totalElement ? parseFloat(totalElement.textContent.replace('$', '')) : 0;
+                    
+                    if (montoRecibido < total) {
+                        document.getElementById('monto-recibido')?.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                } else if (['transferencia', 'pasarela'].includes(metodo)) {
+                    const referenciaInput = metodo === 'transferencia' 
+                        ? document.getElementById('referencia-input')
+                        : document.getElementById('pasarela-referencia');
+                    
+                    if (!referenciaInput || referenciaInput.value.trim().length < 6) {
+                        referenciaInput?.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                }
+                
+                return isValid;
+            }
+            
+            // 18. EXPONIENDO FUNCIONES GLOBALES NECESARIAS
+            window.PagosSystem = {
+                openPagoModal: openPagoModal,
+                openDetallesModal: openDetallesModal,
+                verificarPagoCita: verificarPagoCita,
+                validatePaymentForm: validatePaymentForm,
+                showAlert: showAlert,
+                showLoading: showLoading,
+                hideLoading: hideLoading
+            };
+            
+            console.log('Sistema de Pagos inicializado correctamente');
+        });
     </script>
-
 </body>
 
 </html>
