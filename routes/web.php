@@ -123,8 +123,9 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::post('/{cita}/registrar', [PagoController::class, 'registrarPago'])->name('registrar');
             Route::get('/{cita}/info', [PagoController::class, 'getInfoPago'])->name('info');
             Route::post('/{cita}/reembolsar', [PagoController::class, 'reembolsarPago'])->name('reembolsar');
+            Route::get('/{cita}/verificar-pago', [AdminController::class, 'verificarPagoCita'])->name('verificar-pago');
         });
-
+        
         // Rutas de Gastos - ACTIVAS
         Route::prefix('gastos')->name('gastos.')->group(function () {
             Route::get('/', [GastoController::class, 'index'])->name('index');

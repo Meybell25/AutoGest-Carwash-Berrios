@@ -1027,18 +1027,23 @@
                                                 {{ $cita->estado == 'en_proceso' ? 'selected' : '' }}>En Proceso
                                             </option>
                                             <option value="finalizada"
-                                                {{ $cita->estado == 'finalizada' ? 'selected' : '' }}>Finalizada
+                                                {{ $cita->estado == 'finalizada' ? 'selected' : '' }}
+                                                {{ !$cita->tienePagoCompletado() ? 'disabled' : '' }}>Finalizada
                                             </option>
                                             <option value="cancelada"
                                                 {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
                                         </select>
-                                        <!-- Botón de pago -->
-                                        @if (in_array($cita->estado, ['confirmada', 'en_proceso']) && (!$cita->pago || $cita->pago->estado !== 'pagado'))
+
+                                        <!-- Botón SOLO para citas EN PROCESO sin pago -->
+                                        @if ($cita->estado == 'en_proceso' && !$cita->tienePagoCompletado())
                                             <button class="btn btn-success mt-2 w-100 btn-pagar"
                                                 data-cita-id="{{ $cita->id }}">
                                                 <i class="fas fa-credit-card me-1"></i> Registrar Pago
                                             </button>
-                                        @elseif($cita->pago && $cita->pago->estado === 'pagado')
+                                        @endif
+
+                                        <!-- Badge para citas pagadas -->
+                                        @if ($cita->tienePagoCompletado())
                                             <div class="text-center mt-2">
                                                 <span class="badge bg-success">
                                                     <i class="fas fa-check-circle me-1"></i> Pagado
@@ -1132,7 +1137,39 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ]JS para pago
+        document.querySelectorAll('.estado-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const citaId = this.getAttribute('data-cita-id');
+                const nuevoEstado = this.value;
+                const estadoActual = this._currentValue; // Guardar estado actual
+
+                // PREVENIR cambiar manualmente a "finalizada" sin pago
+                if (nuevoEstado === 'finalizada') {
+                    // Verificar si tiene pago completado
+                    fetch(`/admin/citas/${citaId}/verificar-pago`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.tiene_pago_completado) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Pago requerido',
+                                    text: 'No se puede finalizar la cita sin un pago registrado. Por favor, registre el pago primero.',
+                                    confirmButtonText: 'Entendido'
+                                });
+                                this.value = estadoActual; // Revertir cambio
+                                return;
+                            }
+                            // Si tiene pago, proceder con el cambio
+                            actualizarEstadoCita(citaId, nuevoEstado);
+                        });
+                    return;
+                }
+
+                // Para otros estados, proceder normalmente
+                actualizarEstadoCita(citaId, nuevoEstado);
+            });
+        });
+        // JS para pago
         document.addEventListener('DOMContentLoaded', function() {
             // Abrir modal de pago
             $(document).on('click', '.btn-pagar', function() {
@@ -1342,11 +1379,11 @@
                                     <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
                                 </div>
                                 ${data.vehiculo.descripcion ? `
-                                                <div class="modal-info-item">
-                                                    <span class="modal-info-label">Descripción:</span>
-                                                    <span class="modal-info-value">${data.vehiculo.descripcion}</span>
-                                                </div>
-                                                ` : ''}
+                                                        <div class="modal-info-item">
+                                                            <span class="modal-info-label">Descripción:</span>
+                                                            <span class="modal-info-value">${data.vehiculo.descripcion}</span>
+                                                        </div>
+                                                        ` : ''}
                             </div>
 
                             <div class="modal-section">
@@ -1364,11 +1401,11 @@
                                     </span>
                                 </div>
                                 ${data.observaciones ? `
-                                                <div class="modal-info-item">
-                                                    <span class="modal-info-label">Observaciones:</span>
-                                                    <span class="modal-info-value">${data.observaciones}</span>
-                                                </div>
-                                                ` : ''}
+                                                        <div class="modal-info-item">
+                                                            <span class="modal-info-label">Observaciones:</span>
+                                                            <span class="modal-info-value">${data.observaciones}</span>
+                                                        </div>
+                                                        ` : ''}
                                 <div class="modal-info-item">
                                     <span class="modal-info-label">Fecha de creación:</span>
                                     <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>

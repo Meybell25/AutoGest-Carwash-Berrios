@@ -262,56 +262,56 @@ class AdminController extends Controller
      * Almacena un nuevo usuario desde el panel de administración
      */
     public function storeUser(Request $request)
-{
-    DB::beginTransaction();
+    {
+        DB::beginTransaction();
 
-    try {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:usuarios',
-            'telefono' => 'nullable|string|max:20',
-            'rol' => 'required|in:cliente,empleado,admin',
-            'password' => 'required|string|min:8|confirmed',
-            'estado' => 'required|boolean'
-        ]);
+        try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:usuarios',
+                'telefono' => 'nullable|string|max:20',
+                'rol' => 'required|in:cliente,empleado,admin',
+                'password' => 'required|string|min:8|confirmed',
+                'estado' => 'required|boolean'
+            ]);
 
-        $user = Usuario::create([
-            'nombre' => $validated['nombre'],
-            'email' => $validated['email'],
-            'telefono' => $validated['telefono'],
-            'rol' => $validated['rol'],
-            'password' => Hash::make($validated['password']),
-            'estado' => $validated['estado']
-        ]);
+            $user = Usuario::create([
+                'nombre' => $validated['nombre'],
+                'email' => $validated['email'],
+                'telefono' => $validated['telefono'],
+                'rol' => $validated['rol'],
+                'password' => Hash::make($validated['password']),
+                'estado' => $validated['estado']
+            ]);
 
-        DB::commit();
+            DB::commit();
 
-        // Registrar actualización de usuario
-        \App\Models\Bitacora::registrar(\App\Models\Bitacora::ACCION_ACTUALIZAR_USUARIO, auth()->id(), request()->ip());
+            // Registrar actualización de usuario
+            \App\Models\Bitacora::registrar(\App\Models\Bitacora::ACCION_ACTUALIZAR_USUARIO, auth()->id(), request()->ip());
 
-        // Registrar creación de usuario (panel admin)
-        \App\Models\Bitacora::registrar(\App\Models\Bitacora::ACCION_CREAR_USUARIO, auth()->id(), $request->ip());
+            // Registrar creación de usuario (panel admin)
+            \App\Models\Bitacora::registrar(\App\Models\Bitacora::ACCION_CREAR_USUARIO, auth()->id(), $request->ip());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuario creado correctamente',
-            'user' => $user
-        ]);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'message' => 'Error de validación',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al crear usuario: ' . $e->getMessage()
-        ], 500);
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario creado correctamente',
+                'user' => $user
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear usuario: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     // Obtener todos los usuarios para filtrado
     public function getAllUsers(Request $request)
@@ -681,30 +681,30 @@ class AdminController extends Controller
                 'estado' => 'required|in:pendiente,confirmada,en_proceso,finalizada,cancelada'
             ]);
 
-            $cita = Cita::with(['usuario', 'vehiculo'])->findOrFail($id);
+            $cita = Cita::with(['usuario', 'vehiculo', 'pago'])->findOrFail($id);
             $estadoAnterior = $cita->estado;
             $nuevoEstado = $request->estado;
 
-            // Validaciones adicionales
-            if ($nuevoEstado === 'cancelada') {
-                // Validar que solo se pueda cancelar citas que no estén finalizadas o ya canceladas
-                if ($cita->estado === 'finalizada') {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'No se puede cancelar una cita ya finalizada'
-                    ], 422);
-                }
-
-                // Validar que no se cancele una cita en proceso sin justificación
-                if ($cita->estado === 'en_proceso') {
-                    // Aquí podria agregarse validaciones adicionales si necesita
-                }
+            // VALIDACIÓN 1: No permitir finalizar sin pago
+            if ($nuevoEstado === 'finalizada' && (!$cita->pago || $cita->pago->estado !== 'pagado')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede finalizar una cita sin pago registrado'
+                ], 422);
             }
 
-            // Validar transiciones de estado no permitidas
+            // VALIDACIÓN 2: No cancelar citas finalizadas
+            if ($nuevoEstado === 'cancelada' && $cita->estado === 'finalizada') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede cancelar una cita ya finalizada'
+                ], 422);
+            }
+
+            // VALIDACIÓN 3: Transiciones de estado no permitidas
             $transicionesInvalidas = [
-                'finalizada' => ['pendiente', 'confirmada'], // No se puede volver atrás desde finalizada
-                'cancelada' => ['pendiente', 'confirmada', 'en_proceso', 'finalizada'] // No se puede reactivar una cancelada
+                'finalizada' => ['pendiente', 'confirmada'],
+                'cancelada' => ['pendiente', 'confirmada', 'en_proceso', 'finalizada']
             ];
 
             if (
@@ -731,8 +731,6 @@ class AdminController extends Controller
                 'fecha' => now()
             ]);
 
-            // Aquí  agregar notificaciones al usuario. es necesario
-
             DB::commit();
 
             return response()->json([
@@ -753,6 +751,24 @@ class AdminController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar el estado de la cita'
+            ], 500);
+        }
+    }
+    /**
+     * Verificar si una cita tiene pago completado
+     */
+    public function verificarPagoCita($citaId)
+    {
+        try {
+            $cita = Cita::with('pago')->findOrFail($citaId);
+
+            return response()->json([
+                'tiene_pago_completado' => $cita->pago && $cita->pago->estado === 'pagado',
+                'pago' => $cita->pago
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al verificar pago'
             ], 500);
         }
     }
