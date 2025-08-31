@@ -532,47 +532,164 @@ class AdminController extends Controller
             'message' => $exists ? 'Este correo electrónico ya está registrado' : 'Email disponible'
         ]);
     }
-
     /**
-     * Muestra la administración de citas
+     * Muestra la administración de citas con filtros
      */
-    public function citasAdmin(): View
+    public function citasAdmin(Request $request)
     {
-        $citas = Cita::with(['usuario', 'vehiculo', 'servicios'])
-            ->orderBy('fecha_hora', 'desc')
-            ->paginate(10);
+        $query = Cita::with(['usuario', 'vehiculo', 'servicios'])
+            ->orderBy('fecha_hora', 'desc');
+
+        // Aplicar filtros
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('fecha')) {
+            $query->whereDate('fecha_hora', $request->fecha);
+        }
+
+        if ($request->filled('buscar')) {
+            $searchTerm = $request->buscar;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereHas('usuario', function ($q) use ($searchTerm) {
+                    $q->where('nombre', 'like', "%{$searchTerm}%")
+                        ->orWhere('email', 'like', "%{$searchTerm}%");
+                })->orWhereHas('vehiculo', function ($q) use ($searchTerm) {
+                    $q->where('placa', 'like', "%{$searchTerm}%")
+                        ->orWhere('marca', 'like', "%{$searchTerm}%")
+                        ->orWhere('modelo', 'like', "%{$searchTerm}%");
+                });
+            });
+        }
+
+        $citas = $query->paginate(15)->withQueryString();
 
         return view('admin.citasadmin', compact('citas'));
     }
 
     /**
-     * Actualiza el estado de una cita
+     * Obtiene los detalles completos de una cita
+     */
+    public function getCitaDetalles($id)
+    {
+        try {
+            $cita = Cita::with(['usuario', 'vehiculo', 'servicios'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'id' => $cita->id,
+                'usuario' => [
+                    'nombre' => $cita->usuario->nombre,
+                    'email' => $cita->usuario->email,
+                    'telefono' => $cita->usuario->telefono
+                ],
+                'vehiculo' => [
+                    'marca' => $cita->vehiculo->marca,
+                    'modelo' => $cita->vehiculo->modelo,
+                    'placa' => $cita->vehiculo->placa,
+                    'anio' => $cita->vehiculo->anio,
+                    'color' => $cita->vehiculo->color
+                ],
+                'fecha_hora' => $cita->fecha_hora,
+                'estado' => $cita->estado,
+                'estado_formatted' => $cita->estado_formatted,
+                'observaciones' => $cita->observaciones,
+                'total' => $cita->total,
+                'servicios' => $cita->servicios,
+                'created_at' => $cita->created_at
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error al obtener detalles de cita: " . $e->getMessage());
+            return response()->json([
+                'error' => 'No se pudieron cargar los detalles de la cita'
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualiza el estado de una cita con validaciones
      */
     public function actualizarEstadoCita(Request $request, $id)
     {
-        $cita = Cita::findOrFail($id);
+        try {
+            $request->validate([
+                'estado' => 'required|in:pendiente,confirmada,en_proceso,finalizada,cancelada'
+            ]);
 
-        $request->validate([
-            'estado' => 'required|in:pendiente,confirmada,en_proceso,finalizada,cancelada'
-        ]);
+            $cita = Cita::with(['usuario', 'vehiculo'])->findOrFail($id);
+            $estadoAnterior = $cita->estado;
+            $nuevoEstado = $request->estado;
 
-        $estadoAnterior = $cita->estado;
-        $cita->estado = $request->estado;
-        $cita->save();
+            // Validaciones adicionales
+            if ($nuevoEstado === 'cancelada') {
+                // Validar que solo se pueda cancelar citas que no estén finalizadas o ya canceladas
+                if ($cita->estado === 'finalizada') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se puede cancelar una cita ya finalizada'
+                    ], 422);
+                }
 
-        // Registrar en bitácora
-        Log::channel('admin_actions')->info("Estado de cita actualizado", [
-            'admin_id' => auth()->id(),
-            'cita_id' => $cita->id,
-            'estado_anterior' => $estadoAnterior,
-            'estado_nuevo' => $cita->estado,
-            'fecha' => now()
-        ]);
+                // Validar que no se cancele una cita en proceso sin justificación
+                if ($cita->estado === 'en_proceso') {
+                    // Aquí podrías agregar validaciones adicionales si necesitas una razón
+                }
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Estado de cita actualizado correctamente',
-            'nuevo_estado' => $cita->estado_formatted
-        ]);
+            // Validar transiciones de estado no permitidas
+            $transicionesInvalidas = [
+                'finalizada' => ['pendiente', 'confirmada'], // No se puede volver atrás desde finalizada
+                'cancelada' => ['pendiente', 'confirmada', 'en_proceso', 'finalizada'] // No se puede reactivar una cancelada
+            ];
+
+            if (
+                isset($transicionesInvalidas[$estadoAnterior]) &&
+                in_array($nuevoEstado, $transicionesInvalidas[$estadoAnterior])
+            ) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede cambiar el estado de ' . $estadoAnterior . ' a ' . $nuevoEstado
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            $cita->estado = $nuevoEstado;
+            $cita->save();
+
+            // Registrar en bitácora
+            Log::channel('admin_actions')->info("Estado de cita actualizado", [
+                'admin_id' => auth()->id(),
+                'cita_id' => $cita->id,
+                'estado_anterior' => $estadoAnterior,
+                'estado_nuevo' => $cita->estado,
+                'fecha' => now()
+            ]);
+
+            // Aquí  agregar notificaciones al usuario. es necesario
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estado de cita actualizado correctamente',
+                'nuevo_estado' => $cita->estado_formatted
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al actualizar estado de cita: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el estado de la cita'
+            ], 500);
+        }
     }
 }

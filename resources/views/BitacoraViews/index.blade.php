@@ -745,7 +745,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // =============================================
-        // FUNCIONES DE EXPORTACIÓN ACTUALIZADAS PARA BITÁCORA
+        // FUNCIONES DE EXPORTACIÓN  PARA BITÁCORA
         // =============================================
 
         async function exportBitacoraToExcel() {
@@ -938,7 +938,7 @@
         }
 
         // =============================================
-        // RESTO DE FUNCIONES EXISTENTES
+        //  FUNCIONES DE VALIDACIÓN Y LIMPIEZA DE FILTROS
         // =============================================
         document.addEventListener('DOMContentLoaded', function() {
             // Limpiar filtros
