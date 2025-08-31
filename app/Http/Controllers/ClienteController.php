@@ -445,13 +445,16 @@ class ClienteController extends Controller
             // Registrar en bitácora
             \App\Models\Bitacora::create([
                 'usuario_id' => Auth::id(),
-                'accion' => 'crear',
+                'accion' => 'crear_cita',
                 'tabla_afectada' => 'citas',
                 'registro_id' => $cita->id,
                 'detalles' => "Creó cita para {$fechaCita->format('d/m/Y H:i')} - Vehículo: {$vehiculo->marca} {$vehiculo->modelo}"
             ]);
 
             DB::commit();
+
+            // Registrar en bitácora
+            \App\Models\Bitacora::registrar(\App\Models\Bitacora::ACCION_ACTUALIZAR_CITA, Auth::id(), request()->ip());
 
             return response()->json([
                 'success' => true,
@@ -699,7 +702,7 @@ class ClienteController extends Controller
             // Registrar en bitácora
             \App\Models\Bitacora::create([
                 'usuario_id' => Auth::id(),
-                'accion' => 'cancelar',
+                'accion' => 'cancelar_cita',
                 'tabla_afectada' => 'citas',
                 'registro_id' => $cita->id,
                 'detalles' => "Canceló cita programada para {$fechaOriginal}"
