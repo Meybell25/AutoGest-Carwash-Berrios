@@ -410,3 +410,30 @@ Route::get('/check-timezone', function () {
 Route::post('/cliente/debug-horarios', [ClienteController::class, 'debugHorarios'])
     ->name('cliente.debug-horarios')
     ->middleware('auth');
+
+// Ruta temporal de debug para citas (SIN CSRF para testing)
+Route::post('/debug/test-cita', function(Request $request) {
+    return response()->json([
+        'received_data' => $request->all(),
+        'headers' => $request->headers->all(),
+        'user_authenticated' => Auth::check(),
+        'user_id' => Auth::id(),
+        'csrf_token_present' => $request->header('X-CSRF-TOKEN') ? true : false,
+        'method' => $request->method()
+    ]);
+})->name('debug.test-cita')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+// Ruta temporal para crear citas SIN validación de conflictos
+Route::post('/cliente/citas/store-simple', [ClienteController::class, 'storeCitaSimple'])
+    ->name('cliente.citas.store-simple')
+    ->middleware('auth');
+
+// Rutas CRUD para gestión de servicios (Admin)
+Route::prefix('admin')->middleware(['auth', 'check.admin'])->group(function () {
+    Route::get('/servicios', [AdminController::class, 'servicios'])->name('admin.servicios.index');
+    Route::post('/servicios', [AdminController::class, 'storeServicio'])->name('admin.servicios.store');
+    Route::get('/servicios/{id}', [AdminController::class, 'showServicio'])->name('admin.servicios.show');
+    Route::put('/servicios/{id}', [AdminController::class, 'updateServicio'])->name('admin.servicios.update');
+    Route::delete('/servicios/{id}', [AdminController::class, 'deleteServicio'])->name('admin.servicios.delete');
+    Route::post('/servicios/{id}/toggle-status', [AdminController::class, 'toggleServicioStatus'])->name('admin.servicios.toggle-status');
+});
