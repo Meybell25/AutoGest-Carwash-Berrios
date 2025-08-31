@@ -3240,6 +3240,14 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                             </div>
+                        <div class="pagination">
+                            <a href="#" class="page-link">&laquo;</a>
+                            <a href="#" class="page-link active">1</a>
+                            <a href="#" class="page-link">2</a>
+                            <a href="#" class="page-link">3</a>
+                            <a href="#" class="page-link">&raquo;</a>
+                        </div>
                         </div>
                     </div>
                 </div>
