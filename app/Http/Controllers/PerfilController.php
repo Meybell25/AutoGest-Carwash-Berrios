@@ -85,25 +85,6 @@ class PerfilController extends Controller
             'message' => 'Perfil actualizado correctamente',
             'user' => $user->fresh() 
         ]);
-<<<<<<< HEAD
-
-        try {
-            $user = Auth::user();
-            $user->update($validated);
-              Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_PERFIL, null, $request->ip(), $request->path());
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Perfil actualizado correctamente',
-                'user' => $user
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar el perfil: ' . $e->getMessage()
-            ], 500);
-        }
-=======
         
     } catch (\Exception $e) {
         Log::error('Error actualizando perfil: ' . $e->getMessage());
@@ -111,7 +92,6 @@ class PerfilController extends Controller
             'success' => false,
             'message' => 'Error al actualizar el perfil. Intente nuevamente.'
         ], 500);
->>>>>>> origin/main
     }
 }
 }

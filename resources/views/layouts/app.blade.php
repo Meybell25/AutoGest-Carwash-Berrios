@@ -236,6 +236,25 @@
         .is-invalid~.invalid-tooltip {
             display: block;
         }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                margin: 10px 0;
+            }
+
+            .back-button {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 20px;
+                display: inline-flex;
+            }
+        }
     </style>
     @stack('styles')
 </head>
