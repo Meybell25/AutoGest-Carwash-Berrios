@@ -219,6 +219,248 @@
             font-size: 0.85rem;
         }
     }
+
+    /* ======================
+        VARIABLES CSS (MISMO ESTILO DEL DASHBOARD PADRE)
+        ====================== */
+    :root {
+        --primary: #2e7d32;
+        --secondary: #00695c;
+        --accent: #ff8f00;
+        --success: #388e3c;
+        --warning: #d84315;
+        --danger: #c62828;
+        --info: #0277bd;
+        --dark: #263238;
+        --light: #eceff1;
+
+        --primary-gradient: linear-gradient(135deg, #2e7d32 0%, #00695c 100%);
+        --accent-gradient: linear-gradient(45deg, #ff8f00 0%, #ef6c00 100%);
+        --secondary-gradient: linear-gradient(135deg, #00695c 0%, #0277bd 100%);
+        --success-gradient: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+        --warning-gradient: linear-gradient(135deg, #d84315 0%, #bf360c 100%);
+        --danger-gradient: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+        --info-gradient: linear-gradient(135deg, #0277bd 0%, #01579b 100%);
+        --dark-gradient: linear-gradient(135deg, #263238 0%, #37474f 100%);
+
+        /* Texto */
+        --text-primary: #2c3e50;
+        --text-secondary: #7f8c8d;
+        --text-light: #ecf0f1;
+
+        /* Fondos */
+        --bg-light: rgba(255, 255, 255, 0.95);
+        --bg-dark: rgba(44, 62, 80, 0.95);
+        --bg-surface: rgba(255, 255, 255, 0.98);
+
+        /* Bordes */
+        --border-light: rgba(255, 255, 255, 0.2);
+        --border-primary: rgba(39, 174, 96, 0.2);
+
+        /* Sombras */
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+
+        /* Efectos */
+        --blur: blur(20px);
+        --transition: all 0.3s ease;
+    }
+
+    /* ======================
+        ESTILOS GENERALES
+        ====================== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #3498db, #27ae60, #f39c12);
+        background-attachment: fixed;
+        min-height: 100vh;
+        color: var(--text-primary);
+        line-height: 1.7;
+        overflow-x: hidden;
+    }
+
+    /* Partículas flotantes de fondo */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background:
+            radial-gradient(circle at 20% 80%, rgba(39, 174, 96, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(243, 156, 18, 0.05) 0%, transparent 50%);
+        z-index: -1;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+        33% {
+            transform: translate(30px, -30px) rotate(120deg);
+        }
+        66% {
+            transform: translate(-20px, 20px) rotate(240deg);
+        }
+    }
+
+    @keyframes shimmer {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    /* ======================
+        BOTONES
+        ====================== */
+    .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.5s;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary {
+        background: var(--secondary-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 105, 92, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #00695c 0%, #004d40 100%);
+        box-shadow: 0 8px 25px rgba(0, 105, 92, 0.4);
+    }
+
+    /* ======================
+        FORMULARIOS
+        ====================== */
+    .form-control {
+        width: 100%;
+        padding: 12px 18px;
+        border: 2px solid var(--border-primary);
+        border-radius: 12px;
+        font-size: 15px;
+        background: var(--bg-surface);
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        outline: none;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    /* ======================
+        ÍCONOS
+        ====================== */
+    .icon-container {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--secondary-gradient);
+        position: relative;
+        margin-bottom: 15px;
+        z-index: 1;
+    }
+
+    .icon-container > i {
+        color: white !important;
+        font-size: 1.3rem;
+        position: relative;
+        z-index: 100;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Efecto hover */
+    .icon-container:hover {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    /* ======================
+        RESPONSIVE
+        ====================== */
+    @media (max-width: 992px) {
+        .bitacora-container {
+            padding: 20px 15px;
+        }
+        
+        .bitacora-header {
+            padding: 20px;
+        }
+        
+        .bitacora-card-header,
+        .bitacora-card-body {
+            padding: 20px 25px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .bitacora-container {
+            padding: 15px 10px;
+        }
+        
+        .bitacora-header {
+            padding: 20px;
+            border-radius: 18px;
+        }
+        
+        .bitacora-card {
+            border-radius: 18px;
+        }
+        
+        .bitacora-card-header,
+        .bitacora-card-body {
+            padding: 15px 20px;
+        }
+    }
 </style>
 @endsection
 
