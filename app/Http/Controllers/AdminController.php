@@ -588,8 +588,10 @@ class AdminController extends Controller
                     'marca' => $cita->vehiculo->marca,
                     'modelo' => $cita->vehiculo->modelo,
                     'placa' => $cita->vehiculo->placa,
-                    'anio' => $cita->vehiculo->anio,
-                    'color' => $cita->vehiculo->color
+                    'tipo' => $cita->vehiculo->tipo,
+                    'tipo_formatted' => $cita->vehiculo->tipo_formatted, // Añade esto
+                    'color' => $cita->vehiculo->color,
+                    'descripcion' => $cita->vehiculo->descripcion
                 ],
                 'fecha_hora' => $cita->fecha_hora,
                 'estado' => $cita->estado,

@@ -103,6 +103,7 @@
             font-size: 0.9rem;
             position: relative;
             overflow: hidden;
+            white-space: nowrap;
         }
 
         .btn::before {
@@ -142,17 +143,16 @@
             box-shadow: 0 8px 25px rgba(38, 50, 56, 0.4);
         }
 
-        /* Botón detalles - Nuevo color que armoniza */
+        /* Botón detalles  */
         .btn-details {
-            background: linear-gradient(135deg, #ff8f00 0%, #f57c00 100%);
+            background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(56, 142, 60, 0.3);
         }
 
         .btn-details:hover {
-            background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);
-            box-shadow: 0 8px 25px rgba(255, 143, 0, 0.4);
-            color: white;
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+            box-shadow: 0 8px 25px rgba(56, 142, 60, 0.4);
         }
 
         .card {
@@ -192,16 +192,24 @@
             padding: 0 30px 30px;
         }
 
-        /* Mejora en los filtros */
+        /* MEJORAS EN LOS FILTROS */
+        .filters-card .card-body {
+            padding: 30px 30px 25px;
+            /* Más padding top */
+        }
+
         .filter-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.8rem;
+            /* Más espaciado entre filtros */
         }
 
         .filter-label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            /* Más separación del input */
             font-weight: 600;
             color: var(--text-primary);
+            font-size: 0.95rem;
         }
 
         .form-control {
@@ -218,6 +226,22 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
             outline: none;
+        }
+
+        /* Mejoras en botones de filtros */
+        .filter-buttons-container {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            align-items: end;
+        }
+
+        .filter-buttons-container .btn {
+            flex: 1;
+            min-width: 100px;
+            /* Ancho mínimo para evitar recortes */
+            justify-content: center;
+            padding: 12px 16px;
         }
 
         .admin-table {
@@ -363,6 +387,170 @@
             opacity: 0.5;
         }
 
+        /* MEJORAS EN EL MODAL */
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #00695c 0%, #2e7d32 100%);
+            color: white;
+            padding: 25px 30px;
+            border-bottom: none;
+            position: relative;
+        }
+
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+        }
+
+        .modal-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-title::before {
+            content: '\f073';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-close {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            opacity: 1;
+            font-size: 1.2rem;
+            padding: 8px;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 35px 30px;
+            background: #fafafa;
+        }
+
+        .modal-footer {
+            background: white;
+            padding: 20px 30px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Estilos para las secciones del modal */
+        .modal-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .modal-info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-info-value {
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        .services-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 3px solid var(--info);
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            flex-grow: 1;
+        }
+
+        .service-price {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .total-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .dashboard-container {
@@ -376,6 +564,10 @@
             .card-header,
             .card-body {
                 padding: 20px 25px;
+            }
+
+            .filters-card .card-body {
+                padding: 25px 25px 20px;
             }
         }
 
@@ -391,6 +583,15 @@
                 flex-direction: column;
             }
 
+            .filter-buttons-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .filter-buttons-container .btn {
+                width: 100%;
+            }
+
             .admin-table {
                 display: block;
                 overflow-x: auto;
@@ -400,6 +601,15 @@
             .admin-table td {
                 padding: 12px 8px;
                 font-size: 0.85rem;
+            }
+
+            .modal-body {
+                padding: 25px 20px;
+            }
+
+            .modal-section {
+                padding: 20px;
+                margin-bottom: 20px;
             }
         }
 
@@ -420,6 +630,10 @@
             .card-header,
             .card-body {
                 padding: 15px 20px;
+            }
+
+            .filters-card .card-body {
+                padding: 20px 20px 15px;
             }
         }
     </style>
@@ -443,15 +657,15 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-primary">
                     <i class="fas fa-arrow-left"></i>
                     Volver al Dashboard
                 </a>
             </div>
         </div>
 
-        <!-- Filtros -->
-        <div class="card">
+        <!-- Filtros Mejorados -->
+        <div class="card filters-card">
             <div class="card-body">
                 <form id="filtros-form" method="GET" action="{{ route('admin.citasadmin.index') }}">
                     <div class="row">
@@ -482,11 +696,11 @@
                                 placeholder="Cliente, vehículo, placa..." value="{{ request('buscar') }}">
                         </div>
                         <div class="col-md-2 filter-group d-flex align-items-end">
-                            <div class="d-flex w-100" style="gap: 10px;">
-                                <button type="submit" class="btn btn-primary w-100">
+                            <div class="filter-buttons-container">
+                                <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-filter"></i> Filtrar
                                 </button>
-                                <a href="{{ route('admin.citasadmin.index') }}" class="btn btn-secondary w-100">
+                                <a href="{{ route('admin.citasadmin.index') }}" class="btn btn-secondary">
                                     <i class="fas fa-broom"></i> Limpiar
                                 </a>
                             </div>
@@ -496,7 +710,7 @@
             </div>
         </div>
 
-        <!-- Tabla de citas - INFORMACIÓN SIMPLIFICADA -->
+        <!-- Tabla de citas  -->
         <div class="card">
             <div class="card-header">
                 <h2
@@ -622,7 +836,7 @@
         </div>
     </div>
 
-    <!-- Modal para detalles de cita -->
+    <!-- Modal Mejorado para detalles de cita -->
     <div class="modal fade" id="detallesCitaModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -634,7 +848,9 @@
                     <!-- Los detalles se cargarán aquí via AJAX -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cerrar
+                    </button>
                 </div>
             </div>
         </div>
@@ -642,7 +858,6 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Cambiar estado de cita
@@ -730,7 +945,7 @@
                     });
             }
 
-            // Ver detalles de cita
+            // Ver detalles de cita con modal mejorado
             document.querySelectorAll('.view-details').forEach(button => {
                 button.addEventListener('click', function() {
                     const citaId = this.getAttribute('data-cita-id');
@@ -768,51 +983,108 @@
                                     const precio = servicio.pivot?.precio || servicio
                                         .precio || 0;
                                     serviciosHTML += `
-                                    <div class="d-flex justify-content-between border-bottom py-2">
-                                        <span>${servicio.nombre}</span>
-                                        <span>$${precio.toFixed(2)}</span>
+                                    <div class="service-item">
+                                        <span class="service-name">${servicio.nombre}</span>
+                                        <span class="service-price">$${precio.toFixed(2)}</span>
                                     </div>
                                 `;
                                 });
                             } else {
                                 serviciosHTML =
-                                    '<p class="text-muted">No hay servicios registrados</p>';
+                                    '<p class="text-muted text-center">No hay servicios registrados</p>';
                             }
 
+                            // Obtener el tipo formateado del vehículo
+                            const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo
+                                .tipo || 'No especificado';
+
                             document.getElementById('detalles-cita-content').innerHTML = `
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 class="fw-bold">Información del Cliente</h6>
-                                    <p><strong>Nombre:</strong> ${data.usuario.nombre}</p>
-                                    <p><strong>Email:</strong> ${data.usuario.email}</p>
-                                    <p><strong>Teléfono:</strong> ${data.usuario.telefono || 'No proporcionado'}</p>
+                            <div class="modal-section">
+                                <div class="modal-section-title">
+                                    <i class="fas fa-user"></i> Información del Cliente
                                 </div>
-                                <div class="col-md-6">
-                                    <h6 class="fw-bold">Información del Vehículo</h6>
-                                    <p><strong>Marca/Modelo:</strong> ${data.vehiculo.marca} ${data.vehiculo.modelo}</p>
-                                    <p><strong>Placa:</strong> ${data.vehiculo.placa}</p>
-                                    <p><strong>Año:</strong> ${data.vehiculo.anio}</p>
-                                    <p><strong>Color:</strong> ${data.vehiculo.color || 'No especificado'}</p>
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Nombre:</span>
+                                    <span class="modal-info-value">${data.usuario.nombre}</span>
                                 </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-12">
-                                    <h6 class="fw-bold">Detalles de la Cita</h6>
-                                    <p><strong>Fecha/Hora:</strong> ${new Date(data.fecha_hora).toLocaleString('es-ES')}</p>
-                                    <p><strong>Estado:</strong> <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span></p>
-                                    ${data.observaciones ? `<p><strong>Observaciones:</strong> ${data.observaciones}</p>` : ''}
-                                    <p><strong>Fecha de creación:</strong> ${new Date(data.created_at).toLocaleString('es-ES')}</p>
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Email:</span>
+                                    <span class="modal-info-value">${data.usuario.email}</span>
+                                </div>
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Teléfono:</span>
+                                    <span class="modal-info-value">${data.usuario.telefono || 'No proporcionado'}</span>
                                 </div>
                             </div>
-                            <div class="row mt-3">
-                                <div class="col-12">
-                                    <h6 class="fw-bold">Servicios</h6>
-                                    ${serviciosHTML}
-                                    <div class="d-flex justify-content-between mt-3 fw-bold fs-5 border-top pt-2">
-                                        <span>Total:</span>
-                                        <span>$${data.total.toFixed(2)}</span>
+
+                            <div class="modal-section">
+                                <div class="modal-section-title">
+                                    <i class="fas fa-car"></i> Información del Vehículo
+                                </div>
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Marca/Modelo:</span>
+                                    <span class="modal-info-value">${data.vehiculo.marca} ${data.vehiculo.modelo}</span>
+                                </div>
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Placa:</span>
+                                    <span class="modal-info-value">${data.vehiculo.placa}</span>
+                                </div>
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Tipo:</span>
+                                    <span class="modal-info-value">${tipoVehiculo}</span>
+                                </div>
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Color:</span>
+                                    <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
+                                </div>
+                                ${data.vehiculo.descripcion ? `
+                                    <div class="modal-info-item">
+                                        <span class="modal-info-label">Descripción:</span>
+                                        <span class="modal-info-value">${data.vehiculo.descripcion}</span>
                                     </div>
+                                    ` : ''}
+                            </div>
+
+                            <div class="modal-section">
+                                <div class="modal-section-title">
+                                    <i class="fas fa-calendar-alt"></i> Detalles de la Cita
                                 </div>
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Fecha/Hora:</span>
+                                    <span class="modal-info-value">${new Date(data.fecha_hora).toLocaleString('es-ES')}</span>
+                                </div>
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Estado:</span>
+                                    <span class="modal-info-value">
+                                        <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span>
+                                    </span>
+                                </div>
+                                ${data.observaciones ? `
+                                    <div class="modal-info-item">
+                                        <span class="modal-info-label">Observaciones:</span>
+                                        <span class="modal-info-value">${data.observaciones}</span>
+                                    </div>
+                                    ` : ''}
+                                <div class="modal-info-item">
+                                    <span class="modal-info-label">Fecha de creación:</span>
+                                    <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
+                                </div>
+                            </div>
+
+                            <div class="modal-section">
+                                <div class="modal-section-title">
+                                    <i class="fas fa-tools"></i> Servicios Seleccionados
+                                </div>
+                                <div class="services-grid">
+                                    ${serviciosHTML}
+                                </div>
+                            </div>
+
+                            <div class="modal-section total-section">
+                                <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                                    <i class="fas fa-receipt me-2"></i> Total a Pagar
+                                </div>
+                                <div class="total-amount">$${data.total.toFixed(2)}</div>
                             </div>
                         `;
 
@@ -835,6 +1107,7 @@
             });
         });
     </script>
+
 </body>
 
 </html>
