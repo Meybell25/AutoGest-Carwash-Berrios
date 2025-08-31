@@ -1,5 +1,4 @@
 <?php
-// app/Models/CitaServicio.php
 
 namespace App\Models;
 
@@ -11,6 +10,9 @@ class CitaServicio extends Model
     use HasFactory;
 
     protected $table = 'cita_servicio';
+    
+    // Deshabilitar timestamps ya que es tabla pivot
+    public $timestamps = false;
 
     protected $fillable = [
         'cita_id',
@@ -59,5 +61,17 @@ class CitaServicio extends Model
     public function scopeSinDescuento($query)
     {
         return $query->where('descuento', 0);
+    }
+
+    // Métodos de validación
+    public function validarDescuento(): bool
+    {
+        return $this->descuento >= 0 && $this->descuento <= $this->precio;
+    }
+
+    public function aplicarDescuentoPorcentaje(float $porcentaje): void
+    {
+        $porcentaje = max(0, min(100, $porcentaje)); // Limitar entre 0-100%
+        $this->descuento = ($this->precio * $porcentaje) / 100;
     }
 }
