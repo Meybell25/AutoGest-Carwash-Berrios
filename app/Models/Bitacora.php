@@ -5,7 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth; // ← Agregar esta línea
+use Illuminate\Support\Facades\Auth; 
 
 class Bitacora extends Model
 {

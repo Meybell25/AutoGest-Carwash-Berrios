@@ -18,7 +18,7 @@ class EstadoUsuarioCambiado extends Notification
 
     public function via($notifiable)
     {
-        // Solo usamos la base de datos (tu tabla personalizada)
+        
         return ['database'];
     }
 

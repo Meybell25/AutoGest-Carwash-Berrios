@@ -6,6 +6,9 @@
     <title>Bitácora - AutoGest Carwash Berrios</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         /* ======================
         ESTILOS GENERALES
@@ -527,42 +530,12 @@
                 </h2>
             </div>
             <div class="bitacora-card-body">
-                <!-- Filtros -->
+                <!-- Filtros (sin cambios) -->
                 <form method="GET" class="search-filter-container" id="filtrosForm">
-                    <div class="filter-group">
-                        <label for="usuario_id" class="form-label">Usuario</label>
-                        <select name="usuario_id" id="usuario_id" class="form-control">
-                            <option value="">Todos los usuarios</option>
-                            @foreach($usuarios as $id => $nombre)
-                                <option value="{{ $id }}" {{ request('usuario_id') == $id ? 'selected' : '' }}>{{ $nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="fecha_inicio" class="form-label">Desde</label>
-                        <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="{{ request('fecha_inicio') }}">
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="fecha_fin" class="form-label">Hasta</label>
-                        <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ request('fecha_fin') }}">
-                    </div>
-                    
-                    <div class="filter-group filter-button">
-                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
-                    </div>
-
-                    <div class="filter-group filter-button">
-                        <button type="button" id="limpiarFiltros" class="btn btn-secondary" style="width: 100%; padding: 12px;">
-                            <i class="fas fa-broom"></i> Limpiar
-                        </button>
-                    </div>
+                    <!-- ... tus filtros actuales ... -->
                 </form>
 
-                <!-- Información de resultados -->
+                <!-- Información de resultados - MODIFICADO -->
                 <div class="resultados-info">
                     <div class="resultados-texto">
                         Mostrando <span class="resultados-contador">{{ $logs->total() }}</span> registros
@@ -572,16 +545,19 @@
                             </span>
                         @endif
                     </div>
-                    <div>
-                        <a href="{{ route('admin.bitacora.export') }}?{{ http_build_query(request()->all()) }}" class="btn btn-primary">
-                            <i class="fas fa-download"></i> Exportar
-                        </a>
+                    <div class="export-buttons" style="display: flex; gap: 10px;">
+                        <button class="btn btn-success" onclick="exportBitacoraToExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-danger" onclick="exportBitacoraToPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
                     </div>
                 </div>
 
                 <!-- Tabla con IP -->
                 <div style="overflow-x: auto; margin-top: 20px;">
-                    <table class="bitacora-table">
+                    <table class="bitacora-table" id="bitacoraTable">
                         <thead>
                             <tr>
                                 <th>Fecha</th>
@@ -624,6 +600,141 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // =============================================
+        // FUNCIONES DE EXPORTACIÓN 
+        // =============================================
+
+        function exportBitacoraToExcel() {
+            try {
+                // Obtener todos los datos de la tabla
+                const table = document.getElementById('bitacoraTable');
+                const data = [];
+                
+                // Encabezados
+                const headers = [];
+                table.querySelectorAll('thead th').forEach(header => {
+                    headers.push(header.textContent.trim());
+                });
+                data.push(headers);
+                
+                // Datos
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const rowData = [];
+                    row.querySelectorAll('td').forEach(cell => {
+                        rowData.push(cell.textContent.trim());
+                    });
+                    data.push(rowData);
+                });
+                
+                // Crear libro de trabajo
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                
+                // Aplicar estilos a los encabezados
+                if (!ws['A1'].s) ws['A1'].s = {};
+                if (!ws['B1'].s) ws['B1'].s = {};
+                if (!ws['C1'].s) ws['C1'].s = {};
+                if (!ws['D1'].s) ws['D1'].s = {};
+                
+                // Estilo para encabezados (verde como en usuarios)
+                const headerStyle = {
+                    font: { bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "2E7D32" } }
+                };
+                
+                ws['A1'].s = headerStyle;
+                ws['B1'].s = headerStyle;
+                ws['C1'].s = headerStyle;
+                ws['D1'].s = headerStyle;
+                
+                // Añadir hoja al libro
+                XLSX.utils.book_append_sheet(wb, ws, "Bitácora");
+                
+                // Guardar archivo
+                XLSX.writeFile(wb, `bitacora_${new Date().toISOString().slice(0,10)}.xlsx`);
+                
+            } catch (error) {
+                console.error('Error al exportar a Excel:', error);
+                Swal.fire('Error', 'No se pudo generar el archivo Excel', 'error');
+            }
+        }
+
+        function exportBitacoraToPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Título
+                doc.setFontSize(18);
+                doc.setTextColor(46, 125, 50); // Verde #2E7D32
+                doc.text('Bitácora del Sistema', 14, 15);
+                
+                // Subtítulo
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`AutoGest Carwash Berrios - ${new Date().toLocaleDateString()}`, 14, 22);
+                
+                // Obtener datos de la tabla
+                const table = document.getElementById('bitacoraTable');
+                const data = [];
+                
+                // Encabezados
+                const headers = [];
+                table.querySelectorAll('thead th').forEach(header => {
+                    headers.push(header.textContent.trim());
+                });
+                
+                // Datos
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const rowData = [];
+                    row.querySelectorAll('td').forEach(cell => {
+                        rowData.push(cell.textContent.trim());
+                    });
+                    data.push(rowData);
+                });
+                
+                // Crear tabla en PDF
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 30,
+                    theme: 'grid',
+                    styles: {
+                        fontSize: 10,
+                        cellPadding: 3,
+                        overflow: 'linebreak'
+                    },
+                    headStyles: {
+                        fillColor: [46, 125, 50], // Verde #2E7D32
+                        textColor: 255,
+                        fontStyle: 'bold'
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245]
+                    }
+                });
+                
+                // Pie de página
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.width - 40, doc.internal.pageSize.height - 10);
+                }
+                
+                // Guardar PDF
+                doc.save(`bitacora_${new Date().toISOString().slice(0,10)}.pdf`);
+                
+            } catch (error) {
+                console.error('Error al exportar a PDF:', error);
+                Swal.fire('Error', 'No se pudo generar el archivo PDF', 'error');
+            }
+        }
+
+        // =============================================
+        //  FUNCIONES 
+        // =============================================
         document.addEventListener('DOMContentLoaded', function() {
             // Mostrar mensajes de éxito/error
             @if (session('success'))
@@ -657,14 +768,11 @@
 
             // Limpiar filtros
             document.getElementById('limpiarFiltros').addEventListener('click', function() {
-                // Resetear formulario
                 document.getElementById('filtrosForm').reset();
-                
-                // Redirigir sin parámetros de búsqueda
                 window.location.href = "{{ route('admin.bitacora') }}";
             });
 
-            // Validar que fecha fin no sea menor que fecha inicio
+            // Validar fechas
             document.getElementById('fecha_inicio').addEventListener('change', function() {
                 const fechaInicio = new Date(this.value);
                 const fechaFin = new Date(document.getElementById('fecha_fin').value);
