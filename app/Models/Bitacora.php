@@ -5,7 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth; // ← Agregar esta línea
+use Illuminate\Support\Facades\Auth; 
 
 class Bitacora extends Model
 {
@@ -29,7 +29,6 @@ class Bitacora extends Model
 
     // Tipos de acciones comunes
     const ACCION_LOGIN = 'login';
-    const ACCION_LOGOUT = 'logout';
     const ACCION_CREAR_CITA = 'crear_cita';
     const ACCION_ACTUALIZAR_CITA = 'actualizar_cita';
     const ACCION_CANCELAR_CITA = 'cancelar_cita';

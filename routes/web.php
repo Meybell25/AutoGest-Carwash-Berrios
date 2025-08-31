@@ -9,10 +9,14 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ServicioController;
-use App\Http\Controllers\DiaNoLaborableController;
+use App\Http\Controllers\GastoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\DiaNoLaborableController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,22 +66,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/categoria/{categoria}', [ServicioController::class, 'porCategoria'])->name('categoria');
         Route::get('/{id}', [ServicioController::class, 'show'])->name('show');
     });
-
-    // Rutas para Días No Laborables
-    Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
-        Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
-        Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
-        Route::post('/', [DiaNoLaborableController::class, 'store'])->name('store');
-        Route::get('/{id}', [DiaNoLaborableController::class, 'show'])->name('show');
-        Route::get('/{id}/editar', [DiaNoLaborableController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [DiaNoLaborableController::class, 'update'])->name('update');
-        Route::delete('/{id}', [DiaNoLaborableController::class, 'destroy'])->name('destroy');
-
-        Route::get('/proximos', [DiaNoLaborableController::class, 'proximos'])->name('proximos');
-        Route::get('/del-mes', [DiaNoLaborableController::class, 'delMes'])->name('del-mes');
-        Route::get('/laborables', [DiaNoLaborableController::class, 'diasLaborables'])->name('laborables');
-        Route::get('/motivos', [DiaNoLaborableController::class, 'motivos'])->name('motivos');
-    });
 });
 
 // Rutas de Admin
@@ -105,8 +93,17 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::post('/', [AdminController::class, 'storeCita'])->name('store');
         });
 
-        // Rutas de reportes
+        // Rutas de Admin 
+        Route::prefix('citasadmin')->name('citasadmin.')->group(function () {
+            Route::get('/', [AdminController::class, 'citasAdmin'])->name('index');
+            Route::put('/{cita}/actualizar-estado', [AdminController::class, 'actualizarEstadoCita'])->name('actualizar-estado');
+            Route::get('/{cita}/detalles', [AdminController::class, 'getCitaDetalles'])->name('detalles');
+        });
+
         Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
+        Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
+        Route::get('/bitacora/export-excel', [BitacoraController::class, 'exportExcel'])->name('bitacora.export-excel');
+        Route::get('/bitacora/export-pdf', [BitacoraController::class, 'exportPdf'])->name('bitacora.export-pdf');
 
         // Rutas de servicios
         Route::prefix('servicios')->name('servicios.')->group(function () {
@@ -118,32 +115,44 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
         });
 
-        //Rutas para horarios
-        Route::get('/horarios/dia/{dia}', [HorarioController::class, 'porDia'])->name('horarios.porDia');
+        // Rutas de Gastos - ACTIVAS
+        Route::prefix('gastos')->name('gastos.')->group(function () {
+            Route::get('/', [GastoController::class, 'index'])->name('index');
+            Route::get('/crear', [GastoController::class, 'create'])->name('create');
+            Route::post('/', [GastoController::class, 'store'])->name('store');
+            Route::get('/{id}', [GastoController::class, 'show'])->name('show');
+            Route::get('/{id}/editar', [GastoController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [GastoController::class, 'update'])->name('update');
+            Route::delete('/{id}', [GastoController::class, 'destroy'])->name('destroy');
 
-        
+            // Rutas adicionales para filtros
+            Route::get('/tipo/{tipo}', [GastoController::class, 'filtrarPorTipo'])->name('tipo');
+            Route::post('/filtrar-fechas', [GastoController::class, 'filtrarPorFechas'])->name('filtrar-fechas');
 
+            // Rutas para estadísticas
+            Route::get('/estadisticas/resumen', [GastoController::class, 'resumen'])->name('resumen');
+            Route::get('/estadisticas/por-tipo', [GastoController::class, 'estadisticasPorTipo'])->name('estadisticas-tipo');
+        });
+
+        // Rutas para Días No Laborables
+        Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
+            Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
+            Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
+            Route::post('/', [DiaNoLaborableController::class, 'store'])->name('store');
+            Route::get('/{id}', [DiaNoLaborableController::class, 'show'])->name('show');
+            Route::get('/{id}/editar', [DiaNoLaborableController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [DiaNoLaborableController::class, 'update'])->name('update');
+            Route::delete('/{id}', [DiaNoLaborableController::class, 'destroy'])->name('destroy');
+
+            Route::get('/proximos', [DiaNoLaborableController::class, 'proximos'])->name('proximos');
+            Route::get('/del-mes', [DiaNoLaborableController::class, 'delMes'])->name('del-mes');
+            Route::get('/laborables', [DiaNoLaborableController::class, 'diasLaborables'])->name('laborables');
+            Route::get('/motivos', [DiaNoLaborableController::class, 'motivos'])->name('motivos');
+        });
+
+        // Rutas para horarios
+        Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
     });
-
-    // Rutas de usuarios (moví este grupo para que esté completo antes de continuar)
-    Route::prefix('usuarios')->name('usuarios.')->group(function () {
-        Route::get('/', [AdminController::class, 'usuarios'])->name('index');
-        Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
-    }); // <-- Este cierre estaba faltando
-
-    // Rutas de reportes
-    Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
-
-    // Rutas de servicios
-    Route::prefix('servicios')->name('servicios.')->group(function () {
-        Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
-        Route::get('/crear', [ServicioController::class, 'create'])->name('create');
-        Route::post('/', [ServicioController::class, 'store'])->name('store');
-        Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
-        Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
-    });
-});
 
 // Rutas de Empleado
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])->prefix('empleado')->name('empleado.')->group(function () {
@@ -153,13 +162,115 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':emplea
 });
 
 // Rutas de Cliente
-Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente'])->prefix('cliente')->name('cliente.')->group(function () {
-    Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
-    Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
-    Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
-    Route::get('/mis-vehiculos', [ClienteController::class, 'misVehiculosAjax'])->name('mis-vehiculos-ajax');
-    Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
-});
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente'])
+    ->prefix('cliente')
+    ->name('cliente.')
+    ->group(function () {
+        // Dashboard y vistas principales
+        Route::get('/dashboard', [ClienteController::class, 'dashboard'])->name('dashboard');
+        Route::get('/vehiculos', [ClienteController::class, 'vehiculos'])->name('vehiculos');
+        Route::get('/citas', [ClienteController::class, 'citas'])->name('citas');
+        Route::get('/citas/historial', [ClienteController::class, 'historial'])->name('citas.historial');
+
+        // Datos AJAX
+        Route::get('/mis-vehiculos', [ClienteController::class, 'misVehiculosAjax'])->name('mis-vehiculos-ajax');
+        Route::get('/check-status', [ClienteController::class, 'checkStatus'])->name('check-status');
+        Route::get('/verificar-dia-no-laborable', [ClienteController::class, 'verificarDiaNoLaborable'])
+            ->name('verificar-dia-no-laborable');
+
+        // Gestión de citas - ORDEN IMPORTANTE
+        // Rutas específicas PRIMERO (antes de las rutas con parámetros)
+        Route::get('/citas/horarios-ocupados', [ClienteController::class, 'getHorariosOcupados'])
+            ->name('citas.horarios-ocupados');
+
+        // Rutas con parámetros DESPUÉS
+        Route::get('/citas/{cita}/edit', [ClienteController::class, 'edit'])->name('citas.edit');
+        Route::put('/citas/{cita}', [ClienteController::class, 'updateCita'])->name('citas.update');
+        Route::post('/citas/{cita}/cancelar', [ClienteController::class, 'cancelarCita'])->name('citas.cancelar');
+
+        // Ruta de creación al final
+        Route::post('/citas', [ClienteController::class, 'storeCita'])->name('citas.store');
+
+        // Datos para el dashboard
+        Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('dashboard.data');
+
+        // Datos para formularios 
+
+        // En lugar de la closure larga, usa:
+        Route::get('/horarios-disponibles/{fecha}', [ClienteController::class, 'getHorariosDisponiblesPorFecha'])
+            ->name('horarios-disponibles.fecha');
+
+        /*  Route::get('/horarios-disponibles/{fecha}', function ($fecha, Request $request) {
+            try {
+                $excludeCitaId = $request->query('exclude');
+
+                // Usar el método del controlador
+                $controller = new \App\Http\Controllers\ClienteController();
+                $horariosDisponibles = $controller->getAvailableTimes($fecha, $excludeCitaId);
+
+                // Convertir a formato esperado por el frontend
+                $horariosFormatted = collect($horariosDisponibles)->map(function ($hora) {
+                    return [
+                        'hora' => $hora,
+                        'disponible' => true
+                    ];
+                });
+
+                Log::info("Horarios disponibles para fecha {$fecha}:", [
+                    'exclude' => $excludeCitaId,
+                    'horarios_count' => $horariosFormatted->count(),
+                    'horarios' => $horariosFormatted->toArray()
+                ]);
+
+                return response()->json($horariosFormatted);
+            } catch (\Exception $e) {
+                Log::error('Error en ruta horarios-disponibles:', [
+                    'fecha' => $fecha,
+                    'error' => $e->getMessage()
+                ]);
+
+                return response()->json([], 500);
+            }
+        })->name('horarios-disponibles.fecha');*/
+
+        // Datos para formularios
+        Route::get('/horarios-disponibles', function () {
+            return response()->json(
+                App\Models\Horario::activos()->get()->map(function ($horario) {
+                    return [
+                        'dia_semana' => $horario->dia_semana,
+                        'hora_inicio' => $horario->hora_inicio->format('H:i:s'),
+                        'hora_fin' => $horario->hora_fin->format('H:i:s')
+                    ];
+                })
+            );
+        })->name('horarios-disponibles');
+
+        Route::get('/servicios-disponibles', function () {
+            return response()->json(
+                App\Models\Servicio::activos()
+                    ->get()
+                    ->groupBy('categoria')
+            );
+        })->name('servicios-disponibles');
+
+        Route::get('/dias-no-laborables', function () {
+            return response()->json(
+                App\Models\DiaNoLaborable::futuros()
+                    ->orderBy('fecha')
+                    ->get()
+                    ->map(function ($dia) {
+                        return [
+                            'fecha' => $dia->fecha->format('Y-m-d'),
+                            'motivo' => $dia->motivo
+                        ];
+                    })
+            );
+        })->name('dias-no-laborables');
+
+        // Servicios
+        Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
+    });
 
 // Rutas de perfil
 Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
@@ -205,3 +316,80 @@ Route::get('/test-middleware', function () {
         'role' => Auth::user()->rol ?? null
     ]);
 })->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':cliente']);
+
+// Ruta para verificar horarios
+Route::get('/debug/horarios', function () {
+    $horarios = App\Models\Horario::activos()->get();
+
+    if ($horarios->isEmpty()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No hay horarios configurados',
+            'data' => []
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'count' => $horarios->count(),
+        'data' => $horarios->map(function ($h) {
+            return [
+                'id' => $h->id,
+                'dia_semana' => $h->dia_semana,
+                'hora_inicio' => $h->hora_inicio,
+                'hora_fin' => $h->hora_fin,
+                'activo' => $h->activo
+            ];
+        })
+    ]);
+});
+
+// Ruta para verificar servicios
+Route::get('/debug/servicios', function () {
+    $servicios = App\Models\Servicio::activos()->get();
+
+    if ($servicios->isEmpty()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No hay servicios configurados',
+            'data' => []
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'count' => $servicios->count(),
+        'data' => $servicios->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'nombre' => $s->nombre,
+                'categoria' => $s->categoria,
+                'activo' => $s->activo
+            ];
+        })
+    ]);
+});
+
+Route::get('/debug-fechas', [ClienteController::class, 'debugFechas'])->name('debug-fechas');
+
+/// Ruta para debug de citas por usuario (JSON)
+Route::get('/debug/citas-usuario/{usuarioId}', [ClienteController::class, 'debugCitasUsuarioJson'])
+    ->middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
+    ->name('debug.citas-usuario-json');
+
+Route::get('/check-timezone', function () {
+    // Verificar configuración de la base de datos
+    $dbTime = DB::select(DB::raw("SELECT @@global.time_zone, @@session.time_zone, NOW() as current_time"));
+
+    return response()->json([
+        'app_timezone' => config('app.timezone'),
+        'db_timezone' => $dbTime[0],
+        'php_time' => now()->format('Y-m-d H:i:s'),
+        'db_time' => $dbTime[0]->current_time
+    ]);
+});
+
+// routes/web.php
+Route::post('/cliente/debug-horarios', [ClienteController::class, 'debugHorarios'])
+    ->name('cliente.debug-horarios')
+    ->middleware('auth');

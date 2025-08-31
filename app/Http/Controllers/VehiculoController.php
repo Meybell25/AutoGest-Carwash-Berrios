@@ -47,7 +47,7 @@ class VehiculoController extends Controller
         $validated['fecha_registro'] = now();
 
         $vehiculo = Vehiculo::create($validated);
-          Bitacora::registrar(Bitacora::ACCION_REGISTRAR_VEHICULO, null, $request->ip(), $request->path());
+        Bitacora::registrar(Bitacora::ACCION_REGISTRAR_VEHICULO, null, $request->ip());
 
         if ($request->expectsJson()) {
             return response()->json(['success' => true, 'vehiculo' => $vehiculo]);
@@ -87,7 +87,8 @@ class VehiculoController extends Controller
         ]);
 
         $vehiculo->update($validated);
-        Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_VEHICULO, null, $request->ip(), $request->path());
+        Bitacora::registrar(Bitacora::ACCION_ACTUALIZAR_VEHICULO, null, $request->ip());
+
 
              if ($request->expectsJson()) {
             return response()->json(['success' => true]);
@@ -110,7 +111,7 @@ class VehiculoController extends Controller
         }
 
         $vehiculo->delete();
-         Bitacora::registrar(Bitacora::ACCION_ELIMINAR_VEHICULO, null, request()->ip(), request()->path());
+        Bitacora::registrar(Bitacora::ACCION_ELIMINAR_VEHICULO, null, request()->ip());
 
        if (request()->expectsJson()) {
             return response()->json(['success' => true]);
