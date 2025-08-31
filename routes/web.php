@@ -69,23 +69,25 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rutas de Admin
-Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Rutas principales
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
-    Route::post('/usuarios', [AdminController::class, 'storeUsuario'])->name('usuarios.store');
-    Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-    // Ruta para datos del dashboard (AJAX)
-    Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
+        // Rutas principales
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios');
+        Route::post('/usuarios', [AdminController::class, 'storeUsuario'])->name('usuarios.store');
+        Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
 
+        // Ruta para datos del dashboard (AJAX)
+        Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
         Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
 
-            // Rutas para acciones masivas
-            Route::post('/bulk-activate', [AdminController::class, 'bulkActivate'])->name('bulk-activate');
-            Route::post('/bulk-deactivate', [AdminController::class, 'bulkDeactivate'])->name('bulk-deactivate');
-            Route::delete('/bulk-delete', [AdminController::class, 'bulkDelete'])->name('bulk-delete');
-        });
+        // Rutas para acciones masivas
+        Route::post('/bulk-activate', [AdminController::class, 'bulkActivate'])->name('bulk-activate');
+        Route::post('/bulk-deactivate', [AdminController::class, 'bulkDeactivate'])->name('bulk-deactivate');
+        Route::delete('/bulk-delete', [AdminController::class, 'bulkDelete'])->name('bulk-delete');
 
         // Rutas de citas
         Route::prefix('citas')->name('citas.')->group(function () {
@@ -93,7 +95,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::post('/', [AdminController::class, 'storeCita'])->name('store');
         });
 
-        // Rutas de Admin 
+        // Rutas de Admin (citas admin)
         Route::prefix('citasadmin')->name('citasadmin.')->group(function () {
             Route::get('/', [AdminController::class, 'citasAdmin'])->name('index');
             Route::put('/{cita}/actualizar-estado', [AdminController::class, 'actualizarEstadoCita'])->name('actualizar-estado');
@@ -101,11 +103,10 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         });
 
         Route::get('/reportes', [AdminController::class, 'reportes'])->name('reportes');
-        Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
         Route::get('/bitacora/export-excel', [BitacoraController::class, 'exportExcel'])->name('bitacora.export-excel');
         Route::get('/bitacora/export-pdf', [BitacoraController::class, 'exportPdf'])->name('bitacora.export-pdf');
 
-        // Rutas de servicios
+        // Rutas de servicios (admin)
         Route::prefix('servicios')->name('servicios.')->group(function () {
             Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
             Route::get('/crear', [ServicioController::class, 'create'])->name('create');
@@ -115,7 +116,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
         });
 
-        // Rutas de Gastos - ACTIVAS
+        // Rutas de Gastos
         Route::prefix('gastos')->name('gastos.')->group(function () {
             Route::get('/', [GastoController::class, 'index'])->name('index');
             Route::get('/crear', [GastoController::class, 'create'])->name('create');
@@ -125,16 +126,14 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::put('/{id}', [GastoController::class, 'update'])->name('update');
             Route::delete('/{id}', [GastoController::class, 'destroy'])->name('destroy');
 
-            // Rutas adicionales para filtros
+            // Filtros y estadísticas
             Route::get('/tipo/{tipo}', [GastoController::class, 'filtrarPorTipo'])->name('tipo');
             Route::post('/filtrar-fechas', [GastoController::class, 'filtrarPorFechas'])->name('filtrar-fechas');
-
-            // Rutas para estadísticas
             Route::get('/estadisticas/resumen', [GastoController::class, 'resumen'])->name('resumen');
             Route::get('/estadisticas/por-tipo', [GastoController::class, 'estadisticasPorTipo'])->name('estadisticas-tipo');
         });
 
-        // Rutas para Días No Laborables
+        // Días No Laborables
         Route::prefix('dias-no-laborables')->name('dias-no-laborables.')->group(function () {
             Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
             Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
@@ -150,7 +149,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::get('/motivos', [DiaNoLaborableController::class, 'motivos'])->name('motivos');
         });
 
-        // Rutas para horarios
+        // Horarios
         Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
     });
 
