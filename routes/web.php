@@ -97,7 +97,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::post('/', [AdminController::class, 'storeCita'])->name('store');
         });
 
-        // Rutas de Admin 
         Route::prefix('citasadmin')->name('citasadmin.')->group(function () {
             Route::get('/', [AdminController::class, 'citasAdmin'])->name('index');
             Route::put('/{cita}/actualizar-estado', [AdminController::class, 'actualizarEstadoCita'])->name('actualizar-estado');
@@ -125,7 +124,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::post('/{cita}/reembolsar', [PagoController::class, 'reembolsarPago'])->name('reembolsar');
             Route::get('/{cita}/verificar-pago', [AdminController::class, 'verificarPagoCita'])->name('verificar-pago');
         });
-        
+
         // Rutas de Gastos - ACTIVAS
         Route::prefix('gastos')->name('gastos.')->group(function () {
             Route::get('/', [GastoController::class, 'index'])->name('index');

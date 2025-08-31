@@ -539,8 +539,8 @@ class AdminController extends Controller
      */
     public function citasAdmin(Request $request)
     {
-        $query = Cita::with(['usuario', 'vehiculo', 'servicios'])
-            ->orderBy('fecha_hora', 'desc');
+           $query = Cita::with(['usuario', 'vehiculo', 'servicios', 'pago']) 
+        ->orderBy('fecha_hora', 'desc');
 
         // Query para estadísticas (sin paginación)
         $statsQuery = Cita::with(['usuario', 'vehiculo', 'servicios']);
