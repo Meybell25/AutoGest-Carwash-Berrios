@@ -74,8 +74,7 @@
                     <div class="mb-3">
                         <label class="form-label">Monto recibido:</label>
                         <input type="number" name="monto_recibido" class="form-control" step="0.01"
-                            min="{{ $cita->total }}" value="{{ $cita->total }}" required
-                            id="monto-recibido">
+                            min="{{ $cita->total }}" value="{{ $cita->total }}" required id="monto-recibido">
                         <div class="form-text">Mínimo: ${{ number_format($cita->total, 2) }}</div>
                         <div class="invalid-feedback" id="monto-recibido-error">
                             El monto recibido no puede ser menor al total a pagar.
@@ -84,8 +83,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Vuelto calculado:</label>
-                        <input type="text" class="form-control" id="vuelto-calculado" readonly
-                            value="$0.00">
+                        <input type="text" class="form-control" id="vuelto-calculado" readonly value="$0.00">
                     </div>
                 </div>
 
@@ -115,212 +113,235 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const total = {{ $cita->total }};
-    let isProcessing = false; // Para prevenir múltiples envíos
+    document.addEventListener('DOMContentLoaded', function() {
+        const total = {{ $cita->total }};
+        let isProcessing = false; // Para prevenir múltiples envíos
 
-    // Inicializar campos al cargar la página
-    function inicializarCampos() {
-        const metodo = $('#metodo-pago').val();
+        // Inicializar campos al cargar la página
+        function inicializarCampos() {
+            const metodo = $('#metodo-pago').val();
 
-        if (metodo === 'efectivo') {
-            $('#campos-efectivo').show();
-            $('#campos-transferencia').hide();
-            $('#monto-recibido').prop('required', true);
-            $('#referencia-input').prop('required', false);
-        } else {
-            $('#campos-efectivo').hide();
-            $('#campos-transferencia').show();
-            $('#monto-recibido').prop('required', false);
-            $('#referencia-input').prop('required', true);
+            if (metodo === 'efectivo') {
+                $('#campos-efectivo').show();
+                $('#campos-transferencia').hide();
+                $('#monto-recibido').prop('required', true);
+                $('#monto-recibido').prop('readonly', false);
+                $('#referencia-input').prop('required', false);
+                calcularVuelto();
+            } else if (metodo === 'pasarela') {
+                $('#campos-efectivo').show();
+                $('#campos-transferencia').hide();
+                $('#monto-recibido').val(total).trigger('input');
+                $('#monto-recibido').prop('required', true);
+                $('#monto-recibido').prop('readonly', true);
+                $('#referencia-input').prop('required', false);
+                calcularVuelto();
+            } else {
+                $('#campos-efectivo').hide();
+                $('#campos-transferencia').show();
+                $('#monto-recibido').prop('required', false);
+                $('#monto-recibido').prop('readonly', false);
+                $('#referencia-input').prop('required', true);
+                $('#vuelto-calculado').val('$0.00');
+            }
+
+            // Limpiar mensajes de error
+            $('.is-invalid').removeClass('is-invalid');
         }
 
-        // Limpiar mensajes de error
-        $('.is-invalid').removeClass('is-invalid');
-    }
-
-    // Inicializar campos al cargar
-    inicializarCampos();
-
-    // Mostrar/ocultar campos según método de pago
-    $('#metodo-pago').change(function() {
+        // Inicializar campos al cargar
         inicializarCampos();
 
-        // Si es efectivo, calcular vuelto con el valor actual
-        if ($(this).val() === 'efectivo') {
-            calcularVuelto();
-        }
-    });
+        // Mostrar/ocultar campos según método de pago
+        $('#metodo-pago').change(function() {
+            inicializarCampos();
 
-    // Calcular vuelto automáticamente
-    function calcularVuelto() {
-        const recibido = parseFloat($('#monto-recibido').val()) || 0;
-        const vuelto = Math.max(0, recibido - total);
-
-        $('#vuelto-calculado').val('$' + vuelto.toFixed(2));
-
-        // Validar en tiempo real
-        if (recibido < total) {
-            $('#monto-recibido').addClass('is-invalid');
-        } else {
-            $('#monto-recibido').removeClass('is-invalid');
-        }
-    }
-
-    $('#monto-recibido').on('input', calcularVuelto);
-
-    // Validar referencia en tiempo real
-    $('#referencia-input').on('input', function() {
-        if ($(this).val().length > 0 && $(this).val().length < 6) {
-            $(this).addClass('is-invalid');
-        } else {
-            $(this).removeClass('is-invalid');
-        }
-    });
-
-    // Validar formulario antes de enviar
-    function validarFormulario() {
-        let isValid = true;
-        const metodo = $('#metodo-pago').val();
-        const montoRecibido = parseFloat($('#monto-recibido').val()) || 0;
-        const referencia = $('#referencia-input').val();
-
-        // Validar efectivo
-        if (metodo === 'efectivo') {
-            if (montoRecibido < total) {
-                $('#monto-recibido').addClass('is-invalid');
-                isValid = false;
-            }
-
-            if (isNaN(montoRecibido) || montoRecibido === 0) {
-                $('#monto-recibido').addClass('is-invalid');
-                isValid = false;
-            }
-        }
-
-        // Validar transferencia/pasarela
-        if ((metodo === 'transferencia' || metodo === 'pasarela')) {
-            if (!referencia || referencia.length < 6) {
-                $('#referencia-input').addClass('is-invalid');
-                isValid = false;
-            }
-        }
-
-        return isValid;
-    }
-
-    // Registrar pago
-    $('#btn-registrar-pago').click(function() {
-        if (isProcessing) return; // Prevenir múltiples clics
-
-        const form = $('#form-pago');
-        const citaId = form.data('cita-id');
-
-        // Validar formulario antes de enviar
-        if (!validarFormulario()) {
-            // Mostrar mensaje general de error
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Por favor complete correctamente todos los campos obligatorios.'
-            });
-            return;
-        }
-
-        isProcessing = true;
-        $('#btn-registrar-pago').prop('disabled', true)
-            .html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
-
-        // Mostrar loading
-        Swal.fire({
-            title: 'Procesando pago...',
-            text: 'Por favor espere',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
+            // Si es efectivo, calcular vuelto con el valor actual
+            if ($(this).val() === 'efectivo') {
+                calcularVuelto();
             }
         });
 
-        // Preparar datos para enviar
-        const formData = {
-            _token: $('input[name="_token"]').val(),
-            metodo: $('#metodo-pago').val(),
-            monto_recibido: $('#monto-recibido').val(),
-            referencia: $('#referencia-input').val()
-        };
+        // Calcular vuelto automáticamente
+        function calcularVuelto() {
+            const metodo = $('#metodo-pago').val();
+            const recibido = parseFloat($('#monto-recibido').val()) || 0;
 
-        $.ajax({
-            url: `/admin/pagos/${citaId}/registrar`,
-            method: 'POST',
-            data: formData,
-            success: function(response) {
-                isProcessing = false;
-                $('#btn-registrar-pago').prop('disabled', false)
-                    .html('<i class="fas fa-check"></i> Registrar Pago');
-                Swal.close();
+            // Para pasarela, no calcular vuelto
+            if (metodo === 'pasarela') {
+                $('#vuelto-calculado').val('$0.00');
+                $('#monto-recibido').val(total).trigger('input');
+                $('#monto-recibido').prop('readonly', true);
+                return;
+            } else {
+                $('#monto-recibido').prop('readonly', false);
+            }
 
-                if (response.success) {
-                    let mensaje = response.message;
+            const vuelto = Math.max(0, recibido - total);
+            $('#vuelto-calculado').val('$' + vuelto.toFixed(2));
 
-                    // Mostrar vuelto si aplica
-                    if (response.vuelto > 0) {
-                        mensaje += `\\nVuelto: $${response.vuelto.toFixed(2)}`;
-                    }
+            // Validar en tiempo real
+            if (recibido < total && metodo !== 'pasarela') {
+                $('#monto-recibido').addClass('is-invalid');
+            } else {
+                $('#monto-recibido').removeClass('is-invalid');
+            }
+        }
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Pago registrado!',
-                        html: mensaje.replace(/\n/g, '<br>'),
-                        timer: 3000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        $('#pagoModal').modal('hide');
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message
-                    });
-                }
-            },
-            error: function(xhr) {
-                isProcessing = false;
-                $('#btn-registrar-pago').prop('disabled', false)
-                    .html('<i class="fas fa-check"></i> Registrar Pago');
-                Swal.close();
+        $('#monto-recibido').on('input', calcularVuelto);
 
-                let errorMsg = 'Error al registrar pago';
+        // Validar referencia en tiempo real
+        $('#referencia-input').on('input', function() {
+            if ($(this).val().length > 0 && $(this).val().length < 6) {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
 
-                if (xhr.responseJSON) {
-                    if (xhr.responseJSON.message) {
-                        errorMsg = xhr.responseJSON.message;
-                    } else if (xhr.responseJSON.errors) {
-                        // Mostrar primeros errores de validación
-                        const firstError = Object.values(xhr.responseJSON.errors)[0][0];
-                        errorMsg = firstError;
-                    }
+        // Validar formulario antes de enviar
+        function validarFormulario() {
+            let isValid = true;
+            const metodo = $('#metodo-pago').val();
+            const montoRecibido = parseFloat($('#monto-recibido').val()) || 0;
+            const referencia = $('#referencia-input').val();
+
+            // Validar efectivo
+            if (metodo === 'efectivo') {
+                if (montoRecibido < total) {
+                    $('#monto-recibido').addClass('is-invalid');
+                    isValid = false;
                 }
 
+                if (isNaN(montoRecibido) || montoRecibido === 0) {
+                    $('#monto-recibido').addClass('is-invalid');
+                    isValid = false;
+                }
+            }
+
+            // Validar transferencia/pasarela
+            if ((metodo === 'transferencia' || metodo === 'pasarela')) {
+                if (!referencia || referencia.length < 6) {
+                    $('#referencia-input').addClass('is-invalid');
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        // Registrar pago
+        $('#btn-registrar-pago').click(function() {
+            if (isProcessing) return; // Prevenir múltiples clics
+
+            const form = $('#form-pago');
+            const citaId = form.data('cita-id');
+
+            // Validar formulario antes de enviar
+            if (!validarFormulario()) {
+                // Mostrar mensaje general de error
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: errorMsg
+                    text: 'Por favor complete correctamente todos los campos obligatorios.'
                 });
+                return;
             }
+
+            isProcessing = true;
+            $('#btn-registrar-pago').prop('disabled', true)
+                .html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
+
+            // Mostrar loading
+            Swal.fire({
+                title: 'Procesando pago...',
+                text: 'Por favor espere',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Preparar datos para enviar
+            const formData = {
+                _token: $('input[name="_token"]').val(),
+                metodo: $('#metodo-pago').val(),
+                monto_recibido: $('#monto-recibido').val(),
+                referencia: $('#referencia-input').val()
+            };
+
+            $.ajax({
+                url: `/admin/pagos/${citaId}/registrar`,
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    isProcessing = false;
+                    $('#btn-registrar-pago').prop('disabled', false)
+                        .html('<i class="fas fa-check"></i> Registrar Pago');
+                    Swal.close();
+
+                    if (response.success) {
+                        let mensaje = response.message;
+
+                        // Mostrar vuelto si aplica
+                        if (response.vuelto > 0) {
+                            mensaje += `\\nVuelto: $${response.vuelto.toFixed(2)}`;
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Pago registrado!',
+                            html: mensaje.replace(/\n/g, '<br>'),
+                            timer: 3000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            $('#pagoModal').modal('hide');
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    isProcessing = false;
+                    $('#btn-registrar-pago').prop('disabled', false)
+                        .html('<i class="fas fa-check"></i> Registrar Pago');
+                    Swal.close();
+
+                    let errorMsg = 'Error al registrar pago';
+
+                    if (xhr.responseJSON) {
+                        if (xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        } else if (xhr.responseJSON.errors) {
+                            // Mostrar primeros errores de validación
+                            const firstError = Object.values(xhr.responseJSON.errors)[0][0];
+                            errorMsg = firstError;
+                        }
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMsg
+                    });
+                }
+            });
+        });
+
+        // Limpiar formulario cuando se cierra el modal
+        $('#pagoModal').on('hidden.bs.modal', function() {
+            $('#form-pago')[0].reset();
+            $('#vuelto-calculado').val('$0.00');
+            $('.is-invalid').removeClass('is-invalid');
+            inicializarCampos();
+            isProcessing = false;
+            $('#btn-registrar-pago').prop('disabled', false)
+                .html('<i class="fas fa-check"></i> Registrar Pago');
         });
     });
-
-    // Limpiar formulario cuando se cierra el modal
-    $('#pagoModal').on('hidden.bs.modal', function() {
-        $('#form-pago')[0].reset();
-        $('#vuelto-calculado').val('$0.00');
-        $('.is-invalid').removeClass('is-invalid');
-        inicializarCampos();
-        isProcessing = false;
-        $('#btn-registrar-pago').prop('disabled', false)
-            .html('<i class="fas fa-check"></i> Registrar Pago');
-    });
-});
 </script>

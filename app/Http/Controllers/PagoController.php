@@ -7,6 +7,7 @@ use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class PagoController extends Controller
 {
@@ -17,7 +18,7 @@ class PagoController extends Controller
     {
         try {
             $cita = Cita::with(['usuario', 'vehiculo', 'servicios', 'pago'])->findOrFail($citaId);
-            
+
             return response()->json([
                 'success' => true,
                 'html' => view('admin.pagos.modal-pago', compact('cita'))->render()
@@ -32,7 +33,7 @@ class PagoController extends Controller
     }
 
     /**
-     * Registrar un pago para una cita
+     * Registrar un pago para una cita 
      */
     public function registrarPago(Request $request, $citaId)
     {
@@ -40,11 +41,11 @@ class PagoController extends Controller
             $request->validate([
                 'metodo' => 'required|in:efectivo,transferencia,pasarela',
                 'monto_recibido' => 'required|numeric|min:0',
-                'referencia' => 'nullable|string|max:255'
+                'referencia' => 'nullable|string|max:255|required_if:metodo,transferencia,pasarela'
             ]);
 
             $cita = Cita::with(['servicios', 'pago'])->findOrFail($citaId);
-            
+
             // Validar que la cita esté en un estado que permita pago
             if (!in_array($cita->estado, [Cita::ESTADO_CONFIRMADA, Cita::ESTADO_EN_PROCESO])) {
                 return response()->json([
@@ -65,13 +66,20 @@ class PagoController extends Controller
 
             $montoTotal = $cita->total;
             $montoRecibido = (float) $request->monto_recibido;
-            
-            // Validar monto mínimo
-            if ($montoRecibido < $montoTotal && $request->metodo !== 'pasarela') {
+            $metodoPago = $request->metodo;
+
+            // VALIDACIÓN CORREGIDA: Permitir monto menor solo para pasarela
+            if ($metodoPago !== 'pasarela' && $montoRecibido < $montoTotal) {
+                DB::rollBack();
                 return response()->json([
                     'success' => false,
-                    'message' => 'El monto recibido no puede ser menor al total a pagar'
+                    'message' => 'El monto recibido no puede ser menor al total a pagar para pagos en ' . $metodoPago
                 ], 422);
+            }
+
+            // Para pasarela, el monto recibido debe ser exactamente el total
+            if ($metodoPago === 'pasarela') {
+                $montoRecibido = $montoTotal;
             }
 
             // Crear o actualizar el pago
@@ -79,7 +87,7 @@ class PagoController extends Controller
                 'monto' => $montoTotal,
                 'monto_recibido' => $montoRecibido,
                 'vuelto' => max(0, $montoRecibido - $montoTotal),
-                'metodo' => $request->metodo,
+                'metodo' => $metodoPago,
                 'referencia' => $request->referencia,
                 'estado' => Pago::ESTADO_PAGADO,
                 'fecha_pago' => now()
@@ -92,7 +100,7 @@ class PagoController extends Controller
                 $pago = $cita->pago()->create($pagoData);
             }
 
-            // Si el pago es completado y la cita está en proceso, marcarla como finalizada
+            // Actualizar estado de la cita según las reglas de negocio
             if ($cita->estado === Cita::ESTADO_EN_PROCESO) {
                 $cita->estado = Cita::ESTADO_FINALIZADA;
                 $cita->save();
@@ -100,16 +108,17 @@ class PagoController extends Controller
 
             DB::commit();
 
-            // Generar factura (puedes implementar esto después)
-            // $this->generarFactura($cita, $pago);
+            // Actualizar caché para reflejar cambios inmediatamente
+            Cache::forget('cita_' . $citaId);
+            Cache::forget('dashboard_stats');
 
             return response()->json([
                 'success' => true,
                 'message' => 'Pago registrado correctamente',
                 'pago' => $pago,
+                'vuelto' => $pago->vuelto,
                 'cita_actualizada' => $cita->fresh()
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -149,7 +158,6 @@ class PagoController extends Controller
                     ];
                 })
             ]);
-
         } catch (\Exception $e) {
             Log::error("Error al obtener información de pago: " . $e->getMessage());
             return response()->json([
@@ -191,7 +199,6 @@ class PagoController extends Controller
                 'success' => true,
                 'message' => 'Pago reembolsado correctamente'
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error al reembolsar pago: " . $e->getMessage());
