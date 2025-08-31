@@ -192,7 +192,8 @@
         .card-body {
             padding: 0 30px 30px;
         }
-         /* Estilos para las estadísticas */
+
+        /* Estilos para las estadísticas */
         .stats-card {
             margin-bottom: 25px;
         }
@@ -294,11 +295,25 @@
             border-radius: 50%;
         }
 
-        .status-dot-pendiente { background: #ef6c00; }
-        .status-dot-confirmada { background: #0277bd; }
-        .status-dot-en_proceso { background: #6a1b9a; }
-        .status-dot-finalizada { background: #2e7d32; }
-        .status-dot-cancelada { background: #ad1457; }
+        .status-dot-pendiente {
+            background: #ef6c00;
+        }
+
+        .status-dot-confirmada {
+            background: #0277bd;
+        }
+
+        .status-dot-en_proceso {
+            background: #6a1b9a;
+        }
+
+        .status-dot-finalizada {
+            background: #2e7d32;
+        }
+
+        .status-dot-cancelada {
+            background: #ad1457;
+        }
 
         /* MEJORAS EN LOS FILTROS */
         .filters-card .card-body {
@@ -495,7 +510,7 @@
             opacity: 0.5;
         }
 
-     /* Modal detaller */
+        /* Modal detaller */
         .modal-content {
             border: none;
             border-radius: 20px;
@@ -768,7 +783,8 @@
                     <i class="fas fa-calendar" style="color: white !important; font-size: 1.3rem;"></i>
                 </div>
                 <div>
-                    <h1 style="margin: 0; font-size: 1.8rem; background: linear-gradient(135deg, #00695c 0%, #2e7d32 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <h1
+                        style="margin: 0; font-size: 1.8rem; background: linear-gradient(135deg, #00695c 0%, #2e7d32 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         Administración de Citas</h1>
                     <p style="margin: 0; color: var(--text-secondary);">Gestiona y actualiza el estado de todas las
                         citas del sistema</p>
@@ -785,20 +801,21 @@
         <!-- Estadísticas de Citas -->
         <div class="card stats-card">
             <div class="card-header">
-                <h2 style="font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--text-primary); margin-bottom: 0;">
+                <h2
+                    style="font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--text-primary); margin-bottom: 0;">
                     <i class="fas fa-chart-bar"></i>
                     Resumen de Citas
                 </h2>
             </div>
             <div class="card-body">
                 <!-- Información de filtros activos -->
-                @if(!empty($estadisticas['filtros_activos']))
+                @if (!empty($estadisticas['filtros_activos']))
                     <div class="filter-info">
                         <div class="filter-info-title">
                             <i class="fas fa-filter"></i>
                             Filtros Aplicados
                         </div>
-                        @if(isset($estadisticas['filtros_activos']['usuario_nombre']))
+                        @if (isset($estadisticas['filtros_activos']['usuario_nombre']))
                             <div class="filter-detail">
                                 <strong>Cliente:</strong> {{ $estadisticas['filtros_activos']['usuario_nombre'] }}
                             </div>
@@ -807,12 +824,12 @@
                                 <strong>Búsqueda:</strong> "{{ $estadisticas['filtros_activos']['busqueda'] }}"
                             </div>
                         @endif
-                        @if(isset($estadisticas['filtros_activos']['estado']))
+                        @if (isset($estadisticas['filtros_activos']['estado']))
                             <div class="filter-detail">
                                 <strong>Estado:</strong> {{ ucfirst($estadisticas['filtros_activos']['estado']) }}
                             </div>
                         @endif
-                        @if(isset($estadisticas['filtros_activos']['fecha']))
+                        @if (isset($estadisticas['filtros_activos']['fecha']))
                             <div class="filter-detail">
                                 <strong>Fecha:</strong> {{ $estadisticas['filtros_activos']['fecha'] }}
                             </div>
@@ -825,7 +842,7 @@
                     <div class="stats-item">
                         <span class="stats-number">{{ $estadisticas['total'] }}</span>
                         <span class="stats-label">
-                            @if(!empty($estadisticas['filtros_activos']))
+                            @if (!empty($estadisticas['filtros_activos']))
                                 Citas Filtradas
                             @else
                                 Total de Citas
@@ -860,25 +877,25 @@
                 </div>
 
                 <!-- Desglose detallado -->
-                @if($estadisticas['total'] > 0)
+                @if ($estadisticas['total'] > 0)
                     <div class="stats-breakdown">
                         <div class="stats-breakdown-title">
                             <i class="fas fa-list-ul"></i>
                             Desglose por Estado
-                            @if(isset($estadisticas['filtros_activos']['usuario_nombre']))
+                            @if (isset($estadisticas['filtros_activos']['usuario_nombre']))
                                 - {{ $estadisticas['filtros_activos']['usuario_nombre'] }}
                             @endif
                         </div>
-                        
-                        @foreach(['pendiente' => 'Pendiente', 'confirmada' => 'Confirmada', 'en_proceso' => 'En Proceso', 'finalizada' => 'Finalizada', 'cancelada' => 'Cancelada'] as $estado => $label)
-                            @if($estadisticas['por_estado'][$estado] > 0)
+
+                        @foreach (['pendiente' => 'Pendiente', 'confirmada' => 'Confirmada', 'en_proceso' => 'En Proceso', 'finalizada' => 'Finalizada', 'cancelada' => 'Cancelada'] as $estado => $label)
+                            @if ($estadisticas['por_estado'][$estado] > 0)
                                 <div class="breakdown-item">
                                     <div class="breakdown-status">
                                         <div class="status-dot status-dot-{{ $estado }}"></div>
                                         {{ $label }}
                                     </div>
                                     <div class="breakdown-count">
-                                        {{ $estadisticas['por_estado'][$estado] }} 
+                                        {{ $estadisticas['por_estado'][$estado] }}
                                         <small style="color: var(--text-secondary); font-weight: normal;">
                                             ({{ round(($estadisticas['por_estado'][$estado] / $estadisticas['total']) * 100, 1) }}%)
                                         </small>
@@ -940,7 +957,8 @@
         <!-- Tabla de citas  -->
         <div class="card">
             <div class="card-header">
-                <h2 style="font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--text-primary); margin-bottom: 10px;">
+                <h2
+                    style="font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--text-primary); margin-bottom: 10px;">
                     <i class="fas fa-list"></i>
                     Lista de Citas
                     <small style="font-size: 0.9rem; font-weight: 500; color: var(--text-secondary);">
@@ -995,17 +1013,43 @@
                                     </td>
                                     <td>${{ number_format($cita->total, 2) }}</td>
                                     <td>
-                                        <span class="appointment-status status-{{ $cita->estado }}">{{ $cita->estado_formatted }}</span>
+                                        <span
+                                            class="appointment-status status-{{ $cita->estado }}">{{ $cita->estado_formatted }}</span>
                                     </td>
                                     <td>
                                         <select class="estado-select" data-cita-id="{{ $cita->id }}">
-                                            <option value="pendiente" {{ $cita->estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                                            <option value="confirmada" {{ $cita->estado == 'confirmada' ? 'selected' : '' }}>Confirmada</option>
-                                            <option value="en_proceso" {{ $cita->estado == 'en_proceso' ? 'selected' : '' }}>En Proceso</option>
-                                            <option value="finalizada" {{ $cita->estado == 'finalizada' ? 'selected' : '' }}>Finalizada</option>
-                                            <option value="cancelada" {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
+                                            <option value="pendiente"
+                                                {{ $cita->estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                                            <option value="confirmada"
+                                                {{ $cita->estado == 'confirmada' ? 'selected' : '' }}>Confirmada
+                                            </option>
+                                            <option value="en_proceso"
+                                                {{ $cita->estado == 'en_proceso' ? 'selected' : '' }}>En Proceso
+                                            </option>
+                                            <option value="finalizada"
+                                                {{ $cita->estado == 'finalizada' ? 'selected' : '' }}>Finalizada
+                                            </option>
+                                            <option value="cancelada"
+                                                {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
                                         </select>
-                                        <button class="btn btn-details mt-2 w-100 view-details" data-cita-id="{{ $cita->id }}">
+                                        <!-- Botón de pago -->
+                                        @if (in_array($cita->estado, ['confirmada', 'en_proceso']) && (!$cita->pago || $cita->pago->estado !== 'pagado'))
+                                            <button class="btn btn-success mt-2 w-100 btn-pagar"
+                                                data-cita-id="{{ $cita->id }}">
+                                                <i class="fas fa-credit-card me-1"></i> Registrar Pago
+                                            </button>
+                                        @elseif($cita->pago && $cita->pago->estado === 'pagado')
+                                            <div class="text-center mt-2">
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle me-1"></i> Pagado
+                                                </span>
+                                                <br>
+                                                <small class="text-muted">{{ $cita->pago->metodo }}</small>
+                                            </div>
+                                        @endif
+
+                                        <button class="btn btn-details mt-2 w-100 view-details"
+                                            data-cita-id="{{ $cita->id }}">
                                             <i class="fas fa-eye me-1"></i> Detalles
                                         </button>
                                     </td>
@@ -1018,7 +1062,8 @@
                                         <p>No hay actividades registradas en el sistema</p>
                                         @if (request()->anyFilled(['estado', 'fecha', 'buscar']))
                                             <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
-                                            <a href="{{ route('admin.citasadmin.index') }}" class="btn btn-primary mt-2">
+                                            <a href="{{ route('admin.citasadmin.index') }}"
+                                                class="btn btn-primary mt-2">
                                                 <i class="fas fa-broom me-1"></i> Limpiar filtros
                                             </a>
                                         @endif
@@ -1039,7 +1084,8 @@
                         @endif
 
                         @foreach (range(1, $citas->lastPage()) as $page)
-                            <a href="{{ $citas->url($page) }}" class="page-link {{ $citas->currentPage() == $page ? 'active' : '' }}">{{ $page }}</a>
+                            <a href="{{ $citas->url($page) }}"
+                                class="page-link {{ $citas->currentPage() == $page ? 'active' : '' }}">{{ $page }}</a>
                         @endforeach
 
                         @if ($citas->hasMorePages())
@@ -1073,9 +1119,45 @@
         </div>
     </div>
 
+    <!-- Modal pago -->
+    <div class="modal fade" id="pagoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="pago-modal-content">
+                <!-- El contenido se cargará via AJAX -->
+            </div>
+        </div>
+    </div>
+
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // ]JS para pago
+        document.addEventListener('DOMContentLoaded', function() {
+            // Abrir modal de pago
+            $(document).on('click', '.btn-pagar', function() {
+                const citaId = $(this).data('cita-id');
+
+                $.ajax({
+                    url: `/admin/pagos/${citaId}/modal`,
+                    method: 'GET',
+                    success: function(response) {
+                        if (response.success) {
+                            $('#pago-modal-content').html(response.html);
+                            $('#pagoModal').modal('show');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudo cargar el formulario de pago'
+                        });
+                    }
+                });
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // Cambiar estado de cita
             document.querySelectorAll('.estado-select').forEach(select => {
@@ -1202,7 +1284,8 @@
                             let serviciosHTML = '';
                             if (data.servicios && data.servicios.length > 0) {
                                 data.servicios.forEach(servicio => {
-                                    const precio = servicio.pivot?.precio || servicio.precio || 0;
+                                    const precio = servicio.pivot?.precio || servicio
+                                        .precio || 0;
                                     serviciosHTML += `
                                     <div class="service-item">
                                         <span class="service-name">${servicio.nombre}</span>
@@ -1211,11 +1294,13 @@
                                 `;
                                 });
                             } else {
-                                serviciosHTML = '<p class="text-muted text-center">No hay servicios registrados</p>';
+                                serviciosHTML =
+                                    '<p class="text-muted text-center">No hay servicios registrados</p>';
                             }
 
                             // Obtener el tipo formateado del vehículo
-                            const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado';
+                            const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo
+                                .tipo || 'No especificado';
 
                             document.getElementById('detalles-cita-content').innerHTML = `
                             <div class="modal-section">
@@ -1257,11 +1342,11 @@
                                     <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
                                 </div>
                                 ${data.vehiculo.descripcion ? `
-                                    <div class="modal-info-item">
-                                        <span class="modal-info-label">Descripción:</span>
-                                        <span class="modal-info-value">${data.vehiculo.descripcion}</span>
-                                    </div>
-                                    ` : ''}
+                                                <div class="modal-info-item">
+                                                    <span class="modal-info-label">Descripción:</span>
+                                                    <span class="modal-info-value">${data.vehiculo.descripcion}</span>
+                                                </div>
+                                                ` : ''}
                             </div>
 
                             <div class="modal-section">
@@ -1279,11 +1364,11 @@
                                     </span>
                                 </div>
                                 ${data.observaciones ? `
-                                    <div class="modal-info-item">
-                                        <span class="modal-info-label">Observaciones:</span>
-                                        <span class="modal-info-value">${data.observaciones}</span>
-                                    </div>
-                                    ` : ''}
+                                                <div class="modal-info-item">
+                                                    <span class="modal-info-label">Observaciones:</span>
+                                                    <span class="modal-info-value">${data.observaciones}</span>
+                                                </div>
+                                                ` : ''}
                                 <div class="modal-info-item">
                                     <span class="modal-info-label">Fecha de creación:</span>
                                     <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
@@ -1308,7 +1393,8 @@
                         `;
 
                             // Mostrar el modal
-                            const modal = new bootstrap.Modal(document.getElementById('detallesCitaModal'));
+                            const modal = new bootstrap.Modal(document.getElementById(
+                                'detallesCitaModal'));
                             modal.show();
                         })
                         .catch(error => {
@@ -1317,7 +1403,8 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: error.message || 'No se pudieron cargar los detalles de la cita'
+                                text: error.message ||
+                                    'No se pudieron cargar los detalles de la cita'
                             });
                         });
                 });

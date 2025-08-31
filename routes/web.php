@@ -10,6 +10,7 @@ use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\GastoController;
+use App\Http\Controllers\PagoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
@@ -115,6 +116,13 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
             Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
             Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('pagos')->name('pagos.')->group(function () {
+            Route::get('/{cita}/modal', [PagoController::class, 'showPagoModal'])->name('modal');
+            Route::post('/{cita}/registrar', [PagoController::class, 'registrarPago'])->name('registrar');
+            Route::get('/{cita}/info', [PagoController::class, 'getInfoPago'])->name('info');
+            Route::post('/{cita}/reembolsar', [PagoController::class, 'reembolsarPago'])->name('reembolsar');
         });
 
         // Rutas de Gastos - ACTIVAS

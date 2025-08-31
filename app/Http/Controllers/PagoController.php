@@ -2,93 +2,203 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pago;
 use App\Models\Cita;
+use App\Models\Pago;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PagoController extends Controller
 {
-    public function index()
+    /**
+     * Mostrar modal de pago
+     */
+    public function showPagoModal($citaId)
     {
-        $pagos = Pago::with('cita')->get();
-        return view('PagosViews.index', compact('pagos'));
-    }
-
-    public function create()
-    {
-        $citas = Cita::all();
-        return view('PagosViews.create', compact('citas'));
-    }
-
-    public function store(Request $request)
-    {
-        $data = $request->all();
-
-        // Validar que no haya doble pago para la misma cita
-        $existePago = Pago::where('cita_id', $data['cita_id'])
-            ->where('estado', Pago::ESTADO_COMPLETADO)
-            ->exists();
-
-        if ($existePago) {
-            return back()->withErrors(['cita_id' => 'Esta cita ya tiene un pago completado.'])->withInput();
+        try {
+            $cita = Cita::with(['usuario', 'vehiculo', 'servicios', 'pago'])->findOrFail($citaId);
+            
+            return response()->json([
+                'success' => true,
+                'html' => view('admin.pagos.modal-pago', compact('cita'))->render()
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error al mostrar modal de pago: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar información de pago'
+            ], 500);
         }
+    }
 
-        // Calcular vuelto si es efectivo
-        $vuelto = 0;
-        if ($data['metodo'] === Pago::METODO_EFECTIVO) {
-            if ($data['monto_recibido'] < $data['monto']) {
-                return back()->withErrors(['monto_recibido' => 'El monto recibido es menor al monto a pagar.'])->withInput();
+    /**
+     * Registrar un pago para una cita
+     */
+    public function registrarPago(Request $request, $citaId)
+    {
+        try {
+            $request->validate([
+                'metodo' => 'required|in:efectivo,transferencia,pasarela',
+                'monto_recibido' => 'required|numeric|min:0',
+                'referencia' => 'nullable|string|max:255'
+            ]);
+
+            $cita = Cita::with(['servicios', 'pago'])->findOrFail($citaId);
+            
+            // Validar que la cita esté en un estado que permita pago
+            if (!in_array($cita->estado, [Cita::ESTADO_CONFIRMADA, Cita::ESTADO_EN_PROCESO])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede procesar el pago para una cita en estado ' . $cita->estado_formatted
+                ], 422);
             }
-            $vuelto = $data['monto_recibido'] - $data['monto'];
-        }
 
-        $pago = new Pago();
-        $pago->fill($data);
-        $pago->vuelto = $vuelto;
-        $pago->fecha_pago = now();
-        $pago->estado = Pago::ESTADO_COMPLETADO;
-        $pago->save();
-
-        return redirect()->route('pagos.index')->with('success', 'Pago registrado correctamente.');
-    }
-
-    public function show($id)
-    {
-        $pago = Pago::with('cita')->findOrFail($id);
-        return view('PagosViews.show', compact('pago'));
-    }
-
-    public function edit($id)
-    {
-        $pago = Pago::findOrFail($id);
-        $citas = Cita::all();
-        return view('PagosViews.edit', compact('pago', 'citas'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $pago = Pago::findOrFail($id);
-        $data = $request->all();
-
-        if ($data['metodo'] === Pago::METODO_EFECTIVO) {
-            if ($data['monto_recibido'] < $data['monto']) {
-                return back()->withErrors(['monto_recibido' => 'El monto recibido es menor al monto a pagar.'])->withInput();
+            // Validar que no tenga ya un pago completado
+            if ($cita->pago && $cita->pago->isPagado()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Esta cita ya tiene un pago completado'
+                ], 422);
             }
-            $data['vuelto'] = $data['monto_recibido'] - $data['monto'];
-        } else {
-            $data['vuelto'] = 0;
-        }
 
-        $pago->update($data);
-        return redirect()->route('pagos.index')->with('success', 'Pago actualizado correctamente.');
+            DB::beginTransaction();
+
+            $montoTotal = $cita->total;
+            $montoRecibido = (float) $request->monto_recibido;
+            
+            // Validar monto mínimo
+            if ($montoRecibido < $montoTotal && $request->metodo !== 'pasarela') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El monto recibido no puede ser menor al total a pagar'
+                ], 422);
+            }
+
+            // Crear o actualizar el pago
+            $pagoData = [
+                'monto' => $montoTotal,
+                'monto_recibido' => $montoRecibido,
+                'vuelto' => max(0, $montoRecibido - $montoTotal),
+                'metodo' => $request->metodo,
+                'referencia' => $request->referencia,
+                'estado' => Pago::ESTADO_PAGADO,
+                'fecha_pago' => now()
+            ];
+
+            if ($cita->pago) {
+                $cita->pago->update($pagoData);
+                $pago = $cita->pago;
+            } else {
+                $pago = $cita->pago()->create($pagoData);
+            }
+
+            // Si el pago es completado y la cita está en proceso, marcarla como finalizada
+            if ($cita->estado === Cita::ESTADO_EN_PROCESO) {
+                $cita->estado = Cita::ESTADO_FINALIZADA;
+                $cita->save();
+            }
+
+            DB::commit();
+
+            // Generar factura (puedes implementar esto después)
+            // $this->generarFactura($cita, $pago);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pago registrado correctamente',
+                'pago' => $pago,
+                'cita_actualizada' => $cita->fresh()
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al registrar pago: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al registrar el pago: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function destroy($id)
+    /**
+     * Obtener información de pago de una cita
+     */
+    public function getInfoPago($citaId)
     {
-        $pago = Pago::findOrFail($id);
-        $pago->delete();
+        try {
+            $cita = Cita::with(['pago', 'servicios'])->findOrFail($citaId);
 
-        return redirect()->route('pagos.index')->with('success', 'Pago eliminado correctamente.');
+            return response()->json([
+                'success' => true,
+                'cita_id' => $cita->id,
+                'total' => $cita->total,
+                'pago' => $cita->pago,
+                'servicios' => $cita->servicios->map(function ($servicio) {
+                    return [
+                        'nombre' => $servicio->nombre,
+                        'precio' => $servicio->pivot->precio,
+                        'descuento' => $servicio->pivot->descuento,
+                        'precio_final' => $servicio->pivot->precio - $servicio->pivot->descuento
+                    ];
+                })
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error al obtener información de pago: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener información del pago'
+            ], 500);
+        }
+    }
+
+    /**
+     * Reembolsar un pago
+     */
+    public function reembolsarPago($citaId)
+    {
+        try {
+            $cita = Cita::with('pago')->findOrFail($citaId);
+
+            if (!$cita->pago || !$cita->pago->isPagado()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede reembolsar un pago que no está completado'
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            $cita->pago->estado = Pago::ESTADO_RECHAZADO;
+            $cita->pago->save();
+
+            // Cambiar estado de la cita a cancelada si es necesario
+            if ($cita->estado === Cita::ESTADO_FINALIZADA) {
+                $cita->estado = Cita::ESTADO_CANCELADA;
+                $cita->save();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pago reembolsado correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al reembolsar pago: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al reembolsar el pago'
+            ], 500);
+        }
     }
 }

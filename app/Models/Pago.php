@@ -32,9 +32,8 @@ class Pago extends Model
 
     // Estados de pago
     const ESTADO_PENDIENTE = 'pendiente';
-    const ESTADO_COMPLETADO = 'completado';
-    const ESTADO_FALLIDO = 'fallido';
-    const ESTADO_REEMBOLSADO = 'reembolsado';
+    const ESTADO_PAGADO = 'pagado';
+    const ESTADO_RECHAZADO = 'rechazado';
 
     // Métodos de pago
     const METODO_EFECTIVO = 'efectivo';
@@ -42,11 +41,11 @@ class Pago extends Model
     const METODO_PASARELA = 'pasarela';
 
     /**
-     * Verificar si el pago está completado
+     * Verificar si el pago está pagado
      */
-    public function isCompletado(): bool
+    public function isPagado(): bool
     {
-        return $this->estado === self::ESTADO_COMPLETADO;
+        return $this->estado === self::ESTADO_PAGADO;
     }
 
     /**
@@ -58,19 +57,11 @@ class Pago extends Model
     }
 
     /**
-     * Verificar si el pago falló
+     * Verificar si el pago fue rechazado
      */
-    public function isFallido(): bool
+    public function isRechazado(): bool
     {
-        return $this->estado === self::ESTADO_FALLIDO;
-    }
-
-    /**
-     * Verificar si el pago fue reembolsado
-     */
-    public function isReembolsado(): bool
-    {
-        return $this->estado === self::ESTADO_REEMBOLSADO;
+        return $this->estado === self::ESTADO_RECHAZADO;
     }
 
     /**
@@ -93,21 +84,21 @@ class Pago extends Model
     }
 
     /**
-     * Marcar pago como completado
+     * Marcar pago como pagado
      */
-    public function marcarComoCompletado(): bool
+    public function marcarComoPagado(): bool
     {
-        $this->estado = self::ESTADO_COMPLETADO;
+        $this->estado = self::ESTADO_PAGADO;
         $this->fecha_pago = now();
         return $this->save();
     }
 
     /**
-     * Scope para pagos completados
+     * Scope para pagos pagados
      */
-    public function scopeCompletados($query)
+    public function scopePagados($query)
     {
-        return $query->where('estado', self::ESTADO_COMPLETADO);
+        return $query->where('estado', self::ESTADO_PAGADO);
     }
 
     /**

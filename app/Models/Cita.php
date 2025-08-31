@@ -179,4 +179,27 @@ class Cita extends Model
             $this->fecha_hora->lt(now()->subHours(24)) &&
             !$this->yaEstaExpirada();
     }
+    public function tienePagoCompletado(): bool
+    {
+        return $this->pago && $this->pago->estado === 'pagado';
+    }
+
+    public function tienePagoPendiente(): bool
+    {
+        return !$this->pago || $this->pago->estado === 'pendiente';
+    }
+
+    public function getEstadoPagoAttribute(): string
+    {
+        if (!$this->pago) {
+            return 'pendiente';
+        }
+
+        return $this->pago->estado;
+    }
+
+    public function getMontoPagadoAttribute(): float
+    {
+        return $this->pago ? $this->pago->monto : 0;
+    }
 }
