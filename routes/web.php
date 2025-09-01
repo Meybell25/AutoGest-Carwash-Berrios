@@ -408,6 +408,11 @@ Route::get('/check-timezone', function () {
     ]);
 });
 
+// Toggle de horarios (mantiene mismo middleware/políticas del dashboard)
+Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
+    ->patch('/admin/horarios/{horario}/toggle', [\App\Http\Controllers\HorarioController::class, 'toggle'])
+    ->name('admin.horarios.toggle');
+
 // routes/web.php
 Route::post('/cliente/debug-horarios', [ClienteController::class, 'debugHorarios'])
     ->name('cliente.debug-horarios')

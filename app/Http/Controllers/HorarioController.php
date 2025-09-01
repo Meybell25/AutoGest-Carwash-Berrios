@@ -2,190 +2,122 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreHorarioRequest;
+use App\Http\Requests\UpdateHorarioRequest;
 use App\Models\Horario;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class HorarioController extends Controller
 {
-
+    // Días hábiles (1 = Lunes ... 6 = Sábado)
     const DIAS_SEMANA = [
-        0 => 'Domingo',
         1 => 'Lunes',
         2 => 'Martes',
         3 => 'Miércoles',
         4 => 'Jueves',
         5 => 'Viernes',
-        6 => 'Sábado'
+        6 => 'Sábado',
     ];
 
-    public function index()
+    public function index(Request $request)
     {
-        // Excluir domingos (día 0) y ordenar por dIa y hora
-        $horarios = Horario::where('dia_semana', '>=', 1)
+        $perPage = (int)($request->query('per_page', 10));
+        if ($perPage <= 0) { $perPage = 10; }
+
+        $paginator = Horario::whereBetween('dia_semana', [1, 6])
             ->orderBy('dia_semana')
             ->orderBy('hora_inicio')
-            ->get();
+            ->paginate($perPage);
 
-        // Si es AJAX, devolver JSON con nombres de dia
-        if (request()->ajax()) {
-            $horarios->transform(function ($horario) {
-                $horario->nombre_dia = self::DIAS_SEMANA[$horario->dia_semana] ?? 'Desconocido';
-                return $horario;
-            });
-            return response()->json($horarios);
-        }
-
-        return view('HorariosViews.index', compact('horarios'));
+        $data = $paginator->getCollection()->map(fn($h) => $this->formatHorarioResponse($h));
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'last_page' => $paginator->lastPage(),
+            ],
+            'message' => 'Listado de horarios'
+        ]);
     }
 
-    public function store(Request $request)
+    public function create()
     {
-        $data = $request->all();
+        return response()->json(['success' => false, 'message' => 'No disponible'], 404);
+    }
 
-        $validator = Validator::make($data, [
-            'dia_semana' => 'required|integer|between:1,6', // 1-6 (Lunes a Sábado)
-            'hora_inicio' => 'required|date_format:H:i',
-            'hora_fin' => [
-                'required',
-                'date_format:H:i',
-                'after:hora_inicio',
-                function ($attribute, $value, $fail) use ($data) {
-                    // Validar que no exceda el límite de horas (ej. máximo 8 horas por bloque)
-                    $inicio = \Carbon\Carbon::createFromFormat('H:i', $data['hora_inicio']);
-                    $fin = \Carbon\Carbon::createFromFormat('H:i', $value);
-                    
-                    if ($fin->diffInHours($inicio) > 8) {
-                        $fail('El bloque horario no puede exceder las 8 horas.');
-                    }
-                }
-            ],
-            'activo' => 'required|boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // Validar superposición de horarios
-        $existeSuperposicion = Horario::where('dia_semana', $data['dia_semana'])
-            ->where(function ($query) use ($data) {
-                $query->whereBetween('hora_inicio', [$data['hora_inicio'], $data['hora_fin']])
-                      ->orWhereBetween('hora_fin', [$data['hora_inicio'], $data['hora_fin']])
-                      ->orWhere(function ($q) use ($data) {
-                          $q->where('hora_inicio', '<', $data['hora_inicio'])
-                            ->where('hora_fin', '>', $data['hora_fin']);
-                      });
-            })
-            ->exists();
-
-        if ($existeSuperposicion) {
-            return response()->json([
-                'errors' => ['horario' => 'Existe superposición con otro horario en el mismo día.']
-            ], 422);
-        }
+    public function store(StoreHorarioRequest $request)
+    {
+        $data = $request->validated();
+        $data['activo'] = (bool)($data['activo'] ?? true);
 
         $horario = Horario::create($data);
-        
+
         return response()->json([
-            'message' => 'Horario creado exitosamente.',
-            'horario' => $this->formatHorarioResponse($horario)
+            'success' => true,
+            'data' => $this->formatHorarioResponse($horario),
+            'message' => 'Horario creado correctamente'
         ]);
     }
 
-    public function show($id)
+    public function show(Request $request, Horario $horario)
     {
-        $horario = Horario::findOrFail($id);
-        return response()->json($this->formatHorarioResponse($horario));
+        return response()->json([
+            'success' => true,
+            'data' => $this->formatHorarioResponse($horario),
+            'message' => 'Detalle de horario'
+        ]);
     }
 
-    public function update(Request $request, $id)
+    public function edit(Horario $horario)
     {
-        $horario = Horario::findOrFail($id);
-        $data = $request->all();
+        return response()->json(['success' => false, 'message' => 'No disponible'], 404);
+    }
 
-        $validator = Validator::make($data, [
-            'dia_semana' => 'required|integer|between:1,6', // 1-6 (Lunes a Sábado)
-            'hora_inicio' => 'required|date_format:H:i',
-            'hora_fin' => [
-                'required',
-                'date_format:H:i',
-                'after:hora_inicio',
-                function ($attribute, $value, $fail) use ($data) {
-                    $inicio = \Carbon\Carbon::createFromFormat('H:i', $data['hora_inicio']);
-                    $fin = \Carbon\Carbon::createFromFormat('H:i', $value);
-                    
-                    if ($fin->diffInHours($inicio) > 8) {
-                        $fail('El bloque horario no puede exceder las 8 horas.');
-                    }
-                }
-            ],
-            'activo' => 'required|boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // Validar superposición excluyendo el horario actual
-        $existeSuperposicion = Horario::where('dia_semana', $data['dia_semana'])
-            ->where('id', '!=', $id)
-            ->where(function ($query) use ($data) {
-                $query->whereBetween('hora_inicio', [$data['hora_inicio'], $data['hora_fin']])
-                      ->orWhereBetween('hora_fin', [$data['hora_inicio'], $data['hora_fin']])
-                      ->orWhere(function ($q) use ($data) {
-                          $q->where('hora_inicio', '<', $data['hora_inicio'])
-                            ->where('hora_fin', '>', $data['hora_fin']);
-                      });
-            })
-            ->exists();
-
-        if ($existeSuperposicion) {
-            return response()->json([
-                'errors' => ['horario' => 'Existe superposición con otro horario en el mismo día.']
-            ], 422);
-        }
-
+    public function update(UpdateHorarioRequest $request, Horario $horario)
+    {
+        $data = $request->validated();
         $horario->update($data);
-        
+
         return response()->json([
-            'message' => 'Horario actualizado exitosamente.',
-            'horario' => $this->formatHorarioResponse($horario)
+            'success' => true,
+            'data' => $this->formatHorarioResponse($horario),
+            'message' => 'Horario actualizado correctamente'
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, Horario $horario)
     {
-        $horario = Horario::findOrFail($id);
-        
-        // Validar si el horario está siendo usado en citas futuras
-        if ($horario->citas()->where('fecha_hora', '>', now())->exists()) {
-            return response()->json([
-                'error' => 'No se puede eliminar el horario porque tiene citas programadas.'
-            ], 422);
-        }
-
         $horario->delete();
+        return response()->json(['success' => true, 'message' => 'Horario eliminado correctamente']);
+    }
+
+    public function toggle(Request $request, Horario $horario)
+    {
+        $horario->activo = !$horario->activo;
+        $horario->save();
 
         return response()->json([
-            'message' => 'Horario eliminado correctamente.'
+            'success' => true,
+            'data' => $this->formatHorarioResponse($horario),
+            'message' => $horario->activo ? 'Horario activado' : 'Horario desactivado'
         ]);
     }
 
-    /**
-     * Formatea la respuesta del horario con datos adicionales
-     */
-    protected function formatHorarioResponse($horario)
+    protected function formatHorarioResponse(Horario $horario): array
     {
         return [
             'id' => $horario->id,
             'dia_semana' => $horario->dia_semana,
-            'nombre_dia' => self::DIAS_SEMANA[$horario->dia_semana] ?? 'Desconocido',
-            'hora_inicio' => $horario->hora_inicio,
-            'hora_fin' => $horario->hora_fin,
-            'activo' => $horario->activo,
-            'created_at' => $horario->created_at,
-            'updated_at' => $horario->updated_at
+            'nombre_dia' => self::DIAS_SEMANA[$horario->dia_semana] ?? (string) $horario->dia_semana,
+            'hora_inicio' => $horario->hora_inicio?->format('H:i'),
+            'hora_fin' => $horario->hora_fin?->format('H:i'),
+            'activo' => (bool) $horario->activo,
+            'created_at' => optional($horario->created_at)->toDateTimeString(),
+            'updated_at' => optional($horario->updated_at)->toDateTimeString(),
         ];
     }
 }
+

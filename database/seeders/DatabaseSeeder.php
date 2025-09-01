@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Hash;
+use Database\Seeders\HorarioSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,7 +20,7 @@ class DatabaseSeeder extends Seeder
     'email' => 'mey@example.com',
     'telefono' => '+503 7000-1234',
     'password' => Hash::make('123456'),
-    'rol' => Usuario::ROL_CLIENTE,
+    'rol' => Usuario::ROL_ADMIN,
     'estado' => true,
 ]);
 
@@ -42,8 +43,8 @@ class DatabaseSeeder extends Seeder
             ->inactivo()
             ->count(2)
             ->create();
-
-        
+        // Horarios (bloques de 30 minutos L-S)
+        $this->call(HorarioSeeder::class);
 
     }
 }

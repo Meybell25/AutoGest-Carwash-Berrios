@@ -3596,54 +3596,78 @@
                 </div>
             </div>
 
-            <!-- Modal para gestión de horarios -->
-            <div id="horarioModal" class="modal">
-                <div class="modal-content" style="max-width: 500px;">
-                    <span class="close-modal" onclick="closeModal('horarioModal')">&times;</span>
-                    <h2 id="horarioModalTitle">
-                        <i class="fas fa-clock"></i> Agregar Horario
-                    </h2>
-                    <form id="horarioForm">
-                        <input type="hidden" id="horario_id" name="id">
-
-                        <div class="form-group">
-                            <label for="horario_dia">Día de la semana:</label>
-                            <select id="horario_dia" class="form-control" required>
-                                <option value="">Seleccione un día</option>
-                                <option value="0">Domingo</option>
-                                <option value="1">Lunes</option>
-                                <option value="2">Martes</option>
-                                <option value="3">Miércoles</option>
-                                <option value="4">Jueves</option>
-                                <option value="5">Viernes</option>
-                                <option value="6">Sábado</option>
-                            </select>
+            <!-- Modal Horarios (Bootstrap, estilo igual a Días No Laborables) -->
+            <div class="modal fade modal-horarios" id="horarioCRUDModal" tabindex="-1" aria-labelledby="horarioCRUDModalTitle" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="horarioCRUDModalTitle">
+                                <i class="fas fa-clock me-2"></i>
+                                Agregar Horario
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+                        <div class="modal-body">
+                            <form id="horarioForm">
+                                <input type="hidden" id="horario_id" name="id">
 
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="horario_inicio">Hora de inicio:</label>
-                                <input type="time" id="horario_inicio" class="form-control" required>
-                            </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="horario_dia" class="form-label"><i class="fas fa-calendar-week me-1"></i> Día de la semana</label>
+                                        <select id="horario_dia" class="form-control" required>
+                                            <option value="">Seleccione un día</option>
+                                            <option value="1">Lunes</option>
+                                            <option value="2">Martes</option>
+                                            <option value="3">Miércoles</option>
+                                            <option value="4">Jueves</option>
+                                            <option value="5">Viernes</option>
+                                            <option value="6">Sábado</option>
+                                        </select>
+                                        <div class="invalid-feedback d-block" id="error_horario_dia"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="horario_activo" class="form-label"><i class="fas fa-toggle-on me-1"></i> Estado</label>
+                                        <div class="form-check form-switch" style="padding-top: 8px;">
+                                            <input class="form-check-input" type="checkbox" id="horario_activo_switch" checked>
+                                            <label class="form-check-label" for="horario_activo_switch">Activo</label>
+                                        </div>
+                                        <input type="hidden" id="horario_activo" value="1">
+                                    </div>
+                                </div>
 
-                            <div class="form-group">
-                                <label for="horario_fin">Hora de fin:</label>
-                                <input type="time" id="horario_fin" class="form-control" required>
-                            </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="horario_inicio" class="form-label"><i class="fas fa-clock me-1"></i> Hora de inicio</label>
+                                        <input type="time" id="horario_inicio" class="form-control" required>
+                                        <div class="invalid-feedback d-block" id="error_horario_inicio"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="horario_fin" class="form-label"><i class="fas fa-clock me-1"></i> Hora de fin</label>
+                                        <input type="time" id="horario_fin" class="form-control" required>
+                                        <div class="invalid-feedback d-block" id="error_horario_fin"></div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info" role="alert">
+                                    <div style="font-weight:600; margin-bottom:6px;"><i class="fas fa-info-circle me-1"></i> Información importante</div>
+                                    <ul style="margin:0; padding-left: 18px;">
+                                        <li>Los horarios aplican de Lunes a Sábado.</li>
+                                        <li>La hora de inicio debe ser menor a la hora de fin.</li>
+                                        <li>No se permiten horarios duplicados por día y hora de inicio.</li>
+                                        <li>Los cambios afectan la disponibilidad para agendar citas.</li>
+                                    </ul>
+                                </div>
+                            </form>
                         </div>
-
-                        <div class="form-group">
-                            <label for="horario_activo">Estado:</label>
-                            <select id="horario_activo" class="form-control">
-                                <option value="1" selected>Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i> Cancelar
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btnGuardarHorario">
+                                <i class="fas fa-save me-1"></i> Guardar Horario
+                            </button>
                         </div>
-
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-save"></i> Guardar Horario
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
 
@@ -6103,22 +6127,25 @@
 
         // Asignación de eventos a botones dinámicos
         document.addEventListener('click', function(e) {
-            // Botones de ver detalle de cita
-            if (e.target.closest('.btn-view')) {
-                const citaId = e.target.closest('tr').getAttribute('data-id');
-                verDetalleCita(citaId);
+            // Botones de ver detalle de cita (solo en tabla de citas)
+            if (e.target.closest('#citasHoyTable .btn-view')) {
+                const row = e.target.closest('tr');
+                const citaId = row ? row.getAttribute('data-id') : null;
+                if (citaId) verDetalleCita(citaId);
             }
 
-            // Botones de editar cita
-            if (e.target.closest('.btn-edit')) {
-                const citaId = e.target.closest('tr').getAttribute('data-id');
-                editarCita(citaId);
+            // Botones de editar cita (solo en tabla de citas)
+            if (e.target.closest('#citasHoyTable .btn-edit')) {
+                const row = e.target.closest('tr');
+                const citaId = row ? row.getAttribute('data-id') : null;
+                if (citaId) editarCita(citaId);
             }
 
-            // Botones de cancelar cita
-            if (e.target.closest('.btn-delete')) {
-                const citaId = e.target.closest('tr').getAttribute('data-id');
-                cancelarCita(citaId);
+            // Botones de cancelar cita (solo dentro de la tabla de citas)
+            if (e.target.closest('#citasHoyTable .btn-delete')) {
+                const row = e.target.closest('tr');
+                const citaId = row ? row.getAttribute('data-id') : null;
+                if (citaId) cancelarCita(citaId);
             }
 
             // Botones de editar servicio
@@ -6223,6 +6250,42 @@
         .modal-dias-no-laborables .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Estilos para modal-horarios (igual al de días no laborables) */
+        .modal-horarios .modal-content {
+            border-radius: 15px;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .modal-horarios .modal-header {
+            background: linear-gradient(135deg, #27ae60, #00695c);
+            color: white;
+            border: none;
+            padding: 1.25rem 1.75rem;
+        }
+        .modal-horarios .modal-body,
+        .modal-horarios .modal-footer {
+            background: #f8f9fa;
+            border: none;
+        }
+        .modal-horarios .form-control {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 0.65rem 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .modal-horarios .form-control:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
+        }
+        .modal-horarios .btn-primary {
+            background: linear-gradient(135deg, #27ae60, #00695c);
+            border: none;
+            border-radius: 8px;
+            padding: 0.65rem 1.25rem;
+            font-weight: 600;
         }
 
         .modal-dias-no-laborables .btn-secondary {
@@ -8785,6 +8848,322 @@
         window.editarServicioDesdeModal = editarServicioDesdeModal;
         window.toggleEstadoServicio = toggleEstadoServicio;
         window.eliminarServicioDesdeModal = eliminarServicioDesdeModal;
+    </script>
+
+    <script>
+        // Horarios - bloque en Dashboard (inyección dinámica para mantener estilos y orden)
+        (function () {
+            const container = document.querySelector('.dashboard-container');
+            if (!container) return;
+
+            const cardHtml = `
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="card-header-icon icon-container">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            Horarios
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header-actions" style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 50%;">Gestión de bloques horarios</h3>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary btn-sm" id="btnAgregarHorario">
+                                    <i class="fas fa-plus"></i> Agregar horario
+                                </button>
+                            </div>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Día</th>
+                                        <th>Inicio</th>
+                                        <th>Fin</th>
+                                        <th>Activo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="horariosTableBody">
+                                    <tr><td colspan="5" style="text-align:center; padding:20px; color:#666;">Cargando...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="horariosEmptyState" style="display:none; text-align:center; margin-top:15px;">
+                            <p style="color:#666;">No hay horarios configurados.</p>
+                            <button type="button" class="btn btn-primary btn-sm" id="btnAgregarHorarioEmpty">Agregar el primero</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Insert after "Días No Laborables" card if exists, else append at end
+            const anchorCard = document.querySelector('i.fa-calendar-day')?.closest('.card');
+            if (anchorCard && anchorCard.nextSibling) {
+                anchorCard.parentNode.insertBefore(document.createRange().createContextualFragment(cardHtml), anchorCard.nextSibling);
+            } else {
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            }
+
+            // State
+            let horarios = [];
+            const tableBody = document.getElementById('horariosTableBody');
+            const emptyState = document.getElementById('horariosEmptyState');
+            const btnAgregarHorario = document.getElementById('btnAgregarHorario');
+            const btnAgregarHorarioEmpty = document.getElementById('btnAgregarHorarioEmpty');
+
+            function nombreDia(n) {
+                const dias = {1:'Lunes',2:'Martes',3:'Miércoles',4:'Jueves',5:'Viernes',6:'Sábado'};
+                return dias[n] || n;
+            }
+
+            function renderTabla() {
+                if (!horarios || horarios.length === 0) {
+                    tableBody.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                emptyState.style.display = 'none';
+                tableBody.innerHTML = horarios.map(h => `
+                    <tr>
+                        <td data-label="Día">${nombreDia(h.dia_semana)}</td>
+                        <td data-label="Inicio">${h.hora_inicio}</td>
+                        <td data-label="Fin">${h.hora_fin}</td>
+                        <td data-label="Activo">
+                            <span class="badge ${h.activo ? 'badge-success' : 'badge-danger'}">${h.activo ? 'Sí' : 'No'}</span>
+                        </td>
+                        <td data-label="Acciones">
+                            <div class="table-actions">
+                                <button class="table-btn btn-edit" title="Editar" data-action="edit" data-id="${h.id}"><i class="fas fa-edit"></i></button>
+                                <button class="table-btn ${h.activo ? 'btn-danger' : 'btn-success'}" title="${h.activo ? 'Desactivar' : 'Activar'}" data-action="toggle" data-id="${h.id}">
+                                    <i class="fas ${h.activo ? 'fa-ban' : 'fa-check'}"></i>
+                                </button>
+                                <button class="table-btn btn-delete" title="Eliminar" data-action="delete" data-id="${h.id}"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            async function cargarHorarios() {
+                try {
+                    const res = await fetch('{{ route('admin.horarios.index') }}', { headers: { 'Accept': 'application/json' } });
+                    const json = await res.json();
+                    horarios = (json && json.data) ? json.data : [];
+                    renderTabla();
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'Error al cargar horarios' });
+                }
+            }
+
+            function clearHorarioErrors() {
+                ['horario_dia','horario_inicio','horario_fin'].forEach(id => {
+                    const el = document.getElementById(id);
+                    el?.classList.remove('is-invalid');
+                });
+                ['error_horario_dia','error_horario_inicio','error_horario_fin'].forEach(id => {
+                    const e = document.getElementById(id);
+                    if (e) e.innerHTML='';
+                });
+            }
+
+            function abrirModalCrearHorario() {
+                const form = document.getElementById('horarioForm');
+                if (!form) return;
+                form.reset();
+                clearHorarioErrors();
+                document.getElementById('horario_id').value = '';
+                document.getElementById('horario_dia').value = '';
+                document.getElementById('horario_activo').value = '1';
+                const sw = document.getElementById('horario_activo_switch'); if (sw) sw.checked = true;
+                const modal = new bootstrap.Modal(document.getElementById('horarioCRUDModal'));
+                document.getElementById('horarioCRUDModalTitle').innerHTML = '<i class="fas fa-clock me-2"></i> Agregar Horario';
+                modal.show();
+                setTimeout(() => document.getElementById('horario_dia')?.focus(), 100);
+            }
+
+            async function abrirModalEditarHorario(id) {
+                try {
+                    const res = await fetch(`/admin/horarios/${id}`, { headers: { 'Accept': 'application/json' } });
+                    const { data } = await res.json();
+                    const form = document.getElementById('horarioForm');
+                    if (!form) return;
+                    document.getElementById('horario_id').value = data.id;
+                    document.getElementById('horario_dia').value = data.dia_semana;
+                    document.getElementById('horario_inicio').value = data.hora_inicio;
+                    document.getElementById('horario_fin').value = data.hora_fin;
+                    const sw = document.getElementById('horario_activo_switch'); if (sw) sw.checked = !!data.activo;
+                    document.getElementById('horario_activo').value = data.activo ? '1' : '0';
+                    const modal = new bootstrap.Modal(document.getElementById('horarioCRUDModal'));
+                    document.getElementById('horarioCRUDModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i> Editar Horario';
+                    modal.show();
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo cargar el horario' });
+                }
+            }
+
+            async function toggleHorario(id) {
+                try {
+                    const res = await fetch(`/admin/horarios/${id}/toggle`, {
+                        method: 'PATCH',
+                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                    });
+                    const { data, message } = await res.json();
+                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: message || 'Actualizado' });
+                    // Update in memory
+                    horarios = horarios.map(h => h.id === data.id ? data : h);
+                    renderTabla();
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo actualizar' });
+                }
+            }
+
+            async function eliminarHorario(id) {
+                const confirm = await Swal.fire({ title: '¿Eliminar?', text: 'Esta acción no se puede deshacer', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, eliminar' });
+                if (!confirm.isConfirmed) return;
+                try {
+                    const res = await fetch(`/admin/horarios/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' } });
+                    const json = await res.json();
+                    if (json && json.success) {
+                        if (typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: json.message || 'Eliminado' });
+                        horarios = horarios.filter(h => h.id !== id);
+                        renderTabla();
+                    } else {
+                        if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo eliminar' });
+                    }
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo eliminar' });
+                }
+            }
+
+            // Confirmación consistente para eliminar horario
+            async function confirmarEliminarHorario(id) {
+                const confirm = await Swal.fire({
+                    title: '¿Eliminar horario?',
+                    text: 'Esta acción no se puede deshacer',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, Eliminar',
+                    cancelButtonText: 'No, Mantener',
+                    reverseButtons: true,
+                });
+                if (!confirm.isConfirmed) return;
+                try {
+                    const res = await fetch(`/admin/horarios/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' } });
+                    const json = await res.json();
+                    if (json && json.success) {
+                        if (typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: json.message || 'Eliminado' });
+                        horarios = horarios.filter(h => h.id !== id);
+                        renderTabla();
+                    } else {
+                        if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo eliminar' });
+                    }
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo eliminar' });
+                }
+            }
+
+            // Delegación de eventos en tabla
+            tableBody.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const id = parseInt(btn.getAttribute('data-id'));
+                const action = btn.getAttribute('data-action');
+                if (action === 'edit') return abrirModalEditarHorario(id);
+                if (action === 'toggle') return toggleHorario(id);
+                if (action === 'delete') return confirmarEliminarHorario(id);
+            });
+
+            // Abrir crear desde botones
+            btnAgregarHorario?.addEventListener('click', abrirModalCrearHorario);
+            btnAgregarHorarioEmpty?.addEventListener('click', abrirModalCrearHorario);
+
+            // Manejo submit del modal existente
+            const horarioForm = document.getElementById('horarioForm');
+            const btnGuardarHorario = document.getElementById('btnGuardarHorario');
+            function applyErrors(err){
+                clearHorarioErrors();
+                if (err && err.errors) {
+                    if (err.errors.dia_semana) {
+                        document.getElementById('horario_dia')?.classList.add('is-invalid');
+                        document.getElementById('error_horario_dia').innerHTML = err.errors.dia_semana[0];
+                    }
+                    if (err.errors.hora_inicio) {
+                        document.getElementById('horario_inicio')?.classList.add('is-invalid');
+                        document.getElementById('error_horario_inicio').innerHTML = err.errors.hora_inicio[0];
+                    }
+                    if (err.errors.hora_fin) {
+                        document.getElementById('horario_fin')?.classList.add('is-invalid');
+                        document.getElementById('error_horario_fin').innerHTML = err.errors.hora_fin[0];
+                    }
+                }
+            }
+
+            function buildPayload(){
+                return {
+                    dia_semana: document.getElementById('horario_dia').value,
+                    hora_inicio: document.getElementById('horario_inicio').value,
+                    hora_fin: document.getElementById('horario_fin').value,
+                    activo: document.getElementById('horario_activo').value,
+                };
+            }
+
+            // Submit via botón footer
+            btnGuardarHorario?.addEventListener('click', async () => {
+                horarioForm?.dispatchEvent(new Event('submit'));
+            });
+
+            // Sincronizar switch con valor oculto
+            document.getElementById('horario_activo_switch')?.addEventListener('change', (e) => {
+                document.getElementById('horario_activo').value = e.target.checked ? '1' : '0';
+            });
+
+            horarioForm?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const id = document.getElementById('horario_id').value;
+                const payload = buildPayload();
+                // Validación simple cliente
+                if (!payload.dia_semana || !payload.hora_inicio || !payload.hora_fin) {
+                    applyErrors({errors: {dia_semana: !payload.dia_semana ? ['Seleccione un día'] : [], hora_inicio: !payload.hora_inicio ? ['Ingrese hora de inicio'] : [], hora_fin: !payload.hora_fin ? ['Ingrese hora de fin'] : []}});
+                    return;
+                }
+                if (payload.hora_inicio >= payload.hora_fin) {
+                    applyErrors({errors: {hora_fin: ['La hora de fin debe ser mayor a la hora de inicio']}});
+                    return;
+                }
+                try {
+                    const res = await fetch(id ? `/admin/horarios/${id}` : '/admin/horarios', {
+                        method: id ? 'PUT' : 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) {
+                        const err = await res.json();
+                        if (err && err.errors) { applyErrors(err); return; }
+                        throw new Error('Error de servidor');
+                    }
+                    const { data, message } = await res.json();
+                    const modalEl = document.getElementById('horarioCRUDModal');
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: message || 'Guardado' });
+                    // Actualizar en memoria
+                    if (id) {
+                        horarios = horarios.map(h => h.id === data.id ? data : h);
+                    } else {
+                        horarios.push(data);
+                        horarios.sort((a,b) => a.dia_semana - b.dia_semana || (a.hora_inicio > b.hora_inicio ? 1 : -1));
+                    }
+                    renderTabla();
+                } catch (e) {
+                    Swal.fire('Error', 'No se pudo guardar', 'error');
+                }
+            });
+
+            // Cargar data al iniciar
+            cargarHorarios();
+        })();
     </script>
 
     <!-- Bootstrap JS -->
