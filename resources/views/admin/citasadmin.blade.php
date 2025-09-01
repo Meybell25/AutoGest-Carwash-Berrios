@@ -1848,6 +1848,11 @@
             // 9. ABRIR MODAL DE DETALLES
             async function openDetallesModal(citaId) {
                 try {
+                    const modalElement = document.getElementById('detallesCitaModal');
+                    if (!modalElement) {
+                        throw new Error('El modal de detalles no se encuentra en el DOM');
+                    }
+
                     showLoading('Cargando detalles...');
 
                     const response = await fetch(`/admin/citasadmin/${citaId}/detalles`);
@@ -1869,13 +1874,16 @@
                         focus: true // Enfocar modal al abrir
                     });
                     modal.show();
-                    modal.addEventListener('shown.bs.modal', function() {
-                        const modalBody = modal.querySelector('.modal-body');
-                        if (modalBody) {
-                            modalBody.style.overflowY = 'auto';
-                            modalBody.style.maxHeight = 'calc(100vh - 200px)';
-                        }
-                    });
+                    mconst modalElement = document.getElementById('detallesCitaModal');
+                    if (modalElement) {
+                        modalElement.addEventListener('shown.bs.modal', function() {
+                            const modalBody = this.querySelector('.modal-body');
+                            if (modalBody) {
+                                modalBody.style.overflowY = 'auto';
+                                modalBody.style.maxHeight = 'calc(100vh - 200px)';
+                            }
+                        });
+                    }
 
                 } catch (error) {
                     hideLoading();
@@ -1895,12 +1903,17 @@
                 if (data.servicios && data.servicios.length > 0) {
                     data.servicios.forEach(servicio => {
                         const precio = servicio.pivot?.precio || servicio.precio || 0;
+                        const descuento = servicio.pivot?.descuento || 0;
+                        const precioFinal = precio - descuento;
+
                         serviciosHTML += `
-                    <div class="service-item">
-                        <span class="service-name">${servicio.nombre}</span>
-                        <span class="service-price">${precio.toFixed(2)}</span>
-                    </div>
-                `;
+                <div class="service-item">
+                    <span class="service-name">${servicio.nombre}</span>
+                    <span class="service-price">${precioFinal.toFixed(2)}</span>
+                    ${descuento > 0 ? 
+                        `<span class="text-success ms-2"><small>(-${descuento.toFixed(2)})</small></span>` : ''}
+                </div>
+            `;
                     });
                 } else {
                     serviciosHTML = '<p class="text-muted text-center">No hay servicios registrados</p>';
@@ -1908,95 +1921,159 @@
 
                 const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado';
 
-                const contenidoHTML = `
+                // Construir sección de información de pago si existe
+                let pagoHTML = '';
+                if (data.pago && data.estado === 'finalizada') {
+                    pagoHTML = `
             <div class="modal-section">
                 <div class="modal-section-title">
-                    <i class="fas fa-user"></i> Información del Cliente
+                    <i class="fas fa-credit-card"></i> Información de Pago
                 </div>
                 <div class="modal-info-item">
-                    <span class="modal-info-label">Nombre:</span>
-                    <span class="modal-info-value">${data.usuario.nombre}</span>
+                    <span class="modal-info-label">Método:</span>
+                    <span class="modal-info-value">${data.pago.metodo_formatted || data.pago.metodo}</span>
                 </div>
+                ${data.pago.referencia ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Referencia:</span>
+                                <span class="modal-info-value">${data.pago.referencia}</span>
+                            </div>
+                        ` : ''}
                 <div class="modal-info-item">
-                    <span class="modal-info-label">Email:</span>
-                    <span class="modal-info-value">${data.usuario.email}</span>
+                    <span class="modal-info-label">Monto Pagado:</span>
+                    <span class="modal-info-value">$${data.pago.monto.toFixed(2)}</span>
                 </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Teléfono:</span>
-                    <span class="modal-info-value">${data.usuario.telefono || 'No proporcionado'}</span>
-                </div>
-            </div>
-            
-            <div class="modal-section">
-                <div class="modal-section-title">
-                    <i class="fas fa-car"></i> Información del Vehículo
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Marca/Modelo:</span>
-                    <span class="modal-info-value">${data.vehiculo.marca} ${data.vehiculo.modelo}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Placa:</span>
-                    <span class="modal-info-value">${data.vehiculo.placa}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Tipo:</span>
-                    <span class="modal-info-value">${tipoVehiculo}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Color:</span>
-                    <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
-                </div>
-                ${data.vehiculo.descripcion ? `
-                                    <div class="modal-info-item">
-                                        <span class="modal-info-label">Descripción:</span>
-                                        <span class="modal-info-value">${data.vehiculo.descripcion}</span>
-                                    </div>
-                                ` : ''}
-            </div>
-            
-            <div class="modal-section">
-                <div class="modal-section-title">
-                    <i class="fas fa-calendar-alt"></i> Detalles de la Cita
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Fecha/Hora:</span>
-                    <span class="modal-info-value">${new Date(data.fecha_hora).toLocaleString('es-ES')}</span>
-                </div>
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Estado:</span>
-                    <span class="modal-info-value">
-                        <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span>
-                    </span>
-                </div>
-                ${data.observaciones ? `
-                                    <div class="modal-info-item">
-                                        <span class="modal-info-label">Observaciones:</span>
-                                        <span class="modal-info-value">${data.observaciones}</span>
-                                    </div>
-                                ` : ''}
-                <div class="modal-info-item">
-                    <span class="modal-info-label">Fecha de creación:</span>
-                    <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
-                </div>
-            </div>
-            
-            <div class="modal-section">
-                <div class="modal-section-title">
-                    <i class="fas fa-tools"></i> Servicios Seleccionados
-                </div>
-                <div class="services-grid">
-                    ${serviciosHTML}
-                </div>
-            </div>
-            
-            <div class="modal-section total-section">
-                <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
-                    <i class="fas fa-receipt me-2"></i> Total a Pagar
-                </div>
-                <div class="total-amount">${data.total.toFixed(2)}</div>
+                ${data.pago.monto_recibido ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Monto Recibido:</span>
+                                <span class="modal-info-value">$${data.pago.monto_recibido.toFixed(2)}</span>
+                            </div>
+                        ` : ''}
+                ${data.pago.vuelto ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Vuelto:</span>
+                                <span class="modal-info-value">$${data.pago.vuelto.toFixed(2)}</span>
+                            </div>
+                        ` : ''}
+                ${data.pago.fecha_pago ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Fecha de Pago:</span>
+                                <span class="modal-info-value">${new Date(data.pago.fecha_pago).toLocaleString('es-ES')}</span>
+                            </div>
+                        ` : ''}
+                ${data.pago.banco_emisor ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Banco Emisor:</span>
+                                <span class="modal-info-value">${data.pago.banco_emisor}</span>
+                            </div>
+                        ` : ''}
+                ${data.pago.tipo_tarjeta ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Tipo de Tarjeta:</span>
+                                <span class="modal-info-value">${data.pago.tipo_tarjeta}</span>
+                            </div>
+                        ` : ''}
+                ${data.pago.observaciones ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Observaciones:</span>
+                                <span class="modal-info-value">${data.pago.observaciones}</span>
+                            </div>
+                        ` : ''}
             </div>
         `;
+                }
+
+                const contenidoHTML = `
+        <div class="modal-section">
+            <div class="modal-section-title">
+                <i class="fas fa-user"></i> Información del Cliente
+            </div>
+            <div class="modal-info-item">
+                <span class="modal-info-label">Nombre:</span>
+                <span class="modal-info-value">${data.usuario.nombre}</span>
+            </div>
+            <div class="modal-info-item">
+                <span class="modal-info-label">Email:</span>
+                <span class="modal-info-value">${data.usuario.email}</span>
+            </div>
+            <div class="modal-info-item">
+                <span class="modal-info-label">Teléfono:</span>
+                <span class="modal-info-value">${data.usuario.telefono || 'No proporcionado'}</span>
+            </div>
+        </div>
+        
+        <div class="modal-section">
+            <div class="modal-section-title">
+                <i class="fas fa-car"></i> Información del Vehículo
+            </div>
+            <div class="modal-info-item">
+                <span class="modal-info-label">Marca/Modelo:</span>
+                <span class="modal-info-value">${data.vehiculo.marca} ${data.vehiculo.modelo}</span>
+            </div>
+            <div class="modal-info-item">
+                <span class="modal-info-label">Placa:</span>
+                <span class="modal-info-value">${data.vehiculo.placa}</span>
+            </div>
+            <div class="modal-info-item">
+                <span class="modal-info-label">Tipo:</span>
+                <span class="modal-info-value">${tipoVehiculo}</span>
+            </div>
+            <div class="modal-info-item">
+                <span class="modal-info-label">Color:</span>
+                <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
+            </div>
+            ${data.vehiculo.descripcion ? `
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Descripción:</span>
+                            <span class="modal-info-value">${data.vehiculo.descripcion}</span>
+                        </div>
+                    ` : ''}
+        </div>
+        
+        <div class="modal-section">
+            <div class="modal-section-title">
+                <i class="fas fa-calendar-alt"></i> Detalles de la Cita
+            </div>
+            <div class="modal-info-item">
+                <span class="modal-info-label">Fecha/Hora:</span>
+                <span class="modal-info-value">${new Date(data.fecha_hora).toLocaleString('es-ES')}</span>
+            </div>
+            <div class="modal-info-item">
+                <span class="modal-info-label">Estado:</span>
+                <span class="modal-info-value">
+                    <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span>
+                </span>
+            </div>
+            ${data.observaciones ? `
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Observaciones:</span>
+                            <span class="modal-info-value">${data.observaciones}</span>
+                        </div>
+                    ` : ''}
+            <div class="modal-info-item">
+                <span class="modal-info-label">Fecha de creación:</span>
+                <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
+            </div>
+        </div>
+        
+        <div class="modal-section">
+            <div class="modal-section-title">
+                <i class="fas fa-tools"></i> Servicios Seleccionados
+            </div>
+            <div class="services-grid">
+                ${serviciosHTML}
+            </div>
+        </div>
+        
+        ${pagoHTML}
+        
+        <div class="modal-section total-section">
+            <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                <i class="fas fa-receipt me-2"></i> Total a Pagar
+            </div>
+            <div class="total-amount">$${data.total.toFixed(2)}</div>
+        </div>
+    `;
 
                 const detallesContent = document.getElementById('detalles-cita-content');
                 if (detallesContent) {
@@ -2011,6 +2088,16 @@
                 if (pagoModalElement) {
                     pagoModalElement.addEventListener('hidden.bs.modal', function() {
                         resetPagoForm();
+                    });
+                }
+
+                // Inicializar el modal de detalles correctamente
+                const detallesModalElement = document.getElementById('detallesCitaModal');
+                if (detallesModalElement) {
+                    // Configurar el modal para que sea responsive
+                    detallesModalElement.addEventListener('show.bs.modal', function() {
+                        this.style.display = 'block';
+                        this.classList.add('show');
                     });
                 }
             }

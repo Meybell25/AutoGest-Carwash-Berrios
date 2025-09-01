@@ -659,10 +659,10 @@ class AdminController extends Controller
     public function getCitaDetalles($id)
     {
         try {
-            $cita = Cita::with(['usuario', 'vehiculo', 'servicios'])
+            $cita = Cita::with(['usuario', 'vehiculo', 'servicios', 'pago'])
                 ->findOrFail($id);
 
-            return response()->json([
+            $response = [
                 'id' => $cita->id,
                 'usuario' => [
                     'nombre' => $cita->usuario->nombre,
@@ -674,7 +674,7 @@ class AdminController extends Controller
                     'modelo' => $cita->vehiculo->modelo,
                     'placa' => $cita->vehiculo->placa,
                     'tipo' => $cita->vehiculo->tipo,
-                    'tipo_formatted' => $cita->vehiculo->tipo_formatted, // Añade esto
+                    'tipo_formatted' => $cita->vehiculo->tipo_formatted,
                     'color' => $cita->vehiculo->color,
                     'descripcion' => $cita->vehiculo->descripcion
                 ],
@@ -685,7 +685,31 @@ class AdminController extends Controller
                 'total' => $cita->total,
                 'servicios' => $cita->servicios,
                 'created_at' => $cita->created_at
-            ]);
+            ];
+
+            // Añadir información de pago si existe
+            if ($cita->pago) {
+                $response['pago'] = [
+                    'id' => $cita->pago->id,
+                    'monto' => $cita->pago->monto,
+                    'monto_recibido' => $cita->pago->monto_recibido,
+                    'vuelto' => $cita->pago->vuelto,
+                    'metodo' => $cita->pago->metodo,
+                    'metodo_formatted' => $cita->pago->metodo_formatted,
+                    'referencia' => $cita->pago->referencia,
+                    'estado' => $cita->pago->estado,
+                    'estado_formatted' => $cita->pago->estado_formatted,
+                    'fecha_pago' => $cita->pago->fecha_pago,
+                    'observaciones' => $cita->pago->observaciones,
+                    'banco_emisor' => $cita->pago->banco_emisor,
+                    'tipo_tarjeta' => $cita->pago->tipo_tarjeta,
+                    'descuentos_aplicados' => $cita->pago->descuentos_aplicados,
+                    'total_antes_descuentos' => $cita->pago->total_antes_descuentos,
+                    'total_descuentos' => $cita->pago->total_descuentos
+                ];
+            }
+
+            return response()->json($response);
         } catch (\Exception $e) {
             Log::error("Error al obtener detalles de cita: " . $e->getMessage());
             return response()->json([
