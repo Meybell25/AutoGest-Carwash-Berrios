@@ -5045,96 +5045,102 @@
         }
         console.log(document.getElementById('usuariosChart')); // Debería mostrar el elemento canvas
 
-        function inicializarGraficoIngresos() {
-            const ctx = document.getElementById('ingresosChart').getContext('2d');
-            ingresosChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                    datasets: [{
-                        label: 'Ingresos 2023',
-                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
-                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
-                        borderColor: 'rgba(39, 174, 96, 1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    ...getCommonChartOptions('top'),
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: value => '$' + value
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: context => '$' + context.raw.toLocaleString()
-                            }
-                        }
+       function inicializarGraficoIngresos(data) {
+    const ctx = document.getElementById('ingresosChart').getContext('2d');
+    ingresosChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            datasets: [{
+                label: 'Ingresos ' + new Date().getFullYear(),
+                data: data,
+                backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                borderColor: 'rgba(39, 174, 96, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            ...getCommonChartOptions('top'),
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '$' + value
                     }
                 }
-            });
-        }
-
-        function inicializarGraficoServicios() {
-            const ctx = document.getElementById('serviciosChart').getContext('2d');
-            serviciosChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
-                    datasets: [{
-                        data: [35, 25, 15, 15, 10],
-                        backgroundColor: [
-                            'rgba(39, 174, 96, 0.7)',
-                            'rgba(52, 152, 219, 0.7)',
-                            'rgba(243, 156, 18, 0.7)',
-                            'rgba(155, 89, 182, 0.7)',
-                            'rgba(231, 76, 60, 0.7)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: getCommonChartOptions('right')
-            });
-        }
-
-        function inicializarGraficoCitas() {
-            const ctx = document.getElementById('citasChart').getContext('2d');
-            citasChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                    datasets: [{
-                            label: 'Citas Completadas',
-                            data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                            backgroundColor: 'rgba(211, 84, 0, 0.7)'
-                        },
-                        {
-                            label: 'Citas Canceladas',
-                            data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                            backgroundColor: 'rgba(231, 76, 60, 0.7)'
-                        }
-                    ]
-                },
-                options: {
-                    ...getCommonChartOptions('top'),
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
-                        }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: context => '$' + context.raw.toLocaleString()
                     }
                 }
-            });
+            }
         }
+    });
+}
+
+
+       function inicializarGraficoServicios(data) {
+    const ctx = document.getElementById('serviciosChart').getContext('2d');
+    
+    // Preparar colores para los servicios
+    const colores = [
+        'rgba(39, 174, 96, 0.7)',
+        'rgba(52, 152, 219, 0.7)',
+        'rgba(243, 156, 18, 0.7)',
+        'rgba(155, 89, 182, 0.7)',
+        'rgba(231, 76, 60, 0.7)'
+    ];
+    
+    serviciosChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(data),
+            datasets: [{
+                data: Object.values(data),
+                backgroundColor: colores,
+                borderWidth: 1
+            }]
+        },
+        options: getCommonChartOptions('right')
+    });
+}
+
+
+        function inicializarGraficoCitas(data) {
+    const ctx = document.getElementById('citasChart').getContext('2d');
+    citasChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            datasets: [{
+                    label: 'Citas Completadas',
+                    data: data.completadas,
+                    backgroundColor: 'rgba(46, 125, 50, 0.7)'
+                },
+                {
+                    label: 'Citas Canceladas',
+                    data: data.canceladas,
+                    backgroundColor: 'rgba(198, 40, 40, 0.7)'
+                }
+            ]
+        },
+        options: {
+            ...getCommonChartOptions('top'),
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+}
 
         function getCommonChartOptions(legendPosition) {
             return {
@@ -5153,41 +5159,47 @@
         // =============================================
 
         // En la función actualizarDatosDashboard
-        async function actualizarDatosDashboard() {
-            try {
-                const response = await fetch('{{ route('admin.dashboard.data') }}');
-                if (!response.ok) throw new Error('Error en la respuesta del servidor');
+async function actualizarDatosDashboard() {
+    try {
+        const response = await fetch('{{ route('admin.dashboard.data') }}');
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
 
-                const data = await response.json();
+        const data = await response.json();
 
-                if (!data.stats || !data.rolesDistribucion) {
-                    throw new Error('Formato de datos incorrecto');
-                }
-
-                actualizarEstadisticas(data.stats);
-
-                // Asegúrate de que el canvas existe antes de inicializar el gráfico
-                if (document.getElementById('usuariosChart')) {
-                    // Si el gráfico ya existe, actualízalo
-                    if (usuariosChart) {
-                        actualizarGraficoUsuarios(data.rolesDistribucion);
-                    } else {
-                        // Si no existe, créalo
-                        inicializarGraficoUsuarios(data.rolesDistribucion);
-                    }
-                }
-
-                return true;
-            } catch (error) {
-                console.error('Error al actualizar datos:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error al cargar datos',
-                    text: error.message
-                });
-                return false;
-            }
+        if (!data.stats || !data.rolesDistribucion) {
+            throw new Error('Formato de datos incorrecto');
         }
+
+        actualizarEstadisticas(data.stats);
+
+        // Inicializar gráficos con datos reales
+        if (document.getElementById('ingresosChart')) {
+            inicializarGraficoIngresos(data.stats.ingresos_por_mes || []);
+        }
+
+        if (document.getElementById('citasChart')) {
+            inicializarGraficoCitas(data.stats.citas_por_mes || {completadas: [], canceladas: []});
+        }
+
+        if (document.getElementById('serviciosChart')) {
+            inicializarGraficoServicios(data.stats.servicios_populares_data || {});
+        }
+
+        if (document.getElementById('usuariosChart')) {
+            inicializarGraficoUsuarios(data.rolesDistribucion);
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error al actualizar datos:', error);
+        Toast.fire({
+            icon: 'error',
+            title: 'Error al cargar datos',
+            text: error.message
+        });
+        return false;
+    }
+}
 
         function actualizarEstadisticas(stats) {
             const welcomeStats = document.querySelectorAll('.welcome-stat .number');
