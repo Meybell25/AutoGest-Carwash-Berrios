@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
     'email' => 'mey@example.com',
     'telefono' => '+503 7000-1234',
     'password' => Hash::make('123456'),
-    'rol' => Usuario::ROL_CLIENTE,
+    'rol' => Usuario::ROL_ADMIN,
     'estado' => true,
 ]);
 

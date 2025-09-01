@@ -9,7 +9,12 @@ class HorarioSeeder extends Seeder
 {
     public function run(): void
     {
-        $dias = [1,2,3,4,5,6]; // Lunes a Sábado
+        // Seed opcional: solo si la tabla está vacía
+        if (Horario::count() > 0) {
+            return;
+        }
+
+        $dias = [1, 2, 3, 4, 5, 6]; // Lunes a Sábado
 
         // Tamaño del bloque en minutos (variable por ENV, default 30)
         $slotMinutes = (int) env('HORARIO_SLOT_MINUTES', 30);
@@ -48,3 +53,4 @@ class HorarioSeeder extends Seeder
         }
     }
 }
+
