@@ -1893,7 +1893,6 @@
             }
 
             // 10. ACTUALIZAR CONTENIDO DEL MODAL DE DETALLES
-            // 10. ACTUALIZAR CONTENIDO DEL MODAL DE DETALLES (VERSIÓN CORREGIDA)
             function updateDetallesModal(data) {
                 const citaIdElement = document.getElementById('cita-id');
                 if (citaIdElement) {
@@ -1992,7 +1991,20 @@
         `;
                 }
 
-                // El resto de tu código HTML permanece igual...
+                // Determinar si debemos mostrar la sección de "Total a Pagar"
+                // Solo se muestra si la cita NO está finalizada o si está finalizada pero NO tiene pago
+                const mostrarTotalAPagar = data.estado !== 'finalizada' || (data.estado === 'finalizada' && !data
+                    .pago);
+
+                const totalSectionHTML = mostrarTotalAPagar ? `
+        <div class="modal-section total-section">
+            <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                <i class="fas fa-receipt me-2"></i> Total a Pagar
+            </div>
+            <div class="total-amount">$${typeof data.total === 'number' ? data.total.toFixed(2) : Number(data.total || 0).toFixed(2)}</div>
+        </div>
+    ` : '';
+
                 const contenidoHTML = `
         <div class="modal-section">
             <div class="modal-section-title">
@@ -2077,12 +2089,7 @@
         
         ${pagoHTML}
         
-        <div class="modal-section total-section">
-            <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
-                <i class="fas fa-receipt me-2"></i> Total a Pagar
-            </div>
-            <div class="total-amount">$${typeof data.total === 'number' ? data.total.toFixed(2) : Number(data.total || 0).toFixed(2)}</div>
-        </div>
+        ${totalSectionHTML}
     `;
 
                 const detallesContent = document.getElementById('detalles-cita-content');
