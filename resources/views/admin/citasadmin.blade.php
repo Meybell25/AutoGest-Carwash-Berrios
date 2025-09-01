@@ -605,6 +605,138 @@
             border-top: 1px solid #e9ecef;
         }
 
+        /* Campos de pago dinámicos - FALTANTES */
+        #campos-efectivo,
+        #campos-transferencia,
+        #campos-pasarela {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Alertas informativas - FALTANTES */
+        .alert {
+            border-radius: 12px;
+            border-left: 4px solid;
+            font-size: 0.9rem;
+        }
+
+        .alert-info {
+            border-left-color: #17a2b8;
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        .alert-success {
+            border-left-color: #28a745;
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .alert-warning {
+            border-left-color: #ffc107;
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        /* Validación de errores - FALTANTES */
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .is-invalid:focus {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        /* Estados de loading - FALTANTES */
+        .btn .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Mejoras específicas para campos de formulario - */
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            outline: none;
+        }
+
+        select.form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Texto de ayuda  */
+        .form-text {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        /* Estados hover para elementos interactivos  */
+        .table tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        .service-item:hover {
+            background-color: #e9ecef;
+            transform: translateX(2px);
+            transition: all 0.2s ease;
+        }
+
+        /* Indicadores de estado más claros  */
+        .badge {
+            padding: 0.5em 0.75em;
+            font-size: 0.8em;
+            border-radius: 0.375rem;
+        }
+
+        .bg-success {
+            background-color: #198754 !important;
+        }
+
+        /* Mejorar contraste de texto  */
+        .text-muted {
+            color: #6c757d !important;
+        }
+
+        /* Separadores visuales  */
+        .modal-section+.modal-section {
+            border-top: 1px solid #f1f3f4;
+            padding-top: 25px;
+        }
+
+        /* Botones de acción con mejor espaciado  */
+        .text-center.mt-3 .btn {
+            margin: 0 5px;
+        }
+
+        /* Estados focus mejorados para mejor accesibilidad  */
+        .descuento-input:focus,
+        .form-control:focus,
+        .form-select:focus {
+            z-index: 2;
+            position: relative;
+        }
+
 
         /* Estilos para las secciones del modal */
         .modal-section {
@@ -1150,868 +1282,873 @@
     <!-- Sistema de Pagos JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+                    // Variables globales
+                    let isProcessingPayment = false;
+                    let currentCitaId = null;
+                    let paymentModal = null;
+                    let eventsConfigured = false; // Prevenir configuración múltiple
 
-            // Variables globales
-            let isProcessingPayment = false;
-            let currentCitaId = null;
-            let paymentModal = null;
+                    // Inicialización
+                    initializePagosSystem();
 
-            // Inicialización
-            initializePagosSystem();
+                    function initializePagosSystem() {
+                        // Inicializar selects de estado con validación de pago
+                        initializeEstadoSelects();
 
-            function initializePagosSystem() {
-                // Inicializar selects de estado con validación de pago
-                initializeEstadoSelects();
+                        // Configurar botones de pago
+                        setupPagoButtons();
 
-                // Configurar botones de pago
-                setupPagoButtons();
+                        // Configurar botones de detalles
+                        setupDetallesButtons();
 
-                // Configurar botones de detalles
-                setupDetallesButtons();
+                        // Configurar modales
+                        setupModals();
 
-                // Configurar modales
-                setupModals();
-
-                console.log('Sistema de Pagos inicializado correctamente');
-            }
-
-            // 1. INICIALIZACIÓN DE SELECTS DE ESTADO
-            function initializeEstadoSelects() {
-                document.querySelectorAll('.estado-select').forEach(select => {
-                    select._currentValue = select.value;
-                    select._previousValue = select.value;
-
-                    select.addEventListener('change', function() {
-                        handleEstadoChange(this);
-                    });
-                });
-            }
-
-            // 2. MANEJO DE CAMBIO DE ESTADO
-            async function handleEstadoChange(selectElement) {
-                const citaId = selectElement.getAttribute('data-cita-id');
-                const nuevoEstado = selectElement.value;
-                const estadoActual = selectElement._currentValue;
-
-                // Validar cambio a finalizada
-                if (nuevoEstado === 'finalizada') {
-                    const verificacion = await verificarPagoCita(citaId);
-
-                    if (!verificacion.success || !verificacion.tiene_pago_completado) {
-                        showAlert('warning', 'Pago requerido',
-                            'No se puede finalizar la cita sin un pago registrado. Por favor, registre el pago primero.'
-                        );
-                        selectElement.value = estadoActual;
-                        return;
+                        console.log('Sistema de Pagos inicializado correctamente');
                     }
-                }
 
-                // Confirmación para cancelación
-                if (nuevoEstado === 'cancelada') {
-                    const confirmacion = await showConfirmation(
-                        '¿Confirmar cancelación?',
-                        'Esta acción cancelará la cita. ¿Estás seguro?',
-                        'warning'
-                    );
+                    // 1. INICIALIZACIÓN DE SELECTS DE ESTADO
+                    function initializeEstadoSelects() {
+                        document.querySelectorAll('.estado-select').forEach(select => {
+                            select._currentValue = select.value;
+                            select._previousValue = select.value;
 
-                    if (!confirmacion) {
-                        selectElement.value = selectElement._previousValue;
-                        return;
+                            select.addEventListener('change', function() {
+                                handleEstadoChange(this);
+                            });
+                        });
                     }
-                }
 
-                // Actualizar estado
-                await actualizarEstadoCita(citaId, nuevoEstado, selectElement);
-            }
+                    // 2. MANEJO DE CAMBIO DE ESTADO
+                    async function handleEstadoChange(selectElement) {
+                        const citaId = selectElement.getAttribute('data-cita-id');
+                        const nuevoEstado = selectElement.value;
+                        const estadoActual = selectElement._currentValue;
 
-            // 3. VERIFICAR PAGO DE CITA
-            async function verificarPagoCita(citaId) {
-                try {
-                    const response = await fetch(`/admin/pagos/${citaId}/verificar-pago`);
-                    const data = await response.json();
+                        // Validar cambio a finalizada
+                        if (nuevoEstado === 'finalizada') {
+                            const verificacion = await verificarPagoCita(citaId);
 
-                    return {
-                        success: response.ok,
-                        tiene_pago_completado: data.tiene_pago_completado || false,
-                        pago: data.pago || null
-                    };
-                } catch (error) {
-                    console.error('Error al verificar pago:', error);
-                    return {
-                        success: false,
-                        tiene_pago_completado: false
-                    };
-                }
-            }
-
-            // 4. ACTUALIZAR ESTADO DE CITA
-            async function actualizarEstadoCita(citaId, nuevoEstado, selectElement) {
-                try {
-                    showLoading('Actualizando estado...');
-
-                    const response = await fetch(`/admin/citasadmin/${citaId}/actualizar-estado`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            estado: nuevoEstado
-                        })
-                    });
-
-                    const data = await response.json();
-                    hideLoading();
-
-                    if (data.success) {
-                        // Actualizar badge de estado
-                        updateEstadoBadge(citaId, nuevoEstado, data.nuevo_estado);
-
-                        // Actualizar valores de control
-                        if (selectElement) {
-                            selectElement._previousValue = nuevoEstado;
-                            selectElement._currentValue = nuevoEstado;
+                            if (!verificacion.success || !verificacion.tiene_pago_completado) {
+                                showAlert('warning', 'Pago requerido',
+                                    'No se puede finalizar la cita sin un pago registrado. Por favor, registre el pago primero.'
+                                );
+                                selectElement.value = estadoActual;
+                                return;
+                            }
                         }
 
-                        showAlert('success', '¡Éxito!', data.message, 2000);
+                        // Confirmación para cancelación
+                        if (nuevoEstado === 'cancelada') {
+                            const confirmacion = await showConfirmation(
+                                '¿Confirmar cancelación?',
+                                'Esta acción cancelará la cita. ¿Estás seguro?',
+                                'warning'
+                            );
 
-                        // Recargar después de 2 segundos para actualizar botones y estadísticas
-                        setTimeout(() => window.location.reload(), 2000);
+                            if (!confirmacion) {
+                                selectElement.value = selectElement._previousValue;
+                                return;
+                            }
+                        }
 
-                    } else {
-                        throw new Error(data.message);
+                        // Actualizar estado
+                        await actualizarEstadoCita(citaId, nuevoEstado, selectElement);
                     }
 
-                } catch (error) {
-                    hideLoading();
-                    console.error('Error al actualizar estado:', error);
+                    // 3. VERIFICAR PAGO DE CITA
+                    async function verificarPagoCita(citaId) {
+                        try {
+                            const response = await fetch(`/admin/pagos/${citaId}/verificar-pago`);
+                            const data = await response.json();
 
-                    showAlert('error', 'Error', error.message || 'Ocurrió un error al actualizar el estado');
-
-                    // Revertir cambio en el select
-                    if (selectElement) {
-                        selectElement.value = selectElement._previousValue;
+                            return {
+                                success: response.ok,
+                                tiene_pago_completado: data.tiene_pago_completado || false,
+                                pago: data.pago || null
+                            };
+                        } catch (error) {
+                            console.error('Error al verificar pago:', error);
+                            return {
+                                success: false,
+                                tiene_pago_completado: false
+                            };
+                        }
                     }
-                }
-            }
 
-            // 5. ACTUALIZAR BADGE DE ESTADO
-            function updateEstadoBadge(citaId, estadoCodigo, estadoTexto) {
-                const row = document.querySelector(`.estado-select[data-cita-id="${citaId}"]`)?.closest('tr');
-                if (!row) return;
+                    // 4. ACTUALIZAR ESTADO DE CITA
+                    async function actualizarEstadoCita(citaId, nuevoEstado, selectElement) {
+                        try {
+                            showLoading('Actualizando estado...');
 
-                const badge = row.querySelector('.appointment-status');
-                if (badge) {
-                    badge.className = `appointment-status status-${estadoCodigo}`;
-                    badge.textContent = estadoTexto;
-                }
-            }
+                            const response = await fetch(`/admin/citasadmin/${citaId}/actualizar-estado`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    estado: nuevoEstado
+                                })
+                            });
 
-            // 6. CONFIGURAR BOTONES DE PAGO
-            function setupPagoButtons() {
-                document.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('btn-pagar') || e.target.closest('.btn-pagar')) {
-                        e.preventDefault();
+                            const data = await response.json();
+                            hideLoading();
 
-                        const button = e.target.classList.contains('btn-pagar') ? e.target : e.target
-                            .closest('.btn-pagar');
-                        const citaId = button.getAttribute('data-cita-id');
+                            if (data.success) {
+                                // Actualizar badge de estado
+                                updateEstadoBadge(citaId, nuevoEstado, data.nuevo_estado);
 
-                        if (!citaId) {
-                            showAlert('error', 'Error', 'ID de cita no encontrado');
+                                // Actualizar valores de control
+                                if (selectElement) {
+                                    selectElement._previousValue = nuevoEstado;
+                                    selectElement._currentValue = nuevoEstado;
+                                }
+
+                                showAlert('success', '¡Éxito!', data.message, 2000);
+
+                                // Recargar después de 2 segundos para actualizar botones y estadísticas
+                                setTimeout(() => window.location.reload(), 2000);
+
+                            } else {
+                                throw new Error(data.message);
+                            }
+
+                        } catch (error) {
+                            hideLoading();
+                            console.error('Error al actualizar estado:', error);
+
+                            showAlert('error', 'Error', error.message || 'Ocurrió un error al actualizar el estado');
+
+                            // Revertir cambio en el select
+                            if (selectElement) {
+                                selectElement.value = selectElement._previousValue;
+                            }
+                        }
+                    }
+
+                    // 5. ACTUALIZAR BADGE DE ESTADO
+                    function updateEstadoBadge(citaId, estadoCodigo, estadoTexto) {
+                        const row = document.querySelector(`.estado-select[data-cita-id="${citaId}"]`)?.closest('tr');
+                        if (!row) return;
+
+                        const badge = row.querySelector('.appointment-status');
+                        if (badge) {
+                            badge.className = `appointment-status status-${estadoCodigo}`;
+                            badge.textContent = estadoTexto;
+                        }
+                    }
+
+                    // 6. CONFIGURAR BOTONES DE PAGO
+                    function setupPagoButtons() {
+                        document.addEventListener('click', function(e) {
+                            if (e.target.classList.contains('btn-pagar') || e.target.closest('.btn-pagar')) {
+                                e.preventDefault();
+
+                                const button = e.target.classList.contains('btn-pagar') ? e.target : e.target
+                                    .closest('.btn-pagar');
+                                const citaId = button.getAttribute('data-cita-id');
+
+                                if (!citaId) {
+                                    showAlert('error', 'Error', 'ID de cita no encontrado');
+                                    return;
+                                }
+
+                                openPagoModal(citaId);
+                            }
+                        });
+                    }
+
+                    // 7. ABRIR MODAL DE PAGO
+                    async function openPagoModal(citaId) {
+                        try {
+                            showLoading('Cargando formulario de pago...');
+                            currentCitaId = citaId;
+                            eventsConfigured = false; // Reset flag
+
+                            const response = await fetch(`/admin/pagos/${citaId}/modal`);
+                            const data = await response.json();
+
+                            hideLoading();
+
+                            if (data.success) {
+                                document.getElementById('pago-modal-content').innerHTML = data.html;
+
+                                // Configurar eventos para el modal de pago después de un breve delay
+                                setTimeout(() => {
+                                    setupPagoModalEvents();
+                                }, 150);
+
+                                // Mostrar modal
+                                paymentModal = new bootstrap.Modal(document.getElementById('pagoModal'), {
+                                    backdrop: 'static',
+                                    keyboard: false
+                                });
+                                paymentModal.show();
+
+                            } else {
+                                throw new Error(data.message);
+                            }
+
+                        } catch (error) {
+                            hideLoading();
+                            console.error('Error al cargar modal de pago:', error);
+                            showAlert('error', 'Error', 'No se pudo cargar el formulario de pago: ' + error.message);
+                        }
+                    }
+
+                    // 7.1 CONFIGURAR EVENTOS DEL MODAL DE PAGO (CORREGIDO)
+                    function setupPagoModalEvents() {
+                        if (eventsConfigured) {
+                            console.log('Eventos ya configurados, saltando...');
                             return;
                         }
 
-                        openPagoModal(citaId);
-                    }
-                });
-            }
-
-            // 7. ABRIR MODAL DE PAGO
-            async function openPagoModal(citaId) {
-                try {
-                    showLoading('Cargando formulario de pago...');
-                    currentCitaId = citaId;
-
-                    const response = await fetch(`/admin/pagos/${citaId}/modal`);
-                    const data = await response.json();
-
-                    hideLoading();
-
-                    if (data.success) {
-                        document.getElementById('pago-modal-content').innerHTML = data.html;
-
-                        // Configurar eventos para el modal de pago
-                        setupPagoModalEvents();
-
-                        // Mostrar modal
-                        paymentModal = new bootstrap.Modal(document.getElementById('pagoModal'));
-                        paymentModal.show();
-
-                    } else {
-                        throw new Error(data.message);
-                    }
-
-                } catch (error) {
-                    hideLoading();
-                    console.error('Error al cargar modal de pago:', error);
-                    showAlert('error', 'Error', 'No se pudo cargar el formulario de pago: ' + error.message);
-                }
-            }
-
-            // 7.1 CONFIGURAR EVENTOS DEL MODAL DE PAGO
-            function setupPagoModalEvents() {
-                // Esperar un breve momento para asegurar que el DOM esté listo
-                setTimeout(() => {
-                    try {
-                        console.log("Configurando eventos del modal de pago...");
-
-                        // Calcular vuelto cuando cambia el monto recibido
-                        const montoRecibidoInput = document.getElementById('monto-recibido');
-                        if (montoRecibidoInput) {
-                            montoRecibidoInput.addEventListener('input', calcularVuelto);
-                            console.log("Evento de monto recibido configurado");
-                        } else {
-                            console.warn("Elemento 'monto-recibido' no encontrado.");
-                        }
-
-                        // Cambiar visibilidad de campos según método de pago
-                        const metodoPagoSelect = document.getElementById('metodo-pago');
-                        if (metodoPagoSelect) {
-                            metodoPagoSelect.addEventListener('change', toggleCamposPago);
-                            // Ejecutar una vez al cargar para establecer el estado inicial
-                            toggleCamposPago();
-                            console.log("Evento de método de pago configurado");
-                        } else {
-                            console.warn("Elemento 'metodo-pago' no encontrado.");
-                        }
-
-                        // Aplicar descuento - MÚLTIPLES FORMAS
-                        const aplicarDescuentoBtn = document.getElementById('aplicar-descuento-general');
-                        const porcentajeDescuentoInput = document.getElementById('porcentaje-descuento');
-
-                        if (aplicarDescuentoBtn) {
-                            aplicarDescuentoBtn.addEventListener('click', aplicarDescuento);
-                            console.log("Evento de aplicar descuento configurado");
-                        } else {
-                            console.warn("Elemento 'aplicar-descuento-general' no encontrado.");
-                        }
-
-                        if (porcentajeDescuentoInput) {
-                            // Permitir aplicar descuento con la tecla Enter
-                            porcentajeDescuentoInput.addEventListener('keypress', function(e) {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    aplicarDescuento();
-                                }
-                            });
-                        }
-
-                        // Quitar descuento - VERIFICAR SI EXISTE EL BOTÓN
-                        const quitarDescuentoBtn = document.getElementById('quitar-descuento-general');
-                        if (quitarDescuentoBtn) {
-                            quitarDescuentoBtn.addEventListener('click', quitarDescuento);
-                            console.log("Evento de quitar descuento configurado");
-                        } else {
-                            console.log(
-                                "Elemento 'quitar-descuento-general' no existe, no se configurará el evento"
-                            );
-                            // No es un error, simplemente el botón no existe en este diseño
-                        }
-
-                        // Registrar pago
-                        const formPago = document.getElementById('form-pago');
-                        if (formPago) {
-                            formPago.addEventListener('submit', registrarPago);
-                            console.log("Evento de formulario de pago configurado");
-                        } else {
-                            console.warn("Elemento 'form-pago' no encontrado.");
-                        }
-
-                        console.log("Todos los eventos del modal configurados correctamente");
-
-                    } catch (error) {
-                        console.error('Error al configurar eventos del modal:', error);
-                    }
-                }, 100);
-            }
-
-
-            // 7.2 CALCULAR VUELTO
-            function calcularVuelto() {
-                try {
-                    const montoRecibidoInput = document.getElementById('monto-recibido');
-                    const totalGeneralElement = document.getElementById('total-general');
-                    const vueltoCalculado = document.getElementById('vuelto-calculado');
-
-                    if (!montoRecibidoInput || !totalGeneralElement || !vueltoCalculado) {
-                        console.warn("Elementos para cálculo de vuelto no encontrados");
-                        return;
-                    }
-
-                    // Obtener y limpiar valores
-                    let montoRecibidoValor = montoRecibidoInput.value.trim().replace(',', '');
-                    let totalValor = totalGeneralElement.textContent.replace('$', '').replace(',', '');
-
-                    const montoRecibido = parseFloat(montoRecibidoValor) || 0;
-                    const total = parseFloat(totalValor) || 0;
-
-                    // Validar montos
-                    if (montoRecibido < 0) {
-                        vueltoCalculado.value = '$0.00';
-                        return;
-                    }
-
-                    if (montoRecibido >= total) {
-                        const vuelto = montoRecibido - total;
-                        vueltoCalculado.value = `$${vuelto.toFixed(2)}`;
-
-                        // Quitar clase de error si existe
-                        montoRecibidoInput.classList.remove('is-invalid');
-                    } else {
-                        vueltoCalculado.value = '$0.00';
-
-                        // Si ya se ha ingresado un monto pero es insuficiente, mostrar error
-                        if (montoRecibido > 0) {
-                            montoRecibidoInput.classList.add('is-invalid');
-                        } else {
-                            montoRecibidoInput.classList.remove('is-invalid');
-                        }
-                    }
-
-                } catch (error) {
-                    console.error('Error al calcular vuelto:', error);
-                }
-            }
-
-            // 7.3 TOGGLE CAMPOS DE PAGO SEGÚN MÉTODO
-            function toggleCamposPago() {
-                try {
-                    const metodoPagoSelect = document.getElementById('metodo-pago');
-                    if (!metodoPagoSelect) {
-                        console.warn("Elemento 'metodo-pago' no encontrado en toggleCamposPago");
-                        return;
-                    }
-
-                    const metodoPago = metodoPagoSelect.value;
-
-                    // Ocultar todos los campos primero de manera segura
-                    const campoEfectivo = document.getElementById('campo-efectivo');
-                    const campoTransferencia = document.getElementById('campo-transferencia');
-                    const campoPasarela = document.getElementById('campo-pasarela');
-
-                    [campoEfectivo, campoTransferencia, campoPasarela].forEach(campo => {
-                        if (campo) campo.classList.add('d-none');
-                    });
-
-                    // Mostrar el campo correspondiente de manera segura
-                    if (metodoPago === 'efectivo' && campoEfectivo) {
-                        campoEfectivo.classList.remove('d-none');
-                        calcularVuelto(); // Calcular vuelto inicial
-                    } else if (metodoPago === 'transferencia' && campoTransferencia) {
-                        campoTransferencia.classList.remove('d-none');
-                    } else if (metodoPago === 'pasarela' && campoPasarela) {
-                        campoPasarela.classList.remove('d-none');
-                    }
-                } catch (error) {
-                    console.error('Error en toggleCamposPago:', error);
-                }
-            }
-
-            // 7.4 APLICAR DESCUENTO
-            function aplicarDescuento() {
-                try {
-                    console.log("Intentando aplicar descuento...");
-
-                    const porcentajeDescuentoInput = document.getElementById('porcentaje-descuento');
-                    if (!porcentajeDescuentoInput) {
-                        showAlert('error', 'Error', 'Campo de descuento no encontrado');
-                        return;
-                    }
-
-                    // Limpiar y formatear el valor
-                    let valor = porcentajeDescuentoInput.value.trim();
-
-                    // Reemplazar coma por punto para decimales
-                    valor = valor.replace(',', '.');
-
-                    // Validar que sea un número
-                    if (!valor || isNaN(valor)) {
-                        showAlert('warning', 'Valor inválido',
-                            'Por favor ingrese un porcentaje válido (ej: 10, 5.5, 15.25)');
-                        porcentajeDescuentoInput.focus();
-                        return;
-                    }
-
-                    const porcentajeDescuento = parseFloat(valor);
-
-                    // Validar rango
-                    if (porcentajeDescuento <= 0 || porcentajeDescuento > 100) {
-                        showAlert('warning', 'Rango inválido', 'El descuento debe ser mayor a 0 y máximo 100%');
-                        porcentajeDescuentoInput.focus();
-                        return;
-                    }
-
-                    const totalOriginalElement = document.getElementById('total-original');
-                    if (!totalOriginalElement) {
-                        showAlert('error', 'Error', 'No se puede calcular el descuento');
-                        return;
-                    }
-
-                    const totalOriginal = parseFloat(totalOriginalElement.textContent.replace('$', '').replace(',',
-                        '')) || 0;
-
-                    if (totalOriginal <= 0) {
-                        showAlert('warning', 'Error', 'El total debe ser mayor a 0 para aplicar descuento');
-                        return;
-                    }
-
-                    const descuento = totalOriginal * (porcentajeDescuento / 100);
-                    const totalConDescuento = totalOriginal - descuento;
-
-                    const descuentoAplicadoElement = document.getElementById('descuento-aplicado');
-                    const totalGeneralElement = document.getElementById('total-general');
-
-                    if (descuentoAplicadoElement && totalGeneralElement) {
-                        descuentoAplicadoElement.textContent = `-$${descuento.toFixed(2)}`;
-                        totalGeneralElement.textContent = `$${totalConDescuento.toFixed(2)}`;
-
-                        // Mostrar información de descuento aplicado
-                        const descuentoInfo = document.getElementById('descuento-info');
-                        const sinDescuento = document.getElementById('sin-descuento');
-                        const conDescuento = document.getElementById('con-descuento');
-
-                        if (descuentoInfo) descuentoInfo.classList.remove('d-none');
-                        if (sinDescuento) sinDescuento.classList.add('d-none');
-                        if (conDescuento) conDescuento.classList.remove('d-none');
-
-                        // Recalcular vuelto si es pago en efectivo
-                        if (document.getElementById('metodo-pago')?.value === 'efectivo') {
-                            calcularVuelto();
-                        }
-
-                        showAlert('success', 'Descuento aplicado',
-                            `Se aplicó un ${porcentajeDescuento}% de descuento`, 1500);
-                    }
-
-                } catch (error) {
-                    console.error('Error al aplicar descuento:', error);
-                    showAlert('error', 'Error', 'Ocurrió un error al aplicar el descuento: ' + error.message);
-                }
-            }
-
-
-            // 7.5 QUITAR DESCUENTO
-            function quitarDescuento() {
-                try {
-                    console.log("Quitando descuento...");
-
-                    const totalOriginalElement = document.getElementById('total-original');
-                    if (!totalOriginalElement) {
-                        console.warn("Elemento 'total-original' no encontrado");
-                        return;
-                    }
-
-                    const totalOriginal = parseFloat(totalOriginalElement.textContent.replace('$', '').replace(',',
-                        '')) || 0;
-
-                    const descuentoAplicadoElement = document.getElementById('descuento-aplicado');
-                    const totalGeneralElement = document.getElementById('total-general');
-                    const porcentajeDescuentoElement = document.getElementById('porcentaje-descuento');
-
-                    if (descuentoAplicadoElement && totalGeneralElement) {
-                        descuentoAplicadoElement.textContent = '$0.00';
-                        totalGeneralElement.textContent = `$${totalOriginal.toFixed(2)}`;
-
-                        if (porcentajeDescuentoElement) {
-                            porcentajeDescuentoElement.value = '';
-                        }
-
-                        // Ocultar/mostrar elementos de descuento
-                        const sinDescuento = document.getElementById('sin-descuento');
-                        const conDescuento = document.getElementById('con-descuento');
-                        const descuentoInfo = document.getElementById('descuento-info');
-
-                        if (sinDescuento) sinDescuento.classList.remove('d-none');
-                        if (conDescuento) conDescuento.classList.add('d-none');
-                        if (descuentoInfo) descuentoInfo.classList.add('d-none');
-
-                        // Recalcular vuelto si es pago en efectivo
-                        if (document.getElementById('metodo-pago')?.value === 'efectivo') {
-                            calcularVuelto();
-                        }
-
-                        showAlert('info', 'Descuento removido', 'El descuento ha sido removido correctamente',
-                            1500);
-                    }
-
-                } catch (error) {
-                    console.error('Error al quitar descuento:', error);
-                    showAlert('error', 'Error', 'Ocurrió un error al quitar el descuento');
-                }
-            }
-
-            // 7.6 REGISTRAR PAGO
-            async function registrarPago(e) {
-                e.preventDefault();
-
-                if (isProcessingPayment) return;
-
-                // Validar formulario
-                if (!validatePaymentForm()) {
-                    showAlert('warning', 'Formulario incompleto',
-                        'Por favor complete todos los campos requeridos correctamente.');
-                    return;
-                }
-
-                isProcessingPayment = true;
-                const btnRegistrar = document.getElementById('btn-registrar-pago');
-                const originalText = btnRegistrar?.innerHTML;
-
-                try {
-                    if (btnRegistrar) {
-                        btnRegistrar.disabled = true;
-                        btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-                    }
-
-                    showLoading('Registrando pago...');
-
-                    const formData = new FormData(document.getElementById('form-pago'));
-
-                    const response = await fetch(`/admin/pagos/${currentCitaId}/registrar`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Accept': 'application/json'
-                        },
-                        body: formData
-                    });
-
-                    const data = await response.json();
-                    hideLoading();
-
-                    if (data.success) {
-                        showAlert('success', '¡Pago registrado!', data.message, 2000);
-
-                        // Cerrar modal después de 2 segundos
-                        setTimeout(() => {
-                            if (paymentModal) {
-                                paymentModal.hide();
+                        try {
+                            console.log("Configurando eventos del modal de pago...");
+
+                            // Cambiar visibilidad de campos según método de pago
+                            const metodoPagoSelect = document.getElementById('metodo-pago');
+                            if (metodoPagoSelect) {
+                                metodoPagoSelect.addEventListener('change', toggleCamposPago);
+                                toggleCamposPago(); // Ejecutar una vez al cargar
+                                console.log("Evento de método de pago configurado");
                             }
-                            // Recargar página para actualizar estado
-                            window.location.reload();
-                        }, 2000);
-                    } else {
-                        throw new Error(data.message || 'Error al registrar el pago');
+
+                            // Calcular vuelto cuando cambia el monto recibido
+                            const montoRecibidoInput = document.getElementById('monto-recibido');
+                            if (montoRecibidoInput) {
+                                montoRecibidoInput.addEventListener('input', calcularVuelto);
+                                console.log("Evento de monto recibido configurado");
+                            }
+
+                            // Aplicar descuento general - BUTTON EXISTENTE
+                            const aplicarDescuentoBtn = document.getElementById('aplicar-descuento-general');
+                            if (aplicarDescuentoBtn) {
+                                aplicarDescuentoBtn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    console.log("Botón aplicar descuento clickeado");
+                                    showDescuentoModal();
+                                });
+                                console.log("Evento de aplicar descuento configurado");
+                            }
+
+                            // Quitar todos los descuentos - BUTTON EXISTENTE
+                            const quitarDescuentosBtn = document.getElementById('quitar-descuentos');
+                            if (quitarDescuentosBtn) {
+                                quitarDescuentosBtn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    quitarTodosLosDescuentos();
+                                });
+                                console.log("Evento de quitar descuentos configurado");
+                            }
+
+                            // Eventos para descuentos individuales
+                            document.querySelectorAll('.descuento-input').forEach(input => {
+                                input.addEventListener('input', recalcularTotales);
+                            });
+
+                            // Registrar pago - USAR BUTTON CLICK EN VEZ DE FORM SUBMIT
+                            const btnRegistrarPago = document.getElementById('btn-registrar-pago');
+                            if (btnRegistrarPago) {
+                                btnRegistrarPago.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    registrarPago();
+                                });
+                                console.log("Evento de botón registrar pago configurado");
+                            }
+
+                            eventsConfigured = true;
+                            console.log("Todos los eventos del modal configurados correctamente");
+
+                        } catch (error) {
+                            console.error('Error al configurar eventos del modal:', error);
+                        }
                     }
 
-                } catch (error) {
-                    hideLoading();
-                    console.error('Error al registrar pago:', error);
-                    showAlert('error', 'Error', error.message || 'Ocurrió un error al registrar el pago');
-                } finally {
-                    isProcessingPayment = false;
-                    if (btnRegistrar) {
-                        btnRegistrar.disabled = false;
-                        btnRegistrar.innerHTML = originalText;
-                    }
-                }
-            }
+                    // 7.2 MOSTRAR MODAL DE DESCUENTO
+                    function showDescuentoModal() {
+                        const descuentoModal = new bootstrap.Modal(document.getElementById('descuentoGeneralModal'));
+                        descuentoModal.show();
 
-            // 8. CONFIGURAR BOTONES DE DETALLES
-            function setupDetallesButtons() {
-                document.querySelectorAll('.view-details').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const citaId = this.getAttribute('data-cita-id');
-                        openDetallesModal(citaId);
-                    });
-                });
-            }
-
-            // 9. ABRIR MODAL DE DETALLES
-            async function openDetallesModal(citaId) {
-                try {
-                    showLoading('Cargando detalles...');
-
-                    const response = await fetch(`/admin/citasadmin/${citaId}/detalles`);
-                    const data = await response.json();
-
-                    hideLoading();
-
-                    if (data.error) {
-                        throw new Error(data.error);
+                        // Configurar evento de aplicar porcentaje
+                        const aplicarPorcentajeBtn = document.getElementById('aplicar-porcentaje');
+                        if (aplicarPorcentajeBtn) {
+                            aplicarPorcentajeBtn.onclick = function() {
+                                aplicarDescuentoGeneral();
+                                descuentoModal.hide();
+                            };
+                        }
                     }
 
-                    // Actualizar contenido del modal
-                    updateDetallesModal(data);
+                    // 7.3 APLICAR DESCUENTO GENERAL
+                    function aplicarDescuentoGeneral() {
+                        const porcentajeInput = document.getElementById('porcentaje-general');
+                        if (!porcentajeInput) return;
 
-                    // Mostrar modal
-                    const modal = new bootstrap.Modal(document.getElementById('detallesCitaModal'));
-                    modal.show();
+                        const porcentaje = parseFloat(porcentajeInput.value) || 0;
 
-                } catch (error) {
-                    hideLoading();
-                    console.error('Error al cargar detalles:', error);
-                    showAlert('error', 'Error', 'No se pudieron cargar los detalles: ' + error.message);
-                }
-            }
+                        if (porcentaje < 0 || porcentaje > 100) {
+                            showAlert('warning', 'Rango inválido', 'El descuento debe estar entre 0 y 100%');
+                            return;
+                        }
 
-            // 10. ACTUALIZAR CONTENIDO DEL MODAL DE DETALLES
-            function updateDetallesModal(data) {
-                const citaIdElement = document.getElementById('cita-id');
-                if (citaIdElement) {
-                    citaIdElement.textContent = data.id;
-                }
+                        document.querySelectorAll('.descuento-input').forEach(input => {
+                            const precioBase = parseFloat(input.dataset.precioBase) || 0;
+                            const descuento = (precioBase * porcentaje) / 100;
+                            input.value = descuento.toFixed(2);
+                        });
 
-                let serviciosHTML = '';
-                if (data.servicios && data.servicios.length > 0) {
-                    data.servicios.forEach(servicio => {
-                        const precio = servicio.pivot?.precio || servicio.precio || 0;
-                        serviciosHTML += `
-                            <div class="service-item">
-                                <span class="service-name">${servicio.nombre}</span>
-                                <span class="service-price">$${precio.toFixed(2)}</span>
-                            </div>
-                        `;
-                    });
-                } else {
-                    serviciosHTML = '<p class="text-muted text-center">No hay servicios registrados</p>';
-                }
+                        recalcularTotales();
+                        showAlert('success', 'Descuento aplicado', `Se aplicó ${porcentaje}% de descuento`, 1500);
+                    }
 
-                const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado';
+                    // 7.4 QUITAR TODOS LOS DESCUENTOS
+                    function quitarTodosLosDescuentos() {
+                        if (!confirm('¿Está seguro de quitar todos los descuentos?')) return;
 
-                const contenidoHTML = `
-                    <div class="modal-section">
-                        <div class="modal-section-title">
-                            <i class="fas fa-user"></i> Información del Cliente
-                        </div>
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Nombre:</span>
-                            <span class="modal-info-value">${data.usuario.nombre}</span>
-                        </div>
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Email:</span>
-                            <span class="modal-info-value">${data.usuario.email}</span>
-                        </div>
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Teléfono:</span>
-                            <span class="modal-info-value">${data.usuario.telefono || 'No proporcionado'}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-section">
-                        <div class="modal-section-title">
-                            <i class="fas fa-car"></i> Información del Vehículo
-                        </div>
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Marca/Modelo:</span>
-                            <span class="modal-info-value">${data.vehiculo.marca} ${data.vehiculo.modelo}</span>
-                        </div>
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Placa:</span>
-                            <span class="modal-info-value">${data.vehiculo.placa}</span>
-                        </div>
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Tipo:</span>
-                            <span class="modal-info-value">${tipoVehiculo}</span>
-                        </div>
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Color:</span>
-                            <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
-                        </div>
-                        ${data.vehiculo.descripcion ? `
-                                            <div class="modal-info-item">
-                                                <span class="modal-info-label">Descripción:</span>
-                                                <span class="modal-info-value">${data.vehiculo.descripcion}</span>
-                                            </div>
-                                        ` : ''}
-                    </div>
-                    
-                    <div class="modal-section">
-                        <div class="modal-section-title">
-                            <i class="fas fa-calendar-alt"></i> Detalles de la Cita
-                        </div>
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Fecha/Hora:</span>
-                            <span class="modal-info-value">${new Date(data.fecha_hora).toLocaleString('es-ES')}</span>
-                        </div>
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Estado:</span>
-                            <span class="modal-info-value">
-                                <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span>
-                            </span>
-                        </div>
-                        ${data.observaciones ? `
-                                            <div class="modal-info-item">
-                                                <span class="modal-info-label">Observaciones:</span>
-                                                <span class="modal-info-value">${data.observaciones}</span>
-                                            </div>
-                                        ` : ''}
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Fecha de creación:</span>
-                            <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-section">
-                        <div class="modal-section-title">
-                            <i class="fas fa-tools"></i> Servicios Seleccionados
-                        </div>
-                        <div class="services-grid">
-                            ${serviciosHTML}
-                        </div>
-                    </div>
-                    
-                    <div class="modal-section total-section">
-                        <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
-                            <i class="fas fa-receipt me-2"></i> Total a Pagar
-                        </div>
-                        <div class="total-amount">$${data.total.toFixed(2)}</div>
+                        document.querySelectorAll('.descuento-input').forEach(input => {
+                            input.value = '0';
+                        });
+
+                        recalcularTotales();
+                        showAlert('info', 'Descuentos removidos', 'Todos los descuentos han sido removidos', 1500);
+                    }
+
+                    // 7.5 RECALCULAR TOTALES
+                    function recalcularTotales() {
+                        let nuevoTotal = 0;
+
+                        document.querySelectorAll('#servicios-tabla tr[data-servicio-id]').forEach(row => {
+                            const precioBase = parseFloat(row.querySelector('.descuento-input').dataset
+                                .precioBase) || 0;
+                            const descuento = Math.max(0, Math.min(precioBase, parseFloat(row.querySelector(
+                                '.descuento-input').value) || 0));
+                            const precioFinal = precioBase - descuento;
+
+                            // Actualizar valor si fue corregido
+                            row.querySelector('.descuento-input').value = descuento.toFixed(2);
+
+                            // Actualizar precio final en la tabla
+                            const precioFinalElement = row.querySelector('.precio-final');
+                            if (precioFinalElement) {
+                                precioFinalElement.textContent = '$' + precioFinal.toFixed(2);
+                            }
+
+                            // Actualizar porcentaje
+                            const porcentaje = precioBase > 0 ? ((descuento / precioBase) * 100).toFixed(1) : 0;
+                            const porcentajeElement = row.querySelector('.porcentaje-descuento');
+                            if (porcentajeElement) {
+                                porcentajeElement.textContent = porcentaje + '%';
+                            }
+
+                            nuevoTotal += precioFinal;
+                        });
+
+                        // Actualizar total general
+                        const totalGeneralElement = document.getElementById('total-general');
+                        if (totalGeneralElement) {
+                            totalGeneralElement.textContent = '$' + nuevoTotal.toFixed(2);
+                        }
+
+                        // Actualizar otros elementos relacionados con el total
+                        const montoMinimoElement = document.getElementById('monto-minimo');
+                        if (montoMinimoElement) {
+                            montoMinimoElement.textContent = nuevoTotal.toFixed(2);
+                        }
+
+                        const totalTransferencia = document.querySelector('.total-transferencia');
+                        if (totalTransferencia) {
+                            totalTransferencia.textContent = nuevoTotal.toFixed(2);
+                        }
+
+                        const totalPasarela = document.querySelector('.total-pasarela');
+                        if (totalPasarela) {
+                            totalPasarela.textContent = nuevoTotal.toFixed(2);
+                        }
+
+                        // Recalcular vuelto si es efectivo
+                        if (document.getElementById('metodo-pago')?.value === 'efectivo') {
+                            calcularVuelto();
+                        }
+                    }
+
+                    // 7.6 CALCULAR VUELTO
+                    function calcularVuelto() {
+                        const montoRecibidoInput = document.getElementById('monto-recibido');
+                        const totalGeneralElement = document.getElementById('total-general');
+                        const vueltoCalculado = document.getElementById('vuelto-calculado');
+
+                        if (!montoRecibidoInput || !totalGeneralElement || !vueltoCalculado) {
+                            return;
+                        }
+
+                        const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
+                        const total = parseFloat(totalGeneralElement.textContent.replace('$', '').replace(',', '')) || 0;
+
+                        if (montoRecibido >= total) {
+                            const vuelto = montoRecibido - total;
+                            vueltoCalculado.value = vuelto.toFixed(2);
+                            montoRecibidoInput.classList.remove('is-invalid');
+                        } else {
+                            vueltoCalculado.value = '0.00';
+                            if (montoRecibido > 0) {
+                                montoRecibidoInput.classList.add('is-invalid');
+                            } else {
+                                montoRecibidoInput.classList.remove('is-invalid');
+                            }
+                        }
+                    }
+
+                    // 7.7 TOGGLE CAMPOS DE PAGO SEGÚN MÉTODO
+                    function toggleCamposPago() {
+                        const metodoPagoSelect = document.getElementById('metodo-pago');
+                        if (!metodoPagoSelect) return;
+
+                        const metodoPago = metodoPagoSelect.value;
+
+                        // Ocultar todos los campos
+                        const camposEfectivo = document.getElementById('campos-efectivo');
+                        const camposTransferencia = document.getElementById('campos-transferencia');
+                        const camposPasarela = document.getElementById('campos-pasarela');
+
+                        [camposEfectivo, camposTransferencia, camposPasarela].forEach(campo => {
+                            if (campo) campo.style.display = 'none';
+                        });
+
+                        // Mostrar el campo correspondiente
+                        if (metodoPago === 'efectivo' && camposEfectivo) {
+                            camposEfectivo.style.display = 'block';
+                            // Auto-llenar con el total actual
+                            const totalElement = document.getElementById('total-general');
+                            const montoRecibidoInput = document.getElementById('monto-recibido');
+                            if (totalElement && montoRecibidoInput) {
+                                const total = parseFloat(totalElement.textContent.replace('$', ''));
+                                montoRecibidoInput.value = total.toFixed(2);
+                                calcularVuelto();
+                            }
+                        } else if (metodoPago === 'transferencia' && camposTransferencia) {
+                            camposTransferencia.style.display = 'block';
+                        } else if (metodoPago === 'pasarela' && camposPasarela) {
+                            camposPasarela.style.display = 'block';
+                        }
+
+                        // Limpiar errores
+                        document.querySelectorAll('.is-invalid').forEach(el => {
+                            el.classList.remove('is-invalid');
+                        });
+                    }
+
+                    // 7.8 REGISTRAR PAGO (CORREGIDO)
+                    async function registrarPago() {
+                        if (isProcessingPayment) return;
+
+                        // Validar formulario
+                        if (!validatePaymentForm()) {
+                            showAlert('warning', 'Formulario incompleto',
+                                'Por favor complete todos los campos requeridos correctamente.');
+                            return;
+                        }
+
+                        isProcessingPayment = true;
+                        const btnRegistrar = document.getElementById('btn-registrar-pago');
+                        const originalText = btnRegistrar?.innerHTML;
+
+                        try {
+                            if (btnRegistrar) {
+                                btnRegistrar.disabled = true;
+                                btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                            }
+
+                            showLoading('Registrando pago...');
+
+                            const formData = new FormData(document.getElementById('form-pago'));
+
+                            // Agregar total actualizado
+                            const totalElement = document.getElementById('total-general');
+                            if (totalElement) {
+                                const totalActualizado = parseFloat(totalElement.textContent.replace('$', ''));
+                                formData.append('total_actualizado', totalActualizado);
+                            }
+
+                            // Agregar descuentos actualizados
+                            const descuentos = {};
+                            document.querySelectorAll('.descuento-input').forEach(input => {
+                                descuentos[input.dataset.servicioId] = parseFloat(input.value) || 0;
+                            });
+                            formData.append('descuentos', JSON.stringify(descuentos));
+
+                            const response = await fetch(`/admin/pagos/${currentCitaId}/registrar`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'Accept': 'application/json'
+                                },
+                                body: formData
+                            });
+
+                            const data = await response.json();
+                            hideLoading();
+
+                            if (data.success) {
+                                showAlert('success', '¡Pago registrado!', data.message, 2000);
+
+                                // Cerrar modal después de 2 segundos
+                                setTimeout(() => {
+                                    if (paymentModal) {
+                                        paymentModal.hide();
+                                    }
+                                    window.location.reload();
+                                }, 2000);
+                            } else {
+                                throw new Error(data.message || 'Error al registrar el pago');
+                            }
+
+                        } catch (error) {
+                            hideLoading();
+                            console.error('Error al registrar pago:', error);
+                            showAlert('error', 'Error', error.message || 'Ocurrió un error al registrar el pago');
+                        } finally {
+                            isProcessingPayment = false;
+                            if (btnRegistrar) {
+                                btnRegistrar.disabled = false;
+                                btnRegistrar.innerHTML = originalText;
+                            }
+                        }
+                    }
+
+                    // 8. CONFIGURAR BOTONES DE DETALLES
+                    function setupDetallesButtons() {
+                        document.querySelectorAll('.view-details').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const citaId = this.getAttribute('data-cita-id');
+                                openDetallesModal(citaId);
+                            });
+                        });
+                    }
+
+                    // 9. ABRIR MODAL DE DETALLES
+                    async function openDetallesModal(citaId) {
+                        try {
+                            showLoading('Cargando detalles...');
+
+                            const response = await fetch(`/admin/citasadmin/${citaId}/detalles`);
+                            const data = await response.json();
+
+                            hideLoading();
+
+                            if (data.error) {
+                                throw new Error(data.error);
+                            }
+
+                            // Actualizar contenido del modal
+                            updateDetallesModal(data);
+
+                            // Mostrar modal
+                            const modal = new bootstrap.Modal(document.getElementById('detallesCitaModal'));
+                            modal.show();
+
+                        } catch (error) {
+                            hideLoading();
+                            console.error('Error al cargar detalles:', error);
+                            showAlert('error', 'Error', 'No se pudieron cargar los detalles: ' + error.message);
+                        }
+                    }
+
+                    // 10. ACTUALIZAR CONTENIDO DEL MODAL DE DETALLES
+                    function updateDetallesModal(data) {
+                        const citaIdElement = document.getElementById('cita-id');
+                        if (citaIdElement) {
+                            citaIdElement.textContent = data.id;
+                        }
+
+                        let serviciosHTML = '';
+                        if (data.servicios && data.servicios.length > 0) {
+                            data.servicios.forEach(servicio => {
+                                const precio = servicio.pivot?.precio || servicio.precio || 0;
+                                serviciosHTML += `
+                    <div class="service-item">
+                        <span class="service-name">${servicio.nombre}</span>
+                        <span class="service-price">$${precio.toFixed(2)}</span>
                     </div>
                 `;
+                            });
+                        } else {
+                            serviciosHTML = '<p class="text-muted text-center">No hay servicios registrados</p>';
+                        }
 
-                const detallesContent = document.getElementById('detalles-cita-content');
-                if (detallesContent) {
-                    detallesContent.innerHTML = contenidoHTML;
-                }
-            }
+                        const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado';
 
-            // 11. CONFIGURAR MODALES
-            function setupModals() {
-                // Limpiar formulario al cerrar modal de pago
-                const pagoModalElement = document.getElementById('pagoModal');
-                if (pagoModalElement) {
-                    pagoModalElement.addEventListener('hidden.bs.modal', function() {
-                        resetPagoForm();
-                    });
-                }
-            }
+                        const contenidoHTML = `
+            <div class="modal-section">
+                <div class="modal-section-title">
+                    <i class="fas fa-user"></i> Información del Cliente
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Nombre:</span>
+                    <span class="modal-info-value">${data.usuario.nombre}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Email:</span>
+                    <span class="modal-info-value">${data.usuario.email}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Teléfono:</span>
+                    <span class="modal-info-value">${data.usuario.telefono || 'No proporcionado'}</span>
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">
+                    <i class="fas fa-car"></i> Información del Vehículo
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Marca/Modelo:</span>
+                    <span class="modal-info-value">${data.vehiculo.marca} ${data.vehiculo.modelo}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Placa:</span>
+                    <span class="modal-info-value">${data.vehiculo.placa}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Tipo:</span>
+                    <span class="modal-info-value">${tipoVehiculo}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Color:</span>
+                    <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
+                </div>
+                ${data.vehiculo.descripcion ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Descripción:</span>
+                                <span class="modal-info-value">${data.vehiculo.descripcion}</span>
+                            </div>
+                        ` : ''}
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">
+                    <i class="fas fa-calendar-alt"></i> Detalles de la Cita
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Fecha/Hora:</span>
+                    <span class="modal-info-value">${new Date(data.fecha_hora).toLocaleString('es-ES')}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Estado:</span>
+                    <span class="modal-info-value">
+                        <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span>
+                    </span>
+                </div>
+                ${data.observaciones ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Observaciones:</span>
+                                <span class="modal-info-value">${data.observaciones}</span>
+                            </div>
+                        ` : ''}
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Fecha de creación:</span>
+                    <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">
+                    <i class="fas fa-tools"></i> Servicios Seleccionados
+                </div>
+                <div class="services-grid">
+                    ${serviciosHTML}
+                </div>
+            </div>
+            
+            <div class="modal-section total-section">
+                <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                    <i class="fas fa-receipt me-2"></i> Total a Pagar
+                </div>
+                <div class="total-amount">$${data.total.toFixed(2)}</div>
+            </div>
+        `;
 
-            // 12. RESETEAR FORMULARIO DE PAGO
-            function resetPagoForm() {
-                const form = document.getElementById('form-pago');
-                if (form) {
-                    form.reset();
-                }
-
-                const vueltoCalculado = document.getElementById('vuelto-calculado');
-                if (vueltoCalculado) {
-                    vueltoCalculado.value = '$0.00';
-                }
-
-                // Limpiar errores
-                document.querySelectorAll('.is-invalid').forEach(el => {
-                    el.classList.remove('is-invalid');
-                });
-
-                isProcessingPayment = false;
-                currentCitaId = null;
-
-                const btnRegistrar = document.getElementById('btn-registrar-pago');
-                if (btnRegistrar) {
-                    btnRegistrar.disabled = false;
-                    btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Pago';
-                }
-            }
-
-            // 13. FUNCIONES DE UI - ALERTS
-            function showAlert(type, title, message, timer = null) {
-                const config = {
-                    icon: type,
-                    title: title,
-                    text: message
-                };
-
-                if (timer) {
-                    config.timer = timer;
-                    config.showConfirmButton = false;
-                }
-
-                return Swal.fire(config);
-            }
-
-            // 14. MOSTRAR CONFIRMACIÓN
-            function showConfirmation(title, message, type = 'warning') {
-                return Swal.fire({
-                    title: title,
-                    text: message,
-                    icon: type,
-                    showCancelButton: true,
-                    confirmButtonColor: type === 'warning' ? '#d33' : '#3085d6',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Sí, continuar',
-                    cancelButtonText: 'Cancelar'
-                }).then(result => result.isConfirmed);
-            }
-
-            // 15. MOSTRAR/OCULTAR LOADING
-            function showLoading(message = 'Procesando...') {
-                Swal.fire({
-                    title: message,
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
+                        const detallesContent = document.getElementById('detalles-cita-content');
+                        if (detallesContent) {
+                            detallesContent.innerHTML = contenidoHTML;
+                        }
                     }
-                });
-            }
 
-            function hideLoading() {
-                Swal.close();
-            }
-
-            // 16. MANEJO DE ERRORES GLOBALES
-            window.addEventListener('error', function(e) {
-                if (isProcessingPayment) {
-                    hideLoading();
-                    showAlert('error', 'Error',
-                        'Ocurrió un error inesperado. Por favor, intente nuevamente.');
-                    isProcessingPayment = false;
-                }
-            });
-
-            // 17. FUNCIONES AUXILIARES PARA VALIDACIÓN
-            function validatePaymentForm() {
-                const metodo = document.getElementById('metodo-pago')?.value;
-                if (!metodo) return false;
-
-                let isValid = true;
-
-                if (metodo === 'efectivo') {
-                    const montoRecibido = parseFloat(document.getElementById('monto-recibido')?.value) || 0;
-                    const totalElement = document.getElementById('total-general');
-                    const total = totalElement ? parseFloat(totalElement.textContent.replace('$', '')) : 0;
-
-                    if (montoRecibido < total) {
-                        document.getElementById('monto-recibido')?.classList.add('is-invalid');
-                        isValid = false;
+                    // 11. CONFIGURAR MODALES
+                    function setupModals() {
+                        // Limpiar formulario al cerrar modal de pago
+                        const pagoModalElement = document.getElementById('pagoModal');
+                        if (pagoModalElement) {
+                            pagoModalElement.addEventListener('hidden.bs.modal', function() {
+                                resetPagoForm();
+                            });
+                        }
                     }
-                } else if (['transferencia', 'pasarela'].includes(metodo)) {
-                    const referenciaInput = metodo === 'transferencia' ?
-                        document.getElementById('referencia-input') :
-                        document.getElementById('pasarela-referencia');
 
-                    if (!referenciaInput || referenciaInput.value.trim().length < 6) {
-                        referenciaInput?.classList.add('is-invalid');
-                        isValid = false;
+                    // 12. RESETEAR FORMULARIO DE PAGO
+                    function resetPagoForm() {
+                        const form = document.getElementById('form-pago');
+                        if (form) {
+                            form.reset();
+                        }
+
+                        const vueltoCalculado = document.getElementById('vuelto-calculado');
+                        if (vueltoCalculado) {
+                            vueltoCalculado.value = '0.00';
+                        }
+
+                        // Limpiar errores
+                        document.querySelectorAll('.is-invalid').forEach(el => {
+                            el.classList.remove('is-invalid');
+                        });
+
+                        isProcessingPayment = false;
+                        currentCitaId = null;
+                        eventsConfigured = false;
+
+                        const btnRegistrar = document.getElementById('btn-registrar-pago');
+                        if (btnRegistrar) {
+                            btnRegistrar.disabled = false;
+                            btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Pago';
+                        }
                     }
-                }
 
-                return isValid;
-            }
+                    // 13. FUNCIONES DE UI - ALERTS
+                    function showAlert(type, title, message, timer = null) {
+                        const config = {
+                            icon: type,
+                            title: title,
+                            text: message,
+                            customClass: {
+                                popup: 'swal2-popup-custom'
+                            }
+                        };
 
-            // 18. EXPONIENDO FUNCIONES GLOBALES NECESARIAS
-            window.PagosSystem = {
-                openPagoModal: openPagoModal,
-                openDetallesModal: openDetallesModal,
-                verificarPagoCita: verificarPagoCita,
-                validatePaymentForm: validatePaymentForm,
-                showAlert: showAlert,
-                showLoading: showLoading,
-                hideLoading: hideLoading
-            };
-        });
+                        if (timer) {
+                            config.timer = timer;
+                            config.showConfirmButton = false;
+                        }
+
+                        return Swal.fire(config);
+                    }
+
+                    // 14. MOSTRAR CONFIRMACIÓN
+                    function showConfirmation(title, message, type = 'warning') {
+                        return Swal.fire({
+                            title: title,
+                            text: message,
+                            icon: type,
+                            showCancelButton: true,
+                            confirmButtonColor: type === 'warning' ? '#d33' : '#3085d6',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Sí, continuar',
+                            cancelButtonText: 'Cancelar',
+                            customClass: {
+                                popup: 'swal2-popup-custom'
+                            }
+                        }).then(result => result.isConfirmed);
+                    }
+
+                    // 15. MOSTRAR/OCULTAR LOADING
+                    function showLoading(message = 'Procesando...') {
+                        Swal.fire({
+                            title: message,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    }
+
+                    function hideLoading() {
+                        Swal.close();
+                    }
+
+                    // 16. FUNCIONES AUXILIARES PARA VALIDACIÓN
+                    function validatePaymentForm() {
+                        const metodo = document.getElementById('metodo-pago')?.value;
+                        if (!metodo) return false;
+
+                        let isValid = true;
+
+                        // Limpiar errores previos
+                        document.querySelectorAll('.is-invalid').forEach(el => {
+                            el.classList.remove('is-invalid');
+                        });
+
+                        if (metodo === 'efectivo') {
+                            const montoRecibidoInput = document.getElementById('monto-recibido');
+                            const totalElement = document.getElementById('total-general');
+
+                            if (montoRecibidoInput && totalElement) {
+                                const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
+                                const total = parseFloat(totalElement.textContent.replace(', '
+                                        ').replace(', ', '
+                                        ')) || 0;
+
+                                        if (montoRecibido < total) {
+                                            montoRecibidoInput.classList.add('is-invalid');
+                                            isValid = false;
+                                        }
+                                    }
+                                }
+                                else if (metodo === 'transferencia') {
+                                    const referenciaInput = document.getElementById('referencia-input');
+                                    const bancoSelect = document.getElementById('banco-emisor');
+
+                                    if (referenciaInput && referenciaInput.value.trim().length < 6) {
+                                        referenciaInput.classList.add('is-invalid');
+                                        isValid = false;
+                                    }
+
+                                    if (bancoSelect && !bancoSelect.value) {
+                                        bancoSelect.classList.add('is-invalid');
+                                        isValid = false;
+                                    }
+                                } else if (metodo === 'pasarela') {
+                                    const referenciaInput = document.getElementById('pasarela-referencia');
+                                    const tipoTarjetaSelect = document.getElementById('tipo-tarjeta');
+
+                                    if (referenciaInput && referenciaInput.value.trim().length < 6) {
+                                        referenciaInput.classList.add('is-invalid');
+                                        isValid = false;
+                                    }
+
+                                    if (tipoTarjetaSelect && !tipoTarjetaSelect.value) {
+                                        tipoTarjetaSelect.classList.add('is-invalid');
+                                        isValid = false;
+                                    }
+                                }
+
+                                return isValid;
+                            }
+
+                            // 17. MANEJO DE ERRORES GLOBALES
+                            window.addEventListener('error', function(e) {
+                                if (isProcessingPayment) {
+                                    hideLoading();
+                                    showAlert('error', 'Error',
+                                        'Ocurrió un error inesperado. Por favor, intente nuevamente.');
+                                    isProcessingPayment = false;
+                                }
+                            });
+
+                            // 18. EXPONIENDO FUNCIONES GLOBALES NECESARIAS
+                            window.PagosSystem = {
+                                openPagoModal: openPagoModal,
+                                openDetallesModal: openDetallesModal,
+                                verificarPagoCita: verificarPagoCita,
+                                validatePaymentForm: validatePaymentForm,
+                                showAlert: showAlert,
+                                showLoading: showLoading,
+                                hideLoading: hideLoading,
+                                recalcularTotales: recalcularTotales
+                            };
+                        });
     </script>
 </body>
 

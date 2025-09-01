@@ -69,7 +69,7 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-// Rutas de Admin - SECCIÓN COMPLETA DE PAGOS (agregar/reemplazar en tu archivo web.php)
+// Rutas de Admin 
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'])
     ->prefix('admin')
     ->name('admin.')
