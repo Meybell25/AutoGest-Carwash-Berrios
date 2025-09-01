@@ -1066,7 +1066,8 @@
                                 <option value="en_proceso" {{ request('estado') == 'en_proceso' ? 'selected' : '' }}>En
                                     Proceso</option>
                                 <option value="finalizada" {{ request('estado') == 'finalizada' ? 'selected' : '' }}>
-                                    Finalizada</option>
+                                    Finalizada
+                                </option>
                                 <option value="cancelada" {{ request('estado') == 'cancelada' ? 'selected' : '' }}>
                                     Cancelada</option>
                             </select>
@@ -1278,15 +1279,13 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Sistema de Pagos JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Variables globales
             let isProcessingPayment = false;
             let currentCitaId = null;
             let paymentModal = null;
-            let eventsConfigured = false; // Prevenir configuración múltiple
+            let eventsConfigured = false;
 
             // Inicialización
             initializePagosSystem();
@@ -1475,10 +1474,13 @@
                     if (data.success) {
                         document.getElementById('pago-modal-content').innerHTML = data.html;
 
-                        // Configurar eventos para el modal de pago después de un breve delay
-                        setTimeout(() => {
-                            setupPagoModalEvents();
-                        }, 150);
+                        // Configurar eventos para el modal de pago cuando se muestre
+                        const pagoModalElement = document.getElementById('pagoModal');
+                        if (pagoModalElement) {
+                            // Remover event listeners previos para evitar duplicados
+                            pagoModalElement.removeEventListener('shown.bs.modal', setupPagoModalEvents);
+                            pagoModalElement.addEventListener('shown.bs.modal', setupPagoModalEvents);
+                        }
 
                         // Mostrar modal
                         paymentModal = new bootstrap.Modal(document.getElementById('pagoModal'), {
@@ -1569,16 +1571,24 @@
 
             // 7.2 MOSTRAR MODAL DE DESCUENTO
             function showDescuentoModal() {
-                const descuentoModal = new bootstrap.Modal(document.getElementById('descuentoGeneralModal'));
+                const descuentoModalElement = document.getElementById('descuentoGeneralModal');
+                if (!descuentoModalElement) {
+                    console.error('Modal de descuento no encontrado');
+                    return;
+                }
+
+                const descuentoModal = new bootstrap.Modal(descuentoModalElement);
                 descuentoModal.show();
 
                 // Configurar evento de aplicar porcentaje
                 const aplicarPorcentajeBtn = document.getElementById('aplicar-porcentaje');
                 if (aplicarPorcentajeBtn) {
-                    aplicarPorcentajeBtn.onclick = function() {
+                    // Remover event listeners previos
+                    aplicarPorcentajeBtn.onclick = null;
+                    aplicarPorcentajeBtn.addEventListener('click', function() {
                         aplicarDescuentoGeneral();
                         descuentoModal.hide();
-                    };
+                    });
                 }
             }
 
@@ -1633,7 +1643,7 @@
                     // Actualizar precio final en la tabla
                     const precioFinalElement = row.querySelector('.precio-final');
                     if (precioFinalElement) {
-                        precioFinalElement.textContent = ' + precioFinal.toFixed(2);
+                        precioFinalElement.textContent = '$' + precioFinal.toFixed(2);
                     }
 
                     // Actualizar porcentaje
@@ -1649,23 +1659,23 @@
                 // Actualizar total general
                 const totalGeneralElement = document.getElementById('total-general');
                 if (totalGeneralElement) {
-                    totalGeneralElement.textContent = ' + nuevoTotal.toFixed(2);
+                    totalGeneralElement.textContent = '$' + nuevoTotal.toFixed(2);
                 }
 
                 // Actualizar otros elementos relacionados con el total
                 const montoMinimoElement = document.getElementById('monto-minimo');
                 if (montoMinimoElement) {
-                    montoMinimoElement.textContent = nuevoTotal.toFixed(2);
+                    montoMinimoElement.textContent = '$' + nuevoTotal.toFixed(2);
                 }
 
                 const totalTransferencia = document.querySelector('.total-transferencia');
                 if (totalTransferencia) {
-                    totalTransferencia.textContent = nuevoTotal.toFixed(2);
+                    totalTransferencia.textContent = '$' + nuevoTotal.toFixed(2);
                 }
 
                 const totalPasarela = document.querySelector('.total-pasarela');
                 if (totalPasarela) {
-                    totalPasarela.textContent = nuevoTotal.toFixed(2);
+                    totalPasarela.textContent = '$' + nuevoTotal.toFixed(2);
                 }
 
                 // Recalcular vuelto si es efectivo
@@ -1685,7 +1695,7 @@
                 }
 
                 const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
-                const total = parseFloat(totalGeneralElement.textContent.replace(', '').replace(',', '')) || 0;
+                const total = parseFloat(totalGeneralElement.textContent.replace('$', '').replace(',', '')) || 0;
 
                 if (montoRecibido >= total) {
                     const vuelto = montoRecibido - total;
@@ -1724,7 +1734,7 @@
                     const totalElement = document.getElementById('total-general');
                     const montoRecibidoInput = document.getElementById('monto-recibido');
                     if (totalElement && montoRecibidoInput) {
-                        const total = parseFloat(totalElement.textContent.replace(', ''));
+                        const total = parseFloat(totalElement.textContent.replace('$', '').replace(',', ''));
                         montoRecibidoInput.value = total.toFixed(2);
                         calcularVuelto();
                     }
@@ -1768,7 +1778,8 @@
                     // Agregar total actualizado
                     const totalElement = document.getElementById('total-general');
                     if (totalElement) {
-                        const totalActualizado = parseFloat(totalElement.textContent.replace(', ''));
+                        const totalActualizado = parseFloat(totalElement.textContent.replace('$', '').replace(
+                            ',', ''));
                         formData.append('total_actualizado', totalActualizado);
                     }
 
@@ -1868,11 +1879,11 @@
                     data.servicios.forEach(servicio => {
                         const precio = servicio.pivot?.precio || servicio.precio || 0;
                         serviciosHTML += `
-                <div class="service-item">
-                    <span class="service-name">${servicio.nombre}</span>
-                    <span class="service-price">${precio.toFixed(2)}</span>
-                </div>
-            `;
+                    <div class="service-item">
+                        <span class="service-name">${servicio.nombre}</span>
+                        <span class="service-price">${precio.toFixed(2)}</span>
+                    </div>
+                `;
                     });
                 } else {
                     serviciosHTML = '<p class="text-muted text-center">No hay servicios registrados</p>';
@@ -1881,94 +1892,94 @@
                 const tipoVehiculo = data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado';
 
                 const contenidoHTML = `
-        <div class="modal-section">
-            <div class="modal-section-title">
-                <i class="fas fa-user"></i> Información del Cliente
+            <div class="modal-section">
+                <div class="modal-section-title">
+                    <i class="fas fa-user"></i> Información del Cliente
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Nombre:</span>
+                    <span class="modal-info-value">${data.usuario.nombre}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Email:</span>
+                    <span class="modal-info-value">${data.usuario.email}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Teléfono:</span>
+                    <span class="modal-info-value">${data.usuario.telefono || 'No proporcionado'}</span>
+                </div>
             </div>
-            <div class="modal-info-item">
-                <span class="modal-info-label">Nombre:</span>
-                <span class="modal-info-value">${data.usuario.nombre}</span>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">
+                    <i class="fas fa-car"></i> Información del Vehículo
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Marca/Modelo:</span>
+                    <span class="modal-info-value">${data.vehiculo.marca} ${data.vehiculo.modelo}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Placa:</span>
+                    <span class="modal-info-value">${data.vehiculo.placa}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Tipo:</span>
+                    <span class="modal-info-value">${tipoVehiculo}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Color:</span>
+                    <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
+                </div>
+                ${data.vehiculo.descripcion ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Descripción:</span>
+                                <span class="modal-info-value">${data.vehiculo.descripcion}</span>
+                            </div>
+                        ` : ''}
             </div>
-            <div class="modal-info-item">
-                <span class="modal-info-label">Email:</span>
-                <span class="modal-info-value">${data.usuario.email}</span>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">
+                    <i class="fas fa-calendar-alt"></i> Detalles de la Cita
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Fecha/Hora:</span>
+                    <span class="modal-info-value">${new Date(data.fecha_hora).toLocaleString('es-ES')}</span>
+                </div>
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Estado:</span>
+                    <span class="modal-info-value">
+                        <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span>
+                    </span>
+                </div>
+                ${data.observaciones ? `
+                            <div class="modal-info-item">
+                                <span class="modal-info-label">Observaciones:</span>
+                                <span class="modal-info-value">${data.observaciones}</span>
+                            </div>
+                        ` : ''}
+                <div class="modal-info-item">
+                    <span class="modal-info-label">Fecha de creación:</span>
+                    <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
+                </div>
             </div>
-            <div class="modal-info-item">
-                <span class="modal-info-label">Teléfono:</span>
-                <span class="modal-info-value">${data.usuario.telefono || 'No proporcionado'}</span>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">
+                    <i class="fas fa-tools"></i> Servicios Seleccionados
+                </div>
+                <div class="services-grid">
+                    ${serviciosHTML}
+                </div>
             </div>
-        </div>
-        
-        <div class="modal-section">
-            <div class="modal-section-title">
-                <i class="fas fa-car"></i> Información del Vehículo
+            
+            <div class="modal-section total-section">
+                <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                    <i class="fas fa-receipt me-2"></i> Total a Pagar
+                </div>
+                <div class="total-amount">${data.total.toFixed(2)}</div>
             </div>
-            <div class="modal-info-item">
-                <span class="modal-info-label">Marca/Modelo:</span>
-                <span class="modal-info-value">${data.vehiculo.marca} ${data.vehiculo.modelo}</span>
-            </div>
-            <div class="modal-info-item">
-                <span class="modal-info-label">Placa:</span>
-                <span class="modal-info-value">${data.vehiculo.placa}</span>
-            </div>
-            <div class="modal-info-item">
-                <span class="modal-info-label">Tipo:</span>
-                <span class="modal-info-value">${tipoVehiculo}</span>
-            </div>
-            <div class="modal-info-item">
-                <span class="modal-info-label">Color:</span>
-                <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
-            </div>
-            ${data.vehiculo.descripcion ? `
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Descripción:</span>
-                            <span class="modal-info-value">${data.vehiculo.descripcion}</span>
-                        </div>
-                    ` : ''}
-        </div>
-        
-        <div class="modal-section">
-            <div class="modal-section-title">
-                <i class="fas fa-calendar-alt"></i> Detalles de la Cita
-            </div>
-            <div class="modal-info-item">
-                <span class="modal-info-label">Fecha/Hora:</span>
-                <span class="modal-info-value">${new Date(data.fecha_hora).toLocaleString('es-ES')}</span>
-            </div>
-            <div class="modal-info-item">
-                <span class="modal-info-label">Estado:</span>
-                <span class="modal-info-value">
-                    <span class="appointment-status status-${data.estado}">${data.estado_formatted}</span>
-                </span>
-            </div>
-            ${data.observaciones ? `
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Observaciones:</span>
-                            <span class="modal-info-value">${data.observaciones}</span>
-                        </div>
-                    ` : ''}
-            <div class="modal-info-item">
-                <span class="modal-info-label">Fecha de creación:</span>
-                <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
-            </div>
-        </div>
-        
-        <div class="modal-section">
-            <div class="modal-section-title">
-                <i class="fas fa-tools"></i> Servicios Seleccionados
-            </div>
-            <div class="services-grid">
-                ${serviciosHTML}
-            </div>
-        </div>
-        
-        <div class="modal-section total-section">
-            <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
-                <i class="fas fa-receipt me-2"></i> Total a Pagar
-            </div>
-            <div class="total-amount">${data.total.toFixed(2)}</div>
-        </div>
-    `;
+        `;
 
                 const detallesContent = document.getElementById('detalles-cita-content');
                 if (detallesContent) {
@@ -2086,7 +2097,7 @@
 
                     if (montoRecibidoInput && totalElement) {
                         const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
-                        const total = parseFloat(totalElement.textContent.replace(', '').replace(',', '')) || 0;
+                        const total = parseFloat(totalElement.textContent.replace('$', '').replace(',', '')) || 0;
 
                         if (montoRecibido < total) {
                             montoRecibidoInput.classList.add('is-invalid');
