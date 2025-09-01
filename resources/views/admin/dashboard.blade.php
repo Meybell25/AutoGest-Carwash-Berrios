@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.x/dist/tailwind.min.js"></script>
     <style>
         /* ======================
         ESTILOS GENERALES
@@ -2700,174 +2700,6 @@
                     </div>
                 </div>
 
-                <!-- Gestión de Horarios
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="card-header-icon icon-container">
-                                <i class="fas fa-briefcase"></i>
-                            </div>
-                            Gestión de Horarios
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header-actions"
-                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Configuración de horarios
-                                de trabajo</h3>
-                            <button class="btn btn-primary" onclick="mostrarModalHorario()">
-                                <i class="fas fa-plus"></i> Agregar Horario
-                            </button>
-                        </div>
-
-                        <div style="overflow-x: auto;">
-                            <table class="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Día</th>
-                                        <th>Hora Inicio</th>
-                                        <th>Hora Fin</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-   {{--   @forelse ($horarios as $horario)
-        <tr>
-            <td data-label="Día">{{ \App\Http\Controllers\HorarioController::DIAS_SEMANA[$horario->dia_semana] }}</td>
-            <td data-label="Hora Inicio">{{ \Carbon\Carbon::parse($horario->hora_inicio)->format('h:i A') }}</td>
-            <td data-label="Hora Fin">{{ \Carbon\Carbon::parse($horario->hora_fin)->format('h:i A') }}</td>
-            <td data-label="Estado">
-                <span class="badge   {{ $horario->activo ? 'badge-success' : 'badge-danger' }}">
-                    {{ $horario->activo ? 'Activo' : 'Inactivo' }}
-                </span>
-            </td>
-            <td data-label="Acciones">
-                <div class="table-actions">
-                    <button class="table-btn btn-edit" title="Editar"
-                        onclick="editarHorario({{ $horario->id }})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="table-btn btn-delete" title="Eliminar"
-                        onclick="desactivarHorario({{ $horario->id }})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    @empty
-        <tr>
-            <td colspan="5" class="text-center">No hay horarios registrados.</td>
-        </tr>
-    @endforelse
-</tbody>
-
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <script>
-                   document.addEventListener('DOMContentLoaded', function () {
-                   const horarioForm = document.getElementById('horarioForm');
-                   const horarioModal = document.getElementById('horarioModal');
-                   const modalTitle = document.getElementById('horarioModalTitle');
-
-                  function openCreateModal() {
-                   horarioForm.reset();
-                   document.getElementById('horario_id').value = "";
-                   modalTitle.innerHTML = '<i class="fas fa-clock"></i> Agregar Horario';
-                   openModal('horarioModal');
-                  }
-
-                  function openEditModal(id) {
-                    fetch(`/horarios/${id}`)
-                    .then(response => response.json())
-                    .then(data => {
-                    document.getElementById('horario_id').value = data.id;
-                    document.getElementById('horario_dia').value = data.dia_semana;
-                    document.getElementById('horario_inicio').value = data.hora_inicio.substring(0, 5);
-                    document.getElementById('horario_fin').value = data.hora_fin.substring(0, 5);
-                    document.getElementById('horario_activo').value = data.activo ? 1 : 0;
-                    modalTitle.innerHTML = '<i class="fas fa-clock"></i> Editar Horario';
-                    openModal('horarioModal');
-                   });
-                  }
-
-                  horarioForm.addEventListener('submit', function (e) {
-                     e.preventDefault();
-
-                   const id = document.getElementById('horario_id').value;
-                   const method = id ? 'PUT' : 'POST';
-                   const url = id ? `/horarios/${id}` : '/horarios';
-
-                  const formData = {
-                    dia_semana: document.getElementById('horario_dia').value,
-                    hora_inicio: document.getElementById('horario_inicio').value,
-                    hora_fin: document.getElementById('horario_fin').value,
-                    activo: document.getElementById('horario_activo').value
-                  };
-
-                   fetch(url, {
-                       method: method,
-                     headers: {
-                       'Content-Type': 'application/json',
-                       'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                     },
-                      body: JSON.stringify(formData)
-                    })
-                   .then(response => {
-                   if (!response.ok)
-                    return response.json().then(err => Promise.reject(err));
-                    return response.json();
-                   })
-                   .then(data => {
-                   Swal.fire('Éxito', data.message, 'success');
-                   closeModal('horarioModal');
-                   location.reload();
-                  })
-                  .catch(err => {
-                  if (err.errors) {
-                    let errorMsg = '';
-                    for (let campo in err.errors) {
-                        errorMsg += err.errors[campo][0] + '<br>';
-                    }
-                    Swal.fire('Error', errorMsg, 'error');
-                  }
-                 });
-                  });
-
-                       function eliminarHorario(id) {
-                           Swal.fire({
-                              title: '¿Eliminar?',
-                              text: 'Esta acción no se puede deshacer',
-                              icon: 'warning',
-                              showCancelButton: true,
-                              confirmButtonText: 'Sí, eliminar'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                   fetch(`/horarios/${id}`, {
-                                   method: 'DELETE',
-                                   headers: {
-                                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                }
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                             Swal.fire('Eliminado', data.message, 'success');
-                             location.reload();
-                            });
-                        }
-                      });
-                    }
-
-                      window.openCreateModal = openCreateModal;
-                      window.openEditModal = openEditModal;
-                      .eliminarHorario = eliminarHorario;
-                    });
-                </script>  --}}-->
-
-
                 <!-- Contenedor para Días No Laborables -->
                 <div class="card">
                     <div class="card-header">
@@ -4095,232 +3927,6 @@
             });
         });
 
-
-        // =============================================
-        // FUNCIONES PARA DÍAS NO LABORABLES
-        // =============================================
-
-        // Cargar días no laborables desde la API
-        /* async function cargarDiasNoLaborables() {
-                                                                                                                                 try {
-                                                                                                                                     const response = await fetch('/dias-no-laborables');
-                                                                                                                                     if (!response.ok) throw new Error('Error al cargar días no laborables');
-
-                                                                                                                                     diasNoLaborables = await response.json();
-                                                                                                                                     actualizarTablaDiasNoLaborables();
-                                                                                                                                 } catch (error) {
-                                                                                                                                     console.error('Error al cargar días no laborables:', error);
-                                                                                                                                     Toast.fire({
-                                                                                                                                         icon: 'error',
-                                                                                                                                         title: 'Error al cargar días no laborables',
-                                                                                                                                         text: error.message
-                                                                                                                                     });
-                                                                                                                                 }
-                                                                                                                             }
-
-                                                                                                                             // Actualizar la tabla con los días no laborables
-                                                                                                                             function actualizarTablaDiasNoLaborables() {
-                                                                                                                                 const tbody = document.querySelector('#diasNoLaborablesTable tbody');
-                                                                                                                                 if (!tbody) return;
-
-                                                                                                                                 tbody.innerHTML = '';
-
-                                                                                                                                 if (diasNoLaborables.length === 0) {
-                                                                                                                                     tbody.innerHTML = `
-         <tr>
-             <td colspan="3" style="text-align: center; padding: 20px;">
-                 <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
-                 <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
-             </td>
-         </tr>
-     `;
-                                                                                                                                     return;
-                                                                                                                                 }
-
-                                                                                                                                 diasNoLaborables.forEach(dia => {
-                                                                                                                                     const fecha = new Date(dia.fecha);
-                                                                                                                                     const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-                                                                                                                                         day: '2-digit',
-                                                                                                                                         month: '2-digit',
-                                                                                                                                         year: 'numeric'
-                                                                                                                                     });
-
-                                                                                                                                     const row = document.createElement('tr');
-                                                                                                                                     row.setAttribute('data-id', dia.id);
-                                                                                                                                     row.innerHTML = `
-         <td data-label="Fecha">${fechaFormateada}</td>
-         <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
-         <td data-label="Acciones">
-             <div class="table-actions">
-                 <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
-                     <i class="fas fa-edit"></i>
-                 </button>
-                 <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
-                     <i class="fas fa-trash"></i>
-                 </button>
-             </div>
-         </td>
-     `;
-                                                                                                                                     tbody.appendChild(row);
-                                                                                                                                 });
-                                                                                                                             }*/
-
-        // Mostrar modal para agregar/editar día no laborable
-        /*function mostrarModalDiaNoLaborable(diaId = null) {
-            const modal = document.getElementById('diaNoLaborableModal');
-            const form = document.getElementById('diaNoLaborableForm');
-            const title = document.getElementById('diaNoLaborableModalTitle');
-
-            if (result.isConfirmed) {
-                const response = await fetch(`/dias-no-laborables/${diaId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-            form.reset();
-
-            if (diaId) {
-                title.innerHTML = '<i class="fas fa-edit"></i> Editar Día No Laborable';
-                form.setAttribute('data-id', diaId);
-
-                const dia = diasNoLaborables.find(d => d.id == diaId);
-                if (dia) {
-                    document.getElementById('diaNoLaborableFecha').value = dia.fecha;
-                    document.getElementById('diaNoLaborableMotivo').value = dia.motivo || '';
-                }
-            } else {
-                title.innerHTML = '<i class="fas fa-plus"></i> Agregar Día No Laborable';
-                form.removeAttribute('data-id');
-                // Establecer la fecha mínima como hoy
-                document.getElementById('diaNoLaborableFecha').min = new Date().toISOString().split('T')[0];
-            }
-
-            modal.style.display = 'flex';
-        }
-
-        // Función editarDiaNoLaborable duplicada eliminada - usando la versión completa más abajo
-
-        // Función para eliminar un día no laborable
-        async function eliminarDiaNoLaborable(diaId) {
-            try {
-                const result = await Swal.fire({
-                    title: '¿Eliminar este día no laborable?',
-                    text: "Esta acción no se puede deshacer",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Sí, eliminar',
-                    cancelButtonText: 'Cancelar'
-                });
-
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Error al eliminar el día no laborable');
-                    }
-                    await cargarDiasNoLaborables();
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Día no laborable eliminado correctamente'
-                    });
-                }
-            } catch (error) {
-                console.error('Error al eliminar día no laborable:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error al eliminar día no laborable',
-                    text: error.message
-                });
-            }
-        }
-
-        // =============================================
-        // EVENT LISTENERS ADICIONALES
-        // =============================================
-
-        // Manejar el envío del formulario de día no laborable
-        document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const form = e.target;
-            const diaId = form.getAttribute('data-id');
-            const isEdit = !!diaId;
-
-            const formData = {
-                fecha: document.getElementById('diaNoLaborableFecha').value,
-                motivo: document.getElementById('diaNoLaborableMotivo').value,
-                _token: '{{ csrf_token() }}'
-            };
-
-            try {
-                let response;
-                let url;
-                let method;
-
-                if (isEdit) {
-                    url = `/api/dias-no-laborables/${diaId}`;
-                    method = 'PUT';
-                } else {
-                    url = '/api/dias-no-laborables';
-                    method = 'POST';
-                }
-
-                response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    let errorMessage = 'Error al guardar el día no laborable';
-                    if (data.errors) {
-                        errorMessage = Object.values(data.errors).join('\n');
-                    } else if (data.message) {
-                        errorMessage = data.message;
-                    }
-                    throw new Error(errorMessage);
-                }
-
-                Toast.fire({
-                    icon: 'success',
-                    title: isEdit ? 'Día no laborable actualizado' : 'Día no laborable agregado'
-                });
-
-                closeModal('diaNoLaborableModal');
-                await cargarDiasNoLaborables();
-            } catch (error) {
-                console.error('Error al guardar día no laborable:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message
-                });
-            }
-        });
-
-        // Validar que la fecha seleccionada no sea en el pasado
-        document.getElementById('diaNoLaborableFecha')?.addEventListener('change', function() {
-            const fechaSeleccionada = new Date(this.value);
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-
-            if (fechaSeleccionada < hoy) {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'No puedes seleccionar una fecha pasada'
-                });
-                this.value = hoy.toISOString().split('T')[0];
-            }
-        });*/
-
         // =============================================
         // FUNCIONES DE CITAS DE HOY EN DASHBOARD
         // =============================================
@@ -4452,7 +4058,7 @@
         function setupPagoButtonsDashboard() {
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('btn-pagar-dashboard') || e.target.closest(
-                    '.btn-pagar-dashboard')) {
+                        '.btn-pagar-dashboard')) {
                     e.preventDefault();
 
                     const button = e.target.classList.contains('btn-pagar-dashboard') ? e.target : e.target
@@ -5018,13 +4624,42 @@
             }
         }
 
-
+        // =============================================
+// PLUGIN PARA MOSTRAR MENSAJE CUANDO NO HAY DATOS
+// =============================================
+Chart.register({
+    id: 'noDataPlugin',
+    afterDraw: function(chart) {
+        if (chart.data.datasets.length === 0 || 
+            (chart.data.datasets[0].data.length === 0) || 
+            (chart.data.datasets[0].data.every(item => item === 0))) {
+            
+            let ctx = chart.ctx;
+            let width = chart.width;
+            let height = chart.height;
+            
+            chart.clear();
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '16px Arial';
+            ctx.fillStyle = '#999';
+            ctx.fillText('No hay datos disponibles', width / 2, height / 2);
+            ctx.restore();
+        }
+    }
+});
 
         // =============================================
         // FUNCIONES DE INICIALIZACIÓN
         // =============================================
 
         function inicializarGraficoUsuarios(data) {
+            if (!document.getElementById('usuariosChart')) {
+                console.error('No se encontró el elemento usuariosChart');
+                return;
+            }
+
             const ctx = document.getElementById('usuariosChart').getContext('2d');
             usuariosChart = new Chart(ctx, {
                 type: 'pie',
@@ -5045,102 +4680,115 @@
         }
         console.log(document.getElementById('usuariosChart')); // Debería mostrar el elemento canvas
 
-       function inicializarGraficoIngresos(data) {
-    const ctx = document.getElementById('ingresosChart').getContext('2d');
-    ingresosChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-            datasets: [{
-                label: 'Ingresos ' + new Date().getFullYear(),
-                data: data,
-                backgroundColor: 'rgba(39, 174, 96, 0.2)',
-                borderColor: 'rgba(39, 174, 96, 1)',
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            ...getCommonChartOptions('top'),
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: value => '$' + value
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: context => '$' + context.raw.toLocaleString()
-                    }
-                }
+        function inicializarGraficoIngresos(data) {
+            if (!document.getElementById('ingresosChart')) {
+                console.error('No se encontró el elemento ingresosChart');
+                return;
             }
+
+            const ctx = document.getElementById('ingresosChart').getContext('2d');
+            ingresosChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                        label: 'Ingresos ' + new Date().getFullYear(),
+                        data: data,
+                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                        borderColor: 'rgba(39, 174, 96, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    ...getCommonChartOptions('top'),
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => '$' + value
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: context => '$' + context.raw.toLocaleString()
+                            }
+                        }
+                    }
+                }
+            });
         }
-    });
-}
 
+        function inicializarGraficoServicios(data) {
+            if (!document.getElementById('serviciosChart')) {
+                console.error('No se encontró el elemento serviciosChart');
+                return;
+            }
 
-       function inicializarGraficoServicios(data) {
-    const ctx = document.getElementById('serviciosChart').getContext('2d');
-    
-    // Preparar colores para los servicios
-    const colores = [
-        'rgba(39, 174, 96, 0.7)',
-        'rgba(52, 152, 219, 0.7)',
-        'rgba(243, 156, 18, 0.7)',
-        'rgba(155, 89, 182, 0.7)',
-        'rgba(231, 76, 60, 0.7)'
-    ];
-    
-    serviciosChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(data),
-            datasets: [{
-                data: Object.values(data),
-                backgroundColor: colores,
-                borderWidth: 1
-            }]
-        },
-        options: getCommonChartOptions('right')
-    });
-}
+            const ctx = document.getElementById('serviciosChart').getContext('2d');
 
+            // Preparar colores para los servicios
+            const colores = [
+                'rgba(39, 174, 96, 0.7)',
+                'rgba(52, 152, 219, 0.7)',
+                'rgba(243, 156, 18, 0.7)',
+                'rgba(155, 89, 182, 0.7)',
+                'rgba(231, 76, 60, 0.7)'
+            ];
+
+            serviciosChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        data: Object.values(data),
+                        backgroundColor: colores,
+                        borderWidth: 1
+                    }]
+                },
+                options: getCommonChartOptions('right')
+            });
+        }
 
         function inicializarGraficoCitas(data) {
-    const ctx = document.getElementById('citasChart').getContext('2d');
-    citasChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-            datasets: [{
-                    label: 'Citas Completadas',
-                    data: data.completadas,
-                    backgroundColor: 'rgba(46, 125, 50, 0.7)'
+            if (!document.getElementById('citasChart')) {
+                console.error('No se encontró el elemento citasChart');
+                return;
+            }
+
+            const ctx = document.getElementById('citasChart').getContext('2d');
+            citasChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                            label: 'Citas Completadas',
+                            data: data.completadas,
+                            backgroundColor: 'rgba(46, 125, 50, 0.7)'
+                        },
+                        {
+                            label: 'Citas Canceladas',
+                            data: data.canceladas,
+                            backgroundColor: 'rgba(198, 40, 40, 0.7)'
+                        }
+                    ]
                 },
-                {
-                    label: 'Citas Canceladas',
-                    data: data.canceladas,
-                    backgroundColor: 'rgba(198, 40, 40, 0.7)'
-                }
-            ]
-        },
-        options: {
-            ...getCommonChartOptions('top'),
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0
+                options: {
+                    ...getCommonChartOptions('top'),
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
                     }
                 }
-            }
+            });
         }
-    });
-}
 
         function getCommonChartOptions(legendPosition) {
             return {
@@ -5159,47 +4807,52 @@
         // =============================================
 
         // En la función actualizarDatosDashboard
-async function actualizarDatosDashboard() {
-    try {
-        const response = await fetch('{{ route('admin.dashboard.data') }}');
-        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        async function actualizarDatosDashboard() {
+            try {
+                const response = await fetch('{{ route('admin.dashboard.data') }}');
+                if (!response.ok) throw new Error('Error en la respuesta del servidor');
 
-        const data = await response.json();
+                const data = await response.json();
 
-        if (!data.stats || !data.rolesDistribucion) {
-            throw new Error('Formato de datos incorrecto');
-        }
+                if (!data.stats || !data.rolesDistribucion) {
+                    throw new Error('Formato de datos incorrecto');
+                }
 
-        actualizarEstadisticas(data.stats);
+                actualizarEstadisticas(data.stats);
 
-        // Inicializar gráficos con datos reales
-        if (document.getElementById('ingresosChart')) {
-            inicializarGraficoIngresos(data.stats.ingresos_por_mes || []);
-        }
+                // Inicializar gráficos con datos reales
+                if (document.getElementById('ingresosChart')) {
+                    inicializarGraficoIngresos(data.stats.ingresos_por_mes || Array(12).fill(0));
+                }
 
-        if (document.getElementById('citasChart')) {
-            inicializarGraficoCitas(data.stats.citas_por_mes || {completadas: [], canceladas: []});
-        }
-
-        if (document.getElementById('serviciosChart')) {
-            inicializarGraficoServicios(data.stats.servicios_populares_data || {});
-        }
-
-        if (document.getElementById('usuariosChart')) {
-            inicializarGraficoUsuarios(data.rolesDistribucion);
-        }
-
-        return true;
-    } catch (error) {
-        console.error('Error al actualizar datos:', error);
-        Toast.fire({
-            icon: 'error',
-            title: 'Error al cargar datos',
-            text: error.message
-        });
-        return false;
-    }
+                if (document.getElementById('citasChart')) {
+  
+    const citasData = data.stats.citas_por_mes || {};
+    inicializarGraficoCitas({
+        completadas: citasData.completadas || Array(12).fill(0),
+        canceladas: citasData.canceladas || Array(12).fill(0)
+    });
 }
+
+                if (document.getElementById('serviciosChart')) {
+                    inicializarGraficoServicios(data.stats.servicios_populares_data || {});
+                }
+
+                if (document.getElementById('usuariosChart')) {
+                    inicializarGraficoUsuarios(data.rolesDistribucion);
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Error al actualizar datos:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error al cargar datos',
+                    text: error.message
+                });
+                return false;
+            }
+        }
 
         function actualizarEstadisticas(stats) {
             const welcomeStats = document.querySelectorAll('.welcome-stat .number');
@@ -5856,19 +5509,7 @@ async function actualizarDatosDashboard() {
                 console.error('No se encontró el elemento serviciosChart');
             }
 
-            // 2. SOLO INICIALIZAR GRÁFICOS SI SUS CONTENEDORES EXISTEN
-            if (document.getElementById('ingresosChart')) {
-                inicializarGraficoIngresos();
-            }
-
-            if (document.getElementById('citasChart')) {
-                inicializarGraficoCitas();
-            }
-
-            if (document.getElementById('serviciosChart')) {
-                inicializarGraficoServicios();
-            }
-
+            // 2. CARGAR DATOS - LOS GRÁFICOS SE INICIALIZARÁN DENTRO DE actualizarDatosDashboard
             actualizarDatosDashboard();
 
             // Inicializar validaciones del formulario de usuario
@@ -5999,7 +5640,6 @@ async function actualizarDatosDashboard() {
         });
 
         // Formulario de usuario
-        // Formulario de usuario - Versión unificada con validación de contraseña
         document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -8655,16 +8295,16 @@ async function actualizarDatosDashboard() {
                         const info = getTipoGastoInfo(tipo);
                         const porcentaje = (gastosPorTipo[tipo].monto / montoTotal) * 100;
                         return `
-                                                                                                    <div class="mb-2">
-                                                                                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                                                                                            <small>${info.emoji} ${info.nombre}</small>
-                                                                                                            <small><strong>${porcentaje.toFixed(1)}%</strong></small>
-                                                                                                        </div>
-                                                                                                        <div class="progress" style="height: 4px;">
-                                                                                                            <div class="progress-bar" style="width: ${porcentaje}%; background: ${info.color}"></div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                `;
+                                                                                                            <div class="mb-2">
+                                                                                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                                                                    <small>${info.emoji} ${info.nombre}</small>
+                                                                                                                    <small><strong>${porcentaje.toFixed(1)}%</strong></small>
+                                                                                                                </div>
+                                                                                                                <div class="progress" style="height: 4px;">
+                                                                                                                    <div class="progress-bar" style="width: ${porcentaje}%; background: ${info.color}"></div>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        `;
                     }).join('')}
                 </div>
             `;
