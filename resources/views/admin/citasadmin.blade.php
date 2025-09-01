@@ -1868,22 +1868,22 @@
                     updateDetallesModal(data);
 
                     // Mostrar modal
-                    const modal = new bootstrap.Modal(document.getElementById('detallesCitaModal'), {
-                        backdrop: true, // Permitir cerrar con backdrop
-                        keyboard: true, // Permitir cerrar con ESC
-                        focus: true // Enfocar modal al abrir
+                    const modal = new bootstrap.Modal(modalElement, {
+                        backdrop: true,
+                        keyboard: true,
+                        focus: true
                     });
+
                     modal.show();
-                    mconst modalElement = document.getElementById('detallesCitaModal');
-                    if (modalElement) {
-                        modalElement.addEventListener('shown.bs.modal', function() {
-                            const modalBody = this.querySelector('.modal-body');
-                            if (modalBody) {
-                                modalBody.style.overflowY = 'auto';
-                                modalBody.style.maxHeight = 'calc(100vh - 200px)';
-                            }
-                        });
-                    }
+
+                    // Configurar el evento para el modal después de mostrarlo
+                    modalElement.addEventListener('shown.bs.modal', function() {
+                        const modalBody = this.querySelector('.modal-body');
+                        if (modalBody) {
+                            modalBody.style.overflowY = 'auto';
+                            modalBody.style.maxHeight = 'calc(100vh - 200px)';
+                        }
+                    });
 
                 } catch (error) {
                     hideLoading();
@@ -1934,51 +1934,51 @@
                     <span class="modal-info-value">${data.pago.metodo_formatted || data.pago.metodo}</span>
                 </div>
                 ${data.pago.referencia ? `
-                            <div class="modal-info-item">
-                                <span class="modal-info-label">Referencia:</span>
-                                <span class="modal-info-value">${data.pago.referencia}</span>
-                            </div>
-                        ` : ''}
+                                        <div class="modal-info-item">
+                                            <span class="modal-info-label">Referencia:</span>
+                                            <span class="modal-info-value">${data.pago.referencia}</span>
+                                        </div>
+                                    ` : ''}
                 <div class="modal-info-item">
                     <span class="modal-info-label">Monto Pagado:</span>
                     <span class="modal-info-value">$${data.pago.monto.toFixed(2)}</span>
                 </div>
                 ${data.pago.monto_recibido ? `
-                            <div class="modal-info-item">
-                                <span class="modal-info-label">Monto Recibido:</span>
-                                <span class="modal-info-value">$${data.pago.monto_recibido.toFixed(2)}</span>
-                            </div>
-                        ` : ''}
+                                        <div class="modal-info-item">
+                                            <span class="modal-info-label">Monto Recibido:</span>
+                                            <span class="modal-info-value">$${data.pago.monto_recibido.toFixed(2)}</span>
+                                        </div>
+                                    ` : ''}
                 ${data.pago.vuelto ? `
-                            <div class="modal-info-item">
-                                <span class="modal-info-label">Vuelto:</span>
-                                <span class="modal-info-value">$${data.pago.vuelto.toFixed(2)}</span>
-                            </div>
-                        ` : ''}
+                                        <div class="modal-info-item">
+                                            <span class="modal-info-label">Vuelto:</span>
+                                            <span class="modal-info-value">$${data.pago.vuelto.toFixed(2)}</span>
+                                        </div>
+                                    ` : ''}
                 ${data.pago.fecha_pago ? `
-                            <div class="modal-info-item">
-                                <span class="modal-info-label">Fecha de Pago:</span>
-                                <span class="modal-info-value">${new Date(data.pago.fecha_pago).toLocaleString('es-ES')}</span>
-                            </div>
-                        ` : ''}
+                                        <div class="modal-info-item">
+                                            <span class="modal-info-label">Fecha de Pago:</span>
+                                            <span class="modal-info-value">${new Date(data.pago.fecha_pago).toLocaleString('es-ES')}</span>
+                                        </div>
+                                    ` : ''}
                 ${data.pago.banco_emisor ? `
-                            <div class="modal-info-item">
-                                <span class="modal-info-label">Banco Emisor:</span>
-                                <span class="modal-info-value">${data.pago.banco_emisor}</span>
-                            </div>
-                        ` : ''}
+                                        <div class="modal-info-item">
+                                            <span class="modal-info-label">Banco Emisor:</span>
+                                            <span class="modal-info-value">${data.pago.banco_emisor}</span>
+                                        </div>
+                                    ` : ''}
                 ${data.pago.tipo_tarjeta ? `
-                            <div class="modal-info-item">
-                                <span class="modal-info-label">Tipo de Tarjeta:</span>
-                                <span class="modal-info-value">${data.pago.tipo_tarjeta}</span>
-                            </div>
-                        ` : ''}
+                                        <div class="modal-info-item">
+                                            <span class="modal-info-label">Tipo de Tarjeta:</span>
+                                            <span class="modal-info-value">${data.pago.tipo_tarjeta}</span>
+                                        </div>
+                                    ` : ''}
                 ${data.pago.observaciones ? `
-                            <div class="modal-info-item">
-                                <span class="modal-info-label">Observaciones:</span>
-                                <span class="modal-info-value">${data.pago.observaciones}</span>
-                            </div>
-                        ` : ''}
+                                        <div class="modal-info-item">
+                                            <span class="modal-info-label">Observaciones:</span>
+                                            <span class="modal-info-value">${data.pago.observaciones}</span>
+                                        </div>
+                                    ` : ''}
             </div>
         `;
                 }
@@ -2023,11 +2023,11 @@
                 <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
             </div>
             ${data.vehiculo.descripcion ? `
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Descripción:</span>
-                            <span class="modal-info-value">${data.vehiculo.descripcion}</span>
-                        </div>
-                    ` : ''}
+                                    <div class="modal-info-item">
+                                        <span class="modal-info-label">Descripción:</span>
+                                        <span class="modal-info-value">${data.vehiculo.descripcion}</span>
+                                    </div>
+                                ` : ''}
         </div>
         
         <div class="modal-section">
@@ -2045,11 +2045,11 @@
                 </span>
             </div>
             ${data.observaciones ? `
-                        <div class="modal-info-item">
-                            <span class="modal-info-label">Observaciones:</span>
-                            <span class="modal-info-value">${data.observaciones}</span>
-                        </div>
-                    ` : ''}
+                                    <div class="modal-info-item">
+                                        <span class="modal-info-label">Observaciones:</span>
+                                        <span class="modal-info-value">${data.observaciones}</span>
+                                    </div>
+                                ` : ''}
             <div class="modal-info-item">
                 <span class="modal-info-label">Fecha de creación:</span>
                 <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
@@ -2091,13 +2091,16 @@
                     });
                 }
 
-                // Inicializar el modal de detalles correctamente
+                // Configurar el modal de detalles
                 const detallesModalElement = document.getElementById('detallesCitaModal');
                 if (detallesModalElement) {
-                    // Configurar el modal para que sea responsive
-                    detallesModalElement.addEventListener('show.bs.modal', function() {
-                        this.style.display = 'block';
-                        this.classList.add('show');
+                    // Limpiar contenido al cerrar el modal
+                    detallesModalElement.addEventListener('hidden.bs.modal', function() {
+                        const detallesContent = document.getElementById('detalles-cita-content');
+                        if (detallesContent) {
+                            detallesContent.innerHTML = '';
+                        }
+                        document.getElementById('cita-id').textContent = '';
                     });
                 }
             }
