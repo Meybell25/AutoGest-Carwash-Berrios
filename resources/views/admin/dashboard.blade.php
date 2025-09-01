@@ -1157,21 +1157,22 @@
         #modalVerTodosGastos.modal {
             z-index: 1055;
         }
+
         #modalVerTodosServicios.modal {
             z-index: 1055;
         }
-        
+
         /* Modal de servicios secundario con z-index superior */
         #servicioModal.modal {
             z-index: 1070 !important;
         }
-        
+
         /* Cuando servicioModal está activo sobre modalVerTodosServicios */
         .modal.show#servicioModal {
             z-index: 1070 !important;
             background-color: rgba(0, 0, 0, 0.8) !important;
         }
-        
+
         /* Estilos específicos para modal de servicios cuando está superpuesto */
         #servicioModal .modal-content {
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
@@ -1179,17 +1180,18 @@
             transform: scale(1.02);
             transition: transform 0.3s ease;
         }
-        
+
         /* Animación de aparición para modal superpuesto */
         #servicioModal.show .modal-content {
             animation: modalNestedSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
+
         @keyframes modalNestedSlideIn {
             0% {
                 transform: scale(0.8) translateY(-50px);
                 opacity: 0;
             }
+
             100% {
                 transform: scale(1.02) translateY(0);
                 opacity: 1;
@@ -3218,7 +3220,7 @@
                             </div>
                             <div class="filter-select">
                                 <select id="filterEstado" class="form-control">
-                                    <option value="">Todos los activos</option>
+                                    <option value="">Todos los estados</option>
                                     <option value="pendiente">Pendiente</option>
                                     <option value="confirmada">Confirmada</option>
                                     <option value="en_proceso">En Proceso</option>
@@ -3245,14 +3247,14 @@
                                 <tbody id="citasHoyTable">
                                     @php
                                         // Obtener citas de hoy ordenadas por hora
-                                        $citasHoy = \App\Models\Cita::with(['usuario', 'vehiculo', 'servicios'])
+                                        $citasHoy = \App\Models\Cita::with(['usuario', 'vehiculo', 'servicios', 'pago'])
                                             ->whereDate('fecha_hora', today())
                                             ->orderBy('fecha_hora', 'asc')
                                             ->get();
                                     @endphp
 
                                     @forelse($citasHoy as $cita)
-                                        <tr data-activo="{{ $cita->activo }}">
+                                        <tr data-estado="{{ $cita->estado }}">
                                             <td data-label="ID">#{{ $cita->id }}</td>
                                             <td data-label="Cliente">{{ $cita->usuario->nombre }}</td>
                                             <td data-label="Vehículo">{{ $cita->vehiculo->marca }}
@@ -3264,26 +3266,53 @@
                                                         class="badge service-badge-{{ ($index % 5) + 1 }}">{{ $servicio->nombre }}</span>
                                                 @endforeach
                                             </td>
-                                            <td data-label="Total">
-                                                ${{ number_format($cita->servicios->sum('pivot.precio'), 2) }}</td>
+                                            <td data-label="Total">${{ number_format($cita->total, 2) }}</td>
                                             <td data-label="Estado">
-                                                <span class="badge badge-{{ $cita->activo }}">
-                                                    {{ $cita->activo_formatted }}
+                                                <span class="appointment-status status-{{ $cita->estado }}">
+                                                    {{ $cita->estado_formatted }}
                                                 </span>
                                             </td>
                                             <td data-label="Acciones">
                                                 <div class="table-actions">
-                                                    <button class="table-btn btn-view" title="Ver detalles"
-                                                        onclick="verDetalleCita({{ $cita->id }})">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="table-btn btn-edit" title="Editar"
-                                                        onclick="editarCita({{ $cita->id }})">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button class="table-btn btn-delete" title="Cancelar"
-                                                        onclick="cancelarCita({{ $cita->id }})">
-                                                        <i class="fas fa-times"></i>
+                                                    <select class="estado-select-dashboard"
+                                                        data-cita-id="{{ $cita->id }}"
+                                                        style="width: 120px; padding: 5px; margin-bottom: 5px;">
+                                                        <option value="pendiente"
+                                                            {{ $cita->estado == 'pendiente' ? 'selected' : '' }}>
+                                                            Pendiente</option>
+                                                        <option value="confirmada"
+                                                            {{ $cita->estado == 'confirmada' ? 'selected' : '' }}>
+                                                            Confirmada</option>
+                                                        <option value="en_proceso"
+                                                            {{ $cita->estado == 'en_proceso' ? 'selected' : '' }}>En
+                                                            Proceso</option>
+                                                        <option value="finalizada"
+                                                            {{ $cita->estado == 'finalizada' ? 'selected' : '' }}
+                                                            {{ !$cita->tienePagoCompletado() ? 'disabled' : '' }}>
+                                                            Finalizada</option>
+                                                        <option value="cancelada"
+                                                            {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>
+                                                            Cancelada</option>
+                                                    </select>
+
+                                                    @if ($cita->estado == 'en_proceso' && !$cita->tienePagoCompletado())
+                                                        <button class="btn btn-success btn-sm btn-pagar-dashboard mt-1"
+                                                            data-cita-id="{{ $cita->id }}">
+                                                            <i class="fas fa-credit-card me-1"></i> Pagar
+                                                        </button>
+                                                    @endif
+
+                                                    @if ($cita->tienePagoCompletado())
+                                                        <div class="text-center mt-1">
+                                                            <span class="badge bg-success">
+                                                                <i class="fas fa-check-circle me-1"></i> Pagado
+                                                            </span>
+                                                        </div>
+                                                    @endif
+
+                                                    <button class="btn btn-details btn-sm mt-1 view-details-dashboard"
+                                                        data-cita-id="{{ $cita->id }}">
+                                                        <i class="fas fa-eye me-1"></i> Detalles
                                                     </button>
                                                 </div>
                                             </td>
@@ -3413,10 +3442,11 @@
                                 </div>
                                 <div class="service-details">
                                     <h4>{{ $servicio->nombre }}</h4>
-                                    <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion_min ?? $servicio->duracion }} min
+                                    <p>${{ number_format($servicio->precio, 2) }} -
+                                        {{ $servicio->duracion_min ?? $servicio->duracion }} min
                                     </p>
                                     <p>
-                                        @if($servicio->categoria === 'sedan')
+                                        @if ($servicio->categoria === 'sedan')
                                             🚗 Sedán
                                         @elseif($servicio->categoria === 'pickup')
                                             🚙 Pickup/SUV
@@ -3441,8 +3471,7 @@
                                 onclick="abrirModalVerTodosServicios()">
                                 <i class="fas fa-list me-1"></i> Ver Todos
                             </button>
-                            <button class="btn btn-primary" style="flex: 1;"
-                                onclick="nuevoServicio()">
+                            <button class="btn btn-primary" style="flex: 1;" onclick="nuevoServicio()">
                                 <i class="fas fa-plus"></i> Agregar
                             </button>
                         </div>
@@ -3525,15 +3554,18 @@
             </div>
 
             <!-- Modal para ver todos los servicios -->
-            <div class="modal fade" id="modalVerTodosServicios" tabindex="-1" aria-labelledby="modalVerTodosServiciosLabel" aria-hidden="true">
+            <div class="modal fade" id="modalVerTodosServicios" tabindex="-1"
+                aria-labelledby="modalVerTodosServiciosLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered">
                     <div class="modal-content">
-                        <div class="modal-header" style="background: linear-gradient(135deg, #007bff, #6c5ce7); color: white;">
+                        <div class="modal-header"
+                            style="background: linear-gradient(135deg, #007bff, #6c5ce7); color: white;">
                             <h5 class="modal-title" id="modalVerTodosServiciosLabel">
                                 <i class="fas fa-cogs me-2"></i>
                                 Gestión de Servicios
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <!-- Controles superiores -->
@@ -3541,7 +3573,8 @@
                                 <div class="col-md-6">
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                        <input type="text" class="form-control" id="buscarServicio" placeholder="Buscar servicio..." onkeyup="filtrarServicios()">
+                                        <input type="text" class="form-control" id="buscarServicio"
+                                            placeholder="Buscar servicio..." onkeyup="filtrarServicios()">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -3597,7 +3630,8 @@
             </div>
 
             <!-- Modal Horarios (Bootstrap, estilo igual a Días No Laborables) -->
-            <div class="modal fade modal-horarios" id="horarioCRUDModal" tabindex="-1" aria-labelledby="horarioCRUDModalTitle" aria-hidden="true">
+            <div class="modal fade modal-horarios" id="horarioCRUDModal" tabindex="-1"
+                aria-labelledby="horarioCRUDModalTitle" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -3605,7 +3639,8 @@
                                 <i class="fas fa-clock me-2"></i>
                                 Agregar Horario
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <form id="horarioForm">
@@ -3613,7 +3648,8 @@
 
                                 <div class="row g-3 mb-3">
                                     <div class="col-md-6">
-                                        <label for="horario_dia" class="form-label"><i class="fas fa-calendar-week me-1"></i> Día de la semana</label>
+                                        <label for="horario_dia" class="form-label"><i
+                                                class="fas fa-calendar-week me-1"></i> Día de la semana</label>
                                         <select id="horario_dia" class="form-control" required>
                                             <option value="">Seleccione un día</option>
                                             <option value="1">Lunes</option>
@@ -3626,9 +3662,11 @@
                                         <div class="invalid-feedback d-block" id="error_horario_dia"></div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="horario_activo" class="form-label"><i class="fas fa-toggle-on me-1"></i> Estado</label>
+                                        <label for="horario_activo" class="form-label"><i
+                                                class="fas fa-toggle-on me-1"></i> Estado</label>
                                         <div class="form-check form-switch" style="padding-top: 8px;">
-                                            <input class="form-check-input" type="checkbox" id="horario_activo_switch" checked>
+                                            <input class="form-check-input" type="checkbox"
+                                                id="horario_activo_switch" checked>
                                             <label class="form-check-label" for="horario_activo_switch">Activo</label>
                                         </div>
                                         <input type="hidden" id="horario_activo" value="1">
@@ -3637,19 +3675,22 @@
 
                                 <div class="row g-3 mb-3">
                                     <div class="col-md-6">
-                                        <label for="horario_inicio" class="form-label"><i class="fas fa-clock me-1"></i> Hora de inicio</label>
+                                        <label for="horario_inicio" class="form-label"><i
+                                                class="fas fa-clock me-1"></i> Hora de inicio</label>
                                         <input type="time" id="horario_inicio" class="form-control" required>
                                         <div class="invalid-feedback d-block" id="error_horario_inicio"></div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="horario_fin" class="form-label"><i class="fas fa-clock me-1"></i> Hora de fin</label>
+                                        <label for="horario_fin" class="form-label"><i class="fas fa-clock me-1"></i>
+                                            Hora de fin</label>
                                         <input type="time" id="horario_fin" class="form-control" required>
                                         <div class="invalid-feedback d-block" id="error_horario_fin"></div>
                                     </div>
                                 </div>
 
                                 <div class="alert alert-info" role="alert">
-                                    <div style="font-weight:600; margin-bottom:6px;"><i class="fas fa-info-circle me-1"></i> Información importante</div>
+                                    <div style="font-weight:600; margin-bottom:6px;"><i
+                                            class="fas fa-info-circle me-1"></i> Información importante</div>
                                     <ul style="margin:0; padding-left: 18px;">
                                         <li>Los horarios aplican de Lunes a Sábado.</li>
                                         <li>La hora de inicio debe ser menor a la hora de fin.</li>
@@ -3811,6 +3852,35 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Modal para detalles de cita  -->
+    <div class="modal fade" id="detallesCitaModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de la Cita #<span id="cita-id"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detalles-cita-content">
+                    <!-- Los detalles se cargarán aquí via AJAX -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para pago= -->
+    <div class="modal fade" id="pagoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="pago-modal-content">
+                <!-- El contenido se cargará via AJAX -->
+            </div>
         </div>
     </div>
 
@@ -4032,31 +4102,31 @@
 
         // Cargar días no laborables desde la API
         /* async function cargarDiasNoLaborables() {
-                                                                                                                     try {
-                                                                                                                         const response = await fetch('/dias-no-laborables');
-                                                                                                                         if (!response.ok) throw new Error('Error al cargar días no laborables');
+                                                                                                                                 try {
+                                                                                                                                     const response = await fetch('/dias-no-laborables');
+                                                                                                                                     if (!response.ok) throw new Error('Error al cargar días no laborables');
 
-                                                                                                                         diasNoLaborables = await response.json();
-                                                                                                                         actualizarTablaDiasNoLaborables();
-                                                                                                                     } catch (error) {
-                                                                                                                         console.error('Error al cargar días no laborables:', error);
-                                                                                                                         Toast.fire({
-                                                                                                                             icon: 'error',
-                                                                                                                             title: 'Error al cargar días no laborables',
-                                                                                                                             text: error.message
-                                                                                                                         });
-                                                                                                                     }
-                                                                                                                 }
+                                                                                                                                     diasNoLaborables = await response.json();
+                                                                                                                                     actualizarTablaDiasNoLaborables();
+                                                                                                                                 } catch (error) {
+                                                                                                                                     console.error('Error al cargar días no laborables:', error);
+                                                                                                                                     Toast.fire({
+                                                                                                                                         icon: 'error',
+                                                                                                                                         title: 'Error al cargar días no laborables',
+                                                                                                                                         text: error.message
+                                                                                                                                     });
+                                                                                                                                 }
+                                                                                                                             }
 
-                                                                                                                 // Actualizar la tabla con los días no laborables
-                                                                                                                 function actualizarTablaDiasNoLaborables() {
-                                                                                                                     const tbody = document.querySelector('#diasNoLaborablesTable tbody');
-                                                                                                                     if (!tbody) return;
+                                                                                                                             // Actualizar la tabla con los días no laborables
+                                                                                                                             function actualizarTablaDiasNoLaborables() {
+                                                                                                                                 const tbody = document.querySelector('#diasNoLaborablesTable tbody');
+                                                                                                                                 if (!tbody) return;
 
-                                                                                                                     tbody.innerHTML = '';
+                                                                                                                                 tbody.innerHTML = '';
 
-                                                                                                                     if (diasNoLaborables.length === 0) {
-                                                                                                                         tbody.innerHTML = `
+                                                                                                                                 if (diasNoLaborables.length === 0) {
+                                                                                                                                     tbody.innerHTML = `
          <tr>
              <td colspan="3" style="text-align: center; padding: 20px;">
                  <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
@@ -4064,20 +4134,20 @@
              </td>
          </tr>
      `;
-                                                                                                                         return;
-                                                                                                                     }
+                                                                                                                                     return;
+                                                                                                                                 }
 
-                                                                                                                     diasNoLaborables.forEach(dia => {
-                                                                                                                         const fecha = new Date(dia.fecha);
-                                                                                                                         const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-                                                                                                                             day: '2-digit',
-                                                                                                                             month: '2-digit',
-                                                                                                                             year: 'numeric'
-                                                                                                                         });
+                                                                                                                                 diasNoLaborables.forEach(dia => {
+                                                                                                                                     const fecha = new Date(dia.fecha);
+                                                                                                                                     const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                                                                                                                                         day: '2-digit',
+                                                                                                                                         month: '2-digit',
+                                                                                                                                         year: 'numeric'
+                                                                                                                                     });
 
-                                                                                                                         const row = document.createElement('tr');
-                                                                                                                         row.setAttribute('data-id', dia.id);
-                                                                                                                         row.innerHTML = `
+                                                                                                                                     const row = document.createElement('tr');
+                                                                                                                                     row.setAttribute('data-id', dia.id);
+                                                                                                                                     row.innerHTML = `
          <td data-label="Fecha">${fechaFormateada}</td>
          <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
          <td data-label="Acciones">
@@ -4091,9 +4161,9 @@
              </div>
          </td>
      `;
-                                                                                                                         tbody.appendChild(row);
-                                                                                                                     });
-                                                                                                                 }*/
+                                                                                                                                     tbody.appendChild(row);
+                                                                                                                                 });
+                                                                                                                             }*/
 
         // Mostrar modal para agregar/editar día no laborable
         /*function mostrarModalDiaNoLaborable(diaId = null) {
@@ -4252,300 +4322,312 @@
         });*/
 
         // =============================================
-        // FUNCIONES DE VER CITAS DE HOY PARA EDITAR Y CANCELAR
+        // FUNCIONES DE CITAS DE HOY EN DASHBOARD
         // =============================================
-        // Filtrar citas por activo y búsqueda
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchCitas');
-            const activoFilter = document.getElementById('filterEstado');
-            const citasTable = document.getElementById('citasHoyTable');
 
-            // Configurar event listeners para búsqueda/filtro
-            if (searchInput && activoFilter && citasTable) {
-                searchInput.addEventListener('input', function() {
-                    filtrarCitas();
-                    // La paginación se inicializa dentro de filtrarCitas()
+        // Inicializar sistema de citas en dashboard
+        function initializeDashboardCitas() {
+            initializeEstadoSelectsDashboard();
+            setupPagoButtonsDashboard();
+            setupDetallesButtonsDashboard();
+            setupFiltrosDashboard();
+
+            console.log('Sistema de Citas del Dashboard inicializado correctamente');
+        }
+
+        // 1. INICIALIZACIÓN DE SELECTS DE ESTADO EN DASHBOARD
+        function initializeEstadoSelectsDashboard() {
+            document.querySelectorAll('.estado-select-dashboard').forEach(select => {
+                select._currentValue = select.value;
+                select._previousValue = select.value;
+
+                select.addEventListener('change', function() {
+                    handleEstadoChangeDashboard(this);
                 });
+            });
+        }
 
-                activoFilter.addEventListener('change', function() {
-                    filtrarCitas();
-                    // La paginación se inicializa dentro de filtrarCitas()
-                });
-            }
+        // 2. MANEJO DE CAMBIO DE ESTADO EN DASHBOARD
+        async function handleEstadoChangeDashboard(selectElement) {
+            const citaId = selectElement.getAttribute('data-cita-id');
+            const nuevoEstado = selectElement.value;
+            const estadoActual = selectElement._currentValue;
 
-            // Inicializar paginación después de cargar las citas
-            setTimeout(() => {
-                inicializarPaginacionCitas();
-            }, 500);
+            // Validar cambio a finalizada
+            if (nuevoEstado === 'finalizada') {
+                const verificacion = await verificarPagoCita(citaId);
 
-            function filtrarCitas() {
-                const searchText = searchInput.value.toLowerCase();
-                const activoValue = activoFilter.value;
-                const rows = citasTable.getElementsByTagName('tr');
-
-                for (let row of rows) {
-                    let mostrar = true;
-                    const cells = row.getElementsByTagName('td');
-                    const activo = row.getAttribute('data-activo');
-
-                    // Filtrar por activo
-                    if (activoValue && activo !== activoValue) {
-                        mostrar = false;
-                    }
-
-                    // Filtrar por texto de búsqueda
-                    if (mostrar && searchText) {
-                        let textoEncontrado = false;
-                        for (let cell of cells) {
-                            if (cell.textContent.toLowerCase().includes(searchText)) {
-                                textoEncontrado = true;
-                                break;
-                            }
-                        }
-                        mostrar = textoEncontrado;
-                    }
-
-                    row.style.display = mostrar ? '' : 'none';
+                if (!verificacion.success || !verificacion.tiene_pago_completado) {
+                    showAlert('warning', 'Pago requerido',
+                        'No se puede finalizar la cita sin un pago registrado. Por favor, registre el pago primero.'
+                    );
+                    selectElement.value = estadoActual;
+                    return;
                 }
-                inicializarPaginacionCitas();
             }
-        });
-        
-        // Función para ver detalles de la cita
-        function verDetalleCita(citaId) {
-            fetch(`/admin/citasadmin/${citaId}/detalles`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error al cargar los detalles');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
 
-                    // Crear contenido del modal
-                    const modalContent = `
-                <h2 style="color: var(--primary); margin-bottom: 20px;">
-                    <i class="fas fa-calendar-check"></i> Detalle de Cita #${data.id}
-                </h2>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-user"></i> Información del Cliente
-                        </h3>
-                        <p><strong>Nombre:</strong> ${data.usuario.nombre}</p>
-                        <p><strong>Teléfono:</strong> ${data.usuario.telefono || 'No proporcionado'}</p>
-                        <p><strong>Email:</strong> ${data.usuario.email}</p>
-                    </div>
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-car"></i> Información del Vehículo
-                        </h3>
-                        <p><strong>Marca/Modelo:</strong> ${data.vehiculo.marca} ${data.vehiculo.modelo}</p>
-                        <p><strong>Placa:</strong> ${data.vehiculo.placa}</p>
-                        <p><strong>Tipo:</strong> ${data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado'}</p>
-                    </div>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-calendar-alt"></i> Detalles de la Cita
-                    </h3>
-                    <p><strong>Fecha/Hora:</strong> ${new Date(data.fecha_hora).toLocaleString('es-ES')}</p>
-                    <p><strong>Estado:</strong> <span class="badge badge-${data.activo}">${data.activo_formatted}</span></p>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-concierge-bell"></i> Servicios
-                    </h3>
-                    <div style="display: grid; gap: 10px;">
-                        ${data.servicios.map(servicio => `
-                                                    <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                                                        <span>${servicio.nombre}</span>
-                                                        <span><strong>$${(servicio.pivot?.precio || servicio.precio || 0).toFixed(2)}</strong></span>
-                                                    </div>
-                                                `).join('')}
-                    </div>
-                </div>
-                <div style="background: linear-gradient(135deg, #e8f5e8, #f0f8f0); padding: 20px; border-radius: 12px; text-align: center; border: 2px solid var(--primary);">
-                    <h3 style="font-size: 1.3rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-receipt"></i> Total a Pagar
-                    </h3>
-                    <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">
-                        $${data.total.toFixed(2)}
-                    </div>
-                </div>
-            `;
+            // Confirmación para cancelación
+            if (nuevoEstado === 'cancelada') {
+                const confirmacion = await showConfirmation(
+                    '¿Confirmar cancelación?',
+                    'Esta acción cancelará la cita. ¿Estás seguro?',
+                    'warning'
+                );
 
-                    // Mostrar en el modal existente
-                    document.getElementById('detalleCitaContent').innerHTML = modalContent;
+                if (!confirmacion) {
+                    selectElement.value = selectElement._previousValue;
+                    return;
+                }
+            }
 
-                    // Usar tu función existente para mostrar el modal
-                    mostrarModal('detalleCitaModal');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message || 'No se pudieron cargar los detalles de la cita'
-                    });
+            // Actualizar estado
+            await actualizarEstadoCitaDashboard(citaId, nuevoEstado, selectElement);
+        }
+
+        // 3. ACTUALIZAR ESTADO DE CITA EN DASHBOARD
+        async function actualizarEstadoCitaDashboard(citaId, nuevoEstado, selectElement) {
+            try {
+                showLoading('Actualizando estado...');
+
+                const response = await fetch(`/admin/citasadmin/${citaId}/actualizar-estado`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        estado: nuevoEstado
+                    })
                 });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    // Actualizar badge de estado
+                    updateEstadoBadgeDashboard(citaId, nuevoEstado, data.nuevo_estado);
+
+                    // Actualizar valores de control
+                    if (selectElement) {
+                        selectElement._previousValue = nuevoEstado;
+                        selectElement._currentValue = nuevoEstado;
+                    }
+
+                    showAlert('success', '¡Éxito!', data.message, 2000);
+
+                    // Recargar después de 2 segundos para actualizar botones y estadísticas
+                    setTimeout(() => window.location.reload(), 2000);
+
+                } else {
+                    throw new Error(data.message);
+                }
+
+            } catch (error) {
+                hideLoading();
+                console.error('Error al actualizar estado:', error);
+
+                showAlert('error', 'Error', error.message || 'Ocurrió un error al actualizar el estado');
+
+                // Revertir cambio en el select
+                if (selectElement) {
+                    selectElement.value = selectElement._previousValue;
+                }
+            }
         }
 
-        // Función para editar cita (redirige a la página de administración de citas)
-        function editarCita(citaId) {
-            window.location.href = `/admin/citasadmin?buscar=${citaId}`;
+        // 4. ACTUALIZAR BADGE DE ESTADO EN DASHBOARD
+        function updateEstadoBadgeDashboard(citaId, estadoCodigo, estadoTexto) {
+            const row = document.querySelector(`.estado-select-dashboard[data-cita-id="${citaId}"]`)?.closest('tr');
+            if (!row) return;
+
+            const badge = row.querySelector('.appointment-status');
+            if (badge) {
+                badge.className = `appointment-status status-${estadoCodigo}`;
+                badge.textContent = estadoTexto;
+            }
         }
 
-        // Función para cancelar cita
-        function cancelarCita(citaId) {
-            Swal.fire({
-                title: '¿Cancelar esta cita?',
-                text: "Esta acción cambiará el activo de la cita a 'cancelada'",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, cancelar',
-                cancelButtonText: 'No, mantener'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Actualizar activo via AJAX
-                    fetch(`/admin/citasadmin/${citaId}/actualizar-activo`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                activo: 'cancelada'
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '¡Éxito!',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: data.message
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Ocurrió un error al cancelar la cita'
-                            });
-                        });
+        // 5. CONFIGURAR BOTONES DE PAGO EN DASHBOARD
+        function setupPagoButtonsDashboard() {
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn-pagar-dashboard') || e.target.closest(
+                    '.btn-pagar-dashboard')) {
+                    e.preventDefault();
+
+                    const button = e.target.classList.contains('btn-pagar-dashboard') ? e.target : e.target
+                        .closest('.btn-pagar-dashboard');
+                    const citaId = button.getAttribute('data-cita-id');
+
+                    if (!citaId) {
+                        showAlert('error', 'Error', 'ID de cita no encontrado');
+                        return;
+                    }
+
+                    openPagoModal(citaId);
                 }
             });
         }
 
-        // Variables globales para la paginación
-        let paginaActualCitas = 1;
-        let elementosPorPagina = 10; // se puede ajustar este valor
-        let citasTotales = [];
-
-        // Función para inicializar la paginación
-        function inicializarPaginacionCitas() {
-            // Obtener todas las citas de la tabla
-            const filasCitas = document.querySelectorAll('#citasHoyTable tr[data-activo]');
-            citasTotales = Array.from(filasCitas);
-
-            // Mostrar la primera página
-            mostrarPaginaCitas(1);
-            generarControlesPaginacion();
+        // 6. CONFIGURAR BOTONES DE DETALLES EN DASHBOARD
+        function setupDetallesButtonsDashboard() {
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('view-details-dashboard') || e.target.closest(
+                        '.view-details-dashboard')) {
+                    const button = e.target.classList.contains('view-details-dashboard') ? e.target : e.target
+                        .closest('.view-details-dashboard');
+                    const citaId = button.getAttribute('data-cita-id');
+                    openDetallesModal(citaId);
+                }
+            });
         }
 
-        // Función para mostrar una página específica
-        function mostrarPaginaCitas(numeroPagina) {
-            paginaActualCitas = numeroPagina;
+        // 7. CONFIGURAR FILTROS EN DASHBOARD
+        function setupFiltrosDashboard() {
+            const searchInput = document.getElementById('searchCitas');
+            const estadoFilter = document.getElementById('filterEstado');
+            const citasTable = document.getElementById('citasHoyTable');
+
+            if (searchInput && estadoFilter && citasTable) {
+                searchInput.addEventListener('input', function() {
+                    filtrarCitasDashboard();
+                });
+
+                estadoFilter.addEventListener('change', function() {
+                    filtrarCitasDashboard();
+                });
+            }
+
+            // Inicializar paginación
+            setTimeout(() => {
+                inicializarPaginacionCitasDashboard();
+            }, 500);
+        }
+
+        // 8. FILTRAR CITAS EN DASHBOARD
+        function filtrarCitasDashboard() {
+            const searchInput = document.getElementById('searchCitas');
+            const estadoFilter = document.getElementById('filterEstado');
+            const citasTable = document.getElementById('citasHoyTable');
+
+            const searchText = searchInput.value.toLowerCase();
+            const estadoValue = estadoFilter.value;
+            const rows = citasTable.getElementsByTagName('tr');
+
+            for (let row of rows) {
+                let mostrar = true;
+                const cells = row.getElementsByTagName('td');
+                const estado = row.getAttribute('data-estado');
+
+                // Filtrar por estado
+                if (estadoValue && estado !== estadoValue) {
+                    mostrar = false;
+                }
+
+                // Filtrar por texto de búsqueda
+                if (mostrar && searchText) {
+                    let textoEncontrado = false;
+                    for (let cell of cells) {
+                        if (cell.textContent.toLowerCase().includes(searchText)) {
+                            textoEncontrado = true;
+                            break;
+                        }
+                    }
+                    mostrar = textoEncontrado;
+                }
+
+                row.style.display = mostrar ? '' : 'none';
+            }
+            inicializarPaginacionCitasDashboard();
+        }
+
+        // 9. PAGINACIÓN PARA DASHBOARD
+        let paginaActualCitasDashboard = 1;
+        let elementosPorPaginaDashboard = 10;
+        let citasTotalesDashboard = [];
+
+        function inicializarPaginacionCitasDashboard() {
+            const filasCitas = document.querySelectorAll('#citasHoyTable tr[data-estado]');
+            citasTotalesDashboard = Array.from(filasCitas).filter(row => row.style.display !== 'none');
+
+            mostrarPaginaCitasDashboard(1);
+            generarControlesPaginacionDashboard();
+        }
+
+        function mostrarPaginaCitasDashboard(numeroPagina) {
+            paginaActualCitasDashboard = numeroPagina;
 
             // Ocultar todas las citas
-            citasTotales.forEach(cita => {
+            citasTotalesDashboard.forEach(cita => {
                 cita.style.display = 'none';
             });
 
             // Calcular índices de los elementos a mostrar
-            const inicio = (numeroPagina - 1) * elementosPorPagina;
-            const fin = inicio + elementosPorPagina;
+            const inicio = (numeroPagina - 1) * elementosPorPaginaDashboard;
+            const fin = inicio + elementosPorPaginaDashboard;
 
             // Mostrar solo los elementos de la página actual
-            for (let i = inicio; i < fin && i < citasTotales.length; i++) {
-                if (citasTotales[i]) {
-                    citasTotales[i].style.display = '';
+            for (let i = inicio; i < fin && i < citasTotalesDashboard.length; i++) {
+                if (citasTotalesDashboard[i]) {
+                    citasTotalesDashboard[i].style.display = '';
                 }
             }
 
-            // Actualizar controles de paginación
-            generarControlesPaginacion();
+            generarControlesPaginacionDashboard();
         }
 
-        // Función para generar los controles de paginación
-        function generarControlesPaginacion() {
-            const totalPaginas = Math.ceil(citasTotales.length / elementosPorPagina);
+        function generarControlesPaginacionDashboard() {
+            const totalPaginas = Math.ceil(citasTotalesDashboard.length / elementosPorPaginaDashboard);
             const contenedorPaginacion = document.getElementById('paginationCitas');
 
-            // Limpiar controles existentes
             contenedorPaginacion.innerHTML = '';
 
             // Botón Anterior
             const liAnterior = document.createElement('li');
-            liAnterior.className = `page-item ${paginaActualCitas === 1 ? 'disabled' : ''}`;
+            liAnterior.className = `page-item ${paginaActualCitasDashboard === 1 ? 'disabled' : ''}`;
             liAnterior.innerHTML = `
-        <a class="page-link" href="#" aria-label="Anterior" onclick="cambiarPaginaCitas(${paginaActualCitas - 1})">
+        <a class="page-link" href="#" aria-label="Anterior" onclick="cambiarPaginaCitasDashboard(${paginaActualCitasDashboard - 1}); return false;">
             <span aria-hidden="true">«</span>
         </a>
     `;
             contenedorPaginacion.appendChild(liAnterior);
 
             // Números de página
-            const inicioPaginas = Math.max(1, paginaActualCitas - 2);
+            const inicioPaginas = Math.max(1, paginaActualCitasDashboard - 2);
             const finPaginas = Math.min(totalPaginas, inicioPaginas + 4);
 
             for (let i = inicioPaginas; i <= finPaginas; i++) {
                 const li = document.createElement('li');
-                li.className = `page-item ${i === paginaActualCitas ? 'active' : ''}`;
-                li.innerHTML = `<a class="page-link" href="#" onclick="cambiarPaginaCitas(${i})">${i}</a>`;
+                li.className = `page-item ${i === paginaActualCitasDashboard ? 'active' : ''}`;
+                li.innerHTML =
+                    `<a class="page-link" href="#" onclick="cambiarPaginaCitasDashboard(${i}); return false;">${i}</a>`;
                 contenedorPaginacion.appendChild(li);
             }
 
             // Botón Siguiente
             const liSiguiente = document.createElement('li');
-            liSiguiente.className = `page-item ${paginaActualCitas === totalPaginas ? 'disabled' : ''}`;
+            liSiguiente.className = `page-item ${paginaActualCitasDashboard === totalPaginas ? 'disabled' : ''}`;
             liSiguiente.innerHTML = `
-        <a class="page-link" href="#" aria-label="Siguiente" onclick="cambiarPaginaCitas(${paginaActualCitas + 1})">
+        <a class="page-link" href="#" aria-label="Siguiente" onclick="cambiarPaginaCitasDashboard(${paginaActualCitasDashboard + 1}); return false;">
             <span aria-hidden="true">»</span>
         </a>
     `;
             contenedorPaginacion.appendChild(liSiguiente);
         }
 
-        // Función para cambiar de página
-        function cambiarPaginaCitas(numeroPagina) {
-            const totalPaginas = Math.ceil(citasTotales.length / elementosPorPagina);
+        function cambiarPaginaCitasDashboard(numeroPagina) {
+            const totalPaginas = Math.ceil(citasTotalesDashboard.length / elementosPorPaginaDashboard);
 
             if (numeroPagina < 1) numeroPagina = 1;
             if (numeroPagina > totalPaginas) numeroPagina = totalPaginas;
 
-            mostrarPaginaCitas(numeroPagina);
-            return false; // Prevenir comportamiento por defecto del enlace
+            mostrarPaginaCitasDashboard(numeroPagina);
         }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboardCitas();
+        });
         // =============================================
         // FUNCIONES DE USUARIO Y VALIDACIÓN
         // =============================================
@@ -5343,9 +5425,9 @@
                     </div>
                 </form>
             `;
-            
+
             mostrarModal('servicioModal', '<i class="fas fa-plus"></i> Nuevo Servicio', formContent);
-            
+
             // Event listener para el formulario
             document.getElementById('servicioForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -5461,9 +5543,9 @@
                                 </div>
                             </form>
                         `;
-                        
+
                         mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
-                        
+
                         // Event listener para el formulario
                         document.getElementById('editarServicioForm').addEventListener('submit', async function(e) {
                             e.preventDefault();
@@ -5475,7 +5557,8 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    Swal.fire('Error', 'No se pudieron cargar los datos del servicio. Error: ' + error.message, 'error');
+                    Swal.fire('Error', 'No se pudieron cargar los datos del servicio. Error: ' + error.message,
+                        'error');
                 });
         }
 
@@ -5483,7 +5566,7 @@
         async function crearServicio() {
             const form = document.getElementById('servicioForm');
             const formData = new FormData(form);
-            
+
             // Convertir FormData a objeto para facilitar el manejo
             const data = {};
             formData.forEach((value, key) => {
@@ -5495,7 +5578,7 @@
                     data[key] = value;
                 }
             });
-            
+
             // Convertir activo a boolean
             data.activo = data.activo === 1;
 
@@ -5504,7 +5587,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     },
                     body: JSON.stringify(data)
                 });
@@ -5521,7 +5605,8 @@
                         showConfirmButton: false
                     }).then(() => {
                         // Verificar si venimos del modal principal
-                        const parentModal = document.getElementById('servicioModal').getAttribute('data-parent-modal');
+                        const parentModal = document.getElementById('servicioModal').getAttribute(
+                            'data-parent-modal');
                         if (parentModal === 'modalVerTodosServicios') {
                             // Recargar solo la lista de servicios en el modal principal
                             cargarTodosLosServicios();
@@ -5553,7 +5638,7 @@
         async function actualizarServicio(servicioId) {
             const form = document.getElementById('editarServicioForm');
             const formData = new FormData(form);
-            
+
             // Convertir FormData a objeto
             const data = {};
             formData.forEach((value, key) => {
@@ -5565,7 +5650,7 @@
                     data[key] = value;
                 }
             });
-            
+
             // Convertir activo a boolean
             data.activo = data.activo === 1;
 
@@ -5574,7 +5659,8 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     },
                     body: JSON.stringify(data)
                 });
@@ -5591,7 +5677,8 @@
                         showConfirmButton: false
                     }).then(() => {
                         // Verificar si venimos del modal principal
-                        const parentModal = document.getElementById('servicioModal').getAttribute('data-parent-modal');
+                        const parentModal = document.getElementById('servicioModal').getAttribute(
+                            'data-parent-modal');
                         if (parentModal === 'modalVerTodosServicios') {
                             // Recargar solo la lista de servicios en el modal principal
                             cargarTodosLosServicios();
@@ -5643,7 +5730,8 @@
                 const response = await fetch(`/admin/servicios/${servicioId}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     }
                 });
 
@@ -6259,27 +6347,32 @@
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
+
         .modal-horarios .modal-header {
             background: linear-gradient(135deg, #27ae60, #00695c);
             color: white;
             border: none;
             padding: 1.25rem 1.75rem;
         }
+
         .modal-horarios .modal-body,
         .modal-horarios .modal-footer {
             background: #f8f9fa;
             border: none;
         }
+
         .modal-horarios .form-control {
             border-radius: 8px;
             border: 2px solid #e9ecef;
             padding: 0.65rem 0.9rem;
             transition: all 0.2s ease;
         }
+
         .modal-horarios .form-control:focus {
             border-color: #27ae60;
             box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
         }
+
         .modal-horarios .btn-primary {
             background: linear-gradient(135deg, #27ae60, #00695c);
             border: none;
@@ -6667,7 +6760,8 @@
                         <div class="col-md-8">
                             <div class="card">
                                 <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Distribución de Gastos por
+                                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Distribución de Gastos
+                                        por
                                         Tipo</h6>
                                 </div>
                                 <div class="card-body">
@@ -8549,16 +8643,16 @@
                         const info = getTipoGastoInfo(tipo);
                         const porcentaje = (gastosPorTipo[tipo].monto / montoTotal) * 100;
                         return `
-                                                                                        <div class="mb-2">
-                                                                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                                                                <small>${info.emoji} ${info.nombre}</small>
-                                                                                                <small><strong>${porcentaje.toFixed(1)}%</strong></small>
-                                                                                            </div>
-                                                                                            <div class="progress" style="height: 4px;">
-                                                                                                <div class="progress-bar" style="width: ${porcentaje}%; background: ${info.color}"></div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    `;
+                                                                                                    <div class="mb-2">
+                                                                                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                                                            <small>${info.emoji} ${info.nombre}</small>
+                                                                                                            <small><strong>${porcentaje.toFixed(1)}%</strong></small>
+                                                                                                        </div>
+                                                                                                        <div class="progress" style="height: 4px;">
+                                                                                                            <div class="progress-bar" style="width: ${porcentaje}%; background: ${info.color}"></div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                `;
                     }).join('')}
                 </div>
             `;
@@ -8654,14 +8748,14 @@
         // Hacer funciones disponibles globalmente
         window.abrirModalVerTodosGastos = abrirModalVerTodosGastos;
         window.limpiarFiltrosGastos = limpiarFiltrosGastos;
-        
+
         // =============================================
         // GESTIÓN DEL MODAL DE SERVICIOS
         // =============================================
-        
+
         // Variable para almacenar todos los servicios
         let todosLosServicios = [];
-        
+
         // Función para abrir el modal de todos los servicios
         function abrirModalVerTodosServicios() {
             const modalElement = document.getElementById('modalVerTodosServicios');
@@ -8669,25 +8763,25 @@
                 console.error('Modal modalVerTodosServicios no encontrado');
                 return;
             }
-            
+
             try {
                 const modal = new bootstrap.Modal(modalElement);
                 modal.show();
-                
+
                 // Cargar servicios cuando se abre el modal
                 cargarTodosLosServicios();
-                
+
             } catch (error) {
                 console.error('Error al abrir modal:', error);
             }
         }
-        
+
         // Función para cargar todos los servicios
         async function cargarTodosLosServicios() {
             try {
                 const response = await fetch('/admin/servicios/all');
                 const data = await response.json();
-                
+
                 if (data.success) {
                     todosLosServicios = data.servicios;
                     mostrarServicios(todosLosServicios);
@@ -8706,11 +8800,11 @@
                 `;
             }
         }
-        
+
         // Función para mostrar servicios en la tabla
         function mostrarServicios(servicios) {
             const tbody = document.getElementById('tablaServicios');
-            
+
             if (servicios.length === 0) {
                 tbody.innerHTML = `
                     <tr>
@@ -8721,7 +8815,7 @@
                 `;
                 return;
             }
-            
+
             tbody.innerHTML = servicios.map(servicio => `
                 <tr>
                     <td>
@@ -8755,23 +8849,23 @@
                 </tr>
             `).join('');
         }
-        
+
         // Función para filtrar servicios
         function filtrarServicios() {
             const busqueda = document.getElementById('buscarServicio').value.toLowerCase();
             const categoria = document.getElementById('filtroCategoria').value;
-            
+
             let serviciosFiltrados = todosLosServicios.filter(servicio => {
-                const coincideBusqueda = servicio.nombre.toLowerCase().includes(busqueda) || 
-                                       servicio.descripcion.toLowerCase().includes(busqueda);
+                const coincideBusqueda = servicio.nombre.toLowerCase().includes(busqueda) ||
+                    servicio.descripcion.toLowerCase().includes(busqueda);
                 const coincideCategoria = !categoria || servicio.categoria === categoria;
-                
+
                 return coincideBusqueda && coincideCategoria;
             });
-            
+
             mostrarServicios(serviciosFiltrados);
         }
-        
+
         // Función para actualizar estadísticas
         function actualizarEstadisticasServicios(estadisticas) {
             document.getElementById('estadisticasServicios').innerHTML = `
@@ -8780,41 +8874,43 @@
                 <strong>Inactivos:</strong> ${estadisticas.inactivos}
             `;
         }
-        
+
         // Función para crear servicio desde el modal principal
         function nuevoServicioModal() {
             // NO cerrar el modal principal, mantenerlo abierto
             // Simplemente abrir el modal de crear servicio encima
             nuevoServicio();
-            
+
             // Marcar que venimos del modal principal
             document.getElementById('servicioModal').setAttribute('data-parent-modal', 'modalVerTodosServicios');
         }
-        
+
         // Función para editar servicio desde el modal principal
         function editarServicioDesdeModal(servicioId) {
             // Usar la función existente de editar
             editarServicio(servicioId);
-            
+
             // Marcar que venimos del modal principal
             setTimeout(() => {
-                document.getElementById('servicioModal').setAttribute('data-parent-modal', 'modalVerTodosServicios');
+                document.getElementById('servicioModal').setAttribute('data-parent-modal',
+                    'modalVerTodosServicios');
             }, 100);
         }
-        
+
         // Función para cambiar estado del servicio
         async function toggleEstadoServicio(servicioId, estadoActual) {
             try {
                 const response = await fetch(`/admin/servicios/${servicioId}/toggle-status`, {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content'),
                         'Accept': 'application/json'
                     }
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     Swal.fire({
                         icon: 'success',
@@ -8823,7 +8919,7 @@
                         timer: 1500,
                         showConfirmButton: false
                     });
-                    
+
                     // Recargar servicios
                     cargarTodosLosServicios();
                 } else {
@@ -8834,13 +8930,13 @@
                 Swal.fire('Error', 'No se pudo cambiar el estado del servicio', 'error');
             }
         }
-        
+
         // Función para eliminar servicio desde el modal
         function eliminarServicioDesdeModal(servicioId) {
             confirmarEliminarServicio(servicioId);
             // No necesitamos setTimeout aquí, la función eliminarServicio ya maneja la recarga
         }
-        
+
         // Hacer funciones disponibles globalmente
         window.abrirModalVerTodosServicios = abrirModalVerTodosServicios;
         window.filtrarServicios = filtrarServicios;
@@ -8852,7 +8948,7 @@
 
     <script>
         // Horarios - bloque en Dashboard (inyección dinámica para mantener estilos y orden)
-        (function () {
+        (function() {
             const container = document.querySelector('.dashboard-container');
             if (!container) return;
 
@@ -8902,7 +8998,8 @@
             // Insert after "Días No Laborables" card if exists, else append at end
             const anchorCard = document.querySelector('i.fa-calendar-day')?.closest('.card');
             if (anchorCard && anchorCard.nextSibling) {
-                anchorCard.parentNode.insertBefore(document.createRange().createContextualFragment(cardHtml), anchorCard.nextSibling);
+                anchorCard.parentNode.insertBefore(document.createRange().createContextualFragment(cardHtml), anchorCard
+                    .nextSibling);
             } else {
                 container.insertAdjacentHTML('beforeend', cardHtml);
             }
@@ -8915,7 +9012,14 @@
             const btnAgregarHorarioEmpty = document.getElementById('btnAgregarHorarioEmpty');
 
             function nombreDia(n) {
-                const dias = {1:'Lunes',2:'Martes',3:'Miércoles',4:'Jueves',5:'Viernes',6:'Sábado'};
+                const dias = {
+                    1: 'Lunes',
+                    2: 'Martes',
+                    3: 'Miércoles',
+                    4: 'Jueves',
+                    5: 'Viernes',
+                    6: 'Sábado'
+                };
                 return dias[n] || n;
             }
 
@@ -8949,23 +9053,30 @@
 
             async function cargarHorarios() {
                 try {
-                    const res = await fetch('{{ route('admin.horarios.index') }}', { headers: { 'Accept': 'application/json' } });
+                    const res = await fetch('{{ route('admin.horarios.index') }}', {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
                     const json = await res.json();
                     horarios = (json && json.data) ? json.data : [];
                     renderTabla();
                 } catch (e) {
-                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'Error al cargar horarios' });
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'Error al cargar horarios'
+                    });
                 }
             }
 
             function clearHorarioErrors() {
-                ['horario_dia','horario_inicio','horario_fin'].forEach(id => {
+                ['horario_dia', 'horario_inicio', 'horario_fin'].forEach(id => {
                     const el = document.getElementById(id);
                     el?.classList.remove('is-invalid');
                 });
-                ['error_horario_dia','error_horario_inicio','error_horario_fin'].forEach(id => {
+                ['error_horario_dia', 'error_horario_inicio', 'error_horario_fin'].forEach(id => {
                     const e = document.getElementById(id);
-                    if (e) e.innerHTML='';
+                    if (e) e.innerHTML = '';
                 });
             }
 
@@ -8977,30 +9088,43 @@
                 document.getElementById('horario_id').value = '';
                 document.getElementById('horario_dia').value = '';
                 document.getElementById('horario_activo').value = '1';
-                const sw = document.getElementById('horario_activo_switch'); if (sw) sw.checked = true;
+                const sw = document.getElementById('horario_activo_switch');
+                if (sw) sw.checked = true;
                 const modal = new bootstrap.Modal(document.getElementById('horarioCRUDModal'));
-                document.getElementById('horarioCRUDModalTitle').innerHTML = '<i class="fas fa-clock me-2"></i> Agregar Horario';
+                document.getElementById('horarioCRUDModalTitle').innerHTML =
+                    '<i class="fas fa-clock me-2"></i> Agregar Horario';
                 modal.show();
                 setTimeout(() => document.getElementById('horario_dia')?.focus(), 100);
             }
 
             async function abrirModalEditarHorario(id) {
                 try {
-                    const res = await fetch(`/admin/horarios/${id}`, { headers: { 'Accept': 'application/json' } });
-                    const { data } = await res.json();
+                    const res = await fetch(`/admin/horarios/${id}`, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const {
+                        data
+                    } = await res.json();
                     const form = document.getElementById('horarioForm');
                     if (!form) return;
                     document.getElementById('horario_id').value = data.id;
                     document.getElementById('horario_dia').value = data.dia_semana;
                     document.getElementById('horario_inicio').value = data.hora_inicio;
                     document.getElementById('horario_fin').value = data.hora_fin;
-                    const sw = document.getElementById('horario_activo_switch'); if (sw) sw.checked = !!data.activo;
+                    const sw = document.getElementById('horario_activo_switch');
+                    if (sw) sw.checked = !!data.activo;
                     document.getElementById('horario_activo').value = data.activo ? '1' : '0';
                     const modal = new bootstrap.Modal(document.getElementById('horarioCRUDModal'));
-                    document.getElementById('horarioCRUDModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i> Editar Horario';
+                    document.getElementById('horarioCRUDModalTitle').innerHTML =
+                        '<i class="fas fa-edit me-2"></i> Editar Horario';
                     modal.show();
                 } catch (e) {
-                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo cargar el horario' });
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'No se pudo cargar el horario'
+                    });
                 }
             }
 
@@ -9008,33 +9132,66 @@
                 try {
                     const res = await fetch(`/admin/horarios/${id}/toggle`, {
                         method: 'PATCH',
-                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
                     });
-                    const { data, message } = await res.json();
-                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: message || 'Actualizado' });
+                    const {
+                        data,
+                        message
+                    } = await res.json();
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'success',
+                        title: message || 'Actualizado'
+                    });
                     // Update in memory
                     horarios = horarios.map(h => h.id === data.id ? data : h);
                     renderTabla();
                 } catch (e) {
-                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo actualizar' });
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'No se pudo actualizar'
+                    });
                 }
             }
 
             async function eliminarHorario(id) {
-                const confirm = await Swal.fire({ title: '¿Eliminar?', text: 'Esta acción no se puede deshacer', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, eliminar' });
+                const confirm = await Swal.fire({
+                    title: '¿Eliminar?',
+                    text: 'Esta acción no se puede deshacer',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar'
+                });
                 if (!confirm.isConfirmed) return;
                 try {
-                    const res = await fetch(`/admin/horarios/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' } });
+                    const res = await fetch(`/admin/horarios/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    });
                     const json = await res.json();
                     if (json && json.success) {
-                        if (typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: json.message || 'Eliminado' });
+                        if (typeof Toast !== 'undefined') Toast.fire({
+                            icon: 'success',
+                            title: json.message || 'Eliminado'
+                        });
                         horarios = horarios.filter(h => h.id !== id);
                         renderTabla();
                     } else {
-                        if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo eliminar' });
+                        if (typeof Toast !== 'undefined') Toast.fire({
+                            icon: 'error',
+                            title: 'No se pudo eliminar'
+                        });
                     }
                 } catch (e) {
-                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo eliminar' });
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'No se pudo eliminar'
+                    });
                 }
             }
 
@@ -9051,17 +9208,32 @@
                 });
                 if (!confirm.isConfirmed) return;
                 try {
-                    const res = await fetch(`/admin/horarios/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' } });
+                    const res = await fetch(`/admin/horarios/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    });
                     const json = await res.json();
                     if (json && json.success) {
-                        if (typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: json.message || 'Eliminado' });
+                        if (typeof Toast !== 'undefined') Toast.fire({
+                            icon: 'success',
+                            title: json.message || 'Eliminado'
+                        });
                         horarios = horarios.filter(h => h.id !== id);
                         renderTabla();
                     } else {
-                        if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo eliminar' });
+                        if (typeof Toast !== 'undefined') Toast.fire({
+                            icon: 'error',
+                            title: 'No se pudo eliminar'
+                        });
                     }
                 } catch (e) {
-                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'error', title: 'No se pudo eliminar' });
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'No se pudo eliminar'
+                    });
                 }
             }
 
@@ -9083,7 +9255,8 @@
             // Manejo submit del modal existente
             const horarioForm = document.getElementById('horarioForm');
             const btnGuardarHorario = document.getElementById('btnGuardarHorario');
-            function applyErrors(err){
+
+            function applyErrors(err) {
                 clearHorarioErrors();
                 if (err && err.errors) {
                     if (err.errors.dia_semana) {
@@ -9101,7 +9274,7 @@
                 }
             }
 
-            function buildPayload(){
+            function buildPayload() {
                 return {
                     dia_semana: document.getElementById('horario_dia').value,
                     hora_inicio: document.getElementById('horario_inicio').value,
@@ -9120,40 +9293,65 @@
                 document.getElementById('horario_activo').value = e.target.checked ? '1' : '0';
             });
 
-            horarioForm?.addEventListener('submit', async function (e) {
+            horarioForm?.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const id = document.getElementById('horario_id').value;
                 const payload = buildPayload();
                 // Validación simple cliente
                 if (!payload.dia_semana || !payload.hora_inicio || !payload.hora_fin) {
-                    applyErrors({errors: {dia_semana: !payload.dia_semana ? ['Seleccione un día'] : [], hora_inicio: !payload.hora_inicio ? ['Ingrese hora de inicio'] : [], hora_fin: !payload.hora_fin ? ['Ingrese hora de fin'] : []}});
+                    applyErrors({
+                        errors: {
+                            dia_semana: !payload.dia_semana ? ['Seleccione un día'] : [],
+                            hora_inicio: !payload.hora_inicio ? ['Ingrese hora de inicio'] : [],
+                            hora_fin: !payload.hora_fin ? ['Ingrese hora de fin'] : []
+                        }
+                    });
                     return;
                 }
                 if (payload.hora_inicio >= payload.hora_fin) {
-                    applyErrors({errors: {hora_fin: ['La hora de fin debe ser mayor a la hora de inicio']}});
+                    applyErrors({
+                        errors: {
+                            hora_fin: ['La hora de fin debe ser mayor a la hora de inicio']
+                        }
+                    });
                     return;
                 }
                 try {
                     const res = await fetch(id ? `/admin/horarios/${id}` : '/admin/horarios', {
                         method: id ? 'PUT' : 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .content,
+                            'Accept': 'application/json'
+                        },
                         body: JSON.stringify(payload)
                     });
                     if (!res.ok) {
                         const err = await res.json();
-                        if (err && err.errors) { applyErrors(err); return; }
+                        if (err && err.errors) {
+                            applyErrors(err);
+                            return;
+                        }
                         throw new Error('Error de servidor');
                     }
-                    const { data, message } = await res.json();
+                    const {
+                        data,
+                        message
+                    } = await res.json();
                     const modalEl = document.getElementById('horarioCRUDModal');
                     bootstrap.Modal.getInstance(modalEl)?.hide();
-                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: message || 'Guardado' });
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'success',
+                        title: message || 'Guardado'
+                    });
                     // Actualizar en memoria
                     if (id) {
                         horarios = horarios.map(h => h.id === data.id ? data : h);
                     } else {
                         horarios.push(data);
-                        horarios.sort((a,b) => a.dia_semana - b.dia_semana || (a.hora_inicio > b.hora_inicio ? 1 : -1));
+                        horarios.sort((a, b) => a.dia_semana - b.dia_semana || (a.hora_inicio > b
+                            .hora_inicio ? 1 : -1));
                     }
                     renderTabla();
                 } catch (e) {
