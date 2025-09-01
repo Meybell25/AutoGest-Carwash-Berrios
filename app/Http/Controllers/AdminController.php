@@ -7,6 +7,7 @@ use App\Models\Cita;
 use App\Models\Vehiculo;
 use App\Models\Servicio;
 use App\Models\Notificacion;
+use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
@@ -539,8 +540,8 @@ class AdminController extends Controller
      */
     public function citasAdmin(Request $request)
     {
-           $query = Cita::with(['usuario', 'vehiculo', 'servicios', 'pago']) 
-        ->orderBy('fecha_hora', 'desc');
+        $query = Cita::with(['usuario', 'vehiculo', 'servicios', 'pago'])
+            ->orderBy('fecha_hora', 'desc');
 
         // Query para estadísticas (sin paginación)
         $statsQuery = Cita::with(['usuario', 'vehiculo', 'servicios']);
@@ -590,6 +591,7 @@ class AdminController extends Controller
         // Clonar query para cada estadística
         $totalCitas = $query->count();
 
+        // Estadísticas básicas por estado
         $estadisticasPorEstado = [
             'pendiente' => (clone $query)->where('estado', 'pendiente')->count(),
             'confirmada' => (clone $query)->where('estado', 'confirmada')->count(),
@@ -598,9 +600,31 @@ class AdminController extends Controller
             'cancelada' => (clone $query)->where('estado', 'cancelada')->count(),
         ];
 
+        // Estadísticas de pagos
+        $citasConPago = (clone $query)->whereHas('pago', function ($q) {
+            $q->where('estado', Pago::ESTADO_PAGADO);
+        })->count();
+
+        $citasSinPago = (clone $query)->whereDoesntHave('pago')->count();
+
+        $citasConPagoPendiente = (clone $query)->whereHas('pago', function ($q) {
+            $q->where('estado', Pago::ESTADO_PENDIENTE);
+        })->count();
+
+        // Ingresos generados (solo citas pagadas)
+        $ingresosGenerados = (clone $query)->whereHas('pago', function ($q) {
+            $q->where('estado', Pago::ESTADO_PAGADO);
+        })->with(['servicios', 'pago'])->get()->sum('total');
+
         $estadisticas = [
             'total' => $totalCitas,
             'por_estado' => $estadisticasPorEstado,
+            'pagos' => [
+                'con_pago_completado' => $citasConPago,
+                'sin_pago' => $citasSinPago,
+                'con_pago_pendiente' => $citasConPagoPendiente,
+                'ingresos_generados' => $ingresosGenerados
+            ],
             'filtros_activos' => []
         ];
 
@@ -608,7 +632,7 @@ class AdminController extends Controller
         if ($request->filled('buscar')) {
             $estadisticas['filtros_activos']['busqueda'] = $request->buscar;
 
-            // Si es búsqueda por usuario, obtener nombre del usuario encontrado
+            // Buscar usuario específico
             $usuarioEncontrado = Usuario::where('nombre', 'like', "%{$request->buscar}%")
                 ->orWhere('email', 'like', "%{$request->buscar}%")
                 ->first();
@@ -628,7 +652,6 @@ class AdminController extends Controller
 
         return $estadisticas;
     }
-
 
     /**
      * Obtiene los detalles completos de una cita
@@ -681,30 +704,37 @@ class AdminController extends Controller
                 'estado' => 'required|in:pendiente,confirmada,en_proceso,finalizada,cancelada'
             ]);
 
-            $cita = Cita::with(['usuario', 'vehiculo', 'pago'])->findOrFail($id);
+            $cita = Cita::with(['usuario', 'vehiculo', 'pago', 'servicios'])->findOrFail($id);
             $estadoAnterior = $cita->estado;
             $nuevoEstado = $request->estado;
 
-            // VALIDACIÓN 1: No permitir finalizar sin pago
-            if ($nuevoEstado === 'finalizada' && (!$cita->pago || $cita->pago->estado !== 'pagado')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se puede finalizar una cita sin pago registrado'
-                ], 422);
+            // VALIDACIONES MEJORADAS
+
+            // 1. No permitir finalizar sin pago completado
+            if ($nuevoEstado === 'finalizada') {
+                if (!$cita->pago || $cita->pago->estado !== Pago::ESTADO_PAGADO) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se puede finalizar una cita sin pago registrado y completado. Por favor, procese el pago primero.',
+                        'requiere_pago' => true
+                    ], 422);
+                }
             }
 
-            // VALIDACIÓN 2: No cancelar citas finalizadas
-            if ($nuevoEstado === 'cancelada' && $cita->estado === 'finalizada') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se puede cancelar una cita ya finalizada'
-                ], 422);
+            // 2. No cancelar citas finalizadas con pago
+            if ($nuevoEstado === 'cancelada' && $estadoAnterior === 'finalizada') {
+                if ($cita->pago && $cita->pago->isPagado()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se puede cancelar una cita finalizada que ya tiene pago. Use la función de reembolso si es necesario.'
+                    ], 422);
+                }
             }
 
-            // VALIDACIÓN 3: Transiciones de estado no permitidas
+            // 3. Validar transiciones lógicas
             $transicionesInvalidas = [
-                'finalizada' => ['pendiente', 'confirmada'],
-                'cancelada' => ['pendiente', 'confirmada', 'en_proceso', 'finalizada']
+                'finalizada' => ['pendiente', 'confirmada'], // No retroceder desde finalizada
+                'cancelada' => [] // Cancelada puede venir de cualquier estado (con validaciones especiales)
             ];
 
             if (
@@ -713,32 +743,56 @@ class AdminController extends Controller
             ) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No se puede cambiar el estado de ' . $estadoAnterior . ' a ' . $nuevoEstado
+                    'message' => "No se puede cambiar el estado de '{$cita->estado_formatted}' a '{$cita->getEstados()[$nuevoEstado]}'"
                 ], 422);
             }
 
             DB::beginTransaction();
 
+            // Actualizar estado
+            $estadoAnteriorFormatted = $cita->estado_formatted;
             $cita->estado = $nuevoEstado;
+
+            // Agregar observación sobre el cambio
+            $observacionCambio = "Estado cambiado de '{$estadoAnteriorFormatted}' a '{$cita->estado_formatted}' por " . auth()->user()->nombre . " el " . now()->format('d/m/Y H:i');
+
+            if ($cita->observaciones) {
+                $cita->observaciones .= "\n" . $observacionCambio;
+            } else {
+                $cita->observaciones = $observacionCambio;
+            }
+
             $cita->save();
 
-            // Registrar en bitácora
+            // Registrar en bitácora detallada
             Log::channel('admin_actions')->info("Estado de cita actualizado", [
                 'admin_id' => auth()->id(),
+                'admin_nombre' => auth()->user()->nombre,
                 'cita_id' => $cita->id,
+                'cliente' => $cita->usuario->nombre,
+                'vehiculo' => $cita->vehiculo->marca . ' ' . $cita->vehiculo->modelo . ' (' . $cita->vehiculo->placa . ')',
                 'estado_anterior' => $estadoAnterior,
                 'estado_nuevo' => $cita->estado,
-                'fecha' => now()
+                'tiene_pago' => $cita->pago ? true : false,
+                'pago_completado' => $cita->pago && $cita->pago->isPagado() ? true : false,
+                'total_cita' => $cita->total,
+                'fecha_cita' => $cita->fecha_hora,
+                'fecha_cambio' => now(),
+                'ip' => request()->ip()
             ]);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Estado de cita actualizado correctamente',
-                'nuevo_estado' => $cita->estado_formatted
+                'message' => "Estado actualizado correctamente a '{$cita->estado_formatted}'",
+                'nuevo_estado' => $cita->estado_formatted,
+                'estado_codigo' => $cita->estado,
+                'tiene_pago_completado' => $cita->pago && $cita->pago->isPagado(),
+                'puede_finalizar' => $cita->pago && $cita->pago->isPagado()
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Error de validación',
@@ -746,14 +800,19 @@ class AdminController extends Controller
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Error al actualizar estado de cita: " . $e->getMessage());
+            Log::error("Error al actualizar estado de cita ID {$id}: " . $e->getMessage(), [
+                'admin_id' => auth()->id(),
+                'request_data' => $request->all(),
+                'exception' => $e->getTraceAsString()
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error al actualizar el estado de la cita'
+                'message' => 'Error interno al actualizar el estado de la cita'
             ], 500);
         }
     }
+
     /**
      * Verificar si una cita tiene pago completado
      */
@@ -762,14 +821,290 @@ class AdminController extends Controller
         try {
             $cita = Cita::with('pago')->findOrFail($citaId);
 
+            $tienePagoCompletado = $cita->pago && $cita->pago->estado === Pago::ESTADO_PAGADO;
+
             return response()->json([
-                'tiene_pago_completado' => $cita->pago && $cita->pago->estado === 'pagado',
-                'pago' => $cita->pago
+                'success' => true,
+                'tiene_pago_completado' => $tienePagoCompletado,
+                'pago' => $cita->pago ? [
+                    'id' => $cita->pago->id,
+                    'monto' => $cita->pago->monto,
+                    'metodo' => $cita->pago->metodo,
+                    'estado' => $cita->pago->estado,
+                    'fecha_pago' => $cita->pago->fecha_pago
+                ] : null,
+                'puede_finalizar' => $tienePagoCompletado,
+                'estado_cita' => $cita->estado
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error al verificar pago de cita {$citaId}: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al verificar pago',
+                'tiene_pago_completado' => false
+            ], 500);
+        }
+    }
+
+    /**
+     * Almacena un nuevo servicio
+     */
+    public function storeServicio(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'required|string|max:1000',
+                'precio' => 'required|numeric|min:0',
+                'duracion_min' => 'required|integer|min:1|max:480',
+                'activo' => 'required|boolean',
+                'categoria' => 'required|string|in:sedan,pickup,moto'
+            ]);
+
+            DB::beginTransaction();
+
+            $servicio = Servicio::create($validated);
+
+            // Limpiar caché de servicios si existe
+            Cache::forget('servicios_populares');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Servicio creado correctamente',
+                'servicio' => $servicio
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al crear servicio: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el servicio: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtiene los datos de un servicio específico
+     */
+    public function showServicio($id)
+    {
+        try {
+            $servicio = Servicio::findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'servicio' => $servicio
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Error al verificar pago'
+                'success' => false,
+                'message' => 'Servicio no encontrado'
+            ], 404);
+        }
+    }
+
+    /**
+     * Actualiza un servicio existente
+     */
+    public function updateServicio(Request $request, $id)
+    {
+        try {
+            $servicio = Servicio::findOrFail($id);
+
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'required|string|max:1000',
+                'precio' => 'required|numeric|min:0',
+                'duracion_min' => 'required|integer|min:1|max:480',
+                'activo' => 'required|boolean',
+                'categoria' => 'required|string|in:sedan,pickup,moto'
+            ]);
+
+            DB::beginTransaction();
+
+            $servicio->update($validated);
+
+            // Limpiar caché de servicios
+            Cache::forget('servicios_populares');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Servicio actualizado correctamente',
+                'servicio' => $servicio
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al actualizar servicio: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el servicio'
             ], 500);
+        }
+    }
+
+    /**
+     * Elimina un servicio
+     */
+    public function deleteServicio($id)
+    {
+        try {
+            $servicio = Servicio::findOrFail($id);
+
+            // Verificar que no tenga citas asociadas
+            $citasCount = $servicio->citas()->count();
+            
+            if ($citasCount > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "No se puede eliminar el servicio porque tiene {$citasCount} citas asociadas"
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            $servicio->delete();
+
+            // Limpiar caché de servicios
+            Cache::forget('servicios_populares');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Servicio eliminado correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al eliminar servicio: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar el servicio'
+            ], 500);
+        }
+    }
+
+    /**
+     * Cambia el estado activo/inactivo de un servicio
+     */
+    public function toggleServicioStatus($id)
+    {
+        try {
+            $servicio = Servicio::findOrFail($id);
+
+            DB::beginTransaction();
+
+            $servicio->activo = !$servicio->activo;
+            $servicio->save();
+
+            // Limpiar caché de servicios
+            Cache::forget('servicios_populares');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estado del servicio actualizado correctamente',
+                'nuevo_estado' => $servicio->activo
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al cambiar estado del servicio: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cambiar el estado del servicio'
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtiene todos los servicios para el modal de gestión
+     */
+    public function getAllServicios()
+    {
+        try {
+            $servicios = Servicio::withCount('citas')
+                ->orderBy('nombre')
+                ->get()
+                ->map(function ($servicio) {
+                    return [
+                        'id' => $servicio->id,
+                        'nombre' => $servicio->nombre,
+                        'descripcion' => $servicio->descripcion,
+                        'precio' => $servicio->precio,
+                        'duracion_min' => $servicio->duracion_min,
+                        'categoria' => $servicio->categoria,
+                        'activo' => $servicio->activo,
+                        'citas_count' => $servicio->citas_count,
+                        'categoria_formatted' => $this->formatCategoria($servicio->categoria),
+                        'estado_formatted' => $servicio->activo ? 'Activo' : 'Inactivo'
+                    ];
+                });
+
+            $estadisticas = [
+                'total' => $servicios->count(),
+                'activos' => $servicios->where('activo', true)->count(),
+                'inactivos' => $servicios->where('activo', false)->count(),
+                'por_categoria' => [
+                    'sedan' => $servicios->where('categoria', 'sedan')->count(),
+                    'pickup' => $servicios->where('categoria', 'pickup')->count(),
+                    'moto' => $servicios->where('categoria', 'moto')->count(),
+                ]
+            ];
+
+            return response()->json([
+                'success' => true,
+                'servicios' => $servicios,
+                'estadisticas' => $estadisticas
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error al obtener servicios: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los servicios'
+            ], 500);
+        }
+    }
+
+    /**
+     * Formatea el nombre de la categoría para mostrar
+     */
+    private function formatCategoria($categoria)
+    {
+        switch ($categoria) {
+            case 'sedan':
+                return '🚗 Sedán';
+            case 'pickup':
+                return '🚙 Pickup/SUV';
+            case 'moto':
+                return '🏍️ Motocicleta';
+            default:
+                return $categoria ? ucfirst($categoria) : 'Sin categoría';
         }
     }
 }

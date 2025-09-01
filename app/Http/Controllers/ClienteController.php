@@ -351,7 +351,7 @@ class ClienteController extends Controller
                 }
             }
 
-            // VERIFICACIÓN DE CONFLICTOS MEJORADA 
+            // VERIFICACIÓN DE CONFLICTOS TEMPORALMENTE DESHABILITADA PARA DEBUG 
             Log::info('Verificando conflictos de horario', [
                 'fecha_hora_inicio' => $fechaCita->format('Y-m-d H:i:s'),
                 'duracion_total' => $duracionTotal,
@@ -372,9 +372,9 @@ class ClienteController extends Controller
                     $duracionCitaExistente = $citaExistente->servicios->sum('duracion_min');
                     $finCitaExistente = $inicioCitaExistente->copy()->addMinutes($duracionCitaExistente);
 
-                    // BUFFER DE TIEMPO: 15 minutos entre citas para limpieza/preparación
-                    $bufferInicio = $inicioCitaExistente->copy()->subMinutes(15);
-                    $bufferFin = $finCitaExistente->copy()->addMinutes(15);
+                    // BUFFER DE TIEMPO: 5 minutos entre citas para preparación
+                    $bufferInicio = $inicioCitaExistente->copy()->subMinutes(5);
+                    $bufferFin = $finCitaExistente->copy()->addMinutes(5);
 
                     // Verificar superposición con buffer
                     $hayConflicto = (
@@ -499,6 +499,109 @@ class ClienteController extends Controller
         }
     }
 
+    /**
+     * Método temporal simplificado para crear citas SIN validación de conflictos
+     */
+    public function storeCitaSimple(Request $request)
+    {
+        try {
+            Log::info('USANDO MÉTODO SIMPLIFICADO SIN VALIDACIÓN DE CONFLICTOS');
+
+            // Validar estado del usuario
+            if (!Auth::user()->estado) {
+                return response()->json(['message' => 'Tu cuenta está inactiva.'], 403);
+            }
+
+            $validated = $request->validate([
+                'vehiculo_id' => 'required|exists:vehiculos,id,usuario_id,' . Auth::id(),
+                'fecha_hora' => [
+                    'required',
+                    'date',
+                    'after:now',
+                ],
+                'servicios' => 'required|array|min:1',
+                'servicios.*' => 'exists:servicios,id',
+                'observaciones' => 'nullable|string|max:500'
+            ]);
+
+            DB::beginTransaction();
+
+            $vehiculo = Vehiculo::find($validated['vehiculo_id']);
+            $servicios = Servicio::activos()->whereIn('id', $validated['servicios'])->get();
+            $fechaCita = Carbon::parse($validated['fecha_hora']);
+            $duracionTotal = $servicios->sum('duracion_min');
+            $horaFin = $fechaCita->copy()->addMinutes($duracionTotal);
+
+            Log::info('Creando cita simplificada', [
+                'vehiculo' => $vehiculo->marca . ' ' . $vehiculo->modelo,
+                'servicios' => $servicios->pluck('nombre')->toArray(),
+                'fecha_hora' => $fechaCita->format('Y-m-d H:i:s'),
+                'duracion' => $duracionTotal
+            ]);
+
+            // Crear la cita directamente SIN validaciones de conflicto
+            $cita = Cita::create([
+                'usuario_id' => Auth::id(),
+                'vehiculo_id' => $validated['vehiculo_id'],
+                'fecha_hora' => $fechaCita,
+                'estado' => Cita::ESTADO_PENDIENTE,
+                'observaciones' => $validated['observaciones'] ?? null
+            ]);
+
+            $serviciosConPrecio = $servicios->mapWithKeys(function ($servicio) {
+                return [$servicio->id => ['precio' => $servicio->precio]];
+            });
+
+            $cita->servicios()->attach($serviciosConPrecio);
+
+            // Registrar en bitácora
+            \App\Models\Bitacora::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'crear_cita_simple',
+                'tabla_afectada' => 'citas',
+                'registro_id' => $cita->id,
+                'detalles' => "Creó cita simplificada para {$fechaCita->format('d/m/Y H:i')} - Vehículo: {$vehiculo->marca} {$vehiculo->modelo}"
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cita creada exitosamente (método simplificado)',
+                'data' => [
+                    'cita_id' => $cita->id,
+                    'fecha_hora' => $fechaCita->format('Y-m-d H:i:s'),
+                    'hora' => $fechaCita->format('H:i'),
+                    'servicios_count' => count($validated['servicios']),
+                    'servicios_nombres' => $servicios->pluck('nombre')->join(', '),
+                    'duracion_total' => $duracionTotal,
+                    'hora_fin' => $horaFin->format('H:i'),
+                    'vehiculo_marca' => $vehiculo->marca,
+                    'vehiculo_modelo' => $vehiculo->modelo,
+                    'vehiculo_placa' => $vehiculo->placa,
+                    'precio_total' => $servicios->sum('precio')
+                ]
+            ]);
+
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación: ' . implode(', ', $e->validator->errors()->all())
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating simple appointment:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno del servidor: ' . $e->getMessage()
+            ]);
+        }
+    }
+
     private function getAvailableTimes($date, $excludeCitaId = null)
     {
         try {
@@ -555,9 +658,9 @@ class ClienteController extends Controller
                 $duracion = $cita->servicios->sum('duracion_min');
                 $fin = $inicio->copy()->addMinutes($duracion);
 
-                // Agregar buffer de 15 minutos antes y después
-                $inicioConBuffer = $inicio->copy()->subMinutes(15);
-                $finConBuffer = $fin->copy()->addMinutes(15);
+                // Agregar buffer de 5 minutos antes y después
+                $inicioConBuffer = $inicio->copy()->subMinutes(5);
+                $finConBuffer = $fin->copy()->addMinutes(5);
 
                 $bloquesOcupados[] = [
                     'inicio' => $inicioConBuffer,
@@ -1645,6 +1748,44 @@ class ClienteController extends Controller
                 'error' => true,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener todos los servicios disponibles para el modal "Ver todos"
+     */
+    public function getAllServicios()
+    {
+        try {
+            $servicios = Servicio::activos()
+                ->select('id', 'nombre', 'descripcion', 'precio', 'duracion_min', 'categoria', 'activo')
+                ->orderBy('categoria')
+                ->orderBy('nombre')
+                ->get()
+                ->map(function ($servicio) {
+                    return [
+                        'id' => $servicio->id,
+                        'nombre' => $servicio->nombre,
+                        'descripcion' => $servicio->descripcion,
+                        'precio' => number_format($servicio->precio, 2),
+                        'duracion_min' => $servicio->duracion_min,
+                        'duracion_formatted' => $servicio->getDuracionFormattedAttribute(),
+                        'categoria' => $servicio->categoria,
+                        'activo' => $servicio->activo
+                    ];
+                });
+
+            return response()->json($servicios);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener todos los servicios:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Error al cargar los servicios'
             ], 500);
         }
     }

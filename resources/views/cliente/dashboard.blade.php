@@ -1476,6 +1476,48 @@
                 width: 100%;
             }
 
+            .quick-book-btn {
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .quick-book-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+            }
+
+            .quick-book-btn:active {
+                transform: translateY(-1px);
+            }
+
+            /* Efecto de loading para botones de agendado rápido */
+            .quick-book-btn.loading {
+                pointer-events: none;
+                background: #6c757d !important;
+                color: transparent !important;
+            }
+
+            .quick-book-btn.loading::after {
+                content: '';
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                border: 2px solid transparent;
+                border-top: 2px solid white;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                top: 50%;
+                left: 50%;
+                margin-left: -8px;
+                margin-top: -8px;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
             .notification-item {
                 padding: 12px;
             }
@@ -1755,6 +1797,224 @@
 
         .close-modal:hover {
             color: #333;
+        }
+        
+        /* Estilos para SweetAlert modales grandes (agendado) */
+        .swal-large-modal {
+            max-width: 900px !important;
+            width: 90% !important;
+            border-radius: 15px !important;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa) !important;
+            border: 1px solid rgba(79, 172, 254, 0.2) !important;
+        }
+        
+        /* Mejoras al título del modal */
+        .swal-large-modal .swal2-title {
+            color: #2c3e50 !important;
+            font-size: 24px !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+            margin-bottom: 20px !important;
+        }
+        
+        .swal-large-content {
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+        }
+        
+        /* Mejoras específicas para formularios de agendado */
+        .swal-large-modal .swal2-html-container {
+            margin: 1.5em 0 !important;
+            max-height: 600px !important;
+            overflow-y: auto !important;
+            padding: 0 10px !important;
+        }
+        
+        /* Estilos para los elementos de selección de vehículos */
+        .swal-large-modal label {
+            transition: all 0.3s ease !important;
+            border: 2px solid #e3e8ef !important;
+            background: #f8f9fa !important;
+        }
+        
+        .swal-large-modal label:hover {
+            border-color: #4facfe !important;
+            background: #f0f8ff !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
+        }
+        
+        .swal-large-modal input[type="radio"]:checked + div {
+            color: #4facfe !important;
+        }
+        
+        .swal-large-modal input[type="radio"]:checked {
+            accent-color: #4facfe !important;
+        }
+        
+        /* Estilos mejorados para inputs de fecha y hora */
+        .swal-large-modal input[type="date"],
+        .swal-large-modal input[type="time"] {
+            width: 100% !important;
+            padding: 15px 20px !important;
+            border: 2px solid #e3e8ef !important;
+            border-radius: 10px !important;
+            font-size: 18px !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+            background: #ffffff !important;
+            min-height: 55px !important;
+            position: relative !important;
+        }
+        
+        /* Mejoras específicas para el input de fecha - hacer el ícono del calendario más visible */
+        .swal-large-modal input[type="date"] {
+            padding-right: 60px !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='%234facfe' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3Crect x='6' y='13' width='2' height='2' rx='0.3' ry='0.3' fill='%23ffffff'%3E%3C/rect%3E%3Crect x='11' y='13' width='2' height='2' rx='0.3' ry='0.3' fill='%23ffffff'%3E%3C/rect%3E%3Crect x='16' y='13' width='2' height='2' rx='0.3' ry='0.3' fill='%23ffffff'%3E%3C/rect%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 12px center !important;
+            background-size: 28px 28px !important;
+            cursor: pointer !important;
+            box-shadow: inset 0 0 0 1px rgba(79, 172, 254, 0.2) !important;
+        }
+        
+        /* Mejoras específicas para el input de hora - hacer el ícono del reloj más visible */
+        .swal-large-modal input[type="time"] {
+            padding-right: 60px !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='%234facfe' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpolyline points='12,6 12,12 16,14'%3E%3C/polyline%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 12px center !important;
+            background-size: 28px 28px !important;
+            cursor: pointer !important;
+            box-shadow: inset 0 0 0 1px rgba(79, 172, 254, 0.2) !important;
+        }
+        
+        .swal-large-modal input[type="date"]:focus,
+        .swal-large-modal input[type="time"]:focus {
+            border-color: #4facfe !important;
+            outline: none !important;
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.15) !important;
+            transform: translateY(-1px) !important;
+        }
+        
+        .swal-large-modal input[type="date"]:hover,
+        .swal-large-modal input[type="time"]:hover {
+            border-color: #4facfe !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.1) !important;
+        }
+        
+        /* Mejoras para las etiquetas de fecha y hora */
+        .swal-large-modal div[style*="margin-bottom: 15px"] label {
+            display: block !important;
+            margin-bottom: 8px !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            color: #2c3e50 !important;
+        }
+        
+        /* Estilos adicionales para mejorar la visibilidad del calendario */
+        .swal-large-modal input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            cursor: pointer !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            transform: none !important;
+        }
+        
+        .swal-large-modal input[type="time"]::-webkit-calendar-picker-indicator {
+            opacity: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            cursor: pointer !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            transform: none !important;
+        }
+        
+        /* Animación suave al hacer clic en los inputs */
+        .swal-large-modal input[type="date"]:active,
+        .swal-large-modal input[type="time"]:active {
+            transform: translateY(0px) !important;
+            box-shadow: 0 0 0 6px rgba(79, 172, 254, 0.25) !important;
+        }
+        
+        /* Container para los inputs */
+        .swal-large-modal div[style*="text-align: left"] > div {
+            margin-bottom: 25px !important;
+        }
+        
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+            .swal-large-modal {
+                max-width: 95% !important;
+                width: 95% !important;
+                margin: 10px !important;
+            }
+            
+            .swal-large-modal .swal2-html-container {
+                font-size: 14px !important;
+                max-height: 70vh !important;
+            }
+            
+            /* Inputs de fecha y hora más grandes en móvil */
+            .swal-large-modal input[type="date"],
+            .swal-large-modal input[type="time"] {
+                min-height: 60px !important;
+                font-size: 18px !important;
+                padding: 18px 22px !important;
+                padding-right: 55px !important;
+            }
+            
+            /* Iconos más grandes y visible en móvil */
+            .swal-large-modal input[type="date"],
+            .swal-large-modal input[type="time"] {
+                background-size: 32px 32px !important;
+                background-position: right 10px center !important;
+                padding-right: 65px !important;
+            }
+        }
+        
+        /* Mejoras en los botones */
+        .swal-large-modal .swal2-actions {
+            margin-top: 25px !important;
+        }
+        
+        .swal-large-modal .swal2-confirm {
+            background: linear-gradient(135deg, #4facfe, #00f2fe) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal-large-modal .swal2-confirm:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3) !important;
+        }
+        
+        .swal-large-modal .swal2-cancel {
+            background: #6c757d !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-size: 16px !important;
+            margin-right: 15px !important;
+        }
+        
+        .swal-large-modal .swal2-cancel:hover {
+            background: #5a6268 !important;
         }
 
         .form-group {
@@ -2594,49 +2854,74 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div class="services-grid">
-                            <div class="service-card">
-                                <div class="service-icon">
-                                    <i class="fas fa-spray-can"></i>
+                        <div class="services-grid" id="servicesGrid">
+                            @if(isset($servicios) && $servicios->count() > 0)
+                                @php
+                                    $serviciosMostrados = 0;
+                                    $totalServicios = $servicios->count();
+                                @endphp
+                                @foreach($servicios->groupBy('categoria') as $categoria => $serviciosCategoria)
+                                    @foreach($serviciosCategoria as $servicio)
+                                        @if($serviciosMostrados < 4)
+                                            <div class="service-card" data-servicio-id="{{ $servicio->id }}" data-categoria="{{ $servicio->categoria }}">
+                                                <div class="service-icon">
+                                                    @switch($servicio->categoria)
+                                                        @case('auto')
+                                                            <i class="fas fa-car"></i>
+                                                            @break
+                                                        @case('suv')
+                                                            <i class="fas fa-truck"></i>
+                                                            @break
+                                                        @case('moto')
+                                                            <i class="fas fa-motorcycle"></i>
+                                                            @break
+                                                        @default
+                                                            <i class="fas fa-spray-can"></i>
+                                                    @endswitch
+                                                </div>
+                                                <h3>{{ $servicio->nombre }}</h3>
+                                                <p class="description">{{ $servicio->descripcion }}</p>
+                                                <div class="price">${{ number_format($servicio->precio, 2) }}</div>
+                                                <div class="duration">⏱️ {{ $servicio->duracion_formatted }}</div>
+                                                <button class="btn btn-primary quick-book-btn" onclick="quickBookService({{ $servicio->id }}, '{{ $servicio->categoria }}', this)">
+                                                    <i class="fas fa-calendar-plus"></i>
+                                                    Agendar Ahora
+                                                </button>
+                                            </div>
+                                            @php $serviciosMostrados++; @endphp
+                                        @endif
+                                    @endforeach
+                                @endforeach
+                                @if($totalServicios > 4)
+                                    <div class="service-card view-all-card" onclick="verTodosLosServiciosCliente()" style="cursor: pointer; border: 2px dashed #4facfe; background: rgba(79, 172, 254, 0.05);">
+                                        <div class="service-icon" style="background: rgba(79, 172, 254, 0.1); color: #4facfe;">
+                                            <i class="fas fa-list"></i>
+                                        </div>
+                                        <h3 style="color: #4facfe;">Ver Todos</h3>
+                                        <p class="description" style="color: #666;">{{ $totalServicios - 4 }} servicios más disponibles</p>
+                                        <div class="price" style="color: #4facfe; font-weight: 600;">{{ $totalServicios }} total</div>
+                                        <div class="duration" style="color: #666;">📋 Catálogo completo</div>
+                                        <button class="btn btn-outline" style="border-color: #4facfe; color: #4facfe;">
+                                            <i class="fas fa-eye"></i>
+                                            Ver Catálogo
+                                        </button>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="service-card">
+                                    <div class="service-icon">
+                                        <i class="fas fa-spray-can"></i>
+                                    </div>
+                                    <h3>Lavado Completo</h3>
+                                    <p class="description">Exterior e interior completo, aspirado y limpieza de tapicería</p>
+                                    <div class="price">$25.00</div>
+                                    <div class="duration">⏱️ 30-40 min</div>
+                                    <button class="btn btn-primary" onclick="showNoServicesAlert()">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Agendar Ahora
+                                    </button>
                                 </div>
-                                <h3>Lavado Completo</h3>
-                                <p class="description">Exterior e interior completo, aspirado y limpieza de tapicería
-                                </p>
-                                <div class="price">$25.00</div>
-                                <div class="duration">⏱️ 30-40 min</div>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Ahora
-                                </button>
-                            </div>
-
-                            <div class="service-card">
-                                <div class="service-icon">
-                                    <i class="fa-solid fa-ring"></i>
-                                </div>
-                                <h3>Lavado Premium</h3>
-                                <p class="description">Servicio completo + encerado, protección UV y brillado</p>
-                                <div class="price">$35.00</div>
-                                <div class="duration">⏱️ 45-60 min</div>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Ahora
-                                </button>
-                            </div>
-
-                            <div class="service-card">
-                                <div class="service-icon">
-                                    <i class="fas fa-gem"></i>
-                                </div>
-                                <h3>Detallado VIP</h3>
-                                <p class="description">Servicio premium completo, pulido, cera premium y protección</p>
-                                <div class="price">$55.00</div>
-                                <div class="duration">⏱️ 90-120 min</div>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-calendar-plus"></i>
-                                    Agendar Ahora
-                                </button>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -3127,6 +3412,19 @@
                 cancelButton: 'btn btn-outline mr-2'
             },
             buttonsStyling: true
+        });
+        
+        // Configuración específica para modales de agendado (más grandes y mejor visualización)
+        const swalLargeModal = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-primary',
+                cancelButton: 'btn btn-outline mr-2',
+                popup: 'swal-large-modal',
+                content: 'swal-large-content'
+            },
+            buttonsStyling: true,
+            width: '800px',
+            padding: '2em'
         });
 
         // Función para verificar si una fecha es no laborable
@@ -5418,6 +5716,511 @@
                 debugHorarioConflict(fecha, hora, duracion);
             } else {
                 Swal.fire('Info', 'Selecciona fecha y hora primero', 'info');
+            }
+        }
+
+        /*=========================================================
+                        FUNCIONALIDAD DE AGENDADO RÁPIDO
+                        =========================================================*/
+
+        // Función principal para agendar servicio rápidamente
+        async function quickBookService(servicioId, categoria, buttonElement) {
+            // Agregar efecto de loading al botón
+            if (buttonElement) {
+                buttonElement.classList.add('loading');
+                buttonElement.disabled = true;
+            }
+
+            try {
+                console.log('Iniciando agendado rápido para servicio:', servicioId, 'categoría:', categoria);
+                
+                // Verificar si el usuario tiene vehículos
+                const vehiculosCompatibles = await getVehiculosCompatibles(categoria);
+                
+                if (vehiculosCompatibles.length === 0) {
+                    await showNoVehiclesAlert(categoria);
+                    return;
+                }
+
+                // Siempre permitir al usuario elegir el vehículo para mayor claridad
+                const vehiculoSeleccionado = await selectVehicleDialog(vehiculosCompatibles, categoria);
+                if (!vehiculoSeleccionado) return; // Usuario canceló
+
+                // Mostrar diálogo de selección de fecha y hora
+                const citaData = await selectDateTimeDialog(servicioId, vehiculoSeleccionado.id);
+                if (!citaData) return; // Usuario canceló
+
+                // Crear la cita
+                await createQuickBooking(vehiculoSeleccionado.id, servicioId, citaData);
+
+            } catch (error) {
+                console.error('Error en agendado rápido:', error);
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
+                    text: 'Hubo un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.',
+                    icon: 'error'
+                });
+            } finally {
+                // Remover efecto de loading al botón
+                if (buttonElement) {
+                    buttonElement.classList.remove('loading');
+                    buttonElement.disabled = false;
+                }
+            }
+        }
+
+        // Obtener vehículos compatibles con la categoría del servicio
+        async function getVehiculosCompatibles(categoria) {
+            const vehiculos = @json($mis_vehiculos ?? []);
+            
+            // Filtrar vehículos por categoría compatible
+            return vehiculos.filter(vehiculo => {
+                return vehiculo.tipo.toLowerCase() === categoria.toLowerCase();
+            });
+        }
+
+        // Mostrar alerta cuando no hay vehículos compatibles
+        async function showNoVehiclesAlert(categoria) {
+            const result = await swalWithBootstrapButtons.fire({
+                title: 'Sin vehículos compatibles',
+                html: `
+                    <p>No tienes vehículos de tipo <strong>${categoria}</strong> registrados.</p>
+                    <p>¿Te gustaría registrar un nuevo vehículo?</p>
+                `,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Registrar Vehículo',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                window.location.href = '{{ route("vehiculos.create") }}';
+            }
+        }
+
+        // Diálogo para seleccionar vehículo
+        async function selectVehicleDialog(vehiculos, categoria) {
+            const vehiculosCount = vehiculos.length;
+            const categoryName = categoria === 'sedan' ? 'sedán' : categoria === 'pickup' ? 'SUV/Pickup' : categoria;
+            
+            const { value: vehiculoId } = await swalLargeModal.fire({
+                title: `Selecciona tu vehículo ${categoryName.toUpperCase()}`,
+                html: `
+                    <div style="text-align: left;">
+                        <p style="margin-bottom: 15px;">
+                            ${vehiculosCount === 1 ? 
+                                `Confirma el vehículo para tu servicio:` : 
+                                `Tienes ${vehiculosCount} vehículos compatibles. ¿Cuál deseas lavar?`
+                            }
+                        </p>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            ${vehiculos.map(v => `
+                                <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
+                                       onmouseover="this.style.backgroundColor='#f0f8ff'" 
+                                       onmouseout="this.style.backgroundColor='white'">
+                                    <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
+                                    <div>
+                                        <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
+                                        ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
+                                        <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
+                                        ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
+                                    </div>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `,
+                icon: 'car',
+                showCancelButton: true,
+                confirmButtonText: vehiculosCount === 1 ? 'Confirmar vehículo' : 'Continuar con este vehículo',
+                cancelButtonText: 'Cancelar',
+                width: '500px',
+                preConfirm: () => {
+                    const selected = document.querySelector('input[name="vehicle-select"]:checked');
+                    if (!selected) {
+                        Swal.showValidationMessage('Debes seleccionar un vehículo');
+                        return false;
+                    }
+                    return parseInt(selected.value);
+                }
+            });
+
+            if (vehiculoId) {
+                return vehiculos.find(v => v.id === vehiculoId);
+            }
+            return null;
+        }
+
+        // Diálogo para seleccionar fecha y hora
+        async function selectDateTimeDialog(servicioId, vehiculoId) {
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + 1);
+            
+            const { value: formData } = await swalLargeModal.fire({
+                title: 'Selecciona fecha y hora',
+                html: `
+                    <div style="text-align: left;">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Fecha:</label>
+                            <input type="date" id="swal-date-input" class="swal2-input" 
+                                   min="${today.toISOString().split('T')[0]}" 
+                                   max="${maxDate.toISOString().split('T')[0]}" 
+                                   style="width: 100%;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Hora:</label>
+                            <select id="swal-hour-input" class="swal2-input" style="width: 100%;">
+                                <option value="">Primero selecciona una fecha</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Observaciones (opcional):</label>
+                            <textarea id="swal-observations-input" class="swal2-textarea" 
+                                      placeholder="Información adicional sobre el servicio..." 
+                                      style="width: 100%; height: 60px;"></textarea>
+                        </div>
+                    </div>
+                `,
+                icon: 'calendar',
+                showCancelButton: true,
+                confirmButtonText: 'Agendar Cita',
+                cancelButtonText: 'Cancelar',
+                width: '500px',
+                didOpen: () => {
+                    const dateInput = document.getElementById('swal-date-input');
+                    const hourInput = document.getElementById('swal-hour-input');
+                    
+                    dateInput.addEventListener('change', async function() {
+                        if (this.value) {
+                            hourInput.innerHTML = '<option value="">Cargando horarios...</option>';
+                            const horarios = await loadAvailableHoursForQuickBook(this.value);
+                            
+                            if (horarios.length === 0) {
+                                hourInput.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                            } else {
+                                hourInput.innerHTML = '<option value="">Selecciona una hora</option>' +
+                                    horarios.map(h => `<option value="${h}">${h}</option>`).join('');
+                            }
+                        }
+                    });
+                },
+                preConfirm: () => {
+                    const fecha = document.getElementById('swal-date-input').value;
+                    const hora = document.getElementById('swal-hour-input').value;
+                    const observaciones = document.getElementById('swal-observations-input').value;
+                    
+                    if (!fecha) {
+                        Swal.showValidationMessage('Debes seleccionar una fecha');
+                        return false;
+                    }
+                    if (!hora) {
+                        Swal.showValidationMessage('Debes seleccionar una hora');
+                        return false;
+                    }
+                    
+                    return {
+                        fecha: fecha,
+                        hora: hora,
+                        observaciones: observaciones
+                    };
+                }
+            });
+
+            return formData;
+        }
+
+        // Cargar horarios disponibles para el agendado rápido
+        async function loadAvailableHoursForQuickBook(fecha) {
+            try {
+                const baseUrl = '{{ url("/cliente/horarios-disponibles") }}';
+                const response = await fetch(`${baseUrl}/${fecha}`);
+                if (!response.ok) {
+                    throw new Error('Error al cargar horarios');
+                }
+                
+                const horarios = await response.json();
+                return horarios.map(h => h.hora).filter(h => h);
+            } catch (error) {
+                console.error('Error cargando horarios para agendado rápido:', error);
+                return [];
+            }
+        }
+
+        // Crear la cita con agendado rápido
+        async function createQuickBooking(vehiculoId, servicioId, citaData) {
+            try {
+                const fechaHora = `${citaData.fecha} ${citaData.hora}`;
+                
+                // Debug: verificar token CSRF
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                console.log('CSRF Token:', csrfToken ? 'Existe' : 'No encontrado');
+                
+                const requestData = {
+                    vehiculo_id: vehiculoId,
+                    fecha_hora: fechaHora,
+                    servicios: [servicioId],
+                    observaciones: citaData.observaciones || null
+                };
+                
+                console.log('Datos a enviar:', requestData);
+                
+                const response = await fetch('{{ route("cliente.citas.store-simple") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (data.success) {
+                    // Cita creada exitosamente
+                    const citaData = data.data || {};
+                    await swalLargeModal.fire({
+                        title: '¡Cita agendada!',
+                        html: `
+                            <div style="text-align: center;">
+                                <i class="fas fa-check-circle" style="color: #28a745; font-size: 3rem; margin-bottom: 15px;"></i>
+                                <p><strong>Tu cita ha sido agendada exitosamente</strong></p>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left;">
+                                    <p><strong>Fecha:</strong> ${new Date(fechaHora).toLocaleDateString('es-ES', { 
+                                        weekday: 'long', 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric' 
+                                    })}</p>
+                                    <p><strong>Hora:</strong> ${citaData.hora || 'No disponible'}</p>
+                                    <p><strong>Servicio:</strong> ${citaData.servicios_nombres || 'Servicio seleccionado'}</p>
+                                    <p><strong>Vehículo:</strong> ${citaData.vehiculo_marca || ''} ${citaData.vehiculo_modelo || ''}</p>
+                                    ${citaData.duracion_total ? `<p><strong>Duración estimada:</strong> ${citaData.duracion_total} minutos</p>` : ''}
+                                    <p><strong>Precio:</strong> $${citaData.precio_total || '0.00'}</p>
+                                </div>
+                                <p style="color: #6c757d; font-size: 0.9rem;">
+                                    Recibirás una confirmación pronto. Puedes ver el estado de tu cita en la sección "Próximas Citas".
+                                </p>
+                            </div>
+                        `,
+                        icon: 'success',
+                        confirmButtonText: 'Perfecto',
+                        timer: 0,
+                        showConfirmButton: true
+                    });
+
+                    // Recargar datos del dashboard
+                    location.reload();
+
+                } else if (data.es_advertencia) {
+                    // Mostrar advertencia de tiempo extra
+                    const confirmarExtension = await swalLargeModal.fire({
+                        title: data.message,
+                        html: `
+                            <div style="text-align: left;">
+                                <p style="margin-bottom: 15px;">${data.mensaje_usuario}</p>
+                                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                    <h4 style="margin-top: 0; color: #1976d2;">Detalles de la cita:</h4>
+                                    <p><strong>Hora de inicio:</strong> ${data.detalles_cita.hora_inicio}</p>
+                                    <p><strong>Hora estimada de finalización:</strong> ${data.detalles_cita.hora_finalizacion_estimada}</p>
+                                    <p><strong>Tiempo extra requerido:</strong> ${data.detalles_cita.tiempo_extra_minutos} minutos</p>
+                                </div>
+                                <div style="background: #f1f8e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                    <h4 style="margin-top: 0; color: #388e3c;">Beneficios:</h4>
+                                    <ul style="margin: 0; padding-left: 20px;">
+                                        ${data.beneficios.map(b => `<li>${b}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <p style="color: #6c757d; font-size: 0.9rem; margin-bottom: 0;">
+                                    ${data.nota_importante}
+                                </p>
+                            </div>
+                        `,
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, agendar con tiempo extra',
+                        cancelButtonText: 'Cancelar y elegir otro horario'
+                    });
+
+                    if (confirmarExtension.isConfirmed) {
+                        // Reenviar solicitud con fuerza
+                        await createQuickBookingForced(vehiculoId, servicioId, citaData);
+                    }
+
+                } else {
+                    // Error al crear la cita
+                    let errorMessage = data.message || 'Error desconocido';
+                    let htmlContent = `<p>${errorMessage}</p>`;
+
+                    if (data.horarios_disponibles && data.horarios_disponibles.length > 0) {
+                        htmlContent += `
+                            <div style="margin-top: 15px; text-align: left;">
+                                <p><strong>Horarios disponibles para esta fecha:</strong></p>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 5px; margin-top: 10px;">
+                                    ${data.horarios_disponibles.slice(0, 12).map(h => 
+                                        `<span style="background: #e9ecef; padding: 5px 8px; border-radius: 4px; text-align: center; font-size: 0.9rem;">${h}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    await swalWithBootstrapButtons.fire({
+                        title: 'No se pudo agendar',
+                        html: htmlContent,
+                        icon: 'error',
+                        confirmButtonText: 'Entendido'
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error al crear cita rápida:', error);
+                
+                // Mostrar más detalles del error
+                let errorMessage = 'No se pudo procesar tu solicitud.';
+                if (error.message) {
+                    errorMessage += ' Detalle: ' + error.message;
+                }
+                
+                await swalWithBootstrapButtons.fire({
+                    title: 'Error de conexión',
+                    text: errorMessage,
+                    icon: 'error',
+                    footer: 'Por favor, verifica tu conexión e inténtalo de nuevo.'
+                });
+            }
+        }
+
+        // Crear cita con fuerza (tiempo extra confirmado)
+        async function createQuickBookingForced(vehiculoId, servicioId, citaData) {
+            return await createQuickBooking(vehiculoId, servicioId, citaData); // Ya tiene X-Force-Create: true
+        }
+
+        // Función para mostrar alerta cuando no hay servicios disponibles (fallback)
+        function showNoServicesAlert() {
+            swalWithBootstrapButtons.fire({
+                title: 'Servicio no disponible',
+                text: 'Este servicio no está disponible temporalmente. Por favor, contacta directamente al establecimiento.',
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        }
+
+        // Función para mostrar todos los servicios en un modal
+        async function verTodosLosServiciosCliente() {
+            try {
+                const response = await fetch('/cliente/servicios/all');
+                if (!response.ok) {
+                    throw new Error('Error al cargar los servicios');
+                }
+                const servicios = await response.json();
+                
+                let serviciosHtml = '';
+                let serviciosPorCategoria = {};
+                
+                // Agrupar servicios por categoría
+                servicios.forEach(servicio => {
+                    const categoria = servicio.categoria || 'otros';
+                    if (!serviciosPorCategoria[categoria]) {
+                        serviciosPorCategoria[categoria] = [];
+                    }
+                    serviciosPorCategoria[categoria].push(servicio);
+                });
+                
+                // Generar HTML por categorías
+                Object.keys(serviciosPorCategoria).forEach(categoria => {
+                    const categoriaIcon = categoria === 'sedan' ? '🚗' : 
+                                        categoria === 'pickup' ? '🚙' : 
+                                        categoria === 'moto' ? '🏍️' : '🚙';
+                    const categoriaNombre = categoria === 'sedan' ? 'Sedán' : 
+                                           categoria === 'pickup' ? 'Pickup/SUV' : 
+                                           categoria === 'moto' ? 'Motocicleta' : 
+                                           categoria.charAt(0).toUpperCase() + categoria.slice(1);
+                    
+                    serviciosHtml += `
+                        <div style="margin-bottom: 25px;">
+                            <h4 style="color: #4facfe; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #4facfe; padding-bottom: 8px;">
+                                ${categoriaIcon} ${categoriaNombre}
+                            </h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                    `;
+                    
+                    serviciosPorCategoria[categoria].forEach(servicio => {
+                        serviciosHtml += `
+                            <div class="service-card-modal" style="background: #f8f9fa; border-radius: 12px; padding: 18px; border: 1px solid #e3e8ef; transition: all 0.3s ease;">
+                                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #4facfe, #00f2fe); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; margin-right: 12px;">
+                                        <i class="fas fa-spray-can"></i>
+                                    </div>
+                                    <div>
+                                        <h5 style="margin: 0; color: #2c3e50; font-size: 16px;">${servicio.nombre}</h5>
+                                        <div style="color: #4facfe; font-weight: 600; font-size: 18px;">$${parseFloat(servicio.precio).toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 12px; line-height: 1.4;">${servicio.descripcion}</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <span style="color: #666; font-size: 13px;">⏱️ ${servicio.duracion_formatted}</span>
+                                    <span style="background: rgba(79, 172, 254, 0.1); color: #4facfe; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                        ${servicio.activo ? 'Disponible' : 'No disponible'}
+                                    </span>
+                                </div>
+                                <button class="btn btn-primary btn-sm" onclick="quickBookService(${servicio.id}, '${servicio.categoria}', this)" style="width: 100%; padding: 10px; font-size: 14px;">
+                                    <i class="fas fa-calendar-plus"></i> Agendar Ahora
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    serviciosHtml += '</div></div>';
+                });
+                
+                swalLargeModal.fire({
+                    title: 'Todos los Servicios Disponibles',
+                    html: `
+                        <div style="text-align: left; max-height: 600px; overflow-y: auto; padding: 0 10px;">
+                            <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                                <p style="margin: 0; color: #1976d2;">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Selecciona cualquier servicio para agendar tu cita
+                                </p>
+                            </div>
+                            ${serviciosHtml}
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    showCancelButton: true,
+                    cancelButtonText: 'Cerrar',
+                    width: '1000px',
+                    customClass: {
+                        popup: 'swal-large-modal services-catalog-modal'
+                    }
+                });
+                
+                // Agregar estilos adicionales al modal
+                const style = document.createElement('style');
+                style.textContent = `
+                    .services-catalog-modal .service-card-modal:hover {
+                        transform: translateY(-3px);
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                        border-color: #4facfe;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+            } catch (error) {
+                console.error('Error al cargar servicios:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudieron cargar los servicios. Por favor, intenta de nuevo.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             }
         }
 
