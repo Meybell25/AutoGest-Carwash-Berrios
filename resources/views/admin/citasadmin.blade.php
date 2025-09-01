@@ -1893,6 +1893,7 @@
             }
 
             // 10. ACTUALIZAR CONTENIDO DEL MODAL DE DETALLES
+            // 10. ACTUALIZAR CONTENIDO DEL MODAL DE DETALLES (VERSIÓN CORREGIDA)
             function updateDetallesModal(data) {
                 const citaIdElement = document.getElementById('cita-id');
                 if (citaIdElement) {
@@ -1924,6 +1925,14 @@
                 // Construir sección de información de pago si existe
                 let pagoHTML = '';
                 if (data.pago && data.estado === 'finalizada') {
+                    // Asegurarnos de que los valores numéricos sean convertidos correctamente
+                    const monto = typeof data.pago.monto === 'number' ? data.pago.monto : Number(data.pago.monto ||
+                        0);
+                    const montoRecibido = typeof data.pago.monto_recibido === 'number' ? data.pago.monto_recibido :
+                        Number(data.pago.monto_recibido || 0);
+                    const vuelto = typeof data.pago.vuelto === 'number' ? data.pago.vuelto : Number(data.pago
+                        .vuelto || 0);
+
                     pagoHTML = `
             <div class="modal-section">
                 <div class="modal-section-title">
@@ -1934,55 +1943,56 @@
                     <span class="modal-info-value">${data.pago.metodo_formatted || data.pago.metodo}</span>
                 </div>
                 ${data.pago.referencia ? `
-                                        <div class="modal-info-item">
-                                            <span class="modal-info-label">Referencia:</span>
-                                            <span class="modal-info-value">${data.pago.referencia}</span>
-                                        </div>
-                                    ` : ''}
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Referencia:</span>
+                            <span class="modal-info-value">${data.pago.referencia}</span>
+                        </div>
+                    ` : ''}
                 <div class="modal-info-item">
                     <span class="modal-info-label">Monto Pagado:</span>
-                    <span class="modal-info-value">$${data.pago.monto.toFixed(2)}</span>
+                    <span class="modal-info-value">$${monto.toFixed(2)}</span>
                 </div>
                 ${data.pago.monto_recibido ? `
-                                        <div class="modal-info-item">
-                                            <span class="modal-info-label">Monto Recibido:</span>
-                                            <span class="modal-info-value">$${data.pago.monto_recibido.toFixed(2)}</span>
-                                        </div>
-                                    ` : ''}
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Monto Recibido:</span>
+                            <span class="modal-info-value">$${montoRecibido.toFixed(2)}</span>
+                        </div>
+                    ` : ''}
                 ${data.pago.vuelto ? `
-                                        <div class="modal-info-item">
-                                            <span class="modal-info-label">Vuelto:</span>
-                                            <span class="modal-info-value">$${data.pago.vuelto.toFixed(2)}</span>
-                                        </div>
-                                    ` : ''}
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Vuelto:</span>
+                            <span class="modal-info-value">$${vuelto.toFixed(2)}</span>
+                        </div>
+                    ` : ''}
                 ${data.pago.fecha_pago ? `
-                                        <div class="modal-info-item">
-                                            <span class="modal-info-label">Fecha de Pago:</span>
-                                            <span class="modal-info-value">${new Date(data.pago.fecha_pago).toLocaleString('es-ES')}</span>
-                                        </div>
-                                    ` : ''}
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Fecha de Pago:</span>
+                            <span class="modal-info-value">${new Date(data.pago.fecha_pago).toLocaleString('es-ES')}</span>
+                        </div>
+                    ` : ''}
                 ${data.pago.banco_emisor ? `
-                                        <div class="modal-info-item">
-                                            <span class="modal-info-label">Banco Emisor:</span>
-                                            <span class="modal-info-value">${data.pago.banco_emisor}</span>
-                                        </div>
-                                    ` : ''}
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Banco Emisor:</span>
+                            <span class="modal-info-value">${data.pago.banco_emisor}</span>
+                        </div>
+                    ` : ''}
                 ${data.pago.tipo_tarjeta ? `
-                                        <div class="modal-info-item">
-                                            <span class="modal-info-label">Tipo de Tarjeta:</span>
-                                            <span class="modal-info-value">${data.pago.tipo_tarjeta}</span>
-                                        </div>
-                                    ` : ''}
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Tipo de Tarjeta:</span>
+                            <span class="modal-info-value">${data.pago.tipo_tarjeta}</span>
+                        </div>
+                    ` : ''}
                 ${data.pago.observaciones ? `
-                                        <div class="modal-info-item">
-                                            <span class="modal-info-label">Observaciones:</span>
-                                            <span class="modal-info-value">${data.pago.observaciones}</span>
-                                        </div>
-                                    ` : ''}
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Observaciones:</span>
+                            <span class="modal-info-value">${data.pago.observaciones}</span>
+                        </div>
+                    ` : ''}
             </div>
         `;
                 }
 
+                // El resto de tu código HTML permanece igual...
                 const contenidoHTML = `
         <div class="modal-section">
             <div class="modal-section-title">
@@ -2023,11 +2033,11 @@
                 <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
             </div>
             ${data.vehiculo.descripcion ? `
-                                    <div class="modal-info-item">
-                                        <span class="modal-info-label">Descripción:</span>
-                                        <span class="modal-info-value">${data.vehiculo.descripcion}</span>
-                                    </div>
-                                ` : ''}
+                    <div class="modal-info-item">
+                        <span class="modal-info-label">Descripción:</span>
+                        <span class="modal-info-value">${data.vehiculo.descripcion}</span>
+                    </div>
+                ` : ''}
         </div>
         
         <div class="modal-section">
@@ -2045,11 +2055,11 @@
                 </span>
             </div>
             ${data.observaciones ? `
-                                    <div class="modal-info-item">
-                                        <span class="modal-info-label">Observaciones:</span>
-                                        <span class="modal-info-value">${data.observaciones}</span>
-                                    </div>
-                                ` : ''}
+                    <div class="modal-info-item">
+                        <span class="modal-info-label">Observaciones:</span>
+                        <span class="modal-info-value">${data.observaciones}</span>
+                    </div>
+                ` : ''}
             <div class="modal-info-item">
                 <span class="modal-info-label">Fecha de creación:</span>
                 <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
@@ -2071,7 +2081,7 @@
             <div style="margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
                 <i class="fas fa-receipt me-2"></i> Total a Pagar
             </div>
-            <div class="total-amount">$${data.total.toFixed(2)}</div>
+            <div class="total-amount">$${typeof data.total === 'number' ? data.total.toFixed(2) : Number(data.total || 0).toFixed(2)}</div>
         </div>
     `;
 
