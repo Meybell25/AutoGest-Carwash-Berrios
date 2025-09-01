@@ -202,4 +202,29 @@ class Cita extends Model
     {
         return $this->pago ? $this->pago->monto : 0;
     }
+
+    /**
+     * Verificar si la cita puede ser pagada
+     */
+    public function puedeSerPagada(): bool
+    {
+        return in_array($this->estado, [self::ESTADO_CONFIRMADA, self::ESTADO_EN_PROCESO]) &&
+            !$this->tienePagoCompletado();
+    }
+
+    /**
+     * Obtener el estado de pago formateado
+     */
+    public function getEstadoPagoFormattedAttribute(): string
+    {
+        if ($this->tienePagoCompletado()) {
+            return 'Pagado (' . $this->pago->metodo . ')';
+        }
+
+        if ($this->tienePagoPendiente()) {
+            return 'Pendiente de pago';
+        }
+
+        return 'Sin pago registrado';
+    }
 }
