@@ -1248,7 +1248,7 @@
     </div>
 
     <!-- Modal Mejorado para detalles de cita -->
-    <div class="modal fade" id="detallesCitaModal" tabindex="-1" aria-hidden="true">
+   <div class="modal fade" id="detallesCitaModal" tabindex="-1" inert>
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
