@@ -157,11 +157,12 @@
         }
 
         .modal {
-            backdrop-filter: blur(5px);
+            /*  backdrop-filter: blur(5px);*/
         }
 
         .modal.show {
             padding-right: 0 !important;
+            overflow-y: auto !important;
         }
 
         .card {
@@ -525,6 +526,9 @@
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             overflow: hidden;
+            max-height: calc(100vh - 3.5rem);
+            overflow-y: auto;
+            pointer-events: auto;
         }
 
         .modal-header {
@@ -597,6 +601,8 @@
         .modal-body {
             padding: 35px 30px;
             background: #fafafa;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
         }
 
         .modal-footer {
@@ -1248,7 +1254,7 @@
     </div>
 
     <!-- Modal Mejorado para detalles de cita -->
-   <div class="modal fade" id="detallesCitaModal" tabindex="-1" inert>
+    <div class="modal fade" id="detallesCitaModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1857,8 +1863,19 @@
                     updateDetallesModal(data);
 
                     // Mostrar modal
-                    const modal = new bootstrap.Modal(document.getElementById('detallesCitaModal'));
+                    const modal = new bootstrap.Modal(document.getElementById('detallesCitaModal'), {
+                        backdrop: true, // Permitir cerrar con backdrop
+                        keyboard: true, // Permitir cerrar con ESC
+                        focus: true // Enfocar modal al abrir
+                    });
                     modal.show();
+                    modal.addEventListener('shown.bs.modal', function() {
+                        const modalBody = modal.querySelector('.modal-body');
+                        if (modalBody) {
+                            modalBody.style.overflowY = 'auto';
+                            modalBody.style.maxHeight = 'calc(100vh - 200px)';
+                        }
+                    });
 
                 } catch (error) {
                     hideLoading();
@@ -1931,11 +1948,11 @@
                     <span class="modal-info-value">${data.vehiculo.color || 'No especificado'}</span>
                 </div>
                 ${data.vehiculo.descripcion ? `
-                            <div class="modal-info-item">
-                                <span class="modal-info-label">Descripción:</span>
-                                <span class="modal-info-value">${data.vehiculo.descripcion}</span>
-                            </div>
-                        ` : ''}
+                                    <div class="modal-info-item">
+                                        <span class="modal-info-label">Descripción:</span>
+                                        <span class="modal-info-value">${data.vehiculo.descripcion}</span>
+                                    </div>
+                                ` : ''}
             </div>
             
             <div class="modal-section">
@@ -1953,11 +1970,11 @@
                     </span>
                 </div>
                 ${data.observaciones ? `
-                            <div class="modal-info-item">
-                                <span class="modal-info-label">Observaciones:</span>
-                                <span class="modal-info-value">${data.observaciones}</span>
-                            </div>
-                        ` : ''}
+                                    <div class="modal-info-item">
+                                        <span class="modal-info-label">Observaciones:</span>
+                                        <span class="modal-info-value">${data.observaciones}</span>
+                                    </div>
+                                ` : ''}
                 <div class="modal-info-item">
                     <span class="modal-info-label">Fecha de creación:</span>
                     <span class="modal-info-value">${new Date(data.created_at).toLocaleString('es-ES')}</span>
