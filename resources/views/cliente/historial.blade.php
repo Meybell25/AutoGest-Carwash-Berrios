@@ -497,6 +497,198 @@
             font-weight: 600;
         }
 
+        /* NUEVOS ESTILOS PARA INFORMACIÓN DE PAGO */
+        .pago-section {
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.1), rgba(40, 167, 69, 0.05));
+            border: 2px solid #4caf50;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pago-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #4caf50, #2e7d32);
+        }
+
+        .pago-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pago-metodo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2e7d32;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .pago-metodo i {
+            color: #4caf50;
+        }
+
+        .pago-fecha {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .pago-detalles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .pago-detalle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .pago-detalle-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pago-detalle-valor {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .pago-detalle-valor.monto-total {
+            color: #2e7d32;
+            font-size: 1.1rem;
+        }
+
+        .pago-detalle-valor.vuelto {
+            color: #ff9800;
+        }
+
+        .pago-referencia {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .pago-referencia strong {
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .pago-referencia-numero {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 5px 8px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .pago-descuentos {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .pago-descuentos h5 {
+            margin: 0 0 10px 0;
+            color: #e65100;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .descuento-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+        }
+
+        .descuento-item:last-child {
+            border-bottom: none;
+        }
+
+        .descuento-servicio {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .descuento-valor {
+            color: #e65100;
+            font-weight: 600;
+        }
+
+        .pago-resumen {
+            background: rgba(76, 175, 80, 0.05);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .resumen-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+        }
+
+        .resumen-item.total {
+            border-top: 2px solid #4caf50;
+            margin-top: 10px;
+            padding-top: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .resumen-item.total .resumen-valor {
+            color: #2e7d32;
+        }
+
+        .sin-pago-nota {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: center;
+            color: #e65100;
+            font-weight: 500;
+        }
+
+        .sin-pago-nota i {
+            margin-right: 8px;
+            color: #ff9800;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -666,6 +858,37 @@
             font-style: italic;
         }
 
+        /* NUEVOS ESTILOS PARA SERVICIOS CON DESCUENTOS */
+        .service-item-con-descuento {
+            background: rgba(255, 193, 7, 0.05);
+            border-radius: 6px;
+            padding: 12px 8px;
+            margin: 5px 0;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+
+        .service-precio-original {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 0.9rem;
+            margin-right: 8px;
+        }
+
+        .service-precio-descuento {
+            color: #e65100;
+            font-weight: 700;
+            background: rgba(255, 193, 7, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .service-precio-final {
+            color: #2e7d32;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -729,6 +952,17 @@
                 height: 32px;
                 padding: 0 8px;
                 font-size: 0.9rem;
+            }
+
+            /* Pago responsivo */
+            .pago-detalles {
+                grid-template-columns: 1fr;
+            }
+
+            .pago-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
             }
         }
     </style>
@@ -880,18 +1114,157 @@
                                     <h4><i class="fas fa-tools"></i> Servicios Realizados</h4>
                                     <ul class="service-list">
                                         @foreach ($cita->servicios as $servicio)
-                                            <li class="service-item">
+                                            @php
+                                                $tieneDescuento = $servicio->pivot->descuento > 0;
+                                                $precioOriginal = $servicio->pivot->precio;
+                                                $descuento = $servicio->pivot->descuento;
+                                                $precioFinal = $precioOriginal - $descuento;
+                                            @endphp
+                                            <li class="service-item {{ $tieneDescuento ? 'service-item-con-descuento' : '' }}">
                                                 <span class="service-name">{{ $servicio->nombre }}</span>
-                                                <span
-                                                    class="service-price">${{ number_format($servicio->precio, 2) }}</span>
+                                                <div class="service-pricing">
+                                                    @if ($tieneDescuento)
+                                                        <span class="service-precio-original">${{ number_format($precioOriginal, 2) }}</span>
+                                                        <span class="service-precio-descuento">-${{ number_format($descuento, 2) }}</span>
+                                                        <span class="service-precio-final">${{ number_format($precioFinal, 2) }}</span>
+                                                    @else
+                                                        <span class="service-price">${{ number_format($precioOriginal, 2) }}</span>
+                                                    @endif
+                                                </div>
                                             </li>
                                         @endforeach
                                     </ul>
-                                    <div style="border-top: 2px solid #667eea; margin-top: 10px; padding-top: 10px;">
-                                        <strong>Total:
-                                            ${{ number_format($cita->servicios->sum('precio'), 2) }}</strong>
+                                    @php
+                                        $subtotal = $cita->servicios->sum('pivot.precio');
+                                        $totalDescuentos = $cita->servicios->sum('pivot.descuento');
+                                        $totalFinal = $cita->total;
+                                    @endphp
+                                    <div style="border-top: 2px solid #667eea; margin-top: 15px; padding-top: 15px;">
+                                        @if ($totalDescuentos > 0)
+                                            <div style="margin-bottom: 8px;">
+                                                <span style="color: var(--text-secondary);">Subtotal: ${{ number_format($subtotal, 2) }}</span>
+                                            </div>
+                                            <div style="margin-bottom: 8px; color: #e65100;">
+                                                <i class="fas fa-tag"></i> Descuentos: -${{ number_format($totalDescuentos, 2) }}
+                                            </div>
+                                        @endif
+                                        <strong>Total: ${{ number_format($totalFinal, 2) }}</strong>
                                     </div>
                                 </div>
+
+                                <!-- NUEVA SECCIÓN: Información de Pago (solo para citas finalizadas) -->
+                                @if ($cita->estado == 'finalizada' && $cita->pago)
+                                    <div class="detail-section pago-section">
+                                        <div class="pago-header">
+                                            <h4><i class="fas fa-credit-card"></i> Información de Pago</h4>
+                                            <div class="pago-metodo">
+                                                @if ($cita->pago->metodo == 'efectivo')
+                                                    <i class="fas fa-money-bill-wave"></i> Efectivo
+                                                @elseif ($cita->pago->metodo == 'transferencia')
+                                                    <i class="fas fa-university"></i> Transferencia
+                                                @elseif ($cita->pago->metodo == 'pasarela')
+                                                    <i class="fas fa-credit-card"></i> Tarjeta
+                                                @endif
+                                            </div>
+                                            @if ($cita->pago->fecha_pago)
+                                                <div class="pago-fecha">
+                                                    <i class="fas fa-calendar-check"></i>
+                                                    Pagado: {{ $cita->pago->fecha_pago->format('d/m/Y H:i') }}
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="pago-detalles">
+                                            <div class="pago-detalle-item">
+                                                <span class="pago-detalle-label">
+                                                    <i class="fas fa-dollar-sign"></i> Monto Total
+                                                </span>
+                                                <span class="pago-detalle-valor monto-total">${{ number_format($cita->pago->monto, 2) }}</span>
+                                            </div>
+
+                                            @if ($cita->pago->metodo == 'efectivo')
+                                                <div class="pago-detalle-item">
+                                                    <span class="pago-detalle-label">
+                                                        <i class="fas fa-hand-holding-usd"></i> Recibido
+                                                    </span>
+                                                    <span class="pago-detalle-valor">${{ number_format($cita->pago->monto_recibido, 2) }}</span>
+                                                </div>
+
+                                                @if ($cita->pago->vuelto > 0)
+                                                    <div class="pago-detalle-item">
+                                                        <span class="pago-detalle-label">
+                                                            <i class="fas fa-coins"></i> Vuelto
+                                                        </span>
+                                                        <span class="pago-detalle-valor vuelto">${{ number_format($cita->pago->vuelto, 2) }}</span>
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        </div>
+
+                                        @if ($cita->pago->referencia && in_array($cita->pago->metodo, ['transferencia', 'pasarela']))
+                                            <div class="pago-referencia">
+                                                <strong>
+                                                    @if ($cita->pago->metodo == 'transferencia')
+                                                        <i class="fas fa-hashtag"></i> Referencia de Transferencia:
+                                                    @else
+                                                        <i class="fas fa-receipt"></i> ID de Transacción:
+                                                    @endif
+                                                </strong>
+                                                <span class="pago-referencia-numero">{{ $cita->pago->referencia }}</span>
+                                            </div>
+                                        @endif
+
+                                        @if ($totalDescuentos > 0 && $cita->pago->detalles_adicionales && isset($cita->pago->detalles_adicionales['descuentos_aplicados']))
+                                            <div class="pago-descuentos">
+                                                <h5><i class="fas fa-percent"></i> Descuentos Aplicados</h5>
+                                                @foreach ($cita->pago->detalles_adicionales['descuentos_aplicados'] as $servicioId => $descuentoMonto)
+                                                    @if ($descuentoMonto > 0)
+                                                        @php
+                                                            $servicio = $cita->servicios->where('id', $servicioId)->first();
+                                                        @endphp
+                                                        @if ($servicio)
+                                                            <div class="descuento-item">
+                                                                <span class="descuento-servicio">{{ $servicio->nombre }}</span>
+                                                                <span class="descuento-valor">-${{ number_format($descuentoMonto, 2) }}</span>
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        <div class="pago-resumen">
+                                            @if ($totalDescuentos > 0)
+                                                <div class="resumen-item">
+                                                    <span>Subtotal servicios:</span>
+                                                    <span class="resumen-valor">${{ number_format($subtotal, 2) }}</span>
+                                                </div>
+                                                <div class="resumen-item">
+                                                    <span>Total descuentos:</span>
+                                                    <span class="resumen-valor" style="color: #e65100;">-${{ number_format($totalDescuentos, 2) }}</span>
+                                                </div>
+                                            @endif
+                                            <div class="resumen-item total">
+                                                <span>Total Pagado:</span>
+                                                <span class="resumen-valor">${{ number_format($cita->pago->monto, 2) }}</span>
+                                            </div>
+                                        </div>
+
+                                        @if ($cita->pago->observaciones)
+                                            <div style="margin-top: 15px; padding: 10px; background: rgba(255, 255, 255, 0.7); border-radius: var(--border-radius); border: 1px solid rgba(76, 175, 80, 0.2);">
+                                                <strong><i class="fas fa-sticky-note"></i> Notas del Pago:</strong>
+                                                <p style="margin: 5px 0 0 0; color: var(--text-secondary);">{{ $cita->pago->observaciones }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @elseif ($cita->estado == 'finalizada' && !$cita->pago)
+                                    <div class="detail-section">
+                                        <div class="sin-pago-nota">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            Esta cita fue finalizada pero no tiene información de pago registrada.
+                                        </div>
+                                    </div>
+                                @endif
 
                                 @if ($cita->observaciones)
                                     <div class="detail-section">

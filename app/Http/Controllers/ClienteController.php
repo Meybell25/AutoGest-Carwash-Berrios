@@ -1224,7 +1224,7 @@ class ClienteController extends Controller
 
         // Obtener citas para historial - SOLO finalizadas y canceladas
         $query = $user->citas()
-            ->with(['servicios', 'vehiculo'])
+             ->with(['servicios', 'vehiculo', 'pago']) 
             ->whereIn('estado', [Cita::ESTADO_FINALIZADA, Cita::ESTADO_CANCELADA]);
 
         // CREAR UNA COPIA DE LA QUERY PARA LOS CONTADORES (sin paginación)
