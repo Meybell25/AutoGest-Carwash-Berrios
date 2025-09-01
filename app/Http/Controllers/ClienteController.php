@@ -1751,4 +1751,42 @@ class ClienteController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Obtener todos los servicios disponibles para el modal "Ver todos"
+     */
+    public function getAllServicios()
+    {
+        try {
+            $servicios = Servicio::activos()
+                ->select('id', 'nombre', 'descripcion', 'precio', 'duracion_min', 'categoria', 'activo')
+                ->orderBy('categoria')
+                ->orderBy('nombre')
+                ->get()
+                ->map(function ($servicio) {
+                    return [
+                        'id' => $servicio->id,
+                        'nombre' => $servicio->nombre,
+                        'descripcion' => $servicio->descripcion,
+                        'precio' => number_format($servicio->precio, 2),
+                        'duracion_min' => $servicio->duracion_min,
+                        'duracion_formatted' => $servicio->getDuracionFormattedAttribute(),
+                        'categoria' => $servicio->categoria,
+                        'activo' => $servicio->activo
+                    ];
+                });
+
+            return response()->json($servicios);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener todos los servicios:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Error al cargar los servicios'
+            ], 500);
+        }
+    }
 }

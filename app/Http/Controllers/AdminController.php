@@ -772,4 +772,266 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Almacena un nuevo servicio
+     */
+    public function storeServicio(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'required|string|max:1000',
+                'precio' => 'required|numeric|min:0',
+                'duracion_min' => 'required|integer|min:1|max:480',
+                'activo' => 'required|boolean',
+                'categoria' => 'required|string|in:sedan,pickup,moto'
+            ]);
+
+            DB::beginTransaction();
+
+            $servicio = Servicio::create($validated);
+
+            // Limpiar caché de servicios si existe
+            Cache::forget('servicios_populares');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Servicio creado correctamente',
+                'servicio' => $servicio
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al crear servicio: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el servicio: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtiene los datos de un servicio específico
+     */
+    public function showServicio($id)
+    {
+        try {
+            $servicio = Servicio::findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'servicio' => $servicio
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Servicio no encontrado'
+            ], 404);
+        }
+    }
+
+    /**
+     * Actualiza un servicio existente
+     */
+    public function updateServicio(Request $request, $id)
+    {
+        try {
+            $servicio = Servicio::findOrFail($id);
+
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'required|string|max:1000',
+                'precio' => 'required|numeric|min:0',
+                'duracion_min' => 'required|integer|min:1|max:480',
+                'activo' => 'required|boolean',
+                'categoria' => 'required|string|in:sedan,pickup,moto'
+            ]);
+
+            DB::beginTransaction();
+
+            $servicio->update($validated);
+
+            // Limpiar caché de servicios
+            Cache::forget('servicios_populares');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Servicio actualizado correctamente',
+                'servicio' => $servicio
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al actualizar servicio: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el servicio'
+            ], 500);
+        }
+    }
+
+    /**
+     * Elimina un servicio
+     */
+    public function deleteServicio($id)
+    {
+        try {
+            $servicio = Servicio::findOrFail($id);
+
+            // Verificar que no tenga citas asociadas
+            $citasCount = $servicio->citas()->count();
+            
+            if ($citasCount > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "No se puede eliminar el servicio porque tiene {$citasCount} citas asociadas"
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            $servicio->delete();
+
+            // Limpiar caché de servicios
+            Cache::forget('servicios_populares');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Servicio eliminado correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al eliminar servicio: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar el servicio'
+            ], 500);
+        }
+    }
+
+    /**
+     * Cambia el estado activo/inactivo de un servicio
+     */
+    public function toggleServicioStatus($id)
+    {
+        try {
+            $servicio = Servicio::findOrFail($id);
+
+            DB::beginTransaction();
+
+            $servicio->activo = !$servicio->activo;
+            $servicio->save();
+
+            // Limpiar caché de servicios
+            Cache::forget('servicios_populares');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estado del servicio actualizado correctamente',
+                'nuevo_estado' => $servicio->activo
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error al cambiar estado del servicio: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cambiar el estado del servicio'
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtiene todos los servicios para el modal de gestión
+     */
+    public function getAllServicios()
+    {
+        try {
+            $servicios = Servicio::withCount('citas')
+                ->orderBy('nombre')
+                ->get()
+                ->map(function ($servicio) {
+                    return [
+                        'id' => $servicio->id,
+                        'nombre' => $servicio->nombre,
+                        'descripcion' => $servicio->descripcion,
+                        'precio' => $servicio->precio,
+                        'duracion_min' => $servicio->duracion_min,
+                        'categoria' => $servicio->categoria,
+                        'activo' => $servicio->activo,
+                        'citas_count' => $servicio->citas_count,
+                        'categoria_formatted' => $this->formatCategoria($servicio->categoria),
+                        'estado_formatted' => $servicio->activo ? 'Activo' : 'Inactivo'
+                    ];
+                });
+
+            $estadisticas = [
+                'total' => $servicios->count(),
+                'activos' => $servicios->where('activo', true)->count(),
+                'inactivos' => $servicios->where('activo', false)->count(),
+                'por_categoria' => [
+                    'sedan' => $servicios->where('categoria', 'sedan')->count(),
+                    'pickup' => $servicios->where('categoria', 'pickup')->count(),
+                    'moto' => $servicios->where('categoria', 'moto')->count(),
+                ]
+            ];
+
+            return response()->json([
+                'success' => true,
+                'servicios' => $servicios,
+                'estadisticas' => $estadisticas
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error al obtener servicios: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los servicios'
+            ], 500);
+        }
+    }
+
+    /**
+     * Formatea el nombre de la categoría para mostrar
+     */
+    private function formatCategoria($categoria)
+    {
+        switch ($categoria) {
+            case 'sedan':
+                return '🚗 Sedán';
+            case 'pickup':
+                return '🚙 Pickup/SUV';
+            case 'moto':
+                return '🏍️ Motocicleta';
+            default:
+                return $categoria ? ucfirst($categoria) : 'Sin categoría';
+        }
+    }
 }
