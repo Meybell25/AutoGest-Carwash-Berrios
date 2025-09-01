@@ -123,11 +123,12 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         // Rutas de servicios
         Route::prefix('servicios')->name('servicios.')->group(function () {
             Route::get('/', [ServicioController::class, 'adminIndex'])->name('index');
-            Route::get('/crear', [ServicioController::class, 'create'])->name('create');
-            Route::post('/', [ServicioController::class, 'store'])->name('store');
-            Route::get('/{id}/editar', [ServicioController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [ServicioController::class, 'update'])->name('update');
-            Route::delete('/{id}', [ServicioController::class, 'destroy'])->name('destroy');
+            Route::get('/all', [AdminController::class, 'getAllServicios'])->name('all');
+            Route::post('/', [AdminController::class, 'storeServicio'])->name('store');
+            Route::get('/{id}', [AdminController::class, 'showServicio'])->name('show');
+            Route::put('/{id}', [AdminController::class, 'updateServicio'])->name('update');
+            Route::delete('/{id}', [AdminController::class, 'deleteServicio'])->name('destroy');
+            Route::post('/{id}/toggle-status', [AdminController::class, 'toggleServicioStatus'])->name('toggle-status');
         });
 
         // Rutas de gastos
@@ -191,6 +192,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
 
         // Datos AJAX
         Route::get('/mis-vehiculos', [ClienteController::class, 'misVehiculosAjax'])->name('mis-vehiculos-ajax');
+        Route::get('/servicios/all', [ClienteController::class, 'getAllServicios'])->name('servicios.all');
         Route::get('/check-status', [ClienteController::class, 'checkStatus'])->name('check-status');
         Route::get('/verificar-dia-no-laborable', [ClienteController::class, 'verificarDiaNoLaborable'])
             ->name('verificar-dia-no-laborable');
@@ -428,12 +430,4 @@ Route::post('/cliente/citas/store-simple', [ClienteController::class, 'storeCita
     ->name('cliente.citas.store-simple')
     ->middleware('auth');
 
-// Rutas CRUD para gestión de servicios (Admin)
-Route::prefix('admin')->middleware(['auth', 'check.admin'])->group(function () {
-    Route::get('/servicios', [AdminController::class, 'servicios'])->name('admin.servicios.index');
-    Route::post('/servicios', [AdminController::class, 'storeServicio'])->name('admin.servicios.store');
-    Route::get('/servicios/{id}', [AdminController::class, 'showServicio'])->name('admin.servicios.show');
-    Route::put('/servicios/{id}', [AdminController::class, 'updateServicio'])->name('admin.servicios.update');
-    Route::delete('/servicios/{id}', [AdminController::class, 'deleteServicio'])->name('admin.servicios.delete');
-    Route::post('/servicios/{id}/toggle-status', [AdminController::class, 'toggleServicioStatus'])->name('admin.servicios.toggle-status');
-});
+

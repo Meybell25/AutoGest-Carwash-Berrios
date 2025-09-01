@@ -1157,6 +1157,44 @@
         #modalVerTodosGastos.modal {
             z-index: 1055;
         }
+        #modalVerTodosServicios.modal {
+            z-index: 1055;
+        }
+        
+        /* Modal de servicios secundario con z-index superior */
+        #servicioModal.modal {
+            z-index: 1070 !important;
+        }
+        
+        /* Cuando servicioModal está activo sobre modalVerTodosServicios */
+        .modal.show#servicioModal {
+            z-index: 1070 !important;
+            background-color: rgba(0, 0, 0, 0.8) !important;
+        }
+        
+        /* Estilos específicos para modal de servicios cuando está superpuesto */
+        #servicioModal .modal-content {
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+            transition: transform 0.3s ease;
+        }
+        
+        /* Animación de aparición para modal superpuesto */
+        #servicioModal.show .modal-content {
+            animation: modalNestedSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes modalNestedSlideIn {
+            0% {
+                transform: scale(0.8) translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1.02) translateY(0);
+                opacity: 1;
+            }
+        }
 
         /* Forzar z-index para modales de edición cuando están activos */
         .modal.show#modalAgregarDiaDashboard {
@@ -1635,20 +1673,20 @@
             Estilos para la tabla de citas de hoy
             ====================== */
 
-        #citasHoyTable tr[data-estado="cancelada"] {
+        #citasHoyTable tr[data-activo="cancelada"] {
             opacity: 0.7;
             background-color: rgba(245, 245, 245, 0.5);
         }
 
-        #citasHoyTable tr[data-estado="finalizada"] {
+        #citasHoyTable tr[data-activo="finalizada"] {
             background-color: rgba(232, 245, 233, 0.3);
         }
 
-        #citasHoyTable tr[data-estado="en_proceso"] {
+        #citasHoyTable tr[data-activo="en_proceso"] {
             background-color: rgba(225, 245, 254, 0.3);
         }
 
-        /* Mejora para badges de estado */
+        /* Mejora para badges de activo */
         .badge-pendiente {
             background: linear-gradient(135deg, #fff3e0, #ffe0b2);
             color: #ef6c00;
@@ -3180,7 +3218,7 @@
                             </div>
                             <div class="filter-select">
                                 <select id="filterEstado" class="form-control">
-                                    <option value="">Todos los estados</option>
+                                    <option value="">Todos los activos</option>
                                     <option value="pendiente">Pendiente</option>
                                     <option value="confirmada">Confirmada</option>
                                     <option value="en_proceso">En Proceso</option>
@@ -3214,7 +3252,7 @@
                                     @endphp
 
                                     @forelse($citasHoy as $cita)
-                                        <tr data-estado="{{ $cita->estado }}">
+                                        <tr data-activo="{{ $cita->activo }}">
                                             <td data-label="ID">#{{ $cita->id }}</td>
                                             <td data-label="Cliente">{{ $cita->usuario->nombre }}</td>
                                             <td data-label="Vehículo">{{ $cita->vehiculo->marca }}
@@ -3229,8 +3267,8 @@
                                             <td data-label="Total">
                                                 ${{ number_format($cita->servicios->sum('pivot.precio'), 2) }}</td>
                                             <td data-label="Estado">
-                                                <span class="badge badge-{{ $cita->estado }}">
-                                                    {{ $cita->estado_formatted }}
+                                                <span class="badge badge-{{ $cita->activo }}">
+                                                    {{ $cita->activo_formatted }}
                                                 </span>
                                             </td>
                                             <td data-label="Acciones">
@@ -3375,9 +3413,20 @@
                                 </div>
                                 <div class="service-details">
                                     <h4>{{ $servicio->nombre }}</h4>
-                                    <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion }} min
+                                    <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion_min ?? $servicio->duracion }} min
                                     </p>
-                                    <p><i class="fas fa-chart-line"></i> {{ $servicio->veces_contratado }} veces
+                                    <p>
+                                        @if($servicio->categoria === 'sedan')
+                                            🚗 Sedán
+                                        @elseif($servicio->categoria === 'pickup')
+                                            🚙 Pickup/SUV
+                                        @elseif($servicio->categoria === 'moto')
+                                            🏍️ Motocicleta
+                                        @else
+                                            <i class="fas fa-car"></i> {{ ucfirst($servicio->categoria) }}
+                                        @endif
+                                    </p>
+                                    <p><i class="fas fa-chart-line"></i> {{ $servicio->citas_count ?? 0 }} veces
                                         este
                                         mes</p>
                                 </div>
@@ -3387,10 +3436,16 @@
                             </div>
                         @endforeach
 
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;"
-                            onclick="nuevoServicio()">
-                            <i class="fas fa-plus"></i> Agregar Servicio
-                        </button>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="button" class="btn btn-outline-primary" style="flex: 1;"
+                                onclick="abrirModalVerTodosServicios()">
+                                <i class="fas fa-list me-1"></i> Ver Todos
+                            </button>
+                            <button class="btn btn-primary" style="flex: 1;"
+                                onclick="nuevoServicio()">
+                                <i class="fas fa-plus"></i> Agregar
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -3453,53 +3508,91 @@
             </div>
 
             <!-- Modal para nuevo/editar servicio -->
-            <div id="servicioModal" class="modal">
-                <div class="modal-content">
-                    <span class="close-modal" onclick="closeModal('servicioModal')">&times;</span>
-                    <h2 id="servicioModalTitle">
+            <div id="servicioModal" class="modal"
+                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+                <div class="modal-content"
+                    style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
+                    <span class="close-modal" onclick="cerrarModal('servicioModal')"
+                        style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</span>
+                    <h2 id="servicioModalTitle"
+                        style="margin-bottom: 20px; font-size: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 10px;">
                         <i class="fas fa-plus"></i> Nuevo Servicio
                     </h2>
-                    <form id="servicioForm">
-                        <input type="hidden" id="servicio_id" name="id">
+                    <div id="servicioModalContent">
+                        <!-- El contenido se llenará dinámicamente -->
+                    </div>
+                </div>
+            </div>
 
-                        <div class="form-group">
-                            <label for="servicio_nombre">Nombre del Servicio:</label>
-                            <input type="text" id="servicio_nombre" name="nombre" required class="form-control"
-                                placeholder="Ej: Lavado Premium">
+            <!-- Modal para ver todos los servicios -->
+            <div class="modal fade" id="modalVerTodosServicios" tabindex="-1" aria-labelledby="modalVerTodosServiciosLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #007bff, #6c5ce7); color: white;">
+                            <h5 class="modal-title" id="modalVerTodosServiciosLabel">
+                                <i class="fas fa-cogs me-2"></i>
+                                Gestión de Servicios
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-
-                        <div class="form-group">
-                            <label for="servicio_descripcion">Descripción:</label>
-                            <textarea id="servicio_descripcion" name="descripcion" rows="3" class="form-control"
-                                placeholder="Describe los detalles del servicio..."></textarea>
-                        </div>
-
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="servicio_precio">Precio ($):</label>
-                                <input type="number" step="0.01" id="servicio_precio" name="precio" required
-                                    class="form-control" placeholder="0.00">
+                        <div class="modal-body">
+                            <!-- Controles superiores -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" id="buscarServicio" placeholder="Buscar servicio..." onkeyup="filtrarServicios()">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-control" id="filtroCategoria" onchange="filtrarServicios()">
+                                        <option value="">Todos los tipos</option>
+                                        <option value="sedan">🚗 Sedán</option>
+                                        <option value="pickup">🚙 Pickup/SUV</option>
+                                        <option value="moto">🏍️ Motocicleta</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <button class="btn btn-success w-100" onclick="nuevoServicioModal()">
+                                        <i class="fas fa-plus"></i> Nuevo Servicio
+                                    </button>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="servicio_duracion">Duración (min):</label>
-                                <input type="number" id="servicio_duracion" name="duracion" required
-                                    class="form-control" placeholder="30">
+                            <!-- Lista de servicios -->
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tipo</th>
+                                            <th>Precio</th>
+                                            <th>Duración</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaServicios">
+                                        <!-- Los servicios se cargarán aquí dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Paginación y estadísticas -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <small class="text-muted" id="estadisticasServicios">
+                                        <!-- Estadísticas se cargarán aquí -->
+                                    </small>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <div id="paginacionServicios">
+                                        <!-- Paginación se cargará aquí si es necesaria -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="servicio_activo">Estado:</label>
-                            <select id="servicio_activo" name="activo" class="form-control">
-                                <option value="1">Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-save"></i> Guardar Servicio
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
 
@@ -3813,9 +3906,9 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="estado"
+                    <label for="activo"
                         style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Estado</label>
-                    <select id="estado" name="estado" class="form-control">
+                    <select id="activo" name="activo" class="form-control">
                         <option value="1" selected>Activo</option>
                         <option value="0">Inactivo</option>
                     </select>
@@ -4137,20 +4230,20 @@
         // =============================================
         // FUNCIONES DE VER CITAS DE HOY PARA EDITAR Y CANCELAR
         // =============================================
-        // Filtrar citas por estado y búsqueda
+        // Filtrar citas por activo y búsqueda
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchCitas');
-            const estadoFilter = document.getElementById('filterEstado');
+            const activoFilter = document.getElementById('filterEstado');
             const citasTable = document.getElementById('citasHoyTable');
 
             // Configurar event listeners para búsqueda/filtro
-            if (searchInput && estadoFilter && citasTable) {
+            if (searchInput && activoFilter && citasTable) {
                 searchInput.addEventListener('input', function() {
                     filtrarCitas();
                     // La paginación se inicializa dentro de filtrarCitas()
                 });
 
-                estadoFilter.addEventListener('change', function() {
+                activoFilter.addEventListener('change', function() {
                     filtrarCitas();
                     // La paginación se inicializa dentro de filtrarCitas()
                 });
@@ -4163,16 +4256,16 @@
 
             function filtrarCitas() {
                 const searchText = searchInput.value.toLowerCase();
-                const estadoValue = estadoFilter.value;
+                const activoValue = activoFilter.value;
                 const rows = citasTable.getElementsByTagName('tr');
 
                 for (let row of rows) {
                     let mostrar = true;
                     const cells = row.getElementsByTagName('td');
-                    const estado = row.getAttribute('data-estado');
+                    const activo = row.getAttribute('data-activo');
 
-                    // Filtrar por estado
-                    if (estadoValue && estado !== estadoValue) {
+                    // Filtrar por activo
+                    if (activoValue && activo !== activoValue) {
                         mostrar = false;
                     }
 
@@ -4236,7 +4329,7 @@
                         <i class="fas fa-calendar-alt"></i> Detalles de la Cita
                     </h3>
                     <p><strong>Fecha/Hora:</strong> ${new Date(data.fecha_hora).toLocaleString('es-ES')}</p>
-                    <p><strong>Estado:</strong> <span class="badge badge-${data.estado}">${data.estado_formatted}</span></p>
+                    <p><strong>Estado:</strong> <span class="badge badge-${data.activo}">${data.activo_formatted}</span></p>
                 </div>
                 <div style="margin-bottom: 20px;">
                     <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
@@ -4286,7 +4379,7 @@
         function cancelarCita(citaId) {
             Swal.fire({
                 title: '¿Cancelar esta cita?',
-                text: "Esta acción cambiará el estado de la cita a 'cancelada'",
+                text: "Esta acción cambiará el activo de la cita a 'cancelada'",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -4295,8 +4388,8 @@
                 cancelButtonText: 'No, mantener'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Actualizar estado via AJAX
-                    fetch(`/admin/citasadmin/${citaId}/actualizar-estado`, {
+                    // Actualizar activo via AJAX
+                    fetch(`/admin/citasadmin/${citaId}/actualizar-activo`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -4304,7 +4397,7 @@
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify({
-                                estado: 'cancelada'
+                                activo: 'cancelada'
                             })
                         })
                         .then(response => response.json())
@@ -4347,7 +4440,7 @@
         // Función para inicializar la paginación
         function inicializarPaginacionCitas() {
             // Obtener todas las citas de la tabla
-            const filasCitas = document.querySelectorAll('#citasHoyTable tr[data-estado]');
+            const filasCitas = document.querySelectorAll('#citasHoyTable tr[data-activo]');
             citasTotales = Array.from(filasCitas);
 
             // Mostrar la primera página
@@ -4472,7 +4565,7 @@
                     document.getElementById('email').value = usuario.email;
                     document.getElementById('telefono').value = usuario.telefono || '';
                     document.getElementById('rol').value = usuario.rol;
-                    document.getElementById('estado').value = usuario.estado ? '1' : '0';
+                    document.getElementById('activo').value = usuario.activo ? '1' : '0';
                 } else {
                     // Si no está en los datos cargados, hacer petición al servidor
                     fetch(`/admin/usuarios/${usuarioId}/edit`)
@@ -4488,7 +4581,7 @@
                             document.getElementById('email').value = data.email;
                             document.getElementById('telefono').value = data.telefono || '';
                             document.getElementById('rol').value = data.rol;
-                            document.getElementById('estado').value = data.estado ? '1' : '0';
+                            document.getElementById('activo').value = data.activo ? '1' : '0';
                         })
                         .catch(error => {
                             console.error('Error al cargar usuario:', error);
@@ -4774,7 +4867,7 @@
                         nombre: form.nombre.value.trim(),
                         email: email,
                         telefono: form.telefono.value.trim() || null,
-                        estado: form.estado.value === '1',
+                        activo: form.activo.value === '1',
                         rol: form.rol.value,
                         password: form.password?.value,
                         password_confirmation: form.password_confirmation?.value
@@ -5052,6 +5145,10 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
+        function cerrarModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
         // =============================================
         // FUNCIONES ESPECÍFICAS
         // =============================================
@@ -5133,37 +5230,424 @@
         // Gestión de servicios
         function nuevoServicio() {
             const formContent = `
-        <form id="servicioForm">
-            <div class="form-group">
-                <label for="servicioNombre">Nombre:</label>
-                <input type="text" id="servicioNombre" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="servicioPrecio">Precio:</label>
-                <input type="number" id="servicioPrecio" class="form-control" step="0.01" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Guardar Servicio</button>
-        </form>
-    `;
+                <form id="servicioForm">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mb-3">
+                                <label for="servicioNombre" class="form-label">
+                                    <i class="fas fa-tag"></i> Nombre del Servicio <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" id="servicioNombre" name="nombre" class="form-control" 
+                                       placeholder="Ej: Lavado Completo Premium" required maxlength="255">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="servicioPrecio" class="form-label">
+                                    <i class="fas fa-dollar-sign"></i> Precio <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" id="servicioPrecio" name="precio" class="form-control" 
+                                           step="0.01" min="0" placeholder="0.00" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="servicioDuracion" class="form-label">
+                                    <i class="fas fa-clock"></i> Duración (minutos) <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" id="servicioDuracion" name="duracion_min" class="form-control" 
+                                       min="1" max="480" placeholder="60" required>
+                                <small class="text-muted">Máximo 8 horas (480 minutos)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mb-3">
+                                <label for="servicioDescripcion" class="form-label">
+                                    <i class="fas fa-align-left"></i> Descripción <span class="text-danger">*</span>
+                                </label>
+                                <textarea id="servicioDescripcion" name="descripcion" class="form-control" 
+                                          rows="3" placeholder="Descripción detallada del servicio..." 
+                                          required maxlength="1000"></textarea>
+                                <small class="text-muted">Máximo 1000 caracteres</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="servicioCategoria" class="form-label">
+                                    <i class="fas fa-car"></i> Tipo de Vehículo <span class="text-danger">*</span>
+                                </label>
+                                <select id="servicioCategoria" name="categoria" class="form-control" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="sedan">🚗 Sedán</option>
+                                    <option value="pickup">🚙 Pickup/SUV</option>
+                                    <option value="moto">🏍️ Motocicleta</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="servicioEstado" class="form-label">
+                                    <i class="fas fa-toggle-on"></i> Estado
+                                </label>
+                                <select id="servicioEstado" name="activo" class="form-control" required>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModal('servicioModal')">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Servicio
+                        </button>
+                    </div>
+                </form>
+            `;
+            
             mostrarModal('servicioModal', '<i class="fas fa-plus"></i> Nuevo Servicio', formContent);
+            
+            // Event listener para el formulario
+            document.getElementById('servicioForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await crearServicio();
+            });
         }
 
         function editarServicio(servicioId) {
-            const formContent = `
-        <form id="editarServicioForm">
-            <input type="hidden" id="servicioId" value="${servicioId}">
-            <div class="form-group">
-                <label for="editServicioNombre">Nombre:</label>
-                <input type="text" id="editServicioNombre" class="form-control" value="Lavado Premium" required>
-            </div>
-            <div class="form-group">
-                <label for="editServicioPrecio">Precio:</label>
-                <input type="number" id="editServicioPrecio" class="form-control" value="35.00" step="0.01" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Actualizar Servicio</button>
-        </form>
-    `;
-            mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
+            // Primero obtenemos los datos del servicio
+            fetch(`/admin/servicios/${servicioId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const servicio = data.servicio;
+                        const formContent = `
+                            <form id="editarServicioForm">
+                                <input type="hidden" id="servicioId" value="${servicioId}">
+                                
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group mb-3">
+                                            <label for="editServicioNombre" class="form-label">
+                                                <i class="fas fa-tag"></i> Nombre del Servicio <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" id="editServicioNombre" name="nombre" class="form-control" 
+                                                   value="${servicio.nombre}" required maxlength="255">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="editServicioPrecio" class="form-label">
+                                                <i class="fas fa-dollar-sign"></i> Precio <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number" id="editServicioPrecio" name="precio" class="form-control" 
+                                                       step="0.01" min="0" value="${servicio.precio}" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="editServicioDuracion" class="form-label">
+                                                <i class="fas fa-clock"></i> Duración (minutos) <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="number" id="editServicioDuracion" name="duracion_min" class="form-control" 
+                                                   min="1" max="480" value="${servicio.duracion_min}" required>
+                                            <small class="text-muted">Máximo 8 horas (480 minutos)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group mb-3">
+                                            <label for="editServicioDescripcion" class="form-label">
+                                                <i class="fas fa-align-left"></i> Descripción <span class="text-danger">*</span>
+                                            </label>
+                                            <textarea id="editServicioDescripcion" name="descripcion" class="form-control" 
+                                                      rows="3" required maxlength="1000">${servicio.descripcion}</textarea>
+                                            <small class="text-muted">Máximo 1000 caracteres</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="editServicioCategoria" class="form-label">
+                                                <i class="fas fa-car"></i> Tipo de Vehículo <span class="text-danger">*</span>
+                                            </label>
+                                            <select id="editServicioCategoria" name="categoria" class="form-control" required>
+                                                <option value="">Seleccionar tipo</option>
+                                                <option value="sedan" ${servicio.categoria === 'sedan' ? 'selected' : ''}>🚗 Sedán</option>
+                                                <option value="pickup" ${servicio.categoria === 'pickup' ? 'selected' : ''}>🚙 Pickup/SUV</option>
+                                                <option value="moto" ${servicio.categoria === 'moto' ? 'selected' : ''}>🏍️ Motocicleta</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="editServicioEstado" class="form-label">
+                                                <i class="fas fa-toggle-on"></i> Estado
+                                            </label>
+                                            <select id="editServicioEstado" name="activo" class="form-control" required>
+                                                <option value="1" ${servicio.activo ? 'selected' : ''}>Activo</option>
+                                                <option value="0" ${!servicio.activo ? 'selected' : ''}>Inactivo</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-3">
+                                    <button type="button" class="btn btn-danger" onclick="confirmarEliminarServicio(${servicioId})">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-secondary" onclick="cerrarModal('servicioModal')">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Actualizar
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        `;
+                        
+                        mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
+                        
+                        // Event listener para el formulario
+                        document.getElementById('editarServicioForm').addEventListener('submit', async function(e) {
+                            e.preventDefault();
+                            await actualizarServicio(servicioId);
+                        });
+                    } else {
+                        Swal.fire('Error', data.message || 'No se pudo obtener el servicio', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'No se pudieron cargar los datos del servicio. Error: ' + error.message, 'error');
+                });
+        }
+
+        // Función para crear servicio
+        async function crearServicio() {
+            const form = document.getElementById('servicioForm');
+            const formData = new FormData(form);
+            
+            // Convertir FormData a objeto para facilitar el manejo
+            const data = {};
+            formData.forEach((value, key) => {
+                if (key === 'activo' || key === 'duracion_min') {
+                    data[key] = parseInt(value);
+                } else if (key === 'precio') {
+                    data[key] = parseFloat(value);
+                } else {
+                    data[key] = value;
+                }
+            });
+            
+            // Convertir activo a boolean
+            data.activo = data.activo === 1;
+
+            try {
+                const response = await fetch('/admin/servicios', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    cerrarModal('servicioModal');
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: result.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Verificar si venimos del modal principal
+                        const parentModal = document.getElementById('servicioModal').getAttribute('data-parent-modal');
+                        if (parentModal === 'modalVerTodosServicios') {
+                            // Recargar solo la lista de servicios en el modal principal
+                            cargarTodosLosServicios();
+                            // Limpiar el atributo
+                            document.getElementById('servicioModal').removeAttribute('data-parent-modal');
+                        } else {
+                            // Recargar toda la página si no viene del modal principal
+                            location.reload();
+                        }
+                    });
+                } else {
+                    if (result.errors) {
+                        let errorMessage = '';
+                        Object.values(result.errors).forEach(errors => {
+                            errors.forEach(error => errorMessage += error + '\n');
+                        });
+                        Swal.fire('Error de validación', errorMessage, 'error');
+                    } else {
+                        Swal.fire('Error', result.message, 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Error de conexión. Intenta nuevamente.', 'error');
+            }
+        }
+
+        // Función para actualizar servicio
+        async function actualizarServicio(servicioId) {
+            const form = document.getElementById('editarServicioForm');
+            const formData = new FormData(form);
+            
+            // Convertir FormData a objeto
+            const data = {};
+            formData.forEach((value, key) => {
+                if (key === 'activo' || key === 'duracion_min') {
+                    data[key] = parseInt(value);
+                } else if (key === 'precio') {
+                    data[key] = parseFloat(value);
+                } else {
+                    data[key] = value;
+                }
+            });
+            
+            // Convertir activo a boolean
+            data.activo = data.activo === 1;
+
+            try {
+                const response = await fetch(`/admin/servicios/${servicioId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    cerrarModal('servicioModal');
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: result.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Verificar si venimos del modal principal
+                        const parentModal = document.getElementById('servicioModal').getAttribute('data-parent-modal');
+                        if (parentModal === 'modalVerTodosServicios') {
+                            // Recargar solo la lista de servicios en el modal principal
+                            cargarTodosLosServicios();
+                            // Limpiar el atributo
+                            document.getElementById('servicioModal').removeAttribute('data-parent-modal');
+                        } else {
+                            // Recargar toda la página si no viene del modal principal
+                            location.reload();
+                        }
+                    });
+                } else {
+                    if (result.errors) {
+                        let errorMessage = '';
+                        Object.values(result.errors).forEach(errors => {
+                            errors.forEach(error => errorMessage += error + '\n');
+                        });
+                        Swal.fire('Error de validación', errorMessage, 'error');
+                    } else {
+                        Swal.fire('Error', result.message, 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Error de conexión. Intenta nuevamente.', 'error');
+            }
+        }
+
+        // Función para confirmar eliminación de servicio
+        function confirmarEliminarServicio(servicioId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esta acción no se puede deshacer. El servicio será eliminado permanentemente.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    eliminarServicio(servicioId);
+                }
+            });
+        }
+
+        // Función para eliminar servicio
+        async function eliminarServicio(servicioId) {
+            try {
+                const response = await fetch(`/admin/servicios/${servicioId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    cerrarModal('servicioModal');
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Eliminado!',
+                        text: result.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Verificar si venimos del modal principal o recargar la lista directamente
+                        if (typeof cargarTodosLosServicios === 'function') {
+                            cargarTodosLosServicios();
+                        } else {
+                            location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Error de conexión. Intenta nuevamente.', 'error');
+            }
         }
 
         // Gestión de horarios
@@ -5418,7 +5902,7 @@
                 rol: document.getElementById('rol').value,
                 password: document.getElementById('password').value,
                 password_confirmation: document.getElementById('password_confirmation').value,
-                estado: document.getElementById('estado').value,
+                activo: document.getElementById('activo').value,
                 _token: '{{ csrf_token() }}'
             };
 
@@ -7022,7 +7506,7 @@
                     const originalDisabled = this.disabled;
 
                     try {
-                        // Cambiar estado del botón
+                        // Cambiar activo del botón
                         this.disabled = true;
                         this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Guardando...';
 
@@ -7168,7 +7652,7 @@
                             'Error de conexión. Por favor, inténtalo de nuevo.');
 
                     } finally {
-                        // Restaurar estado del botón
+                        // Restaurar activo del botón
                         this.disabled = originalDisabled;
                         this.innerHTML = originalText;
                     }
@@ -8107,6 +8591,200 @@
         // Hacer funciones disponibles globalmente
         window.abrirModalVerTodosGastos = abrirModalVerTodosGastos;
         window.limpiarFiltrosGastos = limpiarFiltrosGastos;
+        
+        // =============================================
+        // GESTIÓN DEL MODAL DE SERVICIOS
+        // =============================================
+        
+        // Variable para almacenar todos los servicios
+        let todosLosServicios = [];
+        
+        // Función para abrir el modal de todos los servicios
+        function abrirModalVerTodosServicios() {
+            const modalElement = document.getElementById('modalVerTodosServicios');
+            if (!modalElement) {
+                console.error('Modal modalVerTodosServicios no encontrado');
+                return;
+            }
+            
+            try {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+                
+                // Cargar servicios cuando se abre el modal
+                cargarTodosLosServicios();
+                
+            } catch (error) {
+                console.error('Error al abrir modal:', error);
+            }
+        }
+        
+        // Función para cargar todos los servicios
+        async function cargarTodosLosServicios() {
+            try {
+                const response = await fetch('/admin/servicios/all');
+                const data = await response.json();
+                
+                if (data.success) {
+                    todosLosServicios = data.servicios;
+                    mostrarServicios(todosLosServicios);
+                    actualizarEstadisticasServicios(data.estadisticas);
+                } else {
+                    throw new Error(data.message || 'Error al cargar servicios');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('tablaServicios').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Error al cargar los servicios
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Función para mostrar servicios en la tabla
+        function mostrarServicios(servicios) {
+            const tbody = document.getElementById('tablaServicios');
+            
+            if (servicios.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            <i class="fas fa-inbox"></i> No hay servicios que mostrar
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = servicios.map(servicio => `
+                <tr>
+                    <td>
+                        <strong>${servicio.nombre}</strong>
+                        <br>
+                        <small class="text-muted">${servicio.descripcion}</small>
+                    </td>
+                    <td>${servicio.categoria_formatted}</td>
+                    <td>$${parseFloat(servicio.precio).toFixed(2)}</td>
+                    <td>${servicio.duracion_min} min</td>
+                    <td>
+                        <span class="badge ${servicio.activo ? 'bg-success' : 'bg-secondary'}">
+                            ${servicio.estado_formatted}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary btn-sm" onclick="editarServicioDesdeModal(${servicio.id})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-${servicio.activo ? 'warning' : 'success'} btn-sm" 
+                                onclick="toggleEstadoServicio(${servicio.id}, ${servicio.activo})" 
+                                title="${servicio.activo ? 'Desactivar' : 'Activar'}">
+                                <i class="fas fa-toggle-${servicio.activo ? 'on' : 'off'}"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="eliminarServicioDesdeModal(${servicio.id})" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Función para filtrar servicios
+        function filtrarServicios() {
+            const busqueda = document.getElementById('buscarServicio').value.toLowerCase();
+            const categoria = document.getElementById('filtroCategoria').value;
+            
+            let serviciosFiltrados = todosLosServicios.filter(servicio => {
+                const coincideBusqueda = servicio.nombre.toLowerCase().includes(busqueda) || 
+                                       servicio.descripcion.toLowerCase().includes(busqueda);
+                const coincideCategoria = !categoria || servicio.categoria === categoria;
+                
+                return coincideBusqueda && coincideCategoria;
+            });
+            
+            mostrarServicios(serviciosFiltrados);
+        }
+        
+        // Función para actualizar estadísticas
+        function actualizarEstadisticasServicios(estadisticas) {
+            document.getElementById('estadisticasServicios').innerHTML = `
+                <strong>Total:</strong> ${estadisticas.total} servicios | 
+                <strong>Activos:</strong> ${estadisticas.activos} | 
+                <strong>Inactivos:</strong> ${estadisticas.inactivos}
+            `;
+        }
+        
+        // Función para crear servicio desde el modal principal
+        function nuevoServicioModal() {
+            // NO cerrar el modal principal, mantenerlo abierto
+            // Simplemente abrir el modal de crear servicio encima
+            nuevoServicio();
+            
+            // Marcar que venimos del modal principal
+            document.getElementById('servicioModal').setAttribute('data-parent-modal', 'modalVerTodosServicios');
+        }
+        
+        // Función para editar servicio desde el modal principal
+        function editarServicioDesdeModal(servicioId) {
+            // Usar la función existente de editar
+            editarServicio(servicioId);
+            
+            // Marcar que venimos del modal principal
+            setTimeout(() => {
+                document.getElementById('servicioModal').setAttribute('data-parent-modal', 'modalVerTodosServicios');
+            }, 100);
+        }
+        
+        // Función para cambiar estado del servicio
+        async function toggleEstadoServicio(servicioId, estadoActual) {
+            try {
+                const response = await fetch(`/admin/servicios/${servicioId}/toggle-status`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Estado actualizado',
+                        text: result.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    
+                    // Recargar servicios
+                    cargarTodosLosServicios();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'No se pudo cambiar el estado del servicio', 'error');
+            }
+        }
+        
+        // Función para eliminar servicio desde el modal
+        function eliminarServicioDesdeModal(servicioId) {
+            confirmarEliminarServicio(servicioId);
+            // No necesitamos setTimeout aquí, la función eliminarServicio ya maneja la recarga
+        }
+        
+        // Hacer funciones disponibles globalmente
+        window.abrirModalVerTodosServicios = abrirModalVerTodosServicios;
+        window.filtrarServicios = filtrarServicios;
+        window.nuevoServicioModal = nuevoServicioModal;
+        window.editarServicioDesdeModal = editarServicioDesdeModal;
+        window.toggleEstadoServicio = toggleEstadoServicio;
+        window.eliminarServicioDesdeModal = eliminarServicioDesdeModal;
     </script>
 
     <!-- Bootstrap JS -->
