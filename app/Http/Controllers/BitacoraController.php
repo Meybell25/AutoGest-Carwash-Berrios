@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\Response;
 
+
+
 class BitacoraController extends Controller
 {
     public function index(Request $request): View
