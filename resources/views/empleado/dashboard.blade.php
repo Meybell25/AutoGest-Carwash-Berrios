@@ -1978,7 +1978,7 @@
                 <h2 style="margin-bottom: 15px;">
                     <i class="fas fa-calendar-check"></i> Detalle de Cita
                 </h2>
-                
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div>
                         <h3 style="font-size: 1.1rem; margin-bottom: 8px;">
@@ -1988,7 +1988,7 @@
                         <p><strong>Teléfono:</strong> 5555-1234</p>
                         <p><strong>Email:</strong> juan@example.com</p>
                     </div>
-                    
+
                     <div>
                         <h3 style="font-size: 1.1rem; margin-bottom: 8px;">
                             <i class="fas fa-car"></i> Información del Vehículo
@@ -1999,7 +1999,7 @@
                         <p><strong>Placa:</strong> P123456</p>
                     </div>
                 </div>
-                
+
                 <div style="margin-bottom: 15px;">
                     <h3 style="font-size: 1.1rem; margin-bottom: 8px;">
                         <i class="fas fa-concierge-bell"></i> Servicios
@@ -2016,7 +2016,7 @@
                         Total: $40.00
                     </div>
                 </div>
-                
+
                 <div>
                     <h3 style="font-size: 1.1rem; margin-bottom: 8px;">
                         <i class="fas fa-comment"></i> Observaciones
