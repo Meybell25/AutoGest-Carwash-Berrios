@@ -3745,7 +3745,7 @@
 
             <!-- Modal para ver detalles del gasto -->
             <div id="detalleGastoModal" class="modal"
-                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1100; align-items: center; justify-content: center;">
                 <div class="modal-content"
                     style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
                     <span class="close-modal" onclick="closeModal('detalleGastoModal')"
