@@ -1618,79 +1618,225 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
-        // Función para exportar a Excel 
+        // Función para exportar a Excel
         async function exportToExcel() {
             try {
+                // Mostrar loading
+                Swal.fire({
+                    title: 'Generando Excel...',
+                    text: 'Por favor espera',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 const response = await fetch('/admin/usuarios/all?export=true');
-                if (!response.ok) throw new Error('Error al obtener datos');
+                if (!response.ok) throw new Error('Error al obtener datos del servidor');
 
                 const allUsers = await response.json();
+
+                if (!allUsers || allUsers.length === 0) {
+                    Swal.fire('Aviso', 'No hay usuarios para exportar', 'info');
+                    return;
+                }
 
                 const excelData = allUsers.map(user => ({
                     'ID': user.id,
                     'Nombre': user.nombre,
                     'Email': user.email,
                     'Teléfono': user.telefono || 'N/A',
-                    'Rol': user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' :
-                        'Cliente'),
+                    'Rol': user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' : 'Cliente'),
                     'Estado': user.estado ? 'Activo' : 'Inactivo',
-                    'Registro': new Date(user.created_at).toLocaleDateString()
+                    'Registro': new Date(user.created_at).toLocaleDateString('es-ES')
                 }));
+
+                // Verificar que XLSX esté disponible
+                if (typeof XLSX === 'undefined') {
+                    throw new Error('Librería XLSX no cargada');
+                }
 
                 const wb = XLSX.utils.book_new();
                 const ws = XLSX.utils.json_to_sheet(excelData);
+
+                // Ajustar anchos de columnas
+                ws['!cols'] = [
+                    { wch: 5 },  // ID
+                    { wch: 25 }, // Nombre
+                    { wch: 30 }, // Email
+                    { wch: 15 }, // Teléfono
+                    { wch: 15 }, // Rol
+                    { wch: 10 }, // Estado
+                    { wch: 12 }  // Registro
+                ];
+
                 XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
-                XLSX.writeFile(wb, `usuarios_${new Date().toISOString().slice(0,10)}.xlsx`);
+
+                // Generar el archivo y descargarlo (compatible con iframes)
+                const filename = `usuarios_${new Date().toISOString().slice(0,10)}.xlsx`;
+
+                // Usar writeFile que debería funcionar en iframes con allow-downloads
+                try {
+                    XLSX.writeFile(wb, filename);
+                } catch (e) {
+                    // Alternativa: usar blob y crear link manualmente
+                    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Exportado!',
+                    text: `${allUsers.length} usuarios exportados correctamente`,
+                    timer: 2000
+                });
             } catch (error) {
-                console.error('Error al exportar:', error);
-                Swal.fire('Error', 'No se pudo generar el archivo Excel', 'error');
+                console.error('Error al exportar a Excel:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo generar el archivo Excel: ' + error.message
+                });
             }
         }
 
-        // Función para exportar a PDF 
+        // Función para exportar a PDF
         async function exportToPDF() {
             try {
+                // Mostrar loading
+                Swal.fire({
+                    title: 'Generando PDF...',
+                    text: 'Por favor espera',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 const response = await fetch('/admin/usuarios/all?export=true');
-                if (!response.ok) throw new Error('Error al obtener datos');
+                if (!response.ok) throw new Error('Error al obtener datos del servidor');
 
                 const allUsers = await response.json();
 
+                if (!allUsers || allUsers.length === 0) {
+                    Swal.fire('Aviso', 'No hay usuarios para exportar', 'info');
+                    return;
+                }
+
+                // Verificar que jsPDF esté disponible
+                if (typeof window.jspdf === 'undefined') {
+                    throw new Error('Librería jsPDF no cargada');
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'mm', 'a4'); // Orientación horizontal para más espacio
+
+                // Header del PDF
+                doc.setFontSize(20);
+                doc.setTextColor(46, 125, 50); // Color verde corporativo
+                doc.text('AutoGest Carwash - Listado de Usuarios', 14, 15);
+
+                doc.setFontSize(11);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Generado el: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}`, 14, 22);
+                doc.text(`Total de usuarios: ${allUsers.length}`, 14, 28);
+
+                // Preparar datos para la tabla
                 const pdfData = allUsers.map(user => [
                     user.id,
                     user.nombre,
                     user.email,
                     user.telefono || 'N/A',
-                    user.rol === 'admin' ? 'Administrador' : (user.rol === 'empleado' ? 'Empleado' : 'Cliente'),
+                    user.rol === 'admin' ? 'Admin' : (user.rol === 'empleado' ? 'Empleado' : 'Cliente'),
                     user.estado ? 'Activo' : 'Inactivo',
-                    new Date(user.created_at).toLocaleDateString()
+                    new Date(user.created_at).toLocaleDateString('es-ES')
                 ]);
 
-                const {
-                    jsPDF
-                } = window.jspdf;
-                const doc = new jsPDF();
-
-                doc.setFontSize(18);
-                doc.text('Listado Completo de Usuarios', 14, 15);
-                doc.setFontSize(12);
-                doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 22);
-
+                // Generar tabla
                 doc.autoTable({
-                    head: [
-                        ['ID', 'Nombre', 'Email', 'Teléfono', 'Rol', 'Estado', 'Registro']
-                    ],
+                    head: [['ID', 'Nombre', 'Email', 'Teléfono', 'Rol', 'Estado', 'Registro']],
                     body: pdfData,
-                    startY: 30,
+                    startY: 35,
                     styles: {
-                        fontSize: 8,
-                        cellPadding: 2
-                    }
+                        fontSize: 9,
+                        cellPadding: 3,
+                        overflow: 'linebreak',
+                        halign: 'left'
+                    },
+                    headStyles: {
+                        fillColor: [46, 125, 50],
+                        textColor: 255,
+                        fontStyle: 'bold',
+                        halign: 'center'
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245]
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 10, halign: 'center' }, // ID
+                        1: { cellWidth: 45 },                    // Nombre
+                        2: { cellWidth: 55 },                    // Email
+                        3: { cellWidth: 30 },                    // Teléfono
+                        4: { cellWidth: 25, halign: 'center' }, // Rol
+                        5: { cellWidth: 20, halign: 'center' }, // Estado
+                        6: { cellWidth: 25, halign: 'center' }  // Registro
+                    },
+                    margin: { top: 35 }
                 });
 
-                doc.save(`usuarios_completo_${new Date().toISOString().slice(0,10)}.pdf`);
+                // Footer en todas las páginas
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(9);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(
+                        `Página ${i} de ${pageCount}`,
+                        doc.internal.pageSize.width / 2,
+                        doc.internal.pageSize.height - 10,
+                        { align: 'center' }
+                    );
+                }
+
+                // Guardar el PDF (compatible con iframes)
+                const filename = `usuarios_${new Date().toISOString().slice(0,10)}.pdf`;
+
+                try {
+                    doc.save(filename);
+                } catch (e) {
+                    // Alternativa: usar blob manualmente
+                    const blob = doc.output('blob');
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Exportado!',
+                    text: `${allUsers.length} usuarios exportados correctamente`,
+                    timer: 2000
+                });
             } catch (error) {
-                console.error('Error al exportar:', error);
-                Swal.fire('Error', 'No se pudo generar el archivo PDF', 'error');
+                console.error('Error al exportar a PDF:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo generar el archivo PDF: ' + error.message
+                });
             }
         }
 
