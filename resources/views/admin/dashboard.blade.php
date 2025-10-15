@@ -973,6 +973,16 @@
             }
         }
 
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .close-modal {
             position: absolute;
             top: 15px;
@@ -2642,18 +2652,18 @@
                         <i class="fas fa-user-plus"></i>
                         Crear Usuarios
                     </button>
-                    <a href="{{ route('admin.citasadmin.index') }}" class="btn btn-success">
+                    <button onclick="abrirModalCitasAdmin()" class="btn btn-success">
                         <i class="fas fa-calendar"></i>
                         Citas
-                    </a>
-                    <a href="{{ route('admin.bitacora.index') }}" class="btn btn-primary">
+                    </button>
+                    <button onclick="abrirModalBitacora()" class="btn btn-primary">
                         <i class="fas fa-book"></i>
                         Bitácora
-                    </a>
-                    <a href="{{ route('configuracion.index') }}" class="btn btn-info">
+                    </button>
+                    <button onclick="abrirModalConfiguracion()" class="btn btn-info">
                         <i class="fas fa-cog"></i>
                         Configuración
-                    </a>
+                    </button>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn btn-outline">
@@ -2998,10 +3008,10 @@
                                 </div>
                                 Rendimiento Mensual
                             </h2>
-                            <a href="{{ route('admin.reportes') }}" class="btn btn-primary"
+                            <button onclick="abrirModalReportes()" class="btn btn-primary"
                                 style="padding: 8px 12px;">
                                 <i class="fas fa-chart-bar"></i> Ver Reportes Completos
-                            </a>
+                            </button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -3250,9 +3260,9 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline" style="width: 100%;">
+                        <button onclick="abrirModalUsuarios()" class="btn btn-outline" style="width: 100%;">
                             <i class="fas fa-list"></i> Ver Todos los Usuarios
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -3642,7 +3652,7 @@
 
             <!-- Modal para ver detalles del gasto -->
             <div id="detalleGastoModal" class="modal"
-                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1100; align-items: center; justify-content: center;">
                 <div class="modal-content"
                     style="background: white; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
                     <span class="close-modal" onclick="closeModal('detalleGastoModal')"
@@ -9014,7 +9024,820 @@ Chart.register({
             // Cargar data al iniciar
             cargarHorarios();
         })();
+
+        // ==============================================
+        // FUNCIONES PARA MODALES DE NAVEGACIÓN
+        // ==============================================
+
+        // Abrir Modal de Citas Admin con diseño mejorado
+        function abrirModalCitasAdmin() {
+            document.getElementById('citasAdminModal').style.display = 'flex';
+            const content = document.getElementById('citasAdminContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="citasIframe"
+                    src="{{ route('admin.citasadmin.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar resumen de estadísticas
+                            const allCards = iframeDoc.querySelectorAll('.card');
+                            allCards.forEach(card => {
+                                const cardHeader = card.querySelector('.card-header');
+                                if (cardHeader) {
+                                    const headerText = cardHeader.textContent;
+                                    if (headerText.includes('Resumen de Citas') ||
+                                        headerText.includes('Total de Citas') ||
+                                        headerText.includes('Desglose por Estado')) {
+                                        card.style.display = 'none';
+                                    }
+                                }
+                            });
+
+                            // Ocultar botones de volver/regresar al dashboard
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/admin/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño para vista más compacta
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            // Reducir padding de cards
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            // Reducir márgenes
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // IMPORTANTE: Interceptar modales internos para ajustar z-index
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        // Abrir Modal de Bitácora
+        function abrirModalBitacora() {
+            document.getElementById('bitacoraModal').style.display = 'flex';
+            const content = document.getElementById('bitacoraContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="bitacoraIframe"
+                    src="{{ route('admin.bitacora.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/admin/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño para vista más compacta
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // IMPORTANTE: Interceptar modales internos para ajustar z-index
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        // Abrir Modal de Configuración
+        function abrirModalConfiguracion() {
+            document.getElementById('configuracionModal').style.display = 'flex';
+            const content = document.getElementById('configuracionContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="configuracionIframe"
+                    src="{{ route('configuracion.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/admin/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño para vista más compacta
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // IMPORTANTE: Interceptar modales internos para ajustar z-index
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        // ==============================================
+        // MODAL DE REPORTES COMPLETOS
+        // ==============================================
+
+        let reporteCharts = {
+            ingresos: null,
+            citas: null,
+            servicios: null,
+            pagos: null
+        };
+
+        function abrirModalReportes() {
+            document.getElementById('reportesModal').style.display = 'flex';
+
+            // Establecer año actual
+            const anoActual = new Date().getFullYear();
+            document.getElementById('reporteAno').value = anoActual;
+            document.getElementById('reporteMes').value = 0;
+
+            // Cargar datos iniciales
+            setTimeout(() => {
+                actualizarReportes();
+            }, 100);
+        }
+
+        async function actualizarReportes() {
+            const ano = document.getElementById('reporteAno').value;
+            const mes = parseInt(document.getElementById('reporteMes').value);
+
+            try {
+                // Obtener datos del servidor
+                const response = await fetch(`{{ route('admin.dashboard.data') }}`);
+                const data = await response.json();
+
+                if (!data.stats) {
+                    throw new Error('No se pudieron cargar los datos');
+                }
+
+                // Actualizar estadísticas rápidas
+                actualizarEstadisticasReportes(data.stats, mes);
+
+                // Actualizar gráficos
+                actualizarGraficosReportes(data.stats, mes);
+
+                // Actualizar tabla de top servicios
+                actualizarTopServicios(data.stats.servicios_populares_data || {});
+
+            } catch (error) {
+                console.error('Error al cargar reportes:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error al cargar reportes'
+                });
+            }
+        }
+
+        function actualizarEstadisticasReportes(stats, mes) {
+            // Calcular totales según el mes seleccionado
+            let ingresoTotal = 0;
+            let citasCompletadas = 0;
+            let citasCanceladas = 0;
+            let serviciosTotal = 0;
+
+            if (mes === 0) {
+                // Todos los meses
+                ingresoTotal = stats.ingresos_por_mes ? stats.ingresos_por_mes.reduce((a, b) => a + b, 0) : 0;
+                citasCompletadas = stats.citas_por_mes && stats.citas_por_mes.completadas ?
+                    stats.citas_por_mes.completadas.reduce((a, b) => a + b, 0) : 0;
+                citasCanceladas = stats.citas_por_mes && stats.citas_por_mes.canceladas ?
+                    stats.citas_por_mes.canceladas.reduce((a, b) => a + b, 0) : 0;
+            } else {
+                // Mes específico (índice del array es mes-1)
+                ingresoTotal = stats.ingresos_por_mes && stats.ingresos_por_mes[mes-1] ? stats.ingresos_por_mes[mes-1] : 0;
+                citasCompletadas = stats.citas_por_mes && stats.citas_por_mes.completadas && stats.citas_por_mes.completadas[mes-1] ?
+                    stats.citas_por_mes.completadas[mes-1] : 0;
+                citasCanceladas = stats.citas_por_mes && stats.citas_por_mes.canceladas && stats.citas_por_mes.canceladas[mes-1] ?
+                    stats.citas_por_mes.canceladas[mes-1] : 0;
+            }
+
+            // Calcular servicios total (estimado como citas completadas * promedio de servicios por cita)
+            serviciosTotal = Math.round(citasCompletadas * 1.5);
+
+            // Calcular tasa de cancelación
+            const totalCitas = citasCompletadas + citasCanceladas;
+            const tasaCancelacion = totalCitas > 0 ? ((citasCanceladas / totalCitas) * 100).toFixed(1) : 0;
+
+            // Actualizar UI
+            document.getElementById('reporteIngresoTotal').textContent = '$' + ingresoTotal.toFixed(2);
+            document.getElementById('reporteCitasCompletadas').textContent = citasCompletadas;
+            document.getElementById('reporteServiciosTotal').textContent = serviciosTotal;
+            document.getElementById('reporteTasaCancelacion').textContent = tasaCancelacion + '%';
+        }
+
+        function actualizarGraficosReportes(stats, mes) {
+            // Destruir gráficos anteriores
+            Object.keys(reporteCharts).forEach(key => {
+                if (reporteCharts[key]) {
+                    reporteCharts[key].destroy();
+                }
+            });
+
+            // Gráfico de Ingresos
+            const ctxIngresos = document.getElementById('reporteIngresosChart').getContext('2d');
+            reporteCharts.ingresos = new Chart(ctxIngresos, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                        label: 'Ingresos',
+                        data: stats.ingresos_por_mes || Array(12).fill(0),
+                        backgroundColor: 'rgba(46, 125, 50, 0.2)',
+                        borderColor: 'rgba(46, 125, 50, 1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => '$' + context.raw.toLocaleString()
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => '$' + value
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Citas por Estado
+            const citasData = stats.citas_por_mes || { completadas: Array(12).fill(0), canceladas: Array(12).fill(0) };
+            const ctxCitas = document.getElementById('reporteCitasChart').getContext('2d');
+            reporteCharts.citas = new Chart(ctxCitas, {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [
+                        {
+                            label: 'Completadas',
+                            data: citasData.completadas || Array(12).fill(0),
+                            backgroundColor: 'rgba(25, 118, 210, 0.7)',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Canceladas',
+                            data: citasData.canceladas || Array(12).fill(0),
+                            backgroundColor: 'rgba(198, 40, 40, 0.7)',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Gráfico de Servicios Populares
+            const serviciosData = stats.servicios_populares_data || {};
+            const ctxServicios = document.getElementById('reporteServiciosChart').getContext('2d');
+            reporteCharts.servicios = new Chart(ctxServicios, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(serviciosData),
+                    datasets: [{
+                        data: Object.values(serviciosData),
+                        backgroundColor: [
+                            'rgba(46, 125, 50, 0.8)',
+                            'rgba(25, 118, 210, 0.8)',
+                            'rgba(245, 124, 0, 0.8)',
+                            'rgba(156, 39, 176, 0.8)',
+                            'rgba(229, 57, 53, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+
+            // Gráfico de Métodos de Pago (simulado)
+            const ctxPagos = document.getElementById('reportePagosChart').getContext('2d');
+            reporteCharts.pagos = new Chart(ctxPagos, {
+                type: 'pie',
+                data: {
+                    labels: ['Efectivo', 'Tarjeta', 'Transferencia'],
+                    datasets: [{
+                        data: [45, 35, 20],
+                        backgroundColor: [
+                            'rgba(76, 175, 80, 0.8)',
+                            'rgba(33, 150, 243, 0.8)',
+                            'rgba(255, 152, 0, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        function actualizarTopServicios(serviciosData) {
+            const tbody = document.getElementById('topServiciosTable');
+
+            if (Object.keys(serviciosData).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 40px;">No hay datos disponibles</td></tr>';
+                return;
+            }
+
+            // Convertir objeto a array y ordenar
+            const serviciosArray = Object.entries(serviciosData).map(([nombre, veces]) => ({
+                nombre,
+                veces
+            })).sort((a, b) => b.veces - a.veces).slice(0, 10);
+
+            // Generar HTML
+            let html = '';
+            serviciosArray.forEach((servicio, index) => {
+                const ingresos = servicio.veces * 25; // Estimado $25 por servicio
+                const promedio = ingresos / servicio.veces;
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 600;">${index + 1}</td>
+                        <td>${servicio.nombre}</td>
+                        <td>${servicio.veces}</td>
+                        <td style="color: #2e7d32; font-weight: 600;">$${ingresos.toFixed(2)}</td>
+                        <td>$${promedio.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // ==============================================
+        // MODAL DE GESTIÓN DE USUARIOS
+        // ==============================================
+
+        function abrirModalUsuarios() {
+            document.getElementById('usuariosModal').style.display = 'flex';
+            const content = document.getElementById('usuariosContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="usuariosIframe"
+                    src="{{ route('admin.usuarios.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/admin/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño para vista más compacta
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // IMPORTANTE: Interceptar clicks en modales internos para ajustar z-index
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            // Ajustar z-index de modales internos
+                                            node.style.zIndex = '1100';
+
+                                            // Si es un backdrop, también ajustarlo
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) {
+                                                backdrop.style.zIndex = '1090';
+                                            }
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, {
+                                childList: true,
+                                subtree: true
+                            });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
     </script>
+
+    <!-- Modal para Gestión de Citas -->
+    <div id="citasAdminModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #2e7d32 0%, #00695c 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-calendar-alt" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Gestión de Citas
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('citasAdminModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="citasAdminContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid var(--primary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Bitácora -->
+    <div id="bitacoraModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-book" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Bitácora del Sistema
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('bitacoraModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="bitacoraContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #1976d2; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Configuración -->
+    <div id="configuracionModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #f57c00 0%, #e65100 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-cog" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Configuración del Sistema
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('configuracionModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="configuracionContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #f57c00; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Reportes Completos -->
+    <div id="reportesModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 90%; max-width: 1600px; height: 90vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-chart-bar" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Reportes Completos del Sistema
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('reportesModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+
+            <!-- Contenido del modal -->
+            <div id="reportesContent" style="flex: 1; overflow-y: auto; padding: 25px; background: #f5f5f5;">
+                <!-- Selector de Período -->
+                <div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem;">Año:</label>
+                            <select id="reporteAno" class="form-control" style="width: 120px; padding: 8px 12px; border-radius: 8px;">
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem;">Mes:</label>
+                            <select id="reporteMes" class="form-control" style="width: 150px; padding: 8px 12px; border-radius: 8px;">
+                                <option value="0">Todos los meses</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <button onclick="actualizarReportes()" class="btn btn-primary" style="margin-top: 24px; padding: 8px 20px; border-radius: 8px;">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grid de Estadísticas Rápidas -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <!-- Ingresos Totales -->
+                    <div style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-dollar-sign" style="font-size: 2rem; opacity: 0.9;"></i>
+                            <div>
+                                <div style="font-size: 0.85rem; opacity: 0.95; font-weight: 500;">Ingresos Totales</div>
+                                <div id="reporteIngresoTotal" style="font-size: 1.8rem; font-weight: 700; margin-top: 5px;">$0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Citas Completadas -->
+                    <div style="background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-check-circle" style="font-size: 2rem; opacity: 0.9;"></i>
+                            <div>
+                                <div style="font-size: 0.85rem; opacity: 0.95; font-weight: 500;">Citas Completadas</div>
+                                <div id="reporteCitasCompletadas" style="font-size: 1.8rem; font-weight: 700; margin-top: 5px;">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Servicios Realizados -->
+                    <div style="background: linear-gradient(135deg, #f57c00 0%, #e65100 100%); color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-tools" style="font-size: 2rem; opacity: 0.9;"></i>
+                            <div>
+                                <div style="font-size: 0.85rem; opacity: 0.95; font-weight: 500;">Servicios Realizados</div>
+                                <div id="reporteServiciosTotal" style="font-size: 1.8rem; font-weight: 700; margin-top: 5px;">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tasa de Cancelación -->
+                    <div style="background: linear-gradient(135deg, #c62828 0%, #8e0000 100%); color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-ban" style="font-size: 2rem; opacity: 0.9;"></i>
+                            <div>
+                                <div style="font-size: 0.85rem; opacity: 0.95; font-weight: 500;">Tasa Cancelación</div>
+                                <div id="reporteTasaCancelacion" style="font-size: 1.8rem; font-weight: 700; margin-top: 5px;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos en Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px;">
+                    <!-- Gráfico de Ingresos Detallado -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #2e7d32; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-chart-line"></i> Ingresos por Mes
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="reporteIngresosChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Citas -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #1976d2; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-calendar-check"></i> Citas por Estado
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="reporteCitasChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Servicios Populares -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #f57c00; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-star"></i> Servicios Más Solicitados
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="reporteServiciosChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Métodos de Pago -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #6a1b9a; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-credit-card"></i> Métodos de Pago
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="reportePagosChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Top Servicios -->
+                <div style="background: white; border-radius: 10px; padding: 20px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #2c3e50; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-trophy"></i> Top 10 Servicios
+                    </h3>
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Servicio</th>
+                                    <th>Veces Solicitado</th>
+                                    <th>Ingresos Generados</th>
+                                    <th>Promedio por Servicio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topServiciosTable">
+                                <tr>
+                                    <td colspan="5" class="text-center" style="padding: 40px;">Cargando datos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gestión de Usuarios -->
+    <div id="usuariosModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #0288d1 0%, #0277bd 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-users" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Gestión de Usuarios
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('usuariosModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="usuariosContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #0288d1; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

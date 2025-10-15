@@ -2635,17 +2635,17 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('vehiculos.index') }}" class="btn btn-primary">
+                    <button onclick="abrirModalVehiculos()" class="btn btn-primary">
                         <i class="fas fa-plus"></i>
                         Agregar Vehículo
-                    </a>
+                    </button>
                     <a href="#" class="btn btn-primary" onclick="openCitaModal()">
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
                     </a>
-                    <a href="{{ route('configuracion.index') }}" class="btn btn-profile">
+                    <button onclick="abrirModalConfiguracion()" class="btn btn-profile">
                         <i class="fas fa-cog"></i> Configurar Cuenta
-                    </a>
+                    </button>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn btn-outline">
@@ -3269,6 +3269,52 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal de Navegación: Vehículos -->
+    <div id="vehiculosNavModal" style="display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-car" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Mis Vehículos
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModalNav('vehiculosNavModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="vehiculosNavContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #4facfe; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Navegación: Configuración -->
+    <div id="configuracionNavModal" style="display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-cog" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Configuración de Cuenta
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModalNav('configuracionNavModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="configuracionNavContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #667eea; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -6707,10 +6753,314 @@
                     console.error('Error al actualizar vehiculos', err);
                 }
             }
+
+            // ==============================================
+            // FUNCIONES PARA MODALES DE NAVEGACIÓN
+            // ==============================================
+
+            function abrirModalVehiculos() {
+                const modal = document.getElementById('vehiculosNavModal');
+                if (!modal) {
+                    console.error('Modal vehiculosNavModal no encontrado');
+                    return;
+                }
+                modal.style.setProperty('display', 'flex', 'important');
+                const content = document.getElementById('vehiculosNavContent');
+
+                content.innerHTML = `
+                    <iframe
+                        id="vehiculosNavIframe"
+                        src="{{ route('vehiculos.index') }}"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                        style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                        onload="
+                            this.style.opacity='1';
+                            try {
+                                const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                                // Ocultar botones de volver/regresar
+                                const allElements = iframeDoc.querySelectorAll('a, button');
+                                allElements.forEach(element => {
+                                    const text = element.textContent.toLowerCase();
+                                    const href = element.getAttribute('href') || '';
+                                    if (text.includes('volver') || text.includes('regresar') ||
+                                        text.includes('dashboard') || href.includes('/cliente/dashboard')) {
+                                        element.style.display = 'none';
+                                    }
+                                });
+
+                                // Ajustar diseño compacto
+                                const container = iframeDoc.querySelector('.container, .container-fluid');
+                                if (container) {
+                                    container.style.padding = '10px 15px';
+                                    container.style.maxWidth = '100%';
+                                }
+
+                                iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                    card.style.padding = '0.8rem';
+                                });
+
+                                iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                    elem.style.marginBottom = '0.5rem';
+                                });
+
+                                // Observer para modales internos
+                                const observer = new MutationObserver((mutations) => {
+                                    mutations.forEach((mutation) => {
+                                        mutation.addedNodes.forEach((node) => {
+                                            if (node.nodeType === 1 && node.classList &&
+                                                (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                                node.style.zIndex = '1100';
+                                                const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                                if (backdrop) backdrop.style.zIndex = '1090';
+                                            }
+                                        });
+                                    });
+                                });
+
+                                observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                            } catch(e) {
+                                console.log('No se pudo modificar iframe:', e);
+                            }
+                        "
+                    ></iframe>
+                `;
+            }
+
+            function abrirModalConfiguracion() {
+                const modal = document.getElementById('configuracionNavModal');
+                if (!modal) {
+                    console.error('Modal configuracionNavModal no encontrado');
+                    return;
+                }
+                modal.style.setProperty('display', 'flex', 'important');
+                const content = document.getElementById('configuracionNavContent');
+
+                content.innerHTML = `
+                    <iframe
+                        id="configuracionNavIframe"
+                        src="{{ route('configuracion.index') }}"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                        style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                        onload="
+                            this.style.opacity='1';
+                            try {
+                                const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                                // Ocultar botones de volver/regresar
+                                const allElements = iframeDoc.querySelectorAll('a, button');
+                                allElements.forEach(element => {
+                                    const text = element.textContent.toLowerCase();
+                                    const href = element.getAttribute('href') || '';
+                                    if (text.includes('volver') || text.includes('regresar') ||
+                                        text.includes('dashboard') || href.includes('/cliente/dashboard')) {
+                                        element.style.display = 'none';
+                                    }
+                                });
+
+                                // Ajustar diseño compacto
+                                const container = iframeDoc.querySelector('.container, .container-fluid');
+                                if (container) {
+                                    container.style.padding = '10px 15px';
+                                    container.style.maxWidth = '100%';
+                                }
+
+                                iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                    card.style.padding = '0.8rem';
+                                });
+
+                                iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                    elem.style.marginBottom = '0.5rem';
+                                });
+
+                                // Observer para modales internos
+                                const observer = new MutationObserver((mutations) => {
+                                    mutations.forEach((mutation) => {
+                                        mutation.addedNodes.forEach((node) => {
+                                            if (node.nodeType === 1 && node.classList &&
+                                                (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                                node.style.zIndex = '1100';
+                                                const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                                if (backdrop) backdrop.style.zIndex = '1090';
+                                            }
+                                        });
+                                    });
+                                });
+
+                                observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                            } catch(e) {
+                                console.log('No se pudo modificar iframe:', e);
+                            }
+                        "
+                    ></iframe>
+                `;
+            }
+
+            function closeModalNav(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.setProperty('display', 'none', 'important');
+                }
+            }
         </script>
     @endpush
 
+    <!-- Scripts adicionales para modales de navegación -->
+    <script>
+        // ==============================================
+        // FUNCIONES PARA MODALES DE NAVEGACIÓN (GLOBAL)
+        // ==============================================
 
+        function abrirModalVehiculos() {
+            console.log('Intentando abrir modal de vehículos...');
+            const modal = document.getElementById('vehiculosNavModal');
+            if (!modal) {
+                console.error('Modal vehiculosNavModal no encontrado');
+                return;
+            }
+            console.log('Modal encontrado, mostrando...');
+            modal.style.setProperty('display', 'flex', 'important');
+            const content = document.getElementById('vehiculosNavContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="vehiculosNavIframe"
+                    src="{{ route('vehiculos.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/cliente/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño compacto
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // Observer para modales internos
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        function abrirModalConfiguracion() {
+            console.log('Intentando abrir modal de configuración...');
+            const modal = document.getElementById('configuracionNavModal');
+            if (!modal) {
+                console.error('Modal configuracionNavModal no encontrado');
+                return;
+            }
+            console.log('Modal encontrado, mostrando...');
+            modal.style.setProperty('display', 'flex', 'important');
+            const content = document.getElementById('configuracionNavContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="configuracionNavIframe"
+                    src="{{ route('configuracion.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/cliente/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño compacto
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // Observer para modales internos
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        function closeModalNav(modalId) {
+            console.log('Cerrando modal:', modalId);
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.setProperty('display', 'none', 'important');
+            }
+        }
+    </script>
 
     <style>
         /* Efecto ripple para botones */

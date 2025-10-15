@@ -326,30 +326,27 @@
 
         /* MEJORAS EN LOS FILTROS */
         .filters-card .card-body {
-            padding: 30px 30px 25px;
-            /* Más padding top */
+            padding: 25px 30px;
         }
 
         .filter-group {
-            margin-bottom: 1.8rem;
-            /* Más espaciado entre filtros */
+            margin-bottom: 1.5rem;
         }
 
         .filter-label {
             display: block;
-            margin-bottom: 10px;
-            /* Más separación del input */
+            margin-bottom: 8px;
             font-weight: 600;
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px 18px;
+            padding: 10px 14px;
             border: 2px solid var(--border-primary);
-            border-radius: 12px;
-            font-size: 15px;
+            border-radius: 10px;
+            font-size: 14px;
             background: rgba(255, 255, 255, 0.98);
             transition: var(--transition);
         }
@@ -363,17 +360,23 @@
         /* Mejoras en botones de filtros */
         .filter-buttons-container {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             width: 100%;
-            align-items: end;
+            flex-wrap: nowrap;
         }
 
         .filter-buttons-container .btn {
             flex: 1;
-            min-width: 100px;
-            /* Ancho mínimo para evitar recortes */
+            min-width: 90px;
+            white-space: nowrap;
             justify-content: center;
-            padding: 12px 16px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        .filter-buttons-container .btn i {
+            font-size: 0.85rem;
+            margin-right: 4px;
         }
 
         .admin-table {
@@ -1061,7 +1064,7 @@
             <div class="card-body">
                 <form id="filtros-form" method="GET" action="{{ route('admin.citasadmin.index') }}">
                     <div class="row">
-                        <div class="col-md-3 filter-group">
+                        <div class="col-lg-3 col-md-6 filter-group">
                             <label for="filtro-estado" class="filter-label">Filtrar por estado:</label>
                             <select id="filtro-estado" name="estado" class="form-control">
                                 <option value="">Todos los estados</option>
@@ -1078,17 +1081,17 @@
                                     Cancelada</option>
                             </select>
                         </div>
-                        <div class="col-md-3 filter-group">
+                        <div class="col-lg-2 col-md-6 filter-group">
                             <label for="filtro-fecha" class="filter-label">Filtrar por fecha:</label>
                             <input type="date" id="filtro-fecha" name="fecha" class="form-control"
                                 value="{{ request('fecha') }}">
                         </div>
-                        <div class="col-md-4 filter-group">
+                        <div class="col-lg-4 col-md-8 filter-group">
                             <label for="buscar" class="filter-label">Buscar:</label>
                             <input type="text" id="buscar" name="buscar" class="form-control"
                                 placeholder="Cliente, vehículo, placa..." value="{{ request('buscar') }}">
                         </div>
-                        <div class="col-md-2 filter-group d-flex align-items-end">
+                        <div class="col-lg-3 col-md-4 filter-group d-flex align-items-end">
                             <div class="filter-buttons-container">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-filter"></i> Filtrar
