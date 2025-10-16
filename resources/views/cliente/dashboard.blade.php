@@ -873,9 +873,6 @@
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
             }
-
-            flex-direction: column;
-            text-align: center;
         }
 
 
@@ -3223,8 +3220,7 @@
                         @if ($facturas_dashboard->count() > 0)
                             <div
                                 style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f3f4;">
-                                <a href="{{ route('cliente.facturas') }}" class="btn btn-outline"
-                                    style="padding: 10px 20px;">
+                               <a href="{{ route('cliente.facturas') }}" class="btn btn-outline" style="padding: 10px 20px;">
                                     <i class="fas fa-history"></i> Ver Historial Completo de Facturas
                                 </a>
                                 <div style="margin-top: 10px;">

@@ -88,7 +88,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::delete('/{usuario}', [AdminController::class, 'destroy'])->name('destroy');
             Route::get('/{usuario}/registros', [AdminController::class, 'getUserRecords'])->name('registros');
             Route::get('/check-email', [AdminController::class, 'checkEmail'])->name('check-email');
-            
+
             // Acciones masivas
             Route::post('/bulk-activate', [AdminController::class, 'bulkActivate'])->name('bulk-activate');
             Route::post('/bulk-deactivate', [AdminController::class, 'bulkDeactivate'])->name('bulk-deactivate');
@@ -113,7 +113,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
 
             // Rutas adicionales para mejor funcionalidad
             Route::get('/{cita}/historial', [PagoController::class, 'historialPagos'])->name('historial');
-            
+
             // Rutas para reportes y estadísticas de pagos
             Route::get('/reporte-diario', [PagoController::class, 'reporteDiario'])->name('reporte-diario');
             Route::get('/reporte-mensual', [PagoController::class, 'reporteMensual'])->name('reporte-mensual');
@@ -258,9 +258,9 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
 
         // Rutas para facturas del cliente
-        Route::get('/facturas', [ClienteController::class, 'facturas'])->name('cliente.facturas');
-        Route::get('/facturas/{cita}', [ClienteController::class, 'verFactura'])->name('cliente.facturas.ver');
-        Route::get('/facturas/{cita}/descargar', [ClienteController::class, 'descargarFactura'])->name('cliente.facturas.descargar');
+        Route::get('/facturas', [ClienteController::class, 'facturas'])->name('facturas');
+        Route::get('/facturas/{cita}', [ClienteController::class, 'verFactura'])->name('facturas.ver');
+        Route::get('/facturas/{cita}/descargar', [ClienteController::class, 'descargarFactura'])->name('facturas.descargar');
     });
 
 // Rutas de perfil
