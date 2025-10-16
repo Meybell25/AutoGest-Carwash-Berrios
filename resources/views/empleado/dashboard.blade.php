@@ -2609,6 +2609,7 @@
         }
 
         function verDetalleCita(citaId) {
+
             // Obtener detalles de la cita mediante AJAX
             fetch(`/empleado/citas/${citaId}/detalles`)
                 .then(response => response.json())
@@ -2628,7 +2629,7 @@
                                     <p><strong>Nombre:</strong> ${cita.usuario.nombre}</p>
                                     <p><strong>Email:</strong> ${cita.usuario.email}</p>
                                     <p><strong>Teléfono:</strong> ${cita.usuario.telefono || 'Sin teléfono'}</p>
-                                </div>
+                                </div
 
                                 <div>
                                     <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--gray-800);">

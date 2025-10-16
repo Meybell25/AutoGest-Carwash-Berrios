@@ -1,15 +1,13 @@
 <?php
-// app/Http/Controllers/EmpleadoController.php
 
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
-use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class EmpleadoController extends Controller
@@ -19,28 +17,54 @@ class EmpleadoController extends Controller
      */
     public function dashboard(): View
     {
-       $citas_hoy = Cita::whereDate('fecha_hora', today())
-        ->whereHas('usuario') // Solo citas con usuario
-        ->whereHas('vehiculo') // Solo citas con vehículo
-        ->with(['usuario', 'vehiculo', 'servicios'])
-        ->orderBy('fecha_hora')
-        ->get();
+        $citas_hoy = Cita::hoy()
+            ->byEstado(Cita::ESTADO_PENDIENTE)
+            ->with(['usuario', 'vehiculo', 'servicios'])
+            ->orderBy('fecha_hora')
+            ->get();
 
-        // Debug para verificar datos
-        if ($citas_hoy->isEmpty()) {
-            Log::info('No hay citas para hoy');
-        } else {
-            Log::info('Citas encontradas: ' . $citas_hoy->count());
+        $stats = [
+            'citas_hoy'        => Cita::hoy()->byEstado(Cita::ESTADO_PENDIENTE)->count(),
+            'citas_proceso'    => Cita::hoy()->byEstado(Cita::ESTADO_EN_PROCESO)->count(),
+            'citas_finalizadas'=> Cita::hoy()->byEstado(Cita::ESTADO_FINALIZADA)->count(),
+        ];
 
-            // Verificar relaciones
-            foreach ($citas_hoy as $cita) {
-                if (!$cita->usuario) {
-                    Log::warning('Cita ID ' . $cita->id . ' no tiene usuario asociado');
+        $historial = Cita::byEstado(Cita::ESTADO_FINALIZADA)
+            ->orderByDesc('updated_at')
+            ->take(5)
+            ->with(['usuario', 'vehiculo', 'servicios'])
+            ->get();
+
+        return view('empleado.dashboard', compact('citas_hoy', 'stats', 'historial'));
+    }
+
+    public function citas(Request $request): View
+    {
+        $filtro = $request->get('filtro', 'hoy');
+        $fecha  = today();
+
+        switch ($filtro) {
+            case 'manana':
+                $fecha = today()->addDay();
+                break;
+
+            case 'pasado':
+                $fecha = today()->addDays(2);
+                break;
+
+            case 'fecha':
+                if ($request->filled('fecha')) {
+                    // Solo acepta fechas >= hoy
+                    $candidata = Carbon::parse($request->fecha);
+                    if ($candidata->gte(today())) {
+                        $fecha = $candidata;
+                    }
                 }
-                if (!$cita->vehiculo) {
-                    Log::warning('Cita ID ' . $cita->id . ' no tiene vehículo asociado');
-                }
-            }
+                break;
+
+            default:
+                // 'hoy' u otro valor desconocido cae aquí
+                $fecha = today();
         }
 
         // Estadísticas corregidas
@@ -96,6 +120,49 @@ class EmpleadoController extends Controller
 
         // Si no, retornar vista (para mantener compatibilidad)
         return view('empleado.citas', compact('citas'));
+        $citas = Cita::byEstado(Cita::ESTADO_PENDIENTE)
+            ->byFecha($fecha)
+            ->with(['usuario', 'vehiculo', 'servicios'])
+            ->orderBy('fecha_hora')
+            ->get();
+
+        return view('empleado.citas', [
+            'citas'  => $citas,
+            'fecha'  => $fecha,
+            'filtro' => $filtro,
+        ]);
+    }
+
+    public function cambiarEstado(Request $request, Cita $cita)
+    {
+        $request->validate([
+            'estado' => 'required|in:pendiente,en_proceso,finalizada',
+        ]);
+
+        $cita->update([
+            'estado' => $request->string('estado'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado actualizado correctamente',
+        ]);
+    }
+
+    public function finalizarCita(Request $request)
+    {
+        $request->validate([
+            'cita_id' => 'required|exists:citas,id',
+        ]);
+
+        $cita = Cita::findOrFail($request->input('cita_id'));
+        $cita->estado = Cita::ESTADO_FINALIZADA;
+        $cita->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cita finalizada correctamente',
+        ]);
     }
 
     /**

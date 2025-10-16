@@ -351,8 +351,9 @@
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 40px;
+            margin-bottom: 35px;
+            padding: 0 10px;
         }
 
         .main-section {
@@ -365,6 +366,7 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            padding-right: 10px;
         }
 
         /* Cards Base */
@@ -835,6 +837,49 @@
         .service-card input[type="checkbox"]:checked+div {
             font-weight: bold;
             color: #4facfe;
+        }
+
+        /*Facturas y recibos*/
+        .stats-mini {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .stat-mini {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-mini:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-mini {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+        }
+
+
+        @media (max-width: 480px) {
+            .stats-mini {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Perfil del Cliente - Sidebar */
@@ -1333,11 +1378,14 @@
         @media (max-width: 1200px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
+                gap: 25px;
+                padding: 0;
             }
 
             .sidebar-section {
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 25px;
+                padding-left: 0;
             }
 
             .header-content {
@@ -1350,6 +1398,11 @@
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 10px;
             }
+
+            .main-section {
+                padding-right: 0;
+            }
+
         }
 
         @media (max-width: 992px) {
@@ -1514,8 +1567,13 @@
             }
 
             @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
             }
 
             .notification-item {
@@ -1798,7 +1856,7 @@
         .close-modal:hover {
             color: #333;
         }
-        
+
         /* Estilos para SweetAlert modales grandes (agendado) */
         .swal-large-modal {
             max-width: 900px !important;
@@ -1808,7 +1866,7 @@
             background: linear-gradient(145deg, #ffffff, #f8f9fa) !important;
             border: 1px solid rgba(79, 172, 254, 0.2) !important;
         }
-        
+
         /* Mejoras al título del modal */
         .swal-large-modal .swal2-title {
             color: #2c3e50 !important;
@@ -1817,12 +1875,12 @@
             text-align: center !important;
             margin-bottom: 20px !important;
         }
-        
+
         .swal-large-content {
             font-size: 16px !important;
             line-height: 1.6 !important;
         }
-        
+
         /* Mejoras específicas para formularios de agendado */
         .swal-large-modal .swal2-html-container {
             margin: 1.5em 0 !important;
@@ -1830,29 +1888,29 @@
             overflow-y: auto !important;
             padding: 0 10px !important;
         }
-        
+
         /* Estilos para los elementos de selección de vehículos */
         .swal-large-modal label {
             transition: all 0.3s ease !important;
             border: 2px solid #e3e8ef !important;
             background: #f8f9fa !important;
         }
-        
+
         .swal-large-modal label:hover {
             border-color: #4facfe !important;
             background: #f0f8ff !important;
             transform: translateY(-2px) !important;
             box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
         }
-        
-        .swal-large-modal input[type="radio"]:checked + div {
+
+        .swal-large-modal input[type="radio"]:checked+div {
             color: #4facfe !important;
         }
-        
+
         .swal-large-modal input[type="radio"]:checked {
             accent-color: #4facfe !important;
         }
-        
+
         /* Estilos mejorados para inputs de fecha y hora */
         .swal-large-modal input[type="date"],
         .swal-large-modal input[type="time"] {
@@ -1867,7 +1925,7 @@
             min-height: 55px !important;
             position: relative !important;
         }
-        
+
         /* Mejoras específicas para el input de fecha - hacer el ícono del calendario más visible */
         .swal-large-modal input[type="date"] {
             padding-right: 60px !important;
@@ -1878,7 +1936,7 @@
             cursor: pointer !important;
             box-shadow: inset 0 0 0 1px rgba(79, 172, 254, 0.2) !important;
         }
-        
+
         /* Mejoras específicas para el input de hora - hacer el ícono del reloj más visible */
         .swal-large-modal input[type="time"] {
             padding-right: 60px !important;
@@ -1889,7 +1947,7 @@
             cursor: pointer !important;
             box-shadow: inset 0 0 0 1px rgba(79, 172, 254, 0.2) !important;
         }
-        
+
         .swal-large-modal input[type="date"]:focus,
         .swal-large-modal input[type="time"]:focus {
             border-color: #4facfe !important;
@@ -1897,14 +1955,14 @@
             box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.15) !important;
             transform: translateY(-1px) !important;
         }
-        
+
         .swal-large-modal input[type="date"]:hover,
         .swal-large-modal input[type="time"]:hover {
             border-color: #4facfe !important;
             transform: translateY(-1px) !important;
             box-shadow: 0 4px 12px rgba(79, 172, 254, 0.1) !important;
         }
-        
+
         /* Mejoras para las etiquetas de fecha y hora */
         .swal-large-modal div[style*="margin-bottom: 15px"] label {
             display: block !important;
@@ -1913,7 +1971,7 @@
             font-size: 16px !important;
             color: #2c3e50 !important;
         }
-        
+
         /* Estilos adicionales para mejorar la visibilidad del calendario */
         .swal-large-modal input[type="date"]::-webkit-calendar-picker-indicator {
             opacity: 0 !important;
@@ -1927,7 +1985,7 @@
             bottom: 0 !important;
             transform: none !important;
         }
-        
+
         .swal-large-modal input[type="time"]::-webkit-calendar-picker-indicator {
             opacity: 0 !important;
             width: 100% !important;
@@ -1940,19 +1998,19 @@
             bottom: 0 !important;
             transform: none !important;
         }
-        
+
         /* Animación suave al hacer clic en los inputs */
         .swal-large-modal input[type="date"]:active,
         .swal-large-modal input[type="time"]:active {
             transform: translateY(0px) !important;
             box-shadow: 0 0 0 6px rgba(79, 172, 254, 0.25) !important;
         }
-        
+
         /* Container para los inputs */
-        .swal-large-modal div[style*="text-align: left"] > div {
+        .swal-large-modal div[style*="text-align: left"]>div {
             margin-bottom: 25px !important;
         }
-        
+
         /* Responsive para móviles */
         @media (max-width: 768px) {
             .swal-large-modal {
@@ -1960,12 +2018,12 @@
                 width: 95% !important;
                 margin: 10px !important;
             }
-            
+
             .swal-large-modal .swal2-html-container {
                 font-size: 14px !important;
                 max-height: 70vh !important;
             }
-            
+
             /* Inputs de fecha y hora más grandes en móvil */
             .swal-large-modal input[type="date"],
             .swal-large-modal input[type="time"] {
@@ -1974,7 +2032,7 @@
                 padding: 18px 22px !important;
                 padding-right: 55px !important;
             }
-            
+
             /* Iconos más grandes y visible en móvil */
             .swal-large-modal input[type="date"],
             .swal-large-modal input[type="time"] {
@@ -1983,12 +2041,12 @@
                 padding-right: 65px !important;
             }
         }
-        
+
         /* Mejoras en los botones */
         .swal-large-modal .swal2-actions {
             margin-top: 25px !important;
         }
-        
+
         .swal-large-modal .swal2-confirm {
             background: linear-gradient(135deg, #4facfe, #00f2fe) !important;
             border: none !important;
@@ -1998,12 +2056,12 @@
             font-weight: 600 !important;
             transition: all 0.3s ease !important;
         }
-        
+
         .swal-large-modal .swal2-confirm:hover {
             transform: translateY(-2px) !important;
             box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3) !important;
         }
-        
+
         .swal-large-modal .swal2-cancel {
             background: #6c757d !important;
             border: none !important;
@@ -2012,7 +2070,7 @@
             font-size: 16px !important;
             margin-right: 15px !important;
         }
-        
+
         .swal-large-modal .swal2-cancel:hover {
             background: #5a6268 !important;
         }
@@ -2635,17 +2693,17 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('vehiculos.index') }}" class="btn btn-primary">
+                    <button onclick="abrirModalVehiculos()" class="btn btn-primary">
                         <i class="fas fa-plus"></i>
                         Agregar Vehículo
-                    </a>
+                    </button>
                     <a href="#" class="btn btn-primary" onclick="openCitaModal()">
                         <i class="fas fa-calendar-plus"></i>
                         Nueva Cita
                     </a>
-                    <a href="{{ route('configuracion.index') }}" class="btn btn-profile">
+                    <button onclick="abrirModalConfiguracion()" class="btn btn-profile">
                         <i class="fas fa-cog"></i> Configurar Cuenta
-                    </a>
+                    </button>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn btn-outline">
@@ -2671,7 +2729,8 @@
                                 </div>
                                 Próximas Citas Confirmadas
                             </h2>
-                            <a href="{{ route('cliente.citas') }}" class="btn btn-outline" style="padding: 8px 12px;">
+                            <a href="{{ route('cliente.citas') }}" class="btn btn-outline"
+                                style="padding: 8px 12px;">
                                 <i class="fas fa-list"></i> Ver Todas Las Citas
                             </a>
                         </div>
@@ -2855,26 +2914,30 @@
                     </div>
                     <div class="card-body">
                         <div class="services-grid" id="servicesGrid">
-                            @if(isset($servicios) && $servicios->count() > 0)
+                            @if (isset($servicios) && $servicios->count() > 0)
                                 @php
                                     $serviciosMostrados = 0;
                                     $totalServicios = $servicios->count();
                                 @endphp
-                                @foreach($servicios->groupBy('categoria') as $categoria => $serviciosCategoria)
-                                    @foreach($serviciosCategoria as $servicio)
-                                        @if($serviciosMostrados < 4)
-                                            <div class="service-card" data-servicio-id="{{ $servicio->id }}" data-categoria="{{ $servicio->categoria }}">
+                                @foreach ($servicios->groupBy('categoria') as $categoria => $serviciosCategoria)
+                                    @foreach ($serviciosCategoria as $servicio)
+                                        @if ($serviciosMostrados < 4)
+                                            <div class="service-card" data-servicio-id="{{ $servicio->id }}"
+                                                data-categoria="{{ $servicio->categoria }}">
                                                 <div class="service-icon">
                                                     @switch($servicio->categoria)
                                                         @case('auto')
                                                             <i class="fas fa-car"></i>
-                                                            @break
+                                                        @break
+
                                                         @case('suv')
                                                             <i class="fas fa-truck"></i>
-                                                            @break
+                                                        @break
+
                                                         @case('moto')
                                                             <i class="fas fa-motorcycle"></i>
-                                                            @break
+                                                        @break
+
                                                         @default
                                                             <i class="fas fa-spray-can"></i>
                                                     @endswitch
@@ -2883,7 +2946,8 @@
                                                 <p class="description">{{ $servicio->descripcion }}</p>
                                                 <div class="price">${{ number_format($servicio->precio, 2) }}</div>
                                                 <div class="duration">⏱️ {{ $servicio->duracion_formatted }}</div>
-                                                <button class="btn btn-primary quick-book-btn" onclick="quickBookService({{ $servicio->id }}, '{{ $servicio->categoria }}', this)">
+                                                <button class="btn btn-primary quick-book-btn"
+                                                    onclick="quickBookService({{ $servicio->id }}, '{{ $servicio->categoria }}', this)">
                                                     <i class="fas fa-calendar-plus"></i>
                                                     Agendar Ahora
                                                 </button>
@@ -2892,16 +2956,21 @@
                                         @endif
                                     @endforeach
                                 @endforeach
-                                @if($totalServicios > 4)
-                                    <div class="service-card view-all-card" onclick="verTodosLosServiciosCliente()" style="cursor: pointer; border: 2px dashed #4facfe; background: rgba(79, 172, 254, 0.05);">
-                                        <div class="service-icon" style="background: rgba(79, 172, 254, 0.1); color: #4facfe;">
+                                @if ($totalServicios > 4)
+                                    <div class="service-card view-all-card" onclick="verTodosLosServiciosCliente()"
+                                        style="cursor: pointer; border: 2px dashed #4facfe; background: rgba(79, 172, 254, 0.05);">
+                                        <div class="service-icon"
+                                            style="background: rgba(79, 172, 254, 0.1); color: #4facfe;">
                                             <i class="fas fa-list"></i>
                                         </div>
                                         <h3 style="color: #4facfe;">Ver Todos</h3>
-                                        <p class="description" style="color: #666;">{{ $totalServicios - 4 }} servicios más disponibles</p>
-                                        <div class="price" style="color: #4facfe; font-weight: 600;">{{ $totalServicios }} total</div>
+                                        <p class="description" style="color: #666;">{{ $totalServicios - 4 }}
+                                            servicios más disponibles</p>
+                                        <div class="price" style="color: #4facfe; font-weight: 600;">
+                                            {{ $totalServicios }} total</div>
                                         <div class="duration" style="color: #666;">📋 Catálogo completo</div>
-                                        <button class="btn btn-outline" style="border-color: #4facfe; color: #4facfe;">
+                                        <button class="btn btn-outline"
+                                            style="border-color: #4facfe; color: #4facfe;">
                                             <i class="fas fa-eye"></i>
                                             Ver Catálogo
                                         </button>
@@ -2913,7 +2982,8 @@
                                         <i class="fas fa-spray-can"></i>
                                     </div>
                                     <h3>Lavado Completo</h3>
-                                    <p class="description">Exterior e interior completo, aspirado y limpieza de tapicería</p>
+                                    <p class="description">Exterior e interior completo, aspirado y limpieza de
+                                        tapicería</p>
                                     <div class="price">$25.00</div>
                                     <div class="duration">⏱️ 30-40 min</div>
                                     <button class="btn btn-primary" onclick="showNoServicesAlert()">
@@ -2937,48 +3007,206 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        @if (isset($mis_citas) && count($mis_citas) > 0)
+                        <!-- Estadísticas Mini -->
+                        <div class="stats-mini"
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                            <div class="stat-mini"
+                                style="background: linear-gradient(135deg, #667eea20, #764ba220); padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #667eea;">
+                                <span class="number"
+                                    style="font-size: 1.5rem; font-weight: 700; color: #667eea; display: block;">
+                                    {{ $estadisticas_facturas['total_facturas'] }}
+                                </span>
+                                <span class="label"
+                                    style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Facturas Totales
+                                </span>
+                            </div>
+                            <div class="stat-mini"
+                                style="background: linear-gradient(135deg, #4facfe20, #00f2fe20); padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #4facfe;">
+                                <span class="number"
+                                    style="font-size: 1.5rem; font-weight: 700; color: #4facfe; display: block;">
+                                    ${{ number_format($estadisticas_facturas['total_gastado'], 2) }}
+                                </span>
+                                <span class="label"
+                                    style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Total Gastado
+                                </span>
+                            </div>
+                            <div class="stat-mini"
+                                style="background: linear-gradient(135deg, #3dd26e20, #35ebc920); padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #3dd26e;">
+                                <span class="number"
+                                    style="font-size: 1.5rem; font-weight: 700; color: #3dd26e; display: block;">
+                                    {{ $estadisticas_facturas['facturas_mes_actual'] }}
+                                </span>
+                                <span class="label"
+                                    style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Este Mes
+                                </span>
+                            </div>
+                            @if ($estadisticas_facturas['total_facturas'] > 0)
+                                <div class="stat-mini"
+                                    style="background: linear-gradient(135deg, #fa709a20, #fee14020); padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #fa709a;">
+                                    <span class="number"
+                                        style="font-size: 1.5rem; font-weight: 700; color: #fa709a; display: block;">
+                                        ${{ number_format($estadisticas_facturas['promedio_por_factura'], 2) }}
+                                    </span>
+                                    <span class="label"
+                                        style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Promedio/Factura
+                                    </span>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Información Adicional de Estadísticas -->
+                        @if ($estadisticas_facturas['vehiculo_mas_utilizado'] || $estadisticas_facturas['servicio_mas_solicitado'])
+                            <div
+                                style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #764ba2;">
+                                <h4 style="color: #764ba2; margin-bottom: 10px; font-size: 1rem;">
+                                    <i class="fas fa-chart-line"></i> Tus Estadísticas
+                                </h4>
+                                <div
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; font-size: 0.85rem;">
+                                    @if ($estadisticas_facturas['vehiculo_mas_utilizado'])
+                                        <div>
+                                            <strong>🚗 Vehículo Más Usado:</strong><br>
+                                            {{ $estadisticas_facturas['vehiculo_mas_utilizado']['vehiculo']->marca }}
+                                            {{ $estadisticas_facturas['vehiculo_mas_utilizado']['vehiculo']->modelo }}
+                                            <small
+                                                style="color: #666;">({{ $estadisticas_facturas['vehiculo_mas_utilizado']['cantidad'] }}
+                                                facturas)</small>
+                                        </div>
+                                    @endif
+
+                                    @if ($estadisticas_facturas['servicio_mas_solicitado'])
+                                        <div>
+                                            <strong>✨ Servicio Favorito:</strong><br>
+                                            {{ $estadisticas_facturas['servicio_mas_solicitado']['servicio']->nombre }}
+                                            <small
+                                                style="color: #666;">({{ $estadisticas_facturas['servicio_mas_solicitado']['cantidad'] }}
+                                                veces)</small>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Lista de Facturas Recientes -->
+                        @if ($facturas_dashboard->count() > 0)
                             <div class="services-grid">
-                                @foreach ($mis_citas->take(3) as $cita)
-                                    <div class="service-card" style="text-align: left;">
+                                @foreach ($facturas_dashboard as $cita)
+                                    @php
+                                        $total = $cita->pago ? $cita->pago->monto : $cita->servicios->sum('precio');
+                                        $fechaFormateada = $cita->fecha_hora->format('d M Y');
+                                        $numeroFactura = 'FACT-' . str_pad($cita->id, 6, '0', STR_PAD_LEFT);
+                                        $metodoPago = $cita->pago ? $cita->pago->metodo_formatted : 'No especificado';
+                                    @endphp
+
+                                    <div class="service-card"
+                                        style="text-align: left; position: relative; overflow: hidden;">
+                                        <!-- Header con número de factura y precio -->
                                         <div
-                                            style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                                            <div>
-                                                <h3>Factura
-                                                    #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}-{{ date('Y') }}
+                                            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px solid #f1f3f4; padding-bottom: 12px;">
+                                            <div style="flex: 1;">
+                                                <h3
+                                                    style="color: #4facfe; margin: 0 0 8px 0; font-size: 1.2rem; font-weight: 700;">
+                                                    {{ $numeroFactura }}
                                                 </h3>
-                                                <p style="color: #666; font-size: 0.9rem;">
-                                                    {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y') }}
-                                                </p>
+                                                <div style="color: #666; font-size: 0.85rem;">
+                                                    <p style="margin: 4px 0;">
+                                                        <i class="fas fa-calendar"></i> {{ $fechaFormateada }}
+                                                    </p>
+                                                    <p style="margin: 4px 0;">
+                                                        <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                        {{ $cita->vehiculo->modelo }}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                @php
-                                                    $total = $cita->servicios->sum('precio');
-                                                @endphp
+                                            <div style="text-align: right; min-width: 120px;">
                                                 <div
-                                                    style="font-weight: 700; color: #4facfe; font-size: 1.3rem; text-align: right;">
-                                                    ${{ number_format($total, 2) }}</div>
-                                                <span
-                                                    style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; margin-top: 5px;">PAGADO</span>
+                                                    style="font-weight: 800; color: #4facfe; font-size: 1.4rem; margin-bottom: 8px;">
+                                                    ${{ number_format($total, 2) }}
+                                                </div>
+
+                                                <!-- Badges en columna -->
+                                                <div
+                                                    style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
+                                                    <!-- Badge de estado -->
+                                                    <span
+                                                        style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; white-space: nowrap;">
+                                                        <i class="fas fa-check-circle"></i> COMPLETADA
+                                                    </span>
+
+                                                    <!-- Badge de método de pago -->
+                                                    @if ($cita->pago)
+                                                        @switch($cita->pago->metodo)
+                                                            @case('efectivo')
+                                                                <span
+                                                                    style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 600; white-space: nowrap;">
+                                                                    💵 Efectivo
+                                                                </span>
+                                                            @break
+
+                                                            @case('transferencia')
+                                                                <span
+                                                                    style="background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 600; white-space: nowrap;">
+                                                                    🏦 Transferencia
+                                                                </span>
+                                                            @break
+
+                                                            @case('pasarela')
+                                                                <span
+                                                                    style="background: #6f42c1; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 600; white-space: nowrap;">
+                                                                    💳 Tarjeta
+                                                                </span>
+                                                            @break
+                                                        @endswitch
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
 
+                                        <!-- Servicios -->
                                         <div style="margin-bottom: 15px;">
-                                            <p><strong>Servicios:</strong></p>
-                                            <ul style="padding-left: 20px; margin-top: 5px;">
-                                                @foreach ($cita->servicios as $servicio)
-                                                    <li>{{ $servicio->nombre }} -
-                                                        ${{ number_format($servicio->precio, 2) }}</li>
+                                            <p
+                                                style="font-weight: 600; color: #333; margin-bottom: 10px; font-size: 0.95rem;">
+                                                <i class="fas fa-spray-can"></i> Servicios Contratados:
+                                            </p>
+                                            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                                @foreach ($cita->servicios->take(3) as $servicio)
+                                                    <span
+                                                        style="background: #e7f3ff; color: #1976d2; padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: 500; border: 1px solid #bbdefb;">
+                                                        {{ $servicio->nombre }}
+                                                    </span>
                                                 @endforeach
-                                            </ul>
+                                                @if ($cita->servicios->count() > 3)
+                                                    <span
+                                                        style="background: #4facfe; color: white; padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: 600;">
+                                                        +{{ $cita->servicios->count() - 3 }} más
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
 
-                                        <div style="display: flex; gap: 10px; margin-top: 15px;">
-                                            <button class="btn btn-sm btn-outline" style="flex: 1;">
-                                                <i class="fas fa-eye"></i> Ver
+                                        @if ($cita->pago && $cita->pago->referencia)
+                                            <div
+                                                style="background: #fff3cd; padding: 10px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                                                <small style="color: #856404; font-size: 0.8rem;">
+                                                    <i class="fas fa-receipt"></i>
+                                                    <strong>Referencia de pago:</strong> {{ $cita->pago->referencia }}
+                                                </small>
+                                            </div>
+                                        @endif
+
+                                        <!-- Botones de acción -->
+                                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                            <button class="btn btn-sm btn-outline" style="flex: 1; padding: 10px;"
+                                                onclick="verDetalleFactura({{ $cita->id }})">
+                                                <i class="fas fa-eye"></i> Ver Detalle
                                             </button>
-                                            <button class="btn btn-sm btn-primary" style="flex: 1;">
-                                                <i class="fas fa-download"></i> PDF
+                                            <button class="btn btn-sm btn-primary" style="flex: 1; padding: 10px;"
+                                                onclick="descargarFactura({{ $cita->id }})">
+                                                <i class="fas fa-download"></i> Descargar PDF
                                             </button>
                                         </div>
                                     </div>
@@ -2986,17 +3214,37 @@
                             </div>
                         @else
                             <div class="empty-state">
-                                <i class="fas fa-file-invoice"></i>
-                                <h3>No hay facturas disponibles</h3>
-                                <p>Agenda tu primera cita para generar facturas</p>
+                                <i class="fas fa-file-invoice"
+                                    style="font-size: 3rem; color: #4facfe; margin-bottom: 15px; opacity: 0.7;"></i>
+                                <h3 style="color: #333; margin-bottom: 10px; font-weight: 600;">No hay facturas
+                                    disponibles</h3>
+                                <p style="color: #666; line-height: 1.5;">
+                                    Aún no tienes servicios finalizados con facturas generadas.<br>
+                                    Tus facturas aparecerán aquí una vez que completes tus servicios.
+                                </p>
+                                <div style="margin-top: 20px;">
+                                    <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
+                                        <i class="fas fa-calendar-plus"></i> Agendar Servicio
+                                    </a>
+                                </div>
                             </div>
                         @endif
 
-                        <div style="text-align: center; margin-top: 20px;">
-                            <button class="btn btn-outline">
-                                <i class="fas fa-history"></i> Ver Todas las Facturas
-                            </button>
-                        </div>
+                        @if ($facturas_dashboard->count() > 0)
+                            <div
+                                style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f3f4;">
+                                <a href="{{ route('cliente.facturas') }}" class="btn btn-outline"
+                                    style="padding: 10px 20px;">
+                                    <i class="fas fa-history"></i> Ver Historial Completo de Facturas
+                                </a>
+                                <div style="margin-top: 10px;">
+                                    <small style="color: #666;">
+                                        <i class="fas fa-info-circle"></i>
+                                        Tienes {{ $estadisticas_facturas['total_facturas'] }} facturas en total
+                                    </small>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -3272,6 +3520,68 @@
         </div>
     </div>
 
+    <!-- Modal de Navegación: Vehículos -->
+    <div id="vehiculosNavModal"
+        style="display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div
+                style="padding: 12px 20px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-car" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Mis Vehículos
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModalNav('vehiculosNavModal')"
+                    style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'"
+                    onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="vehiculosNavContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div
+                        style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #4facfe; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;">
+                    </div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Navegación: Configuración -->
+    <div id="configuracionNavModal"
+        style="display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div
+                style="padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-cog" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Configuración de Cuenta
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModalNav('configuracionNavModal')"
+                    style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'"
+                    onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="configuracionNavContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div
+                        style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #667eea; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;">
+                    </div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para crear/editar cita  -->
     <div id="createCitaModal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
@@ -3396,8 +3706,216 @@
 
     <script>
         /*=========================================================
-                        FUNCIONAMIENTO DE CREAR CITAS
-                        =========================================================*/
+                                    FUNCIONAMIENTO DE FACTURAS
+                                    =========================================================*/
+
+        // Función para ver el detalle de una factura
+        function verDetalleFactura(citaId) {
+            Swal.fire({
+                title: 'Cargando factura...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            fetch(`/cliente/facturas/${citaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.close();
+                        // Aquí puedes mostrar un modal con los detalles de la factura
+                        mostrarModalFactura(data.factura);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'No se pudo cargar la factura: ' + error.message, 'error');
+                });
+        }
+
+        // Función para descargar factura en PDF
+        function descargarFactura(citaId) {
+            Swal.fire({
+                title: 'Generando PDF...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            // Abrir en una nueva pestaña para descargar
+            window.open(`/cliente/facturas/${citaId}/descargar`, '_blank');
+            Swal.close();
+        }
+
+        // Función para mostrar modal con detalles de factura
+        function mostrarModalFactura(factura) {
+            // Asegurar que total sea un número
+            const total = typeof factura.total === 'number' ? factura.total : parseFloat(factura.total) || 0;
+
+            const serviciosList = factura.servicios.map(servicio => {
+                const precio = typeof servicio.precio === 'number' ? servicio.precio : parseFloat(servicio
+                    .precio) || 0;
+                return `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f1f3f4;">
+                <div style="flex: 1;">
+                    <strong style="color: #2c3e50;">${servicio.nombre}</strong>
+                    ${servicio.descripcion ? `<br><small style="color: #7f8c8d;">${servicio.descripcion}</small>` : ''}
+                </div>
+                <div style="text-align: right; min-width: 100px;">
+                    <span style="font-weight: 600; color: #27ae60;">$${precio.toFixed(2)}</span>
+                </div>
+            </div>
+        `;
+            }).join('');
+
+            // Determinar color y texto del método de pago
+            let metodoPagoHtml = '';
+            if (factura.metodo_pago) {
+                let color = '#6c757d';
+                let icono = '💳';
+
+                switch (factura.metodo_pago.toLowerCase()) {
+                    case 'efectivo':
+                        color = '#28a745';
+                        icono = '💵';
+                        break;
+                    case 'transferencia':
+                        color = '#17a2b8';
+                        icono = '🏦';
+                        break;
+                    case 'tarjeta':
+                    case 'pasarela':
+                        color = '#6f42c1';
+                        icono = '💳';
+                        break;
+                }
+
+                metodoPagoHtml = `
+            <div style="background: ${color}15; padding: 12px; border-radius: 8px; margin: 15px 0; border-left: 4px solid ${color};">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: ${color}; display: block; margin-bottom: 5px;">${icono} Método de Pago</strong>
+                        <span style="color: #2c3e50; font-size: 0.95rem;">${factura.metodo_pago}</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="background: ${color}; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                            ${factura.estado_pago || 'Completado'}
+                        </span>
+                    </div>
+                </div>
+                ${factura.referencia_pago ? `
+                        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid ${color}30;">
+                            <small style="color: #6c757d;">
+                                <strong>Referencia:</strong> ${factura.referencia_pago}
+                            </small>
+                        </div>
+                    ` : ''}
+                ${factura.fecha_pago !== 'N/A' ? `
+                        <div style="margin-top: 5px;">
+                            <small style="color: #6c757d;">
+                                <strong>Fecha de pago:</strong> ${factura.fecha_pago}
+                            </small>
+                        </div>
+                    ` : ''}
+            </div>
+        `;
+            }
+
+            const htmlContent = `
+        <div style="text-align: left; max-height: 70vh; overflow-y: auto; padding-right: 10px;">
+            <!-- Header de la factura -->
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                <h3 style="margin: 0 0 10px 0; font-size: 1.5rem;">Factura #${factura.numero}</h3>
+                <p style="margin: 5px 0; opacity: 0.9;">Carwash Berríos</p>
+                <p style="margin: 5px 0; opacity: 0.9;">${factura.fecha_emision}</p>
+            </div>
+            
+            <!-- Información del servicio -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <h4 style="color: #4facfe; margin: 0 0 10px 0; font-size: 1rem;">📅 Información del Servicio</h4>
+                    <p style="margin: 5px 0; color: #2c3e50;">
+                        <strong>Fecha:</strong> ${factura.fecha_servicio}
+                    </p>
+                    <p style="margin: 5px 0; color: #2c3e50;">
+                        <strong>Hora:</strong> ${factura.hora_servicio}
+                    </p>
+                    <p style="margin: 5px 0; color: #2c3e50;">
+                        <strong>Estado:</strong> 
+                        <span style="background: #28a745; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                            ${factura.estado}
+                        </span>
+                    </p>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <h4 style="color: #4facfe; margin: 0 0 10px 0; font-size: 1rem;">🚗 Información del Vehículo</h4>
+                    <p style="margin: 5px 0; color: #2c3e50;">
+                        <strong>Vehículo:</strong> ${factura.vehiculo_marca} ${factura.vehiculo_modelo}
+                    </p>
+                    <p style="margin: 5px 0; color: #2c3e50;">
+                        <strong>Placa:</strong> ${factura.vehiculo_placa || 'No especificada'}
+                    </p>
+                    <p style="margin: 5px 0; color: #2c3e50;">
+                        <strong>Color:</strong> ${factura.vehiculo_color || 'No especificado'}
+                    </p>
+                    <p style="margin: 5px 0; color: #2c3e50;">
+                        <strong>Tipo:</strong> ${factura.vehiculo_tipo}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Información del cliente -->
+            <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4facfe;">
+                <h4 style="color: #4facfe; margin: 0 0 10px 0; font-size: 1rem;">👤 Información del Cliente</h4>
+                <p style="margin: 5px 0; color: #2c3e50;">
+                    <strong>Nombre:</strong> ${factura.cliente_nombre}
+                </p>
+                <p style="margin: 5px 0; color: #2c3e50;">
+                    <strong>Email:</strong> ${factura.cliente_email}
+                </p>
+                <p style="margin: 5px 0; color: #2c3e50;">
+                    <strong>Teléfono:</strong> ${factura.cliente_telefono || 'No especificado'}
+                </p>
+            </div>
+            
+            <!-- Servicios -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #4facfe; margin: 0 0 15px 0; font-size: 1rem;">✨ Servicios Contratados</h4>
+                <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden;">
+                    ${serviciosList}
+                </div>
+            </div>
+
+            <!-- Información de pago -->
+            ${metodoPagoHtml}
+
+            <!-- Total -->
+            <div style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; padding: 20px; border-radius: 10px; text-align: center; margin-top: 20px;">
+                <h3 style="margin: 0; font-size: 1.8rem; font-weight: 700;">
+                    Total: $${total.toFixed(2)}
+                </h3>
+                <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 0.9rem;">
+                    ¡Gracias por su preferencia!
+                </p>
+            </div>
+        </div>
+    `;
+
+            Swal.fire({
+                title: 'Detalle de Factura',
+                html: htmlContent,
+                width: '800px', // Modal más grande
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'factura-detalle-modal',
+                    container: 'factura-detalle-container'
+                }
+            });
+        }
+        /*=========================================================
+        FUNCIONAMIENTO DE CREAR CITAS
+        =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3413,7 +3931,7 @@
             },
             buttonsStyling: true
         });
-        
+
         // Configuración específica para modales de agendado (más grandes y mejor visualización)
         const swalLargeModal = Swal.mixin({
             customClass: {
@@ -4733,10 +5251,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                                                                                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                                            Agendar Cita
-                                                                                                                                                                                        </button>` : ''}
+                                                                                                                                                                                                                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                                                            Agendar Cita
+                                                                                                                                                                                                                        </button>` : ''}
                 </div>
             `;
                     return;
@@ -5655,14 +6173,14 @@
                             <p><strong>Conflictos encontrados:</strong> ${data.data.citas_superpuestas.length}</p>
                             
                             ${data.data.citas_superpuestas.map(cita => `
-                                                                                                                            <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                                                                                                                                <p><strong>Cita ID:</strong> ${cita.id}</p>
-                                                                                                                                <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
-                                                                                                                                <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
-                                                                                                                                <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
-                                                                                                                                <p><strong>Estado:</strong> ${cita.estado}</p>
-                                                                                                                            </div>
-                                                                                                                        `).join('')}
+                                                                                                                                                            <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                                                                                                                                                <p><strong>Cita ID:</strong> ${cita.id}</p>
+                                                                                                                                                                <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
+                                                                                                                                                                <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
+                                                                                                                                                                <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
+                                                                                                                                                                <p><strong>Estado:</strong> ${cita.estado}</p>
+                                                                                                                                                            </div>
+                                                                                                                                                        `).join('')}
                             
                             <p><strong>Horarios disponibles:</strong> ${data.data.horarios_disponibles.join(', ') || 'Ninguno'}</p>
                         </div>
@@ -5733,10 +6251,10 @@
 
             try {
                 console.log('Iniciando agendado rápido para servicio:', servicioId, 'categoría:', categoria);
-                
+
                 // Verificar si el usuario tiene vehículos
                 const vehiculosCompatibles = await getVehiculosCompatibles(categoria);
-                
+
                 if (vehiculosCompatibles.length === 0) {
                     await showNoVehiclesAlert(categoria);
                     return;
@@ -5772,7 +6290,7 @@
         // Obtener vehículos compatibles con la categoría del servicio
         async function getVehiculosCompatibles(categoria) {
             const vehiculos = @json($mis_vehiculos ?? []);
-            
+
             // Filtrar vehículos por categoría compatible
             return vehiculos.filter(vehiculo => {
                 return vehiculo.tipo.toLowerCase() === categoria.toLowerCase();
@@ -5794,7 +6312,7 @@
             });
 
             if (result.isConfirmed) {
-                window.location.href = '{{ route("vehiculos.create") }}';
+                window.location.href = '{{ route('vehiculos.create') }}';
             }
         }
 
@@ -5802,8 +6320,10 @@
         async function selectVehicleDialog(vehiculos, categoria) {
             const vehiculosCount = vehiculos.length;
             const categoryName = categoria === 'sedan' ? 'sedán' : categoria === 'pickup' ? 'SUV/Pickup' : categoria;
-            
-            const { value: vehiculoId } = await swalLargeModal.fire({
+
+            const {
+                value: vehiculoId
+            } = await swalLargeModal.fire({
                 title: `Selecciona tu vehículo ${categoryName.toUpperCase()}`,
                 html: `
                     <div style="text-align: left;">
@@ -5815,18 +6335,18 @@
                         </p>
                         <div style="max-height: 300px; overflow-y: auto;">
                             ${vehiculos.map(v => `
-                                <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
-                                       onmouseover="this.style.backgroundColor='#f0f8ff'" 
-                                       onmouseout="this.style.backgroundColor='white'">
-                                    <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
-                                    <div>
-                                        <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
-                                        ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
-                                        <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
-                                        ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
-                                    </div>
-                                </label>
-                            `).join('')}
+                                                                <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
+                                                                       onmouseover="this.style.backgroundColor='#f0f8ff'" 
+                                                                       onmouseout="this.style.backgroundColor='white'">
+                                                                    <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
+                                                                    <div>
+                                                                        <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
+                                                                        ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
+                                                                        <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
+                                                                        ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
+                                                                    </div>
+                                                                </label>
+                                                            `).join('')}
                         </div>
                     </div>
                 `,
@@ -5856,8 +6376,10 @@
             const today = new Date();
             const maxDate = new Date();
             maxDate.setMonth(maxDate.getMonth() + 1);
-            
-            const { value: formData } = await swalLargeModal.fire({
+
+            const {
+                value: formData
+            } = await swalLargeModal.fire({
                 title: 'Selecciona fecha y hora',
                 html: `
                     <div style="text-align: left;">
@@ -5890,17 +6412,21 @@
                 didOpen: () => {
                     const dateInput = document.getElementById('swal-date-input');
                     const hourInput = document.getElementById('swal-hour-input');
-                    
+
                     dateInput.addEventListener('change', async function() {
                         if (this.value) {
-                            hourInput.innerHTML = '<option value="">Cargando horarios...</option>';
+                            hourInput.innerHTML =
+                                '<option value="">Cargando horarios...</option>';
                             const horarios = await loadAvailableHoursForQuickBook(this.value);
-                            
+
                             if (horarios.length === 0) {
-                                hourInput.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                                hourInput.innerHTML =
+                                    '<option value="">No hay horarios disponibles</option>';
                             } else {
-                                hourInput.innerHTML = '<option value="">Selecciona una hora</option>' +
-                                    horarios.map(h => `<option value="${h}">${h}</option>`).join('');
+                                hourInput.innerHTML =
+                                    '<option value="">Selecciona una hora</option>' +
+                                    horarios.map(h => `<option value="${h}">${h}</option>`)
+                                    .join('');
                             }
                         }
                     });
@@ -5909,7 +6435,7 @@
                     const fecha = document.getElementById('swal-date-input').value;
                     const hora = document.getElementById('swal-hour-input').value;
                     const observaciones = document.getElementById('swal-observations-input').value;
-                    
+
                     if (!fecha) {
                         Swal.showValidationMessage('Debes seleccionar una fecha');
                         return false;
@@ -5918,7 +6444,7 @@
                         Swal.showValidationMessage('Debes seleccionar una hora');
                         return false;
                     }
-                    
+
                     return {
                         fecha: fecha,
                         hora: hora,
@@ -5933,12 +6459,12 @@
         // Cargar horarios disponibles para el agendado rápido
         async function loadAvailableHoursForQuickBook(fecha) {
             try {
-                const baseUrl = '{{ url("/cliente/horarios-disponibles") }}';
+                const baseUrl = '{{ url('/cliente/horarios-disponibles') }}';
                 const response = await fetch(`${baseUrl}/${fecha}`);
                 if (!response.ok) {
                     throw new Error('Error al cargar horarios');
                 }
-                
+
                 const horarios = await response.json();
                 return horarios.map(h => h.hora).filter(h => h);
             } catch (error) {
@@ -5951,21 +6477,21 @@
         async function createQuickBooking(vehiculoId, servicioId, citaData) {
             try {
                 const fechaHora = `${citaData.fecha} ${citaData.hora}`;
-                
+
                 // Debug: verificar token CSRF
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
                 console.log('CSRF Token:', csrfToken ? 'Existe' : 'No encontrado');
-                
+
                 const requestData = {
                     vehiculo_id: vehiculoId,
                     fecha_hora: fechaHora,
                     servicios: [servicioId],
                     observaciones: citaData.observaciones || null
                 };
-                
+
                 console.log('Datos a enviar:', requestData);
-                
-                const response = await fetch('{{ route("cliente.citas.store-simple") }}', {
+
+                const response = await fetch('{{ route('cliente.citas.store-simple') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -5978,7 +6504,7 @@
 
                 console.log('Response status:', response.status);
                 console.log('Response ok:', response.ok);
-                
+
                 const data = await response.json();
                 console.log('Response data:', data);
 
@@ -6081,13 +6607,13 @@
 
             } catch (error) {
                 console.error('Error al crear cita rápida:', error);
-                
+
                 // Mostrar más detalles del error
                 let errorMessage = 'No se pudo procesar tu solicitud.';
                 if (error.message) {
                     errorMessage += ' Detalle: ' + error.message;
                 }
-                
+
                 await swalWithBootstrapButtons.fire({
                     title: 'Error de conexión',
                     text: errorMessage,
@@ -6120,10 +6646,10 @@
                     throw new Error('Error al cargar los servicios');
                 }
                 const servicios = await response.json();
-                
+
                 let serviciosHtml = '';
                 let serviciosPorCategoria = {};
-                
+
                 // Agrupar servicios por categoría
                 servicios.forEach(servicio => {
                     const categoria = servicio.categoria || 'otros';
@@ -6132,17 +6658,17 @@
                     }
                     serviciosPorCategoria[categoria].push(servicio);
                 });
-                
+
                 // Generar HTML por categorías
                 Object.keys(serviciosPorCategoria).forEach(categoria => {
-                    const categoriaIcon = categoria === 'sedan' ? '🚗' : 
-                                        categoria === 'pickup' ? '🚙' : 
-                                        categoria === 'moto' ? '🏍️' : '🚙';
-                    const categoriaNombre = categoria === 'sedan' ? 'Sedán' : 
-                                           categoria === 'pickup' ? 'Pickup/SUV' : 
-                                           categoria === 'moto' ? 'Motocicleta' : 
-                                           categoria.charAt(0).toUpperCase() + categoria.slice(1);
-                    
+                    const categoriaIcon = categoria === 'sedan' ? '🚗' :
+                        categoria === 'pickup' ? '🚙' :
+                        categoria === 'moto' ? '🏍️' : '🚙';
+                    const categoriaNombre = categoria === 'sedan' ? 'Sedán' :
+                        categoria === 'pickup' ? 'Pickup/SUV' :
+                        categoria === 'moto' ? 'Motocicleta' :
+                        categoria.charAt(0).toUpperCase() + categoria.slice(1);
+
                     serviciosHtml += `
                         <div style="margin-bottom: 25px;">
                             <h4 style="color: #4facfe; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #4facfe; padding-bottom: 8px;">
@@ -6150,7 +6676,7 @@
                             </h4>
                             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
                     `;
-                    
+
                     serviciosPorCategoria[categoria].forEach(servicio => {
                         serviciosHtml += `
                             <div class="service-card-modal" style="background: #f8f9fa; border-radius: 12px; padding: 18px; border: 1px solid #e3e8ef; transition: all 0.3s ease;">
@@ -6176,10 +6702,10 @@
                             </div>
                         `;
                     });
-                    
+
                     serviciosHtml += '</div></div>';
                 });
-                
+
                 swalLargeModal.fire({
                     title: 'Todos los Servicios Disponibles',
                     html: `
@@ -6201,7 +6727,7 @@
                         popup: 'swal-large-modal services-catalog-modal'
                     }
                 });
-                
+
                 // Agregar estilos adicionales al modal
                 const style = document.createElement('style');
                 style.textContent = `
@@ -6212,7 +6738,7 @@
                     }
                 `;
                 document.head.appendChild(style);
-                
+
             } catch (error) {
                 console.error('Error al cargar servicios:', error);
                 Swal.fire({
@@ -6477,10 +7003,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                </tr>
-                                                `).join('')}
+                                                                                <tr>
+                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                </tr>
+                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -6592,8 +7118,8 @@
 
     <script>
         /*=========================================================
-                            FUNCIONAMIENTO DE MODAL VEHICULOS
-                            =========================================================*/
+                                                            FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                            =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -6622,8 +7148,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                    FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                    =========================================================*/
+                                                                                                                    FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                    =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
@@ -6707,10 +7233,314 @@
                     console.error('Error al actualizar vehiculos', err);
                 }
             }
+
+            // ==============================================
+            // FUNCIONES PARA MODALES DE NAVEGACIÓN
+            // ==============================================
+
+            function abrirModalVehiculos() {
+                const modal = document.getElementById('vehiculosNavModal');
+                if (!modal) {
+                    console.error('Modal vehiculosNavModal no encontrado');
+                    return;
+                }
+                modal.style.setProperty('display', 'flex', 'important');
+                const content = document.getElementById('vehiculosNavContent');
+
+                content.innerHTML = `
+                    <iframe
+                        id="vehiculosNavIframe"
+                        src="{{ route('vehiculos.index') }}"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                        style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                        onload="
+                            this.style.opacity='1';
+                            try {
+                                const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                                // Ocultar botones de volver/regresar
+                                const allElements = iframeDoc.querySelectorAll('a, button');
+                                allElements.forEach(element => {
+                                    const text = element.textContent.toLowerCase();
+                                    const href = element.getAttribute('href') || '';
+                                    if (text.includes('volver') || text.includes('regresar') ||
+                                        text.includes('dashboard') || href.includes('/cliente/dashboard')) {
+                                        element.style.display = 'none';
+                                    }
+                                });
+
+                                // Ajustar diseño compacto
+                                const container = iframeDoc.querySelector('.container, .container-fluid');
+                                if (container) {
+                                    container.style.padding = '10px 15px';
+                                    container.style.maxWidth = '100%';
+                                }
+
+                                iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                    card.style.padding = '0.8rem';
+                                });
+
+                                iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                    elem.style.marginBottom = '0.5rem';
+                                });
+
+                                // Observer para modales internos
+                                const observer = new MutationObserver((mutations) => {
+                                    mutations.forEach((mutation) => {
+                                        mutation.addedNodes.forEach((node) => {
+                                            if (node.nodeType === 1 && node.classList &&
+                                                (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                                node.style.zIndex = '1100';
+                                                const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                                if (backdrop) backdrop.style.zIndex = '1090';
+                                            }
+                                        });
+                                    });
+                                });
+
+                                observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                            } catch(e) {
+                                console.log('No se pudo modificar iframe:', e);
+                            }
+                        "
+                    ></iframe>
+                `;
+            }
+
+            function abrirModalConfiguracion() {
+                const modal = document.getElementById('configuracionNavModal');
+                if (!modal) {
+                    console.error('Modal configuracionNavModal no encontrado');
+                    return;
+                }
+                modal.style.setProperty('display', 'flex', 'important');
+                const content = document.getElementById('configuracionNavContent');
+
+                content.innerHTML = `
+                    <iframe
+                        id="configuracionNavIframe"
+                        src="{{ route('configuracion.index') }}"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                        style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                        onload="
+                            this.style.opacity='1';
+                            try {
+                                const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                                // Ocultar botones de volver/regresar
+                                const allElements = iframeDoc.querySelectorAll('a, button');
+                                allElements.forEach(element => {
+                                    const text = element.textContent.toLowerCase();
+                                    const href = element.getAttribute('href') || '';
+                                    if (text.includes('volver') || text.includes('regresar') ||
+                                        text.includes('dashboard') || href.includes('/cliente/dashboard')) {
+                                        element.style.display = 'none';
+                                    }
+                                });
+
+                                // Ajustar diseño compacto
+                                const container = iframeDoc.querySelector('.container, .container-fluid');
+                                if (container) {
+                                    container.style.padding = '10px 15px';
+                                    container.style.maxWidth = '100%';
+                                }
+
+                                iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                    card.style.padding = '0.8rem';
+                                });
+
+                                iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                    elem.style.marginBottom = '0.5rem';
+                                });
+
+                                // Observer para modales internos
+                                const observer = new MutationObserver((mutations) => {
+                                    mutations.forEach((mutation) => {
+                                        mutation.addedNodes.forEach((node) => {
+                                            if (node.nodeType === 1 && node.classList &&
+                                                (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                                node.style.zIndex = '1100';
+                                                const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                                if (backdrop) backdrop.style.zIndex = '1090';
+                                            }
+                                        });
+                                    });
+                                });
+
+                                observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                            } catch(e) {
+                                console.log('No se pudo modificar iframe:', e);
+                            }
+                        "
+                    ></iframe>
+                `;
+            }
+
+            function closeModalNav(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.setProperty('display', 'none', 'important');
+                }
+            }
         </script>
     @endpush
 
+    <!-- Scripts adicionales para modales de navegación -->
+    <script>
+        // ==============================================
+        // FUNCIONES PARA MODALES DE NAVEGACIÓN (GLOBAL)
+        // ==============================================
 
+        function abrirModalVehiculos() {
+            console.log('Intentando abrir modal de vehículos...');
+            const modal = document.getElementById('vehiculosNavModal');
+            if (!modal) {
+                console.error('Modal vehiculosNavModal no encontrado');
+                return;
+            }
+            console.log('Modal encontrado, mostrando...');
+            modal.style.setProperty('display', 'flex', 'important');
+            const content = document.getElementById('vehiculosNavContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="vehiculosNavIframe"
+                    src="{{ route('vehiculos.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/cliente/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño compacto
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // Observer para modales internos
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        function abrirModalConfiguracion() {
+            console.log('Intentando abrir modal de configuración...');
+            const modal = document.getElementById('configuracionNavModal');
+            if (!modal) {
+                console.error('Modal configuracionNavModal no encontrado');
+                return;
+            }
+            console.log('Modal encontrado, mostrando...');
+            modal.style.setProperty('display', 'flex', 'important');
+            const content = document.getElementById('configuracionNavContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="configuracionNavIframe"
+                    src="{{ route('configuracion.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/cliente/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño compacto
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // Observer para modales internos
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        function closeModalNav(modalId) {
+            console.log('Cerrando modal:', modalId);
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.setProperty('display', 'none', 'important');
+            }
+        }
+    </script>
 
     <style>
         /* Efecto ripple para botones */

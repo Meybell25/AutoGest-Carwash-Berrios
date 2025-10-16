@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Log;
 class AdminController extends Controller
 {
     /**
-     * Muestra el dashboard del administrador
+     * Muestra el dashboard del administrador 
      */
     public function dashboard(): View
     {
@@ -56,29 +56,102 @@ class AdminController extends Controller
         $anoActual = now()->year;
         $hoy = now()->format('Y-m-d');
 
+        // Obtener ingresos de hoy solo de citas finalizadas (pagadas)
+        $ingresosHoy = Cita::whereDate('created_at', $hoy)
+            ->where('estado', 'finalizada')
+            ->whereHas('pago', function ($query) {
+                $query->where('estado', Pago::ESTADO_PAGADO);
+            })
+            ->with('servicios')
+            ->get()
+            ->sum(fn($cita) => $cita->servicios->sum('precio'));
+
+        // Obtener ingresos mensuales solo de citas finalizadas (pagadas)
+        $ingresosMensuales = Cita::whereMonth('created_at', $mesActual)
+            ->whereYear('created_at', $anoActual)
+            ->where('estado', 'finalizada')
+            ->whereHas('pago', function ($query) {
+                $query->where('estado', Pago::ESTADO_PAGADO);
+            })
+            ->with('servicios')
+            ->get()
+            ->sum(fn($cita) => $cita->servicios->sum('precio'));
+
         return [
             'usuarios_totales' => Usuario::count(),
             'citas_confirmadas_hoy' => Cita::whereDate('fecha_hora', $hoy)
                 ->where('estado', 'confirmada')
                 ->count(),
-            'ingresos_hoy' => Cita::whereDate('created_at', today())
-                ->with('servicios')
-                ->get()
-                ->sum(fn($cita) => $cita->servicios->sum('precio')),
+            'ingresos_hoy' => $ingresosHoy,
             'citas_pendientes' => Cita::where('estado', 'pendiente')->count(),
-            'ingresos_mensuales' => Cita::whereMonth('created_at', $mesActual)
-                ->whereYear('created_at', $anoActual)
-                ->with('servicios')
-                ->get()
-                ->sum(fn($cita) => $cita->servicios->sum('precio')),
+            'ingresos_mensuales' => $ingresosMensuales,
             'nuevos_clientes_mes' => Usuario::where('rol', 'cliente')
                 ->whereMonth('created_at', $mesActual)
                 ->whereYear('created_at', $anoActual)
                 ->count(),
             'citas_canceladas_mes' => Cita::where('estado', 'cancelada')
                 ->whereMonth('created_at', now()->month)
-                ->count()
+                ->count(),
+            // Nuevos datos para gráficos
+            'ingresos_por_mes' => $this->getIngresosPorMes($anoActual),
+            'citas_por_mes' => $this->getCitasPorMes($anoActual),
+            'servicios_populares_data' => $this->getServiciosPopularesData($mesActual, $anoActual)
         ];
+    }
+
+    protected function getIngresosPorMes($ano)
+    {
+        $ingresos = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $ingresos[] = Cita::whereMonth('created_at', $i)
+                ->whereYear('created_at', $ano)
+                ->where('estado', 'finalizada')
+                ->whereHas('pago', function ($query) {
+                    $query->where('estado', Pago::ESTADO_PAGADO);
+                })
+                ->with('servicios')
+                ->get()
+                ->sum(fn($cita) => $cita->servicios->sum('precio'));
+        }
+
+        return $ingresos;
+    }
+
+    protected function getCitasPorMes($ano)
+    {
+        $citasCompletadas = [];
+        $citasCanceladas = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $citasCompletadas[] = Cita::whereMonth('created_at', $i)
+                ->whereYear('created_at', $ano)
+                ->where('estado', 'finalizada')
+                ->count();
+
+            $citasCanceladas[] = Cita::whereMonth('created_at', $i)
+                ->whereYear('created_at', $ano)
+                ->where('estado', 'cancelada')
+                ->count();
+        }
+
+        return [
+            'completadas' => $citasCompletadas,
+            'canceladas' => $citasCanceladas
+        ];
+    }
+
+    protected function getServiciosPopularesData($mes, $ano)
+    {
+        return Servicio::withCount(['citas' => function ($query) use ($mes, $ano) {
+            $query->whereMonth('created_at', $mes)
+                ->whereYear('created_at', $ano);
+        }])
+            ->orderBy('citas_count', 'desc')
+            ->limit(5)
+            ->get()
+            ->pluck('citas_count', 'nombre')
+            ->toArray();
     }
 
     /**
@@ -659,10 +732,10 @@ class AdminController extends Controller
     public function getCitaDetalles($id)
     {
         try {
-            $cita = Cita::with(['usuario', 'vehiculo', 'servicios'])
+            $cita = Cita::with(['usuario', 'vehiculo', 'servicios', 'pago'])
                 ->findOrFail($id);
 
-            return response()->json([
+            $response = [
                 'id' => $cita->id,
                 'usuario' => [
                     'nombre' => $cita->usuario->nombre,
@@ -674,7 +747,7 @@ class AdminController extends Controller
                     'modelo' => $cita->vehiculo->modelo,
                     'placa' => $cita->vehiculo->placa,
                     'tipo' => $cita->vehiculo->tipo,
-                    'tipo_formatted' => $cita->vehiculo->tipo_formatted, // Añade esto
+                    'tipo_formatted' => $cita->vehiculo->tipo_formatted,
                     'color' => $cita->vehiculo->color,
                     'descripcion' => $cita->vehiculo->descripcion
                 ],
@@ -685,7 +758,31 @@ class AdminController extends Controller
                 'total' => $cita->total,
                 'servicios' => $cita->servicios,
                 'created_at' => $cita->created_at
-            ]);
+            ];
+
+            // Añadir información de pago si existe
+            if ($cita->pago) {
+                $response['pago'] = [
+                    'id' => $cita->pago->id,
+                    'monto' => $cita->pago->monto,
+                    'monto_recibido' => $cita->pago->monto_recibido,
+                    'vuelto' => $cita->pago->vuelto,
+                    'metodo' => $cita->pago->metodo,
+                    'metodo_formatted' => $cita->pago->metodo_formatted,
+                    'referencia' => $cita->pago->referencia,
+                    'estado' => $cita->pago->estado,
+                    'estado_formatted' => $cita->pago->estado_formatted,
+                    'fecha_pago' => $cita->pago->fecha_pago,
+                    'observaciones' => $cita->pago->observaciones,
+                    'banco_emisor' => $cita->pago->banco_emisor,
+                    'tipo_tarjeta' => $cita->pago->tipo_tarjeta,
+                    'descuentos_aplicados' => $cita->pago->descuentos_aplicados,
+                    'total_antes_descuentos' => $cita->pago->total_antes_descuentos,
+                    'total_descuentos' => $cita->pago->total_descuentos
+                ];
+            }
+
+            return response()->json($response);
         } catch (\Exception $e) {
             Log::error("Error al obtener detalles de cita: " . $e->getMessage());
             return response()->json([
@@ -875,7 +972,6 @@ class AdminController extends Controller
                 'message' => 'Servicio creado correctamente',
                 'servicio' => $servicio
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -944,7 +1040,6 @@ class AdminController extends Controller
                 'message' => 'Servicio actualizado correctamente',
                 'servicio' => $servicio
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -972,7 +1067,7 @@ class AdminController extends Controller
 
             // Verificar que no tenga citas asociadas
             $citasCount = $servicio->citas()->count();
-            
+
             if ($citasCount > 0) {
                 return response()->json([
                     'success' => false,
@@ -993,7 +1088,6 @@ class AdminController extends Controller
                 'success' => true,
                 'message' => 'Servicio eliminado correctamente'
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error al eliminar servicio: " . $e->getMessage());
@@ -1028,7 +1122,6 @@ class AdminController extends Controller
                 'message' => 'Estado del servicio actualizado correctamente',
                 'nuevo_estado' => $servicio->activo
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error al cambiar estado del servicio: " . $e->getMessage());
@@ -1080,7 +1173,6 @@ class AdminController extends Controller
                 'servicios' => $servicios,
                 'estadisticas' => $estadisticas
             ]);
-
         } catch (\Exception $e) {
             Log::error("Error al obtener servicios: " . $e->getMessage());
 

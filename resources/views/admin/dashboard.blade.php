@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.x/dist/tailwind.min.js"></script>
     <style>
         /* ======================
         ESTILOS GENERALES
@@ -973,6 +973,16 @@
             }
         }
 
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .close-modal {
             position: absolute;
             top: 15px;
@@ -1157,21 +1167,22 @@
         #modalVerTodosGastos.modal {
             z-index: 1055;
         }
+
         #modalVerTodosServicios.modal {
             z-index: 1055;
         }
-        
+
         /* Modal de servicios secundario con z-index superior */
         #servicioModal.modal {
             z-index: 1070 !important;
         }
-        
+
         /* Cuando servicioModal está activo sobre modalVerTodosServicios */
         .modal.show#servicioModal {
             z-index: 1070 !important;
             background-color: rgba(0, 0, 0, 0.8) !important;
         }
-        
+
         /* Estilos específicos para modal de servicios cuando está superpuesto */
         #servicioModal .modal-content {
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
@@ -1179,17 +1190,18 @@
             transform: scale(1.02);
             transition: transform 0.3s ease;
         }
-        
+
         /* Animación de aparición para modal superpuesto */
         #servicioModal.show .modal-content {
             animation: modalNestedSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
+
         @keyframes modalNestedSlideIn {
             0% {
                 transform: scale(0.8) translateY(-50px);
                 opacity: 0;
             }
+
             100% {
                 transform: scale(1.02) translateY(0);
                 opacity: 1;
@@ -2640,18 +2652,18 @@
                         <i class="fas fa-user-plus"></i>
                         Crear Usuarios
                     </button>
-                    <a href="{{ route('admin.citasadmin.index') }}" class="btn btn-success">
+                    <button onclick="abrirModalCitasAdmin()" class="btn btn-success">
                         <i class="fas fa-calendar"></i>
                         Citas
-                    </a>
-                    <a href="{{ route('admin.bitacora.index') }}" class="btn btn-primary">
+                    </button>
+                    <button onclick="abrirModalBitacora()" class="btn btn-primary">
                         <i class="fas fa-book"></i>
                         Bitácora
-                    </a>
-                    <a href="{{ route('configuracion.index') }}" class="btn btn-info">
+                    </button>
+                    <button onclick="abrirModalConfiguracion()" class="btn btn-info">
                         <i class="fas fa-cog"></i>
                         Configuración
-                    </a>
+                    </button>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn btn-outline">
@@ -2697,174 +2709,6 @@
                         <div class="stat-label">Cancelaciones (Mes)</div>
                     </div>
                 </div>
-
-                <!-- Gestión de Horarios
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="card-header-icon icon-container">
-                                <i class="fas fa-briefcase"></i>
-                            </div>
-                            Gestión de Horarios
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header-actions"
-                            style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <h3 style="color: var(--text-primary); margin: 0; max-width: 70%;">Configuración de horarios
-                                de trabajo</h3>
-                            <button class="btn btn-primary" onclick="mostrarModalHorario()">
-                                <i class="fas fa-plus"></i> Agregar Horario
-                            </button>
-                        </div>
-
-                        <div style="overflow-x: auto;">
-                            <table class="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Día</th>
-                                        <th>Hora Inicio</th>
-                                        <th>Hora Fin</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-   {{--   @forelse ($horarios as $horario)
-        <tr>
-            <td data-label="Día">{{ \App\Http\Controllers\HorarioController::DIAS_SEMANA[$horario->dia_semana] }}</td>
-            <td data-label="Hora Inicio">{{ \Carbon\Carbon::parse($horario->hora_inicio)->format('h:i A') }}</td>
-            <td data-label="Hora Fin">{{ \Carbon\Carbon::parse($horario->hora_fin)->format('h:i A') }}</td>
-            <td data-label="Estado">
-                <span class="badge   {{ $horario->activo ? 'badge-success' : 'badge-danger' }}">
-                    {{ $horario->activo ? 'Activo' : 'Inactivo' }}
-                </span>
-            </td>
-            <td data-label="Acciones">
-                <div class="table-actions">
-                    <button class="table-btn btn-edit" title="Editar"
-                        onclick="editarHorario({{ $horario->id }})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="table-btn btn-delete" title="Eliminar"
-                        onclick="desactivarHorario({{ $horario->id }})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    @empty
-        <tr>
-            <td colspan="5" class="text-center">No hay horarios registrados.</td>
-        </tr>
-    @endforelse
-</tbody>
-
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <script>
-                   document.addEventListener('DOMContentLoaded', function () {
-                   const horarioForm = document.getElementById('horarioForm');
-                   const horarioModal = document.getElementById('horarioModal');
-                   const modalTitle = document.getElementById('horarioModalTitle');
-
-                  function openCreateModal() {
-                   horarioForm.reset();
-                   document.getElementById('horario_id').value = "";
-                   modalTitle.innerHTML = '<i class="fas fa-clock"></i> Agregar Horario';
-                   openModal('horarioModal');
-                  }
-
-                  function openEditModal(id) {
-                    fetch(`/horarios/${id}`)
-                    .then(response => response.json())
-                    .then(data => {
-                    document.getElementById('horario_id').value = data.id;
-                    document.getElementById('horario_dia').value = data.dia_semana;
-                    document.getElementById('horario_inicio').value = data.hora_inicio.substring(0, 5);
-                    document.getElementById('horario_fin').value = data.hora_fin.substring(0, 5);
-                    document.getElementById('horario_activo').value = data.activo ? 1 : 0;
-                    modalTitle.innerHTML = '<i class="fas fa-clock"></i> Editar Horario';
-                    openModal('horarioModal');
-                   });
-                  }
-
-                  horarioForm.addEventListener('submit', function (e) {
-                     e.preventDefault();
-
-                   const id = document.getElementById('horario_id').value;
-                   const method = id ? 'PUT' : 'POST';
-                   const url = id ? `/horarios/${id}` : '/horarios';
-
-                  const formData = {
-                    dia_semana: document.getElementById('horario_dia').value,
-                    hora_inicio: document.getElementById('horario_inicio').value,
-                    hora_fin: document.getElementById('horario_fin').value,
-                    activo: document.getElementById('horario_activo').value
-                  };
-
-                   fetch(url, {
-                       method: method,
-                     headers: {
-                       'Content-Type': 'application/json',
-                       'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                     },
-                      body: JSON.stringify(formData)
-                    })
-                   .then(response => {
-                   if (!response.ok)
-                    return response.json().then(err => Promise.reject(err));
-                    return response.json();
-                   })
-                   .then(data => {
-                   Swal.fire('Éxito', data.message, 'success');
-                   closeModal('horarioModal');
-                   location.reload();
-                  })
-                  .catch(err => {
-                  if (err.errors) {
-                    let errorMsg = '';
-                    for (let campo in err.errors) {
-                        errorMsg += err.errors[campo][0] + '<br>';
-                    }
-                    Swal.fire('Error', errorMsg, 'error');
-                  }
-                 });
-                  });
-
-                       function eliminarHorario(id) {
-                           Swal.fire({
-                              title: '¿Eliminar?',
-                              text: 'Esta acción no se puede deshacer',
-                              icon: 'warning',
-                              showCancelButton: true,
-                              confirmButtonText: 'Sí, eliminar'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                   fetch(`/horarios/${id}`, {
-                                   method: 'DELETE',
-                                   headers: {
-                                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                }
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                             Swal.fire('Eliminado', data.message, 'success');
-                             location.reload();
-                            });
-                        }
-                      });
-                    }
-
-                      window.openCreateModal = openCreateModal;
-                      window.openEditModal = openEditModal;
-                      .eliminarHorario = eliminarHorario;
-                    });
-                </script>  --}}-->
-
 
                 <!-- Contenedor para Días No Laborables -->
                 <div class="card">
@@ -3164,10 +3008,10 @@
                                 </div>
                                 Rendimiento Mensual
                             </h2>
-                            <a href="{{ route('admin.reportes') }}" class="btn btn-primary"
+                            <button onclick="abrirModalReportes()" class="btn btn-primary"
                                 style="padding: 8px 12px;">
                                 <i class="fas fa-chart-bar"></i> Ver Reportes Completos
-                            </a>
+                            </button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -3218,7 +3062,7 @@
                             </div>
                             <div class="filter-select">
                                 <select id="filterEstado" class="form-control">
-                                    <option value="">Todos los activos</option>
+                                    <option value="">Todos los estados</option>
                                     <option value="pendiente">Pendiente</option>
                                     <option value="confirmada">Confirmada</option>
                                     <option value="en_proceso">En Proceso</option>
@@ -3245,14 +3089,14 @@
                                 <tbody id="citasHoyTable">
                                     @php
                                         // Obtener citas de hoy ordenadas por hora
-                                        $citasHoy = \App\Models\Cita::with(['usuario', 'vehiculo', 'servicios'])
+                                        $citasHoy = \App\Models\Cita::with(['usuario', 'vehiculo', 'servicios', 'pago'])
                                             ->whereDate('fecha_hora', today())
                                             ->orderBy('fecha_hora', 'asc')
                                             ->get();
                                     @endphp
 
                                     @forelse($citasHoy as $cita)
-                                        <tr data-activo="{{ $cita->activo }}">
+                                        <tr data-estado="{{ $cita->estado }}">
                                             <td data-label="ID">#{{ $cita->id }}</td>
                                             <td data-label="Cliente">{{ $cita->usuario->nombre }}</td>
                                             <td data-label="Vehículo">{{ $cita->vehiculo->marca }}
@@ -3264,26 +3108,53 @@
                                                         class="badge service-badge-{{ ($index % 5) + 1 }}">{{ $servicio->nombre }}</span>
                                                 @endforeach
                                             </td>
-                                            <td data-label="Total">
-                                                ${{ number_format($cita->servicios->sum('pivot.precio'), 2) }}</td>
+                                            <td data-label="Total">${{ number_format($cita->total, 2) }}</td>
                                             <td data-label="Estado">
-                                                <span class="badge badge-{{ $cita->activo }}">
-                                                    {{ $cita->activo_formatted }}
+                                                <span class="appointment-status status-{{ $cita->estado }}">
+                                                    {{ $cita->estado_formatted }}
                                                 </span>
                                             </td>
                                             <td data-label="Acciones">
                                                 <div class="table-actions">
-                                                    <button class="table-btn btn-view" title="Ver detalles"
-                                                        onclick="verDetalleCita({{ $cita->id }})">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="table-btn btn-edit" title="Editar"
-                                                        onclick="editarCita({{ $cita->id }})">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button class="table-btn btn-delete" title="Cancelar"
-                                                        onclick="cancelarCita({{ $cita->id }})">
-                                                        <i class="fas fa-times"></i>
+                                                    <select class="estado-select-dashboard"
+                                                        data-cita-id="{{ $cita->id }}"
+                                                        style="width: 120px; padding: 5px; margin-bottom: 5px;">
+                                                        <option value="pendiente"
+                                                            {{ $cita->estado == 'pendiente' ? 'selected' : '' }}>
+                                                            Pendiente</option>
+                                                        <option value="confirmada"
+                                                            {{ $cita->estado == 'confirmada' ? 'selected' : '' }}>
+                                                            Confirmada</option>
+                                                        <option value="en_proceso"
+                                                            {{ $cita->estado == 'en_proceso' ? 'selected' : '' }}>En
+                                                            Proceso</option>
+                                                        <option value="finalizada"
+                                                            {{ $cita->estado == 'finalizada' ? 'selected' : '' }}
+                                                            {{ !$cita->tienePagoCompletado() ? 'disabled' : '' }}>
+                                                            Finalizada</option>
+                                                        <option value="cancelada"
+                                                            {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>
+                                                            Cancelada</option>
+                                                    </select>
+
+                                                    @if ($cita->estado == 'en_proceso' && !$cita->tienePagoCompletado())
+                                                        <button class="btn btn-success btn-sm btn-pagar-dashboard mt-1"
+                                                            data-cita-id="{{ $cita->id }}">
+                                                            <i class="fas fa-credit-card me-1"></i> Pagar
+                                                        </button>
+                                                    @endif
+
+                                                    @if ($cita->tienePagoCompletado())
+                                                        <div class="text-center mt-1">
+                                                            <span class="badge bg-success">
+                                                                <i class="fas fa-check-circle me-1"></i> Pagado
+                                                            </span>
+                                                        </div>
+                                                    @endif
+
+                                                    <button class="btn btn-details btn-sm mt-1 view-details-dashboard"
+                                                        data-cita-id="{{ $cita->id }}">
+                                                        <i class="fas fa-eye me-1"></i> Detalles
                                                     </button>
                                                 </div>
                                             </td>
@@ -3389,9 +3260,9 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline" style="width: 100%;">
+                        <button onclick="abrirModalUsuarios()" class="btn btn-outline" style="width: 100%;">
                             <i class="fas fa-list"></i> Ver Todos los Usuarios
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -3413,10 +3284,11 @@
                                 </div>
                                 <div class="service-details">
                                     <h4>{{ $servicio->nombre }}</h4>
-                                    <p>${{ number_format($servicio->precio, 2) }} - {{ $servicio->duracion_min ?? $servicio->duracion }} min
+                                    <p>${{ number_format($servicio->precio, 2) }} -
+                                        {{ $servicio->duracion_min ?? $servicio->duracion }} min
                                     </p>
                                     <p>
-                                        @if($servicio->categoria === 'sedan')
+                                        @if ($servicio->categoria === 'sedan')
                                             🚗 Sedán
                                         @elseif($servicio->categoria === 'pickup')
                                             🚙 Pickup/SUV
@@ -3441,8 +3313,7 @@
                                 onclick="abrirModalVerTodosServicios()">
                                 <i class="fas fa-list me-1"></i> Ver Todos
                             </button>
-                            <button class="btn btn-primary" style="flex: 1;"
-                                onclick="nuevoServicio()">
+                            <button class="btn btn-primary" style="flex: 1;" onclick="nuevoServicio()">
                                 <i class="fas fa-plus"></i> Agregar
                             </button>
                         </div>
@@ -3525,15 +3396,18 @@
             </div>
 
             <!-- Modal para ver todos los servicios -->
-            <div class="modal fade" id="modalVerTodosServicios" tabindex="-1" aria-labelledby="modalVerTodosServiciosLabel" aria-hidden="true">
+            <div class="modal fade" id="modalVerTodosServicios" tabindex="-1"
+                aria-labelledby="modalVerTodosServiciosLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered">
                     <div class="modal-content">
-                        <div class="modal-header" style="background: linear-gradient(135deg, #007bff, #6c5ce7); color: white;">
+                        <div class="modal-header"
+                            style="background: linear-gradient(135deg, #007bff, #6c5ce7); color: white;">
                             <h5 class="modal-title" id="modalVerTodosServiciosLabel">
                                 <i class="fas fa-cogs me-2"></i>
                                 Gestión de Servicios
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <!-- Controles superiores -->
@@ -3541,7 +3415,8 @@
                                 <div class="col-md-6">
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                        <input type="text" class="form-control" id="buscarServicio" placeholder="Buscar servicio..." onkeyup="filtrarServicios()">
+                                        <input type="text" class="form-control" id="buscarServicio"
+                                            placeholder="Buscar servicio..." onkeyup="filtrarServicios()">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -3596,54 +3471,86 @@
                 </div>
             </div>
 
-            <!-- Modal para gestión de horarios -->
-            <div id="horarioModal" class="modal">
-                <div class="modal-content" style="max-width: 500px;">
-                    <span class="close-modal" onclick="closeModal('horarioModal')">&times;</span>
-                    <h2 id="horarioModalTitle">
-                        <i class="fas fa-clock"></i> Agregar Horario
-                    </h2>
-                    <form id="horarioForm">
-                        <input type="hidden" id="horario_id" name="id">
-
-                        <div class="form-group">
-                            <label for="horario_dia">Día de la semana:</label>
-                            <select id="horario_dia" class="form-control" required>
-                                <option value="">Seleccione un día</option>
-                                <option value="0">Domingo</option>
-                                <option value="1">Lunes</option>
-                                <option value="2">Martes</option>
-                                <option value="3">Miércoles</option>
-                                <option value="4">Jueves</option>
-                                <option value="5">Viernes</option>
-                                <option value="6">Sábado</option>
-                            </select>
+            <!-- Modal Horarios (Bootstrap, estilo igual a Días No Laborables) -->
+            <div class="modal fade modal-horarios" id="horarioCRUDModal" tabindex="-1"
+                aria-labelledby="horarioCRUDModalTitle" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="horarioCRUDModalTitle">
+                                <i class="fas fa-clock me-2"></i>
+                                Agregar Horario
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
+                        <div class="modal-body">
+                            <form id="horarioForm">
+                                <input type="hidden" id="horario_id" name="id">
 
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="horario_inicio">Hora de inicio:</label>
-                                <input type="time" id="horario_inicio" class="form-control" required>
-                            </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="horario_dia" class="form-label"><i
+                                                class="fas fa-calendar-week me-1"></i> Día de la semana</label>
+                                        <select id="horario_dia" class="form-control" required>
+                                            <option value="">Seleccione un día</option>
+                                            <option value="1">Lunes</option>
+                                            <option value="2">Martes</option>
+                                            <option value="3">Miércoles</option>
+                                            <option value="4">Jueves</option>
+                                            <option value="5">Viernes</option>
+                                            <option value="6">Sábado</option>
+                                        </select>
+                                        <div class="invalid-feedback d-block" id="error_horario_dia"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="horario_activo" class="form-label"><i
+                                                class="fas fa-toggle-on me-1"></i> Estado</label>
+                                        <div class="form-check form-switch" style="padding-top: 8px;">
+                                            <input class="form-check-input" type="checkbox"
+                                                id="horario_activo_switch" checked>
+                                            <label class="form-check-label" for="horario_activo_switch">Activo</label>
+                                        </div>
+                                        <input type="hidden" id="horario_activo" value="1">
+                                    </div>
+                                </div>
 
-                            <div class="form-group">
-                                <label for="horario_fin">Hora de fin:</label>
-                                <input type="time" id="horario_fin" class="form-control" required>
-                            </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="horario_inicio" class="form-label"><i
+                                                class="fas fa-clock me-1"></i> Hora de inicio</label>
+                                        <input type="time" id="horario_inicio" class="form-control" required>
+                                        <div class="invalid-feedback d-block" id="error_horario_inicio"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="horario_fin" class="form-label"><i class="fas fa-clock me-1"></i>
+                                            Hora de fin</label>
+                                        <input type="time" id="horario_fin" class="form-control" required>
+                                        <div class="invalid-feedback d-block" id="error_horario_fin"></div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info" role="alert">
+                                    <div style="font-weight:600; margin-bottom:6px;"><i
+                                            class="fas fa-info-circle me-1"></i> Información importante</div>
+                                    <ul style="margin:0; padding-left: 18px;">
+                                        <li>Los horarios aplican de Lunes a Sábado.</li>
+                                        <li>La hora de inicio debe ser menor a la hora de fin.</li>
+                                        <li>No se permiten horarios duplicados por día y hora de inicio.</li>
+                                        <li>Los cambios afectan la disponibilidad para agendar citas.</li>
+                                    </ul>
+                                </div>
+                            </form>
                         </div>
-
-                        <div class="form-group">
-                            <label for="horario_activo">Estado:</label>
-                            <select id="horario_activo" class="form-control">
-                                <option value="1" selected>Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i> Cancelar
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btnGuardarHorario">
+                                <i class="fas fa-save me-1"></i> Guardar Horario
+                            </button>
                         </div>
-
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-save"></i> Guardar Horario
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
 
@@ -3787,6 +3694,35 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Modal para detalles de cita  -->
+    <div class="modal fade" id="detallesCitaModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de la Cita #<span id="cita-id"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detalles-cita-content">
+                    <!-- Los detalles se cargarán aquí via AJAX -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para pago= -->
+    <div class="modal fade" id="pagoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="pago-modal-content">
+                <!-- El contenido se cargará via AJAX -->
+            </div>
         </div>
     </div>
 
@@ -4001,527 +3937,313 @@
             });
         });
 
-
         // =============================================
-        // FUNCIONES PARA DÍAS NO LABORABLES
+        // FUNCIONES DE CITAS DE HOY EN DASHBOARD
         // =============================================
 
-        // Cargar días no laborables desde la API
-        /* async function cargarDiasNoLaborables() {
-                                                                                                                     try {
-                                                                                                                         const response = await fetch('/dias-no-laborables');
-                                                                                                                         if (!response.ok) throw new Error('Error al cargar días no laborables');
+        // Inicializar sistema de citas en dashboard
+        function initializeDashboardCitas() {
+            initializeEstadoSelectsDashboard();
+            setupPagoButtonsDashboard();
+            setupDetallesButtonsDashboard();
+            setupFiltrosDashboard();
 
-                                                                                                                         diasNoLaborables = await response.json();
-                                                                                                                         actualizarTablaDiasNoLaborables();
-                                                                                                                     } catch (error) {
-                                                                                                                         console.error('Error al cargar días no laborables:', error);
-                                                                                                                         Toast.fire({
-                                                                                                                             icon: 'error',
-                                                                                                                             title: 'Error al cargar días no laborables',
-                                                                                                                             text: error.message
-                                                                                                                         });
-                                                                                                                     }
-                                                                                                                 }
-
-                                                                                                                 // Actualizar la tabla con los días no laborables
-                                                                                                                 function actualizarTablaDiasNoLaborables() {
-                                                                                                                     const tbody = document.querySelector('#diasNoLaborablesTable tbody');
-                                                                                                                     if (!tbody) return;
-
-                                                                                                                     tbody.innerHTML = '';
-
-                                                                                                                     if (diasNoLaborables.length === 0) {
-                                                                                                                         tbody.innerHTML = `
-         <tr>
-             <td colspan="3" style="text-align: center; padding: 20px;">
-                 <i class="fas fa-calendar-times" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
-                 <p style="color: var(--text-secondary);">No hay días no laborables registrados</p>
-             </td>
-         </tr>
-     `;
-                                                                                                                         return;
-                                                                                                                     }
-
-                                                                                                                     diasNoLaborables.forEach(dia => {
-                                                                                                                         const fecha = new Date(dia.fecha);
-                                                                                                                         const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-                                                                                                                             day: '2-digit',
-                                                                                                                             month: '2-digit',
-                                                                                                                             year: 'numeric'
-                                                                                                                         });
-
-                                                                                                                         const row = document.createElement('tr');
-                                                                                                                         row.setAttribute('data-id', dia.id);
-                                                                                                                         row.innerHTML = `
-         <td data-label="Fecha">${fechaFormateada}</td>
-         <td data-label="Motivo">${dia.motivo || 'Sin motivo especificado'}</td>
-         <td data-label="Acciones">
-             <div class="table-actions">
-                 <button class="table-btn btn-edit" title="Editar" onclick="editarDiaNoLaborable(${dia.id})">
-                     <i class="fas fa-edit"></i>
-                 </button>
-                 <button class="table-btn btn-delete" title="Eliminar" onclick="eliminarDiaNoLaborable(${dia.id})">
-                     <i class="fas fa-trash"></i>
-                 </button>
-             </div>
-         </td>
-     `;
-                                                                                                                         tbody.appendChild(row);
-                                                                                                                     });
-                                                                                                                 }*/
-
-        // Mostrar modal para agregar/editar día no laborable
-        /*function mostrarModalDiaNoLaborable(diaId = null) {
-            const modal = document.getElementById('diaNoLaborableModal');
-            const form = document.getElementById('diaNoLaborableForm');
-            const title = document.getElementById('diaNoLaborableModalTitle');
-
-            if (result.isConfirmed) {
-                const response = await fetch(`/dias-no-laborables/${diaId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-            form.reset();
-
-            if (diaId) {
-                title.innerHTML = '<i class="fas fa-edit"></i> Editar Día No Laborable';
-                form.setAttribute('data-id', diaId);
-
-                const dia = diasNoLaborables.find(d => d.id == diaId);
-                if (dia) {
-                    document.getElementById('diaNoLaborableFecha').value = dia.fecha;
-                    document.getElementById('diaNoLaborableMotivo').value = dia.motivo || '';
-                }
-            } else {
-                title.innerHTML = '<i class="fas fa-plus"></i> Agregar Día No Laborable';
-                form.removeAttribute('data-id');
-                // Establecer la fecha mínima como hoy
-                document.getElementById('diaNoLaborableFecha').min = new Date().toISOString().split('T')[0];
-            }
-
-            modal.style.display = 'flex';
+            console.log('Sistema de Citas del Dashboard inicializado correctamente');
         }
 
-        // Función editarDiaNoLaborable duplicada eliminada - usando la versión completa más abajo
+        // 1. INICIALIZACIÓN DE SELECTS DE ESTADO EN DASHBOARD
+        function initializeEstadoSelectsDashboard() {
+            document.querySelectorAll('.estado-select-dashboard').forEach(select => {
+                select._currentValue = select.value;
+                select._previousValue = select.value;
 
-        // Función para eliminar un día no laborable
-        async function eliminarDiaNoLaborable(diaId) {
-            try {
-                const result = await Swal.fire({
-                    title: '¿Eliminar este día no laborable?',
-                    text: "Esta acción no se puede deshacer",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Sí, eliminar',
-                    cancelButtonText: 'Cancelar'
+                select.addEventListener('change', function() {
+                    handleEstadoChangeDashboard(this);
                 });
-
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Error al eliminar el día no laborable');
-                    }
-                    await cargarDiasNoLaborables();
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Día no laborable eliminado correctamente'
-                    });
-                }
-            } catch (error) {
-                console.error('Error al eliminar día no laborable:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error al eliminar día no laborable',
-                    text: error.message
-                });
-            }
+            });
         }
 
-        // =============================================
-        // EVENT LISTENERS ADICIONALES
-        // =============================================
+        // 2. MANEJO DE CAMBIO DE ESTADO EN DASHBOARD
+        async function handleEstadoChangeDashboard(selectElement) {
+            const citaId = selectElement.getAttribute('data-cita-id');
+            const nuevoEstado = selectElement.value;
+            const estadoActual = selectElement._currentValue;
 
-        // Manejar el envío del formulario de día no laborable
-        document.getElementById('diaNoLaborableForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
+            // Validar cambio a finalizada
+            if (nuevoEstado === 'finalizada') {
+                const verificacion = await verificarPagoCita(citaId);
 
-            const form = e.target;
-            const diaId = form.getAttribute('data-id');
-            const isEdit = !!diaId;
-
-            const formData = {
-                fecha: document.getElementById('diaNoLaborableFecha').value,
-                motivo: document.getElementById('diaNoLaborableMotivo').value,
-                _token: '{{ csrf_token() }}'
-            };
-
-            try {
-                let response;
-                let url;
-                let method;
-
-                if (isEdit) {
-                    url = `/api/dias-no-laborables/${diaId}`;
-                    method = 'PUT';
-                } else {
-                    url = '/api/dias-no-laborables';
-                    method = 'POST';
+                if (!verificacion.success || !verificacion.tiene_pago_completado) {
+                    showAlert('warning', 'Pago requerido',
+                        'No se puede finalizar la cita sin un pago registrado. Por favor, registre el pago primero.'
+                    );
+                    selectElement.value = estadoActual;
+                    return;
                 }
+            }
 
-                response = await fetch(url, {
-                    method: method,
+            // Confirmación para cancelación
+            if (nuevoEstado === 'cancelada') {
+                const confirmacion = await showConfirmation(
+                    '¿Confirmar cancelación?',
+                    'Esta acción cancelará la cita. ¿Estás seguro?',
+                    'warning'
+                );
+
+                if (!confirmacion) {
+                    selectElement.value = selectElement._previousValue;
+                    return;
+                }
+            }
+
+            // Actualizar estado
+            await actualizarEstadoCitaDashboard(citaId, nuevoEstado, selectElement);
+        }
+
+        // 3. ACTUALIZAR ESTADO DE CITA EN DASHBOARD
+        async function actualizarEstadoCitaDashboard(citaId, nuevoEstado, selectElement) {
+            try {
+                showLoading('Actualizando estado...');
+
+                const response = await fetch(`/admin/citasadmin/${citaId}/actualizar-estado`, {
+                    method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({
+                        estado: nuevoEstado
+                    })
                 });
 
                 const data = await response.json();
+                hideLoading();
 
-                if (!response.ok) {
-                    let errorMessage = 'Error al guardar el día no laborable';
-                    if (data.errors) {
-                        errorMessage = Object.values(data.errors).join('\n');
-                    } else if (data.message) {
-                        errorMessage = data.message;
+                if (data.success) {
+                    // Actualizar badge de estado
+                    updateEstadoBadgeDashboard(citaId, nuevoEstado, data.nuevo_estado);
+
+                    // Actualizar valores de control
+                    if (selectElement) {
+                        selectElement._previousValue = nuevoEstado;
+                        selectElement._currentValue = nuevoEstado;
                     }
-                    throw new Error(errorMessage);
+
+                    showAlert('success', '¡Éxito!', data.message, 2000);
+
+                    // Recargar después de 2 segundos para actualizar botones y estadísticas
+                    setTimeout(() => window.location.reload(), 2000);
+
+                } else {
+                    throw new Error(data.message);
                 }
 
-                Toast.fire({
-                    icon: 'success',
-                    title: isEdit ? 'Día no laborable actualizado' : 'Día no laborable agregado'
-                });
-
-                closeModal('diaNoLaborableModal');
-                await cargarDiasNoLaborables();
             } catch (error) {
-                console.error('Error al guardar día no laborable:', error);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message
-                });
-            }
-        });
+                hideLoading();
+                console.error('Error al actualizar estado:', error);
 
-        // Validar que la fecha seleccionada no sea en el pasado
-        document.getElementById('diaNoLaborableFecha')?.addEventListener('change', function() {
-            const fechaSeleccionada = new Date(this.value);
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
+                showAlert('error', 'Error', error.message || 'Ocurrió un error al actualizar el estado');
 
-            if (fechaSeleccionada < hoy) {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'No puedes seleccionar una fecha pasada'
-                });
-                this.value = hoy.toISOString().split('T')[0];
-            }
-        });*/
-
-        // =============================================
-        // FUNCIONES DE VER CITAS DE HOY PARA EDITAR Y CANCELAR
-        // =============================================
-        // Filtrar citas por activo y búsqueda
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchCitas');
-            const activoFilter = document.getElementById('filterEstado');
-            const citasTable = document.getElementById('citasHoyTable');
-
-            // Configurar event listeners para búsqueda/filtro
-            if (searchInput && activoFilter && citasTable) {
-                searchInput.addEventListener('input', function() {
-                    filtrarCitas();
-                    // La paginación se inicializa dentro de filtrarCitas()
-                });
-
-                activoFilter.addEventListener('change', function() {
-                    filtrarCitas();
-                    // La paginación se inicializa dentro de filtrarCitas()
-                });
-            }
-
-            // Inicializar paginación después de cargar las citas
-            setTimeout(() => {
-                inicializarPaginacionCitas();
-            }, 500);
-
-            function filtrarCitas() {
-                const searchText = searchInput.value.toLowerCase();
-                const activoValue = activoFilter.value;
-                const rows = citasTable.getElementsByTagName('tr');
-
-                for (let row of rows) {
-                    let mostrar = true;
-                    const cells = row.getElementsByTagName('td');
-                    const activo = row.getAttribute('data-activo');
-
-                    // Filtrar por activo
-                    if (activoValue && activo !== activoValue) {
-                        mostrar = false;
-                    }
-
-                    // Filtrar por texto de búsqueda
-                    if (mostrar && searchText) {
-                        let textoEncontrado = false;
-                        for (let cell of cells) {
-                            if (cell.textContent.toLowerCase().includes(searchText)) {
-                                textoEncontrado = true;
-                                break;
-                            }
-                        }
-                        mostrar = textoEncontrado;
-                    }
-
-                    row.style.display = mostrar ? '' : 'none';
+                // Revertir cambio en el select
+                if (selectElement) {
+                    selectElement.value = selectElement._previousValue;
                 }
-                inicializarPaginacionCitas();
             }
-        });
-        
-        // Función para ver detalles de la cita
-        function verDetalleCita(citaId) {
-            fetch(`/admin/citasadmin/${citaId}/detalles`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error al cargar los detalles');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-
-                    // Crear contenido del modal
-                    const modalContent = `
-                <h2 style="color: var(--primary); margin-bottom: 20px;">
-                    <i class="fas fa-calendar-check"></i> Detalle de Cita #${data.id}
-                </h2>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-user"></i> Información del Cliente
-                        </h3>
-                        <p><strong>Nombre:</strong> ${data.usuario.nombre}</p>
-                        <p><strong>Teléfono:</strong> ${data.usuario.telefono || 'No proporcionado'}</p>
-                        <p><strong>Email:</strong> ${data.usuario.email}</p>
-                    </div>
-                    <div>
-                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                            <i class="fas fa-car"></i> Información del Vehículo
-                        </h3>
-                        <p><strong>Marca/Modelo:</strong> ${data.vehiculo.marca} ${data.vehiculo.modelo}</p>
-                        <p><strong>Placa:</strong> ${data.vehiculo.placa}</p>
-                        <p><strong>Tipo:</strong> ${data.vehiculo.tipo_formatted || data.vehiculo.tipo || 'No especificado'}</p>
-                    </div>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-calendar-alt"></i> Detalles de la Cita
-                    </h3>
-                    <p><strong>Fecha/Hora:</strong> ${new Date(data.fecha_hora).toLocaleString('es-ES')}</p>
-                    <p><strong>Estado:</strong> <span class="badge badge-${data.activo}">${data.activo_formatted}</span></p>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-concierge-bell"></i> Servicios
-                    </h3>
-                    <div style="display: grid; gap: 10px;">
-                        ${data.servicios.map(servicio => `
-                                                    <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                                                        <span>${servicio.nombre}</span>
-                                                        <span><strong>$${(servicio.pivot?.precio || servicio.precio || 0).toFixed(2)}</strong></span>
-                                                    </div>
-                                                `).join('')}
-                    </div>
-                </div>
-                <div style="background: linear-gradient(135deg, #e8f5e8, #f0f8f0); padding: 20px; border-radius: 12px; text-align: center; border: 2px solid var(--primary);">
-                    <h3 style="font-size: 1.3rem; margin-bottom: 10px; color: var(--primary);">
-                        <i class="fas fa-receipt"></i> Total a Pagar
-                    </h3>
-                    <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">
-                        $${data.total.toFixed(2)}
-                    </div>
-                </div>
-            `;
-
-                    // Mostrar en el modal existente
-                    document.getElementById('detalleCitaContent').innerHTML = modalContent;
-
-                    // Usar tu función existente para mostrar el modal
-                    mostrarModal('detalleCitaModal');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message || 'No se pudieron cargar los detalles de la cita'
-                    });
-                });
         }
 
-        // Función para editar cita (redirige a la página de administración de citas)
-        function editarCita(citaId) {
-            window.location.href = `/admin/citasadmin?buscar=${citaId}`;
+        // 4. ACTUALIZAR BADGE DE ESTADO EN DASHBOARD
+        function updateEstadoBadgeDashboard(citaId, estadoCodigo, estadoTexto) {
+            const row = document.querySelector(`.estado-select-dashboard[data-cita-id="${citaId}"]`)?.closest('tr');
+            if (!row) return;
+
+            const badge = row.querySelector('.appointment-status');
+            if (badge) {
+                badge.className = `appointment-status status-${estadoCodigo}`;
+                badge.textContent = estadoTexto;
+            }
         }
 
-        // Función para cancelar cita
-        function cancelarCita(citaId) {
-            Swal.fire({
-                title: '¿Cancelar esta cita?',
-                text: "Esta acción cambiará el activo de la cita a 'cancelada'",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, cancelar',
-                cancelButtonText: 'No, mantener'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Actualizar activo via AJAX
-                    fetch(`/admin/citasadmin/${citaId}/actualizar-activo`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                activo: 'cancelada'
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '¡Éxito!',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: data.message
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Ocurrió un error al cancelar la cita'
-                            });
-                        });
+        // 5. CONFIGURAR BOTONES DE PAGO EN DASHBOARD
+        function setupPagoButtonsDashboard() {
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn-pagar-dashboard') || e.target.closest(
+                        '.btn-pagar-dashboard')) {
+                    e.preventDefault();
+
+                    const button = e.target.classList.contains('btn-pagar-dashboard') ? e.target : e.target
+                        .closest('.btn-pagar-dashboard');
+                    const citaId = button.getAttribute('data-cita-id');
+
+                    if (!citaId) {
+                        showAlert('error', 'Error', 'ID de cita no encontrado');
+                        return;
+                    }
+
+                    openPagoModal(citaId);
                 }
             });
         }
 
-        // Variables globales para la paginación
-        let paginaActualCitas = 1;
-        let elementosPorPagina = 10; // se puede ajustar este valor
-        let citasTotales = [];
-
-        // Función para inicializar la paginación
-        function inicializarPaginacionCitas() {
-            // Obtener todas las citas de la tabla
-            const filasCitas = document.querySelectorAll('#citasHoyTable tr[data-activo]');
-            citasTotales = Array.from(filasCitas);
-
-            // Mostrar la primera página
-            mostrarPaginaCitas(1);
-            generarControlesPaginacion();
+        // 6. CONFIGURAR BOTONES DE DETALLES EN DASHBOARD
+        function setupDetallesButtonsDashboard() {
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('view-details-dashboard') || e.target.closest(
+                        '.view-details-dashboard')) {
+                    const button = e.target.classList.contains('view-details-dashboard') ? e.target : e.target
+                        .closest('.view-details-dashboard');
+                    const citaId = button.getAttribute('data-cita-id');
+                    openDetallesModal(citaId);
+                }
+            });
         }
 
-        // Función para mostrar una página específica
-        function mostrarPaginaCitas(numeroPagina) {
-            paginaActualCitas = numeroPagina;
+        // 7. CONFIGURAR FILTROS EN DASHBOARD
+        function setupFiltrosDashboard() {
+            const searchInput = document.getElementById('searchCitas');
+            const estadoFilter = document.getElementById('filterEstado');
+            const citasTable = document.getElementById('citasHoyTable');
+
+            if (searchInput && estadoFilter && citasTable) {
+                searchInput.addEventListener('input', function() {
+                    filtrarCitasDashboard();
+                });
+
+                estadoFilter.addEventListener('change', function() {
+                    filtrarCitasDashboard();
+                });
+            }
+
+            // Inicializar paginación
+            setTimeout(() => {
+                inicializarPaginacionCitasDashboard();
+            }, 500);
+        }
+
+        // 8. FILTRAR CITAS EN DASHBOARD
+        function filtrarCitasDashboard() {
+            const searchInput = document.getElementById('searchCitas');
+            const estadoFilter = document.getElementById('filterEstado');
+            const citasTable = document.getElementById('citasHoyTable');
+
+            const searchText = searchInput.value.toLowerCase();
+            const estadoValue = estadoFilter.value;
+            const rows = citasTable.getElementsByTagName('tr');
+
+            for (let row of rows) {
+                let mostrar = true;
+                const cells = row.getElementsByTagName('td');
+                const estado = row.getAttribute('data-estado');
+
+                // Filtrar por estado
+                if (estadoValue && estado !== estadoValue) {
+                    mostrar = false;
+                }
+
+                // Filtrar por texto de búsqueda
+                if (mostrar && searchText) {
+                    let textoEncontrado = false;
+                    for (let cell of cells) {
+                        if (cell.textContent.toLowerCase().includes(searchText)) {
+                            textoEncontrado = true;
+                            break;
+                        }
+                    }
+                    mostrar = textoEncontrado;
+                }
+
+                row.style.display = mostrar ? '' : 'none';
+            }
+            inicializarPaginacionCitasDashboard();
+        }
+
+        // 9. PAGINACIÓN PARA DASHBOARD
+        let paginaActualCitasDashboard = 1;
+        let elementosPorPaginaDashboard = 10;
+        let citasTotalesDashboard = [];
+
+        function inicializarPaginacionCitasDashboard() {
+            const filasCitas = document.querySelectorAll('#citasHoyTable tr[data-estado]');
+            citasTotalesDashboard = Array.from(filasCitas).filter(row => row.style.display !== 'none');
+
+            mostrarPaginaCitasDashboard(1);
+            generarControlesPaginacionDashboard();
+        }
+
+        function mostrarPaginaCitasDashboard(numeroPagina) {
+            paginaActualCitasDashboard = numeroPagina;
 
             // Ocultar todas las citas
-            citasTotales.forEach(cita => {
+            citasTotalesDashboard.forEach(cita => {
                 cita.style.display = 'none';
             });
 
             // Calcular índices de los elementos a mostrar
-            const inicio = (numeroPagina - 1) * elementosPorPagina;
-            const fin = inicio + elementosPorPagina;
+            const inicio = (numeroPagina - 1) * elementosPorPaginaDashboard;
+            const fin = inicio + elementosPorPaginaDashboard;
 
             // Mostrar solo los elementos de la página actual
-            for (let i = inicio; i < fin && i < citasTotales.length; i++) {
-                if (citasTotales[i]) {
-                    citasTotales[i].style.display = '';
+            for (let i = inicio; i < fin && i < citasTotalesDashboard.length; i++) {
+                if (citasTotalesDashboard[i]) {
+                    citasTotalesDashboard[i].style.display = '';
                 }
             }
 
-            // Actualizar controles de paginación
-            generarControlesPaginacion();
+            generarControlesPaginacionDashboard();
         }
 
-        // Función para generar los controles de paginación
-        function generarControlesPaginacion() {
-            const totalPaginas = Math.ceil(citasTotales.length / elementosPorPagina);
+        function generarControlesPaginacionDashboard() {
+            const totalPaginas = Math.ceil(citasTotalesDashboard.length / elementosPorPaginaDashboard);
             const contenedorPaginacion = document.getElementById('paginationCitas');
 
-            // Limpiar controles existentes
             contenedorPaginacion.innerHTML = '';
 
             // Botón Anterior
             const liAnterior = document.createElement('li');
-            liAnterior.className = `page-item ${paginaActualCitas === 1 ? 'disabled' : ''}`;
+            liAnterior.className = `page-item ${paginaActualCitasDashboard === 1 ? 'disabled' : ''}`;
             liAnterior.innerHTML = `
-        <a class="page-link" href="#" aria-label="Anterior" onclick="cambiarPaginaCitas(${paginaActualCitas - 1})">
+        <a class="page-link" href="#" aria-label="Anterior" onclick="cambiarPaginaCitasDashboard(${paginaActualCitasDashboard - 1}); return false;">
             <span aria-hidden="true">«</span>
         </a>
     `;
             contenedorPaginacion.appendChild(liAnterior);
 
             // Números de página
-            const inicioPaginas = Math.max(1, paginaActualCitas - 2);
+            const inicioPaginas = Math.max(1, paginaActualCitasDashboard - 2);
             const finPaginas = Math.min(totalPaginas, inicioPaginas + 4);
 
             for (let i = inicioPaginas; i <= finPaginas; i++) {
                 const li = document.createElement('li');
-                li.className = `page-item ${i === paginaActualCitas ? 'active' : ''}`;
-                li.innerHTML = `<a class="page-link" href="#" onclick="cambiarPaginaCitas(${i})">${i}</a>`;
+                li.className = `page-item ${i === paginaActualCitasDashboard ? 'active' : ''}`;
+                li.innerHTML =
+                    `<a class="page-link" href="#" onclick="cambiarPaginaCitasDashboard(${i}); return false;">${i}</a>`;
                 contenedorPaginacion.appendChild(li);
             }
 
             // Botón Siguiente
             const liSiguiente = document.createElement('li');
-            liSiguiente.className = `page-item ${paginaActualCitas === totalPaginas ? 'disabled' : ''}`;
+            liSiguiente.className = `page-item ${paginaActualCitasDashboard === totalPaginas ? 'disabled' : ''}`;
             liSiguiente.innerHTML = `
-        <a class="page-link" href="#" aria-label="Siguiente" onclick="cambiarPaginaCitas(${paginaActualCitas + 1})">
+        <a class="page-link" href="#" aria-label="Siguiente" onclick="cambiarPaginaCitasDashboard(${paginaActualCitasDashboard + 1}); return false;">
             <span aria-hidden="true">»</span>
         </a>
     `;
             contenedorPaginacion.appendChild(liSiguiente);
         }
 
-        // Función para cambiar de página
-        function cambiarPaginaCitas(numeroPagina) {
-            const totalPaginas = Math.ceil(citasTotales.length / elementosPorPagina);
+        function cambiarPaginaCitasDashboard(numeroPagina) {
+            const totalPaginas = Math.ceil(citasTotalesDashboard.length / elementosPorPaginaDashboard);
 
             if (numeroPagina < 1) numeroPagina = 1;
             if (numeroPagina > totalPaginas) numeroPagina = totalPaginas;
 
-            mostrarPaginaCitas(numeroPagina);
-            return false; // Prevenir comportamiento por defecto del enlace
+            mostrarPaginaCitasDashboard(numeroPagina);
         }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboardCitas();
+        });
         // =============================================
         // FUNCIONES DE USUARIO Y VALIDACIÓN
         // =============================================
@@ -4912,13 +4634,42 @@
             }
         }
 
-
+        // =============================================
+// PLUGIN PARA MOSTRAR MENSAJE CUANDO NO HAY DATOS
+// =============================================
+Chart.register({
+    id: 'noDataPlugin',
+    afterDraw: function(chart) {
+        if (chart.data.datasets.length === 0 || 
+            (chart.data.datasets[0].data.length === 0) || 
+            (chart.data.datasets[0].data.every(item => item === 0))) {
+            
+            let ctx = chart.ctx;
+            let width = chart.width;
+            let height = chart.height;
+            
+            chart.clear();
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '16px Arial';
+            ctx.fillStyle = '#999';
+            ctx.fillText('No hay datos disponibles', width / 2, height / 2);
+            ctx.restore();
+        }
+    }
+});
 
         // =============================================
         // FUNCIONES DE INICIALIZACIÓN
         // =============================================
 
         function inicializarGraficoUsuarios(data) {
+            if (!document.getElementById('usuariosChart')) {
+                console.error('No se encontró el elemento usuariosChart');
+                return;
+            }
+
             const ctx = document.getElementById('usuariosChart').getContext('2d');
             usuariosChart = new Chart(ctx, {
                 type: 'pie',
@@ -4939,15 +4690,20 @@
         }
         console.log(document.getElementById('usuariosChart')); // Debería mostrar el elemento canvas
 
-        function inicializarGraficoIngresos() {
+        function inicializarGraficoIngresos(data) {
+            if (!document.getElementById('ingresosChart')) {
+                console.error('No se encontró el elemento ingresosChart');
+                return;
+            }
+
             const ctx = document.getElementById('ingresosChart').getContext('2d');
             ingresosChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                     datasets: [{
-                        label: 'Ingresos 2023',
-                        data: [1200, 1900, 1500, 2000, 2200, 2500, 2800, 2600, 2300, 2000, 1800, 2100],
+                        label: 'Ingresos ' + new Date().getFullYear(),
+                        data: data,
                         backgroundColor: 'rgba(39, 174, 96, 0.2)',
                         borderColor: 'rgba(39, 174, 96, 1)',
                         borderWidth: 2,
@@ -4976,21 +4732,30 @@
             });
         }
 
-        function inicializarGraficoServicios() {
+        function inicializarGraficoServicios(data) {
+            if (!document.getElementById('serviciosChart')) {
+                console.error('No se encontró el elemento serviciosChart');
+                return;
+            }
+
             const ctx = document.getElementById('serviciosChart').getContext('2d');
+
+            // Preparar colores para los servicios
+            const colores = [
+                'rgba(39, 174, 96, 0.7)',
+                'rgba(52, 152, 219, 0.7)',
+                'rgba(243, 156, 18, 0.7)',
+                'rgba(155, 89, 182, 0.7)',
+                'rgba(231, 76, 60, 0.7)'
+            ];
+
             serviciosChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Lavado Completo', 'Lavado Premium', 'Detallado VIP', 'Aspirado', 'Encerado'],
+                    labels: Object.keys(data),
                     datasets: [{
-                        data: [35, 25, 15, 15, 10],
-                        backgroundColor: [
-                            'rgba(39, 174, 96, 0.7)',
-                            'rgba(52, 152, 219, 0.7)',
-                            'rgba(243, 156, 18, 0.7)',
-                            'rgba(155, 89, 182, 0.7)',
-                            'rgba(231, 76, 60, 0.7)'
-                        ],
+                        data: Object.values(data),
+                        backgroundColor: colores,
                         borderWidth: 1
                     }]
                 },
@@ -4998,7 +4763,12 @@
             });
         }
 
-        function inicializarGraficoCitas() {
+        function inicializarGraficoCitas(data) {
+            if (!document.getElementById('citasChart')) {
+                console.error('No se encontró el elemento citasChart');
+                return;
+            }
+
             const ctx = document.getElementById('citasChart').getContext('2d');
             citasChart = new Chart(ctx, {
                 type: 'bar',
@@ -5006,13 +4776,13 @@
                     labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                     datasets: [{
                             label: 'Citas Completadas',
-                            data: [45, 60, 55, 70, 75, 80, 85, 80, 70, 65, 60, 65],
-                            backgroundColor: 'rgba(211, 84, 0, 0.7)'
+                            data: data.completadas,
+                            backgroundColor: 'rgba(46, 125, 50, 0.7)'
                         },
                         {
                             label: 'Citas Canceladas',
-                            data: [5, 8, 6, 10, 7, 5, 4, 8, 10, 7, 9, 6],
-                            backgroundColor: 'rgba(231, 76, 60, 0.7)'
+                            data: data.canceladas,
+                            backgroundColor: 'rgba(198, 40, 40, 0.7)'
                         }
                     ]
                 },
@@ -5060,15 +4830,26 @@
 
                 actualizarEstadisticas(data.stats);
 
-                // Asegúrate de que el canvas existe antes de inicializar el gráfico
+                // Inicializar gráficos con datos reales
+                if (document.getElementById('ingresosChart')) {
+                    inicializarGraficoIngresos(data.stats.ingresos_por_mes || Array(12).fill(0));
+                }
+
+                if (document.getElementById('citasChart')) {
+  
+    const citasData = data.stats.citas_por_mes || {};
+    inicializarGraficoCitas({
+        completadas: citasData.completadas || Array(12).fill(0),
+        canceladas: citasData.canceladas || Array(12).fill(0)
+    });
+}
+
+                if (document.getElementById('serviciosChart')) {
+                    inicializarGraficoServicios(data.stats.servicios_populares_data || {});
+                }
+
                 if (document.getElementById('usuariosChart')) {
-                    // Si el gráfico ya existe, actualízalo
-                    if (usuariosChart) {
-                        actualizarGraficoUsuarios(data.rolesDistribucion);
-                    } else {
-                        // Si no existe, créalo
-                        inicializarGraficoUsuarios(data.rolesDistribucion);
-                    }
+                    inicializarGraficoUsuarios(data.rolesDistribucion);
                 }
 
                 return true;
@@ -5319,9 +5100,9 @@
                     </div>
                 </form>
             `;
-            
+
             mostrarModal('servicioModal', '<i class="fas fa-plus"></i> Nuevo Servicio', formContent);
-            
+
             // Event listener para el formulario
             document.getElementById('servicioForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -5437,9 +5218,9 @@
                                 </div>
                             </form>
                         `;
-                        
+
                         mostrarModal('servicioModal', '<i class="fas fa-edit"></i> Editar Servicio', formContent);
-                        
+
                         // Event listener para el formulario
                         document.getElementById('editarServicioForm').addEventListener('submit', async function(e) {
                             e.preventDefault();
@@ -5451,7 +5232,8 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    Swal.fire('Error', 'No se pudieron cargar los datos del servicio. Error: ' + error.message, 'error');
+                    Swal.fire('Error', 'No se pudieron cargar los datos del servicio. Error: ' + error.message,
+                        'error');
                 });
         }
 
@@ -5459,7 +5241,7 @@
         async function crearServicio() {
             const form = document.getElementById('servicioForm');
             const formData = new FormData(form);
-            
+
             // Convertir FormData a objeto para facilitar el manejo
             const data = {};
             formData.forEach((value, key) => {
@@ -5471,7 +5253,7 @@
                     data[key] = value;
                 }
             });
-            
+
             // Convertir activo a boolean
             data.activo = data.activo === 1;
 
@@ -5480,7 +5262,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     },
                     body: JSON.stringify(data)
                 });
@@ -5497,7 +5280,8 @@
                         showConfirmButton: false
                     }).then(() => {
                         // Verificar si venimos del modal principal
-                        const parentModal = document.getElementById('servicioModal').getAttribute('data-parent-modal');
+                        const parentModal = document.getElementById('servicioModal').getAttribute(
+                            'data-parent-modal');
                         if (parentModal === 'modalVerTodosServicios') {
                             // Recargar solo la lista de servicios en el modal principal
                             cargarTodosLosServicios();
@@ -5529,7 +5313,7 @@
         async function actualizarServicio(servicioId) {
             const form = document.getElementById('editarServicioForm');
             const formData = new FormData(form);
-            
+
             // Convertir FormData a objeto
             const data = {};
             formData.forEach((value, key) => {
@@ -5541,7 +5325,7 @@
                     data[key] = value;
                 }
             });
-            
+
             // Convertir activo a boolean
             data.activo = data.activo === 1;
 
@@ -5550,7 +5334,8 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     },
                     body: JSON.stringify(data)
                 });
@@ -5567,7 +5352,8 @@
                         showConfirmButton: false
                     }).then(() => {
                         // Verificar si venimos del modal principal
-                        const parentModal = document.getElementById('servicioModal').getAttribute('data-parent-modal');
+                        const parentModal = document.getElementById('servicioModal').getAttribute(
+                            'data-parent-modal');
                         if (parentModal === 'modalVerTodosServicios') {
                             // Recargar solo la lista de servicios en el modal principal
                             cargarTodosLosServicios();
@@ -5619,7 +5405,8 @@
                 const response = await fetch(`/admin/servicios/${servicioId}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     }
                 });
 
@@ -5732,19 +5519,7 @@
                 console.error('No se encontró el elemento serviciosChart');
             }
 
-            // 2. SOLO INICIALIZAR GRÁFICOS SI SUS CONTENEDORES EXISTEN
-            if (document.getElementById('ingresosChart')) {
-                inicializarGraficoIngresos();
-            }
-
-            if (document.getElementById('citasChart')) {
-                inicializarGraficoCitas();
-            }
-
-            if (document.getElementById('serviciosChart')) {
-                inicializarGraficoServicios();
-            }
-
+            // 2. CARGAR DATOS - LOS GRÁFICOS SE INICIALIZARÁN DENTRO DE actualizarDatosDashboard
             actualizarDatosDashboard();
 
             // Inicializar validaciones del formulario de usuario
@@ -5875,7 +5650,6 @@
         });
 
         // Formulario de usuario
-        // Formulario de usuario - Versión unificada con validación de contraseña
         document.getElementById('usuarioForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -6103,22 +5877,25 @@
 
         // Asignación de eventos a botones dinámicos
         document.addEventListener('click', function(e) {
-            // Botones de ver detalle de cita
-            if (e.target.closest('.btn-view')) {
-                const citaId = e.target.closest('tr').getAttribute('data-id');
-                verDetalleCita(citaId);
+            // Botones de ver detalle de cita (solo en tabla de citas)
+            if (e.target.closest('#citasHoyTable .btn-view')) {
+                const row = e.target.closest('tr');
+                const citaId = row ? row.getAttribute('data-id') : null;
+                if (citaId) verDetalleCita(citaId);
             }
 
-            // Botones de editar cita
-            if (e.target.closest('.btn-edit')) {
-                const citaId = e.target.closest('tr').getAttribute('data-id');
-                editarCita(citaId);
+            // Botones de editar cita (solo en tabla de citas)
+            if (e.target.closest('#citasHoyTable .btn-edit')) {
+                const row = e.target.closest('tr');
+                const citaId = row ? row.getAttribute('data-id') : null;
+                if (citaId) editarCita(citaId);
             }
 
-            // Botones de cancelar cita
-            if (e.target.closest('.btn-delete')) {
-                const citaId = e.target.closest('tr').getAttribute('data-id');
-                cancelarCita(citaId);
+            // Botones de cancelar cita (solo dentro de la tabla de citas)
+            if (e.target.closest('#citasHoyTable .btn-delete')) {
+                const row = e.target.closest('tr');
+                const citaId = row ? row.getAttribute('data-id') : null;
+                if (citaId) cancelarCita(citaId);
             }
 
             // Botones de editar servicio
@@ -6223,6 +6000,47 @@
         .modal-dias-no-laborables .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Estilos para modal-horarios (igual al de días no laborables) */
+        .modal-horarios .modal-content {
+            border-radius: 15px;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-horarios .modal-header {
+            background: linear-gradient(135deg, #27ae60, #00695c);
+            color: white;
+            border: none;
+            padding: 1.25rem 1.75rem;
+        }
+
+        .modal-horarios .modal-body,
+        .modal-horarios .modal-footer {
+            background: #f8f9fa;
+            border: none;
+        }
+
+        .modal-horarios .form-control {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 0.65rem 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .modal-horarios .form-control:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
+        }
+
+        .modal-horarios .btn-primary {
+            background: linear-gradient(135deg, #27ae60, #00695c);
+            border: none;
+            border-radius: 8px;
+            padding: 0.65rem 1.25rem;
+            font-weight: 600;
         }
 
         .modal-dias-no-laborables .btn-secondary {
@@ -6604,7 +6422,8 @@
                         <div class="col-md-8">
                             <div class="card">
                                 <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Distribución de Gastos por
+                                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Distribución de Gastos
+                                        por
                                         Tipo</h6>
                                 </div>
                                 <div class="card-body">
@@ -8486,16 +8305,16 @@
                         const info = getTipoGastoInfo(tipo);
                         const porcentaje = (gastosPorTipo[tipo].monto / montoTotal) * 100;
                         return `
-                                                                                        <div class="mb-2">
-                                                                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                                                                <small>${info.emoji} ${info.nombre}</small>
-                                                                                                <small><strong>${porcentaje.toFixed(1)}%</strong></small>
-                                                                                            </div>
-                                                                                            <div class="progress" style="height: 4px;">
-                                                                                                <div class="progress-bar" style="width: ${porcentaje}%; background: ${info.color}"></div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    `;
+                                                                                                            <div class="mb-2">
+                                                                                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                                                                    <small>${info.emoji} ${info.nombre}</small>
+                                                                                                                    <small><strong>${porcentaje.toFixed(1)}%</strong></small>
+                                                                                                                </div>
+                                                                                                                <div class="progress" style="height: 4px;">
+                                                                                                                    <div class="progress-bar" style="width: ${porcentaje}%; background: ${info.color}"></div>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        `;
                     }).join('')}
                 </div>
             `;
@@ -8591,14 +8410,14 @@
         // Hacer funciones disponibles globalmente
         window.abrirModalVerTodosGastos = abrirModalVerTodosGastos;
         window.limpiarFiltrosGastos = limpiarFiltrosGastos;
-        
+
         // =============================================
         // GESTIÓN DEL MODAL DE SERVICIOS
         // =============================================
-        
+
         // Variable para almacenar todos los servicios
         let todosLosServicios = [];
-        
+
         // Función para abrir el modal de todos los servicios
         function abrirModalVerTodosServicios() {
             const modalElement = document.getElementById('modalVerTodosServicios');
@@ -8606,25 +8425,25 @@
                 console.error('Modal modalVerTodosServicios no encontrado');
                 return;
             }
-            
+
             try {
                 const modal = new bootstrap.Modal(modalElement);
                 modal.show();
-                
+
                 // Cargar servicios cuando se abre el modal
                 cargarTodosLosServicios();
-                
+
             } catch (error) {
                 console.error('Error al abrir modal:', error);
             }
         }
-        
+
         // Función para cargar todos los servicios
         async function cargarTodosLosServicios() {
             try {
                 const response = await fetch('/admin/servicios/all');
                 const data = await response.json();
-                
+
                 if (data.success) {
                     todosLosServicios = data.servicios;
                     mostrarServicios(todosLosServicios);
@@ -8643,11 +8462,11 @@
                 `;
             }
         }
-        
+
         // Función para mostrar servicios en la tabla
         function mostrarServicios(servicios) {
             const tbody = document.getElementById('tablaServicios');
-            
+
             if (servicios.length === 0) {
                 tbody.innerHTML = `
                     <tr>
@@ -8658,7 +8477,7 @@
                 `;
                 return;
             }
-            
+
             tbody.innerHTML = servicios.map(servicio => `
                 <tr>
                     <td>
@@ -8692,23 +8511,23 @@
                 </tr>
             `).join('');
         }
-        
+
         // Función para filtrar servicios
         function filtrarServicios() {
             const busqueda = document.getElementById('buscarServicio').value.toLowerCase();
             const categoria = document.getElementById('filtroCategoria').value;
-            
+
             let serviciosFiltrados = todosLosServicios.filter(servicio => {
-                const coincideBusqueda = servicio.nombre.toLowerCase().includes(busqueda) || 
-                                       servicio.descripcion.toLowerCase().includes(busqueda);
+                const coincideBusqueda = servicio.nombre.toLowerCase().includes(busqueda) ||
+                    servicio.descripcion.toLowerCase().includes(busqueda);
                 const coincideCategoria = !categoria || servicio.categoria === categoria;
-                
+
                 return coincideBusqueda && coincideCategoria;
             });
-            
+
             mostrarServicios(serviciosFiltrados);
         }
-        
+
         // Función para actualizar estadísticas
         function actualizarEstadisticasServicios(estadisticas) {
             document.getElementById('estadisticasServicios').innerHTML = `
@@ -8717,41 +8536,43 @@
                 <strong>Inactivos:</strong> ${estadisticas.inactivos}
             `;
         }
-        
+
         // Función para crear servicio desde el modal principal
         function nuevoServicioModal() {
             // NO cerrar el modal principal, mantenerlo abierto
             // Simplemente abrir el modal de crear servicio encima
             nuevoServicio();
-            
+
             // Marcar que venimos del modal principal
             document.getElementById('servicioModal').setAttribute('data-parent-modal', 'modalVerTodosServicios');
         }
-        
+
         // Función para editar servicio desde el modal principal
         function editarServicioDesdeModal(servicioId) {
             // Usar la función existente de editar
             editarServicio(servicioId);
-            
+
             // Marcar que venimos del modal principal
             setTimeout(() => {
-                document.getElementById('servicioModal').setAttribute('data-parent-modal', 'modalVerTodosServicios');
+                document.getElementById('servicioModal').setAttribute('data-parent-modal',
+                    'modalVerTodosServicios');
             }, 100);
         }
-        
+
         // Función para cambiar estado del servicio
         async function toggleEstadoServicio(servicioId, estadoActual) {
             try {
                 const response = await fetch(`/admin/servicios/${servicioId}/toggle-status`, {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content'),
                         'Accept': 'application/json'
                     }
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     Swal.fire({
                         icon: 'success',
@@ -8760,7 +8581,7 @@
                         timer: 1500,
                         showConfirmButton: false
                     });
-                    
+
                     // Recargar servicios
                     cargarTodosLosServicios();
                 } else {
@@ -8771,13 +8592,13 @@
                 Swal.fire('Error', 'No se pudo cambiar el estado del servicio', 'error');
             }
         }
-        
+
         // Función para eliminar servicio desde el modal
         function eliminarServicioDesdeModal(servicioId) {
             confirmarEliminarServicio(servicioId);
             // No necesitamos setTimeout aquí, la función eliminarServicio ya maneja la recarga
         }
-        
+
         // Hacer funciones disponibles globalmente
         window.abrirModalVerTodosServicios = abrirModalVerTodosServicios;
         window.filtrarServicios = filtrarServicios;
@@ -8786,6 +8607,1237 @@
         window.toggleEstadoServicio = toggleEstadoServicio;
         window.eliminarServicioDesdeModal = eliminarServicioDesdeModal;
     </script>
+
+    <script>
+        // Horarios - bloque en Dashboard (inyección dinámica para mantener estilos y orden)
+        (function() {
+            const container = document.querySelector('.dashboard-container');
+            if (!container) return;
+
+            const cardHtml = `
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="card-header-icon icon-container">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            Horarios
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header-actions" style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                            <h3 style="color: var(--text-primary); margin: 0; max-width: 50%;">Gestión de bloques horarios</h3>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary btn-sm" id="btnAgregarHorario">
+                                    <i class="fas fa-plus"></i> Agregar horario
+                                </button>
+                            </div>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Día</th>
+                                        <th>Inicio</th>
+                                        <th>Fin</th>
+                                        <th>Activo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="horariosTableBody">
+                                    <tr><td colspan="5" style="text-align:center; padding:20px; color:#666;">Cargando...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="horariosEmptyState" style="display:none; text-align:center; margin-top:15px;">
+                            <p style="color:#666;">No hay horarios configurados.</p>
+                            <button type="button" class="btn btn-primary btn-sm" id="btnAgregarHorarioEmpty">Agregar el primero</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Insert after "Días No Laborables" card if exists, else append at end
+            const anchorCard = document.querySelector('i.fa-calendar-day')?.closest('.card');
+            if (anchorCard && anchorCard.nextSibling) {
+                anchorCard.parentNode.insertBefore(document.createRange().createContextualFragment(cardHtml), anchorCard
+                    .nextSibling);
+            } else {
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            }
+
+            // State
+            let horarios = [];
+            const tableBody = document.getElementById('horariosTableBody');
+            const emptyState = document.getElementById('horariosEmptyState');
+            const btnAgregarHorario = document.getElementById('btnAgregarHorario');
+            const btnAgregarHorarioEmpty = document.getElementById('btnAgregarHorarioEmpty');
+
+            function nombreDia(n) {
+                const dias = {
+                    1: 'Lunes',
+                    2: 'Martes',
+                    3: 'Miércoles',
+                    4: 'Jueves',
+                    5: 'Viernes',
+                    6: 'Sábado'
+                };
+                return dias[n] || n;
+            }
+
+            function renderTabla() {
+                if (!horarios || horarios.length === 0) {
+                    tableBody.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                emptyState.style.display = 'none';
+                tableBody.innerHTML = horarios.map(h => `
+                    <tr>
+                        <td data-label="Día">${nombreDia(h.dia_semana)}</td>
+                        <td data-label="Inicio">${h.hora_inicio}</td>
+                        <td data-label="Fin">${h.hora_fin}</td>
+                        <td data-label="Activo">
+                            <span class="badge ${h.activo ? 'badge-success' : 'badge-danger'}">${h.activo ? 'Sí' : 'No'}</span>
+                        </td>
+                        <td data-label="Acciones">
+                            <div class="table-actions">
+                                <button class="table-btn btn-edit" title="Editar" data-action="edit" data-id="${h.id}"><i class="fas fa-edit"></i></button>
+                                <button class="table-btn ${h.activo ? 'btn-danger' : 'btn-success'}" title="${h.activo ? 'Desactivar' : 'Activar'}" data-action="toggle" data-id="${h.id}">
+                                    <i class="fas ${h.activo ? 'fa-ban' : 'fa-check'}"></i>
+                                </button>
+                                <button class="table-btn btn-delete" title="Eliminar" data-action="delete" data-id="${h.id}"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            async function cargarHorarios() {
+                try {
+                    const res = await fetch('{{ route('admin.horarios.index') }}', {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const json = await res.json();
+                    horarios = (json && json.data) ? json.data : [];
+                    renderTabla();
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'Error al cargar horarios'
+                    });
+                }
+            }
+
+            function clearHorarioErrors() {
+                ['horario_dia', 'horario_inicio', 'horario_fin'].forEach(id => {
+                    const el = document.getElementById(id);
+                    el?.classList.remove('is-invalid');
+                });
+                ['error_horario_dia', 'error_horario_inicio', 'error_horario_fin'].forEach(id => {
+                    const e = document.getElementById(id);
+                    if (e) e.innerHTML = '';
+                });
+            }
+
+            function abrirModalCrearHorario() {
+                const form = document.getElementById('horarioForm');
+                if (!form) return;
+                form.reset();
+                clearHorarioErrors();
+                document.getElementById('horario_id').value = '';
+                document.getElementById('horario_dia').value = '';
+                document.getElementById('horario_activo').value = '1';
+                const sw = document.getElementById('horario_activo_switch');
+                if (sw) sw.checked = true;
+                const modal = new bootstrap.Modal(document.getElementById('horarioCRUDModal'));
+                document.getElementById('horarioCRUDModalTitle').innerHTML =
+                    '<i class="fas fa-clock me-2"></i> Agregar Horario';
+                modal.show();
+                setTimeout(() => document.getElementById('horario_dia')?.focus(), 100);
+            }
+
+            async function abrirModalEditarHorario(id) {
+                try {
+                    const res = await fetch(`/admin/horarios/${id}`, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const {
+                        data
+                    } = await res.json();
+                    const form = document.getElementById('horarioForm');
+                    if (!form) return;
+                    document.getElementById('horario_id').value = data.id;
+                    document.getElementById('horario_dia').value = data.dia_semana;
+                    document.getElementById('horario_inicio').value = data.hora_inicio;
+                    document.getElementById('horario_fin').value = data.hora_fin;
+                    const sw = document.getElementById('horario_activo_switch');
+                    if (sw) sw.checked = !!data.activo;
+                    document.getElementById('horario_activo').value = data.activo ? '1' : '0';
+                    const modal = new bootstrap.Modal(document.getElementById('horarioCRUDModal'));
+                    document.getElementById('horarioCRUDModalTitle').innerHTML =
+                        '<i class="fas fa-edit me-2"></i> Editar Horario';
+                    modal.show();
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'No se pudo cargar el horario'
+                    });
+                }
+            }
+
+            async function toggleHorario(id) {
+                try {
+                    const res = await fetch(`/admin/horarios/${id}/toggle`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                    });
+                    const {
+                        data,
+                        message
+                    } = await res.json();
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'success',
+                        title: message || 'Actualizado'
+                    });
+                    // Update in memory
+                    horarios = horarios.map(h => h.id === data.id ? data : h);
+                    renderTabla();
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'No se pudo actualizar'
+                    });
+                }
+            }
+
+            async function eliminarHorario(id) {
+                const confirm = await Swal.fire({
+                    title: '¿Eliminar?',
+                    text: 'Esta acción no se puede deshacer',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar'
+                });
+                if (!confirm.isConfirmed) return;
+                try {
+                    const res = await fetch(`/admin/horarios/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const json = await res.json();
+                    if (json && json.success) {
+                        if (typeof Toast !== 'undefined') Toast.fire({
+                            icon: 'success',
+                            title: json.message || 'Eliminado'
+                        });
+                        horarios = horarios.filter(h => h.id !== id);
+                        renderTabla();
+                    } else {
+                        if (typeof Toast !== 'undefined') Toast.fire({
+                            icon: 'error',
+                            title: 'No se pudo eliminar'
+                        });
+                    }
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'No se pudo eliminar'
+                    });
+                }
+            }
+
+            // Confirmación consistente para eliminar horario
+            async function confirmarEliminarHorario(id) {
+                const confirm = await Swal.fire({
+                    title: '¿Eliminar horario?',
+                    text: 'Esta acción no se puede deshacer',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, Eliminar',
+                    cancelButtonText: 'No, Mantener',
+                    reverseButtons: true,
+                });
+                if (!confirm.isConfirmed) return;
+                try {
+                    const res = await fetch(`/admin/horarios/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const json = await res.json();
+                    if (json && json.success) {
+                        if (typeof Toast !== 'undefined') Toast.fire({
+                            icon: 'success',
+                            title: json.message || 'Eliminado'
+                        });
+                        horarios = horarios.filter(h => h.id !== id);
+                        renderTabla();
+                    } else {
+                        if (typeof Toast !== 'undefined') Toast.fire({
+                            icon: 'error',
+                            title: 'No se pudo eliminar'
+                        });
+                    }
+                } catch (e) {
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'error',
+                        title: 'No se pudo eliminar'
+                    });
+                }
+            }
+
+            // Delegación de eventos en tabla
+            tableBody.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const id = parseInt(btn.getAttribute('data-id'));
+                const action = btn.getAttribute('data-action');
+                if (action === 'edit') return abrirModalEditarHorario(id);
+                if (action === 'toggle') return toggleHorario(id);
+                if (action === 'delete') return confirmarEliminarHorario(id);
+            });
+
+            // Abrir crear desde botones
+            btnAgregarHorario?.addEventListener('click', abrirModalCrearHorario);
+            btnAgregarHorarioEmpty?.addEventListener('click', abrirModalCrearHorario);
+
+            // Manejo submit del modal existente
+            const horarioForm = document.getElementById('horarioForm');
+            const btnGuardarHorario = document.getElementById('btnGuardarHorario');
+
+            function applyErrors(err) {
+                clearHorarioErrors();
+                if (err && err.errors) {
+                    if (err.errors.dia_semana) {
+                        document.getElementById('horario_dia')?.classList.add('is-invalid');
+                        document.getElementById('error_horario_dia').innerHTML = err.errors.dia_semana[0];
+                    }
+                    if (err.errors.hora_inicio) {
+                        document.getElementById('horario_inicio')?.classList.add('is-invalid');
+                        document.getElementById('error_horario_inicio').innerHTML = err.errors.hora_inicio[0];
+                    }
+                    if (err.errors.hora_fin) {
+                        document.getElementById('horario_fin')?.classList.add('is-invalid');
+                        document.getElementById('error_horario_fin').innerHTML = err.errors.hora_fin[0];
+                    }
+                }
+            }
+
+            function buildPayload() {
+                return {
+                    dia_semana: document.getElementById('horario_dia').value,
+                    hora_inicio: document.getElementById('horario_inicio').value,
+                    hora_fin: document.getElementById('horario_fin').value,
+                    activo: document.getElementById('horario_activo').value,
+                };
+            }
+
+            // Submit via botón footer
+            btnGuardarHorario?.addEventListener('click', async () => {
+                horarioForm?.dispatchEvent(new Event('submit'));
+            });
+
+            // Sincronizar switch con valor oculto
+            document.getElementById('horario_activo_switch')?.addEventListener('change', (e) => {
+                document.getElementById('horario_activo').value = e.target.checked ? '1' : '0';
+            });
+
+            horarioForm?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const id = document.getElementById('horario_id').value;
+                const payload = buildPayload();
+                // Validación simple cliente
+                if (!payload.dia_semana || !payload.hora_inicio || !payload.hora_fin) {
+                    applyErrors({
+                        errors: {
+                            dia_semana: !payload.dia_semana ? ['Seleccione un día'] : [],
+                            hora_inicio: !payload.hora_inicio ? ['Ingrese hora de inicio'] : [],
+                            hora_fin: !payload.hora_fin ? ['Ingrese hora de fin'] : []
+                        }
+                    });
+                    return;
+                }
+                if (payload.hora_inicio >= payload.hora_fin) {
+                    applyErrors({
+                        errors: {
+                            hora_fin: ['La hora de fin debe ser mayor a la hora de inicio']
+                        }
+                    });
+                    return;
+                }
+                try {
+                    const res = await fetch(id ? `/admin/horarios/${id}` : '/admin/horarios', {
+                        method: id ? 'PUT' : 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) {
+                        const err = await res.json();
+                        if (err && err.errors) {
+                            applyErrors(err);
+                            return;
+                        }
+                        throw new Error('Error de servidor');
+                    }
+                    const {
+                        data,
+                        message
+                    } = await res.json();
+                    const modalEl = document.getElementById('horarioCRUDModal');
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                    if (typeof Toast !== 'undefined') Toast.fire({
+                        icon: 'success',
+                        title: message || 'Guardado'
+                    });
+                    // Actualizar en memoria
+                    if (id) {
+                        horarios = horarios.map(h => h.id === data.id ? data : h);
+                    } else {
+                        horarios.push(data);
+                        horarios.sort((a, b) => a.dia_semana - b.dia_semana || (a.hora_inicio > b
+                            .hora_inicio ? 1 : -1));
+                    }
+                    renderTabla();
+                } catch (e) {
+                    Swal.fire('Error', 'No se pudo guardar', 'error');
+                }
+            });
+
+            // Cargar data al iniciar
+            cargarHorarios();
+        })();
+
+        // ==============================================
+        // FUNCIONES PARA MODALES DE NAVEGACIÓN
+        // ==============================================
+
+        // Abrir Modal de Citas Admin con diseño mejorado
+        function abrirModalCitasAdmin() {
+            document.getElementById('citasAdminModal').style.display = 'flex';
+            const content = document.getElementById('citasAdminContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="citasIframe"
+                    src="{{ route('admin.citasadmin.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar resumen de estadísticas
+                            const allCards = iframeDoc.querySelectorAll('.card');
+                            allCards.forEach(card => {
+                                const cardHeader = card.querySelector('.card-header');
+                                if (cardHeader) {
+                                    const headerText = cardHeader.textContent;
+                                    if (headerText.includes('Resumen de Citas') ||
+                                        headerText.includes('Total de Citas') ||
+                                        headerText.includes('Desglose por Estado')) {
+                                        card.style.display = 'none';
+                                    }
+                                }
+                            });
+
+                            // Ocultar botones de volver/regresar al dashboard
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/admin/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño para vista más compacta
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            // Reducir padding de cards
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            // Reducir márgenes
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // IMPORTANTE: Interceptar modales internos para ajustar z-index
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        // Abrir Modal de Bitácora
+        function abrirModalBitacora() {
+            document.getElementById('bitacoraModal').style.display = 'flex';
+            const content = document.getElementById('bitacoraContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="bitacoraIframe"
+                    src="{{ route('admin.bitacora.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/admin/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño para vista más compacta
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // IMPORTANTE: Interceptar modales internos para ajustar z-index
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        // Abrir Modal de Configuración
+        function abrirModalConfiguracion() {
+            document.getElementById('configuracionModal').style.display = 'flex';
+            const content = document.getElementById('configuracionContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="configuracionIframe"
+                    src="{{ route('configuracion.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/admin/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño para vista más compacta
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // IMPORTANTE: Interceptar modales internos para ajustar z-index
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            node.style.zIndex = '1100';
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+
+        // ==============================================
+        // MODAL DE REPORTES COMPLETOS
+        // ==============================================
+
+        let reporteCharts = {
+            ingresos: null,
+            citas: null,
+            servicios: null,
+            pagos: null
+        };
+
+        function abrirModalReportes() {
+            document.getElementById('reportesModal').style.display = 'flex';
+
+            // Establecer año actual
+            const anoActual = new Date().getFullYear();
+            document.getElementById('reporteAno').value = anoActual;
+            document.getElementById('reporteMes').value = 0;
+
+            // Cargar datos iniciales
+            setTimeout(() => {
+                actualizarReportes();
+            }, 100);
+        }
+
+        async function actualizarReportes() {
+            const ano = document.getElementById('reporteAno').value;
+            const mes = parseInt(document.getElementById('reporteMes').value);
+
+            try {
+                // Obtener datos del servidor
+                const response = await fetch(`{{ route('admin.dashboard.data') }}`);
+                const data = await response.json();
+
+                if (!data.stats) {
+                    throw new Error('No se pudieron cargar los datos');
+                }
+
+                // Actualizar estadísticas rápidas
+                actualizarEstadisticasReportes(data.stats, mes);
+
+                // Actualizar gráficos
+                actualizarGraficosReportes(data.stats, mes);
+
+                // Actualizar tabla de top servicios
+                actualizarTopServicios(data.stats.servicios_populares_data || {});
+
+            } catch (error) {
+                console.error('Error al cargar reportes:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error al cargar reportes'
+                });
+            }
+        }
+
+        function actualizarEstadisticasReportes(stats, mes) {
+            // Calcular totales según el mes seleccionado
+            let ingresoTotal = 0;
+            let citasCompletadas = 0;
+            let citasCanceladas = 0;
+            let serviciosTotal = 0;
+
+            if (mes === 0) {
+                // Todos los meses
+                ingresoTotal = stats.ingresos_por_mes ? stats.ingresos_por_mes.reduce((a, b) => a + b, 0) : 0;
+                citasCompletadas = stats.citas_por_mes && stats.citas_por_mes.completadas ?
+                    stats.citas_por_mes.completadas.reduce((a, b) => a + b, 0) : 0;
+                citasCanceladas = stats.citas_por_mes && stats.citas_por_mes.canceladas ?
+                    stats.citas_por_mes.canceladas.reduce((a, b) => a + b, 0) : 0;
+            } else {
+                // Mes específico (índice del array es mes-1)
+                ingresoTotal = stats.ingresos_por_mes && stats.ingresos_por_mes[mes-1] ? stats.ingresos_por_mes[mes-1] : 0;
+                citasCompletadas = stats.citas_por_mes && stats.citas_por_mes.completadas && stats.citas_por_mes.completadas[mes-1] ?
+                    stats.citas_por_mes.completadas[mes-1] : 0;
+                citasCanceladas = stats.citas_por_mes && stats.citas_por_mes.canceladas && stats.citas_por_mes.canceladas[mes-1] ?
+                    stats.citas_por_mes.canceladas[mes-1] : 0;
+            }
+
+            // Calcular servicios total (estimado como citas completadas * promedio de servicios por cita)
+            serviciosTotal = Math.round(citasCompletadas * 1.5);
+
+            // Calcular tasa de cancelación
+            const totalCitas = citasCompletadas + citasCanceladas;
+            const tasaCancelacion = totalCitas > 0 ? ((citasCanceladas / totalCitas) * 100).toFixed(1) : 0;
+
+            // Actualizar UI
+            document.getElementById('reporteIngresoTotal').textContent = '$' + ingresoTotal.toFixed(2);
+            document.getElementById('reporteCitasCompletadas').textContent = citasCompletadas;
+            document.getElementById('reporteServiciosTotal').textContent = serviciosTotal;
+            document.getElementById('reporteTasaCancelacion').textContent = tasaCancelacion + '%';
+        }
+
+        function actualizarGraficosReportes(stats, mes) {
+            // Destruir gráficos anteriores
+            Object.keys(reporteCharts).forEach(key => {
+                if (reporteCharts[key]) {
+                    reporteCharts[key].destroy();
+                }
+            });
+
+            // Gráfico de Ingresos
+            const ctxIngresos = document.getElementById('reporteIngresosChart').getContext('2d');
+            reporteCharts.ingresos = new Chart(ctxIngresos, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                        label: 'Ingresos',
+                        data: stats.ingresos_por_mes || Array(12).fill(0),
+                        backgroundColor: 'rgba(46, 125, 50, 0.2)',
+                        borderColor: 'rgba(46, 125, 50, 1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => '$' + context.raw.toLocaleString()
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => '$' + value
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Citas por Estado
+            const citasData = stats.citas_por_mes || { completadas: Array(12).fill(0), canceladas: Array(12).fill(0) };
+            const ctxCitas = document.getElementById('reporteCitasChart').getContext('2d');
+            reporteCharts.citas = new Chart(ctxCitas, {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [
+                        {
+                            label: 'Completadas',
+                            data: citasData.completadas || Array(12).fill(0),
+                            backgroundColor: 'rgba(25, 118, 210, 0.7)',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Canceladas',
+                            data: citasData.canceladas || Array(12).fill(0),
+                            backgroundColor: 'rgba(198, 40, 40, 0.7)',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Gráfico de Servicios Populares
+            const serviciosData = stats.servicios_populares_data || {};
+            const ctxServicios = document.getElementById('reporteServiciosChart').getContext('2d');
+            reporteCharts.servicios = new Chart(ctxServicios, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(serviciosData),
+                    datasets: [{
+                        data: Object.values(serviciosData),
+                        backgroundColor: [
+                            'rgba(46, 125, 50, 0.8)',
+                            'rgba(25, 118, 210, 0.8)',
+                            'rgba(245, 124, 0, 0.8)',
+                            'rgba(156, 39, 176, 0.8)',
+                            'rgba(229, 57, 53, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+
+            // Gráfico de Métodos de Pago (simulado)
+            const ctxPagos = document.getElementById('reportePagosChart').getContext('2d');
+            reporteCharts.pagos = new Chart(ctxPagos, {
+                type: 'pie',
+                data: {
+                    labels: ['Efectivo', 'Tarjeta', 'Transferencia'],
+                    datasets: [{
+                        data: [45, 35, 20],
+                        backgroundColor: [
+                            'rgba(76, 175, 80, 0.8)',
+                            'rgba(33, 150, 243, 0.8)',
+                            'rgba(255, 152, 0, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        function actualizarTopServicios(serviciosData) {
+            const tbody = document.getElementById('topServiciosTable');
+
+            if (Object.keys(serviciosData).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 40px;">No hay datos disponibles</td></tr>';
+                return;
+            }
+
+            // Convertir objeto a array y ordenar
+            const serviciosArray = Object.entries(serviciosData).map(([nombre, veces]) => ({
+                nombre,
+                veces
+            })).sort((a, b) => b.veces - a.veces).slice(0, 10);
+
+            // Generar HTML
+            let html = '';
+            serviciosArray.forEach((servicio, index) => {
+                const ingresos = servicio.veces * 25; // Estimado $25 por servicio
+                const promedio = ingresos / servicio.veces;
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 600;">${index + 1}</td>
+                        <td>${servicio.nombre}</td>
+                        <td>${servicio.veces}</td>
+                        <td style="color: #2e7d32; font-weight: 600;">$${ingresos.toFixed(2)}</td>
+                        <td>$${promedio.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // ==============================================
+        // MODAL DE GESTIÓN DE USUARIOS
+        // ==============================================
+
+        function abrirModalUsuarios() {
+            document.getElementById('usuariosModal').style.display = 'flex';
+            const content = document.getElementById('usuariosContent');
+
+            content.innerHTML = `
+                <iframe
+                    id="usuariosIframe"
+                    src="{{ route('admin.usuarios.index') }}"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    onload="
+                        this.style.opacity='1';
+                        try {
+                            const iframeDoc = this.contentDocument || this.contentWindow.document;
+
+                            // Ocultar botones de volver/regresar
+                            const allElements = iframeDoc.querySelectorAll('a, button');
+                            allElements.forEach(element => {
+                                const text = element.textContent.toLowerCase();
+                                const href = element.getAttribute('href') || '';
+                                if (text.includes('volver') || text.includes('regresar') ||
+                                    text.includes('dashboard') || href.includes('/admin/dashboard')) {
+                                    element.style.display = 'none';
+                                }
+                            });
+
+                            // Ajustar diseño para vista más compacta
+                            const container = iframeDoc.querySelector('.container, .container-fluid');
+                            if (container) {
+                                container.style.padding = '10px 15px';
+                                container.style.maxWidth = '100%';
+                            }
+
+                            iframeDoc.querySelectorAll('.card-body').forEach(card => {
+                                card.style.padding = '0.8rem';
+                            });
+
+                            iframeDoc.querySelectorAll('.mb-4, .mb-3').forEach(elem => {
+                                elem.style.marginBottom = '0.5rem';
+                            });
+
+                            // IMPORTANTE: Interceptar clicks en modales internos para ajustar z-index
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === 1 && node.classList &&
+                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
+                                            // Ajustar z-index de modales internos
+                                            node.style.zIndex = '1100';
+
+                                            // Si es un backdrop, también ajustarlo
+                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
+                                            if (backdrop) {
+                                                backdrop.style.zIndex = '1090';
+                                            }
+                                        }
+                                    });
+                                });
+                            });
+
+                            observer.observe(iframeDoc.body, {
+                                childList: true,
+                                subtree: true
+                            });
+                        } catch(e) {
+                            console.log('No se pudo modificar iframe:', e);
+                        }
+                    "
+                ></iframe>
+            `;
+        }
+    </script>
+
+    <!-- Modal para Gestión de Citas -->
+    <div id="citasAdminModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #2e7d32 0%, #00695c 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-calendar-alt" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Gestión de Citas
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('citasAdminModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="citasAdminContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid var(--primary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Bitácora -->
+    <div id="bitacoraModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-book" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Bitácora del Sistema
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('bitacoraModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="bitacoraContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #1976d2; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Configuración -->
+    <div id="configuracionModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #f57c00 0%, #e65100 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-cog" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Configuración del Sistema
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('configuracionModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="configuracionContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #f57c00; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Reportes Completos -->
+    <div id="reportesModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 90%; max-width: 1600px; height: 90vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-chart-bar" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Reportes Completos del Sistema
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('reportesModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+
+            <!-- Contenido del modal -->
+            <div id="reportesContent" style="flex: 1; overflow-y: auto; padding: 25px; background: #f5f5f5;">
+                <!-- Selector de Período -->
+                <div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem;">Año:</label>
+                            <select id="reporteAno" class="form-control" style="width: 120px; padding: 8px 12px; border-radius: 8px;">
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem;">Mes:</label>
+                            <select id="reporteMes" class="form-control" style="width: 150px; padding: 8px 12px; border-radius: 8px;">
+                                <option value="0">Todos los meses</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <button onclick="actualizarReportes()" class="btn btn-primary" style="margin-top: 24px; padding: 8px 20px; border-radius: 8px;">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grid de Estadísticas Rápidas -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <!-- Ingresos Totales -->
+                    <div style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-dollar-sign" style="font-size: 2rem; opacity: 0.9;"></i>
+                            <div>
+                                <div style="font-size: 0.85rem; opacity: 0.95; font-weight: 500;">Ingresos Totales</div>
+                                <div id="reporteIngresoTotal" style="font-size: 1.8rem; font-weight: 700; margin-top: 5px;">$0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Citas Completadas -->
+                    <div style="background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-check-circle" style="font-size: 2rem; opacity: 0.9;"></i>
+                            <div>
+                                <div style="font-size: 0.85rem; opacity: 0.95; font-weight: 500;">Citas Completadas</div>
+                                <div id="reporteCitasCompletadas" style="font-size: 1.8rem; font-weight: 700; margin-top: 5px;">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Servicios Realizados -->
+                    <div style="background: linear-gradient(135deg, #f57c00 0%, #e65100 100%); color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-tools" style="font-size: 2rem; opacity: 0.9;"></i>
+                            <div>
+                                <div style="font-size: 0.85rem; opacity: 0.95; font-weight: 500;">Servicios Realizados</div>
+                                <div id="reporteServiciosTotal" style="font-size: 1.8rem; font-weight: 700; margin-top: 5px;">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tasa de Cancelación -->
+                    <div style="background: linear-gradient(135deg, #c62828 0%, #8e0000 100%); color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-ban" style="font-size: 2rem; opacity: 0.9;"></i>
+                            <div>
+                                <div style="font-size: 0.85rem; opacity: 0.95; font-weight: 500;">Tasa Cancelación</div>
+                                <div id="reporteTasaCancelacion" style="font-size: 1.8rem; font-weight: 700; margin-top: 5px;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos en Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px;">
+                    <!-- Gráfico de Ingresos Detallado -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #2e7d32; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-chart-line"></i> Ingresos por Mes
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="reporteIngresosChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Citas -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #1976d2; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-calendar-check"></i> Citas por Estado
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="reporteCitasChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Servicios Populares -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #f57c00; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-star"></i> Servicios Más Solicitados
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="reporteServiciosChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Métodos de Pago -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #6a1b9a; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-credit-card"></i> Métodos de Pago
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="reportePagosChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Top Servicios -->
+                <div style="background: white; border-radius: 10px; padding: 20px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #2c3e50; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-trophy"></i> Top 10 Servicios
+                    </h3>
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Servicio</th>
+                                    <th>Veces Solicitado</th>
+                                    <th>Ingresos Generados</th>
+                                    <th>Promedio por Servicio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topServiciosTable">
+                                <tr>
+                                    <td colspan="5" class="text-center" style="padding: 40px;">Cargando datos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gestión de Usuarios -->
+    <div id="usuariosModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+            <!-- Header compacto -->
+            <div style="padding: 12px 20px; background: linear-gradient(135deg, #0288d1 0%, #0277bd 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-users" style="font-size: 1.2rem; color: white;"></i>
+                    <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
+                        Gestión de Usuarios
+                    </h2>
+                </div>
+                <span class="close-modal" onclick="closeModal('usuariosModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+            </div>
+            <!-- Contenido del modal -->
+            <div id="usuariosContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
+                <div class="text-center" style="padding: 60px 20px;">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #0288d1; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
