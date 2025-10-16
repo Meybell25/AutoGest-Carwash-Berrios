@@ -162,7 +162,7 @@
             padding: 0 25px 25px;
         }
 
-        /* Stats Grid */
+        /* Stats Grid - Mejorado */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -178,6 +178,18 @@
             border-left: 4px solid #4facfe;
             transition: var(--transition);
             box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary-gradient);
         }
 
         .stat-card:hover {
@@ -307,7 +319,7 @@
             font-size: 0.8rem;
         }
 
-        /* Facturas List */
+        /* Facturas List - Mejorado */
         .facturas-grid {
             display: flex;
             flex-direction: column;
@@ -325,10 +337,26 @@
             overflow: hidden;
         }
 
+        .factura-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary-gradient);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
         .factura-card:hover {
             transform: translateY(-3px);
             box-shadow: var(--shadow-lg);
             border-left-color: #667eea;
+        }
+
+        .factura-card:hover::before {
+            opacity: 1;
         }
 
         .factura-header {
@@ -420,12 +448,20 @@
         }
 
         .servicio-tag {
-            background: #e9ecef;
-            color: #495057;
+            background: #e7f3ff;
+            color: #1976d2;
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 0.8rem;
             font-weight: 500;
+            border: 1px solid #bbdefb;
+            transition: var(--transition);
+        }
+
+        .servicio-tag:hover {
+            background: #4facfe;
+            color: white;
+            transform: translateY(-2px);
         }
 
         .factura-actions {
@@ -808,7 +844,7 @@
     </div>
 
     <script>
-        // Función para ver el detalle de una factura (CORREGIDA)
+        // Función para ver el detalle de una factura 
         function verDetalleFactura(citaId) {
             Swal.fire({
                 title: 'Cargando factura...',
@@ -843,7 +879,7 @@
             Swal.close();
         }
 
-        // Función para mostrar modal con detalles de factura (CORREGIDA)
+        // Función para mostrar modal con detalles de factura 
         function mostrarModalFactura(factura) {
             // Asegurar que total sea un número
             const total = typeof factura.total === 'number' ? factura.total : parseFloat(factura.total) || 0;

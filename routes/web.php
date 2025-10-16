@@ -171,7 +171,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
         // Rutas para horarios
         Route::resource('horarios', \App\Http\Controllers\HorarioController::class);
     });
-
 // Rutas de Empleado
 Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':empleado'])->prefix('empleado')->name('empleado.')->group(function () {
     // Dashboard
@@ -180,9 +179,11 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':emplea
     // Gestión de Citas
     Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
 
-    Route::post('/citas/{id}/estado', [EmpleadoController::class, 'cambiarEstado'])->name('citas.estado');
-    Route::post('/citas/{id}/observaciones', [EmpleadoController::class, 'agregarObservaciones'])->name('citas.observaciones');
-    Route::post('/citas/{id}/finalizar', [EmpleadoController::class, 'finalizarCita'])->name('citas.finalizar');
+    // Rutas actualizadas para evitar conflictos
+    Route::post('/citas/{id}/cambiar-estado', [EmpleadoController::class, 'cambiarEstadoCita'])->name('citas.cambiar-estado');
+    Route::post('/citas/{id}/agregar-observaciones', [EmpleadoController::class, 'agregarObservaciones'])->name('citas.agregar-observaciones');
+    Route::post('/citas/{id}/finalizar-completa', [EmpleadoController::class, 'finalizarCitaCompleta'])->name('citas.finalizar-completa');
+    Route::post('/citas/finalizar-simple', [EmpleadoController::class, 'finalizarCitaSimple'])->name('citas.finalizar-simple');
     Route::get('/citas/{id}/detalles', [EmpleadoController::class, 'getCitaDetalles'])->name('citas.detalles');
 
     // Historial y Reportes
@@ -190,14 +191,10 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':emplea
     Route::get('/bitacora', [EmpleadoController::class, 'bitacora'])->name('bitacora');
 
     // Configuración de Cuenta
-    Route::put('/perfil/actualizar', [EmpleadoController::class, 'actualizarPerfil'])->name('perfil.actualizar');
-    Route::put('/perfil/cambiar-password', [EmpleadoController::class, 'cambiarPassword'])->name('perfil.cambiar-password');
+    Route::post('/perfil/actualizar', [EmpleadoController::class, 'actualizarPerfil'])->name('perfil.actualizar');
+    Route::post('/perfil/cambiar-password', [EmpleadoController::class, 'cambiarPassword'])->name('perfil.cambiar-password');
 
     // Servicios
-
-    Route::post('/citas/{cita}/estado', [EmpleadoController::class, 'cambiarEstado'])->name('citas.estado');
-    Route::post('/citas/finalizar', [EmpleadoController::class, 'finalizarCita'])->name('citas.finalizar');
-
     Route::get('/servicios', [ServicioController::class, 'empleadoIndex'])->name('servicios.index');
 });
 

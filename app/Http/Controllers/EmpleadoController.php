@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
+use App\Models\Bitacora;
+use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 
 class EmpleadoController extends Controller
@@ -38,7 +41,10 @@ class EmpleadoController extends Controller
         return view('empleado.dashboard', compact('citas_hoy', 'stats', 'historial'));
     }
 
-    public function citas(Request $request): View
+    /**
+     * Vista de agenda de citas con filtros
+     */
+    public function citas(Request $request)
     {
         $filtro = $request->get('filtro', 'hoy');
         $fecha  = today();
@@ -54,7 +60,6 @@ class EmpleadoController extends Controller
 
             case 'fecha':
                 if ($request->filled('fecha')) {
-                    // Solo acepta fechas >= hoy
                     $candidata = Carbon::parse($request->fecha);
                     if ($candidata->gte(today())) {
                         $fecha = $candidata;
@@ -63,68 +68,19 @@ class EmpleadoController extends Controller
                 break;
 
             default:
-                // 'hoy' u otro valor desconocido cae aquí
                 $fecha = today();
         }
 
-        // Estadísticas corregidas
-        $stats = [
-            'citas_hoy' => $citas_hoy->count(),
-            'citas_pendientes' => Cita::where('estado', 'pendiente')->count(),
-            'citas_confirmadas' => Cita::where('estado', 'confirmada')->count(),
-            'citas_proceso' => Cita::where('estado', 'en_proceso')->count(), // Corregido
-            'citas_finalizadas' => Cita::where('estado', 'finalizada') // Agregado
-                ->whereDate('fecha_hora', today())
-                ->count(),
-        ];
-
-        // Obtener últimos 3 servicios finalizados
-        $historial_reciente = Cita::with(['usuario', 'vehiculo', 'servicios', 'pago'])
-            ->where('estado', 'finalizada')
-            ->orderBy('fecha_hora', 'desc')
-            ->take(3)
-            ->get();
-
-        return view('empleado.dashboard', compact('citas_hoy', 'stats', 'historial_reciente'));
-    }
-
-    /**
-     * Vista de agenda de citas con filtros
-     * Retorna JSON si es petición AJAX, sino retorna vista
-     */
-    public function citas(Request $request)
-    {
-        $query = Cita::with(['usuario', 'vehiculo', 'servicios'])
-            ->whereDate('fecha_hora', '>=', today()) // Solo citas de hoy en adelante
-            ->orderBy('fecha_hora', 'asc'); // Orden ascendente para mostrar las más próximas primero
-
-        // Aplicar filtros
-        if ($request->filled('estado')) {
-            $query->where('estado', $request->estado);
-        }
-
-        if ($request->filled('fecha_desde')) {
-            $query->whereDate('fecha_hora', '>=', $request->fecha_desde);
-        }
-
-        if ($request->filled('fecha_hasta')) {
-            $query->whereDate('fecha_hora', '<=', $request->fecha_hasta);
-        }
-
-        $citas = $query->paginate(15)->withQueryString();
-
-        // Si es petición AJAX, retornar JSON
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json($citas);
-        }
-
-        // Si no, retornar vista (para mantener compatibilidad)
-        return view('empleado.citas', compact('citas'));
         $citas = Cita::byEstado(Cita::ESTADO_PENDIENTE)
             ->byFecha($fecha)
             ->with(['usuario', 'vehiculo', 'servicios'])
             ->orderBy('fecha_hora')
             ->get();
+
+        // Si es petición AJAX, retornar JSON
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($citas);
+        }
 
         return view('empleado.citas', [
             'citas'  => $citas,
@@ -133,7 +89,10 @@ class EmpleadoController extends Controller
         ]);
     }
 
-    public function cambiarEstado(Request $request, Cita $cita)
+    /**
+     * Cambiar estado de una cita (versión simple)
+     */
+    public function cambiarEstadoSimple(Request $request, Cita $cita)
     {
         $request->validate([
             'estado' => 'required|in:pendiente,en_proceso,finalizada',
@@ -149,7 +108,10 @@ class EmpleadoController extends Controller
         ]);
     }
 
-    public function finalizarCita(Request $request)
+    /**
+     * Finalizar cita simple (sin pago)
+     */
+    public function finalizarCitaSimple(Request $request)
     {
         $request->validate([
             'cita_id' => 'required|exists:citas,id',
@@ -166,7 +128,7 @@ class EmpleadoController extends Controller
     }
 
     /**
-     * Cambiar estado de una cita
+     * Cambiar estado de una cita (versión completa)
      */
     public function cambiarEstado(Request $request, $id)
     {
@@ -181,8 +143,8 @@ class EmpleadoController extends Controller
 
             // Validar transiciones permitidas para empleados
             $transicionesPermitidas = [
-                'confirmada' => ['en_proceso'], // Confirmada solo puede ir a En Proceso
-                'en_proceso' => ['finalizada'],  // En Proceso solo puede ir a Finalizada
+                'confirmada' => ['en_proceso'],
+                'en_proceso' => ['finalizada'],
             ];
 
             // Verificar que la transición sea válida
@@ -207,7 +169,7 @@ class EmpleadoController extends Controller
             $cita->save();
 
             // Registrar en bitácora
-            \App\Models\Bitacora::create([
+            Bitacora::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'cambiar_estado_cita',
                 'tabla_afectada' => 'citas',
@@ -272,7 +234,7 @@ class EmpleadoController extends Controller
             $cita->save();
 
             // Registrar en bitácora
-            \App\Models\Bitacora::create([
+            Bitacora::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'agregar_observaciones_cita',
                 'tabla_afectada' => 'citas',
@@ -362,7 +324,7 @@ class EmpleadoController extends Controller
     /**
      * Finalizar una cita y registrar el pago
      */
-    public function finalizarCita(Request $request, $id)
+    public function finalizarCitaCompleta(Request $request, $id)
     {
         try {
             $request->validate([
@@ -404,7 +366,7 @@ class EmpleadoController extends Controller
             }
 
             // Crear el pago
-            $pago = \App\Models\Pago::create([
+            $pago = Pago::create([
                 'cita_id' => $cita->id,
                 'monto' => $totalCita,
                 'metodo_pago' => $request->metodo_pago,
@@ -436,7 +398,7 @@ class EmpleadoController extends Controller
             $cita->save();
 
             // Registrar en bitácora
-            \App\Models\Bitacora::create([
+            Bitacora::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'finalizar_cita',
                 'tabla_afectada' => 'citas',
@@ -500,7 +462,7 @@ class EmpleadoController extends Controller
         $totalQuery = clone $query;
         $estadisticas = [
             'total_servicios' => $totalQuery->count(),
-            'ingresos_generados' => \App\Models\Pago::whereHas('cita', function($q) {
+            'ingresos_generados' => Pago::whereHas('cita', function($q) {
                 $q->where('estado', 'finalizada');
             })->where('estado', 'completado')->sum('monto'),
             'servicios_hoy' => Cita::where('estado', 'finalizada')
@@ -531,7 +493,7 @@ class EmpleadoController extends Controller
      */
     public function bitacora(Request $request)
     {
-        $query = \App\Models\Bitacora::with('usuario')
+        $query = Bitacora::with('usuario')
             ->where('usuario_id', Auth::id())
             ->orderBy('created_at', 'desc');
 
@@ -575,7 +537,7 @@ class EmpleadoController extends Controller
             $usuario->save();
 
             // Registrar en bitácora
-            \App\Models\Bitacora::create([
+            Bitacora::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'actualizar_perfil',
                 'tabla_afectada' => 'usuarios',
@@ -641,7 +603,7 @@ class EmpleadoController extends Controller
             $usuario->save();
 
             // Registrar en bitácora
-            \App\Models\Bitacora::create([
+            Bitacora::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'cambiar_password',
                 'tabla_afectada' => 'usuarios',

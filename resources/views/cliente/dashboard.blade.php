@@ -1857,15 +1857,20 @@
             color: #333;
         }
 
-        /* Estilos para SweetAlert modales grandes (agendado) */
+        /* Estilos para SweetAlert modales grandes  */
         .swal-large-modal {
             max-width: 900px !important;
             width: 90% !important;
+            max-height: 85vh !important;
+            height: auto !important;
             border-radius: 15px !important;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
             background: linear-gradient(145deg, #ffffff, #f8f9fa) !important;
             border: 1px solid rgba(79, 172, 254, 0.2) !important;
+            display: flex !important;
+            flex-direction: column !important;
         }
+
 
         /* Mejoras al título del modal */
         .swal-large-modal .swal2-title {
@@ -1884,9 +1889,19 @@
         /* Mejoras específicas para formularios de agendado */
         .swal-large-modal .swal2-html-container {
             margin: 1.5em 0 !important;
-            max-height: 600px !important;
+            max-height: 65vh !important;
             overflow-y: auto !important;
             padding: 0 10px !important;
+            flex: 1 !important;
+        }
+
+        .factura-detalle-modal {
+            max-height: 90vh !important;
+            height: auto !important;
+        }
+
+        .factura-detalle-container {
+            max-height: 90vh !important;
         }
 
         /* Estilos para los elementos de selección de vehículos */
@@ -3706,8 +3721,8 @@
 
     <script>
         /*=========================================================
-                                    FUNCIONAMIENTO DE FACTURAS
-                                    =========================================================*/
+                                            FUNCIONAMIENTO DE FACTURAS
+                                            =========================================================*/
 
         // Función para ver el detalle de una factura
         function verDetalleFactura(citaId) {
@@ -3803,19 +3818,19 @@
                     </div>
                 </div>
                 ${factura.referencia_pago ? `
-                        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid ${color}30;">
-                            <small style="color: #6c757d;">
-                                <strong>Referencia:</strong> ${factura.referencia_pago}
-                            </small>
-                        </div>
-                    ` : ''}
+                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid ${color}30;">
+                                    <small style="color: #6c757d;">
+                                        <strong>Referencia:</strong> ${factura.referencia_pago}
+                                    </small>
+                                </div>
+                            ` : ''}
                 ${factura.fecha_pago !== 'N/A' ? `
-                        <div style="margin-top: 5px;">
-                            <small style="color: #6c757d;">
-                                <strong>Fecha de pago:</strong> ${factura.fecha_pago}
-                            </small>
-                        </div>
-                    ` : ''}
+                                <div style="margin-top: 5px;">
+                                    <small style="color: #6c757d;">
+                                        <strong>Fecha de pago:</strong> ${factura.fecha_pago}
+                                    </small>
+                                </div>
+                            ` : ''}
             </div>
         `;
             }
@@ -5251,10 +5266,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                                                                                                                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                                                                            Agendar Cita
-                                                                                                                                                                                                                        </button>` : ''}
+                                                                                                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                                                                <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                                                                    Agendar Cita
+                                                                                                                                                                                                                                </button>` : ''}
                 </div>
             `;
                     return;
@@ -6173,14 +6188,14 @@
                             <p><strong>Conflictos encontrados:</strong> ${data.data.citas_superpuestas.length}</p>
                             
                             ${data.data.citas_superpuestas.map(cita => `
-                                                                                                                                                            <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                                                                                                                                                                <p><strong>Cita ID:</strong> ${cita.id}</p>
-                                                                                                                                                                <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
-                                                                                                                                                                <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
-                                                                                                                                                                <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
-                                                                                                                                                                <p><strong>Estado:</strong> ${cita.estado}</p>
-                                                                                                                                                            </div>
-                                                                                                                                                        `).join('')}
+                                                                                                                                                                    <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                                                                                                                                                        <p><strong>Cita ID:</strong> ${cita.id}</p>
+                                                                                                                                                                        <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
+                                                                                                                                                                        <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
+                                                                                                                                                                        <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
+                                                                                                                                                                        <p><strong>Estado:</strong> ${cita.estado}</p>
+                                                                                                                                                                    </div>
+                                                                                                                                                                `).join('')}
                             
                             <p><strong>Horarios disponibles:</strong> ${data.data.horarios_disponibles.join(', ') || 'Ninguno'}</p>
                         </div>
@@ -6335,18 +6350,18 @@
                         </p>
                         <div style="max-height: 300px; overflow-y: auto;">
                             ${vehiculos.map(v => `
-                                                                <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
-                                                                       onmouseover="this.style.backgroundColor='#f0f8ff'" 
-                                                                       onmouseout="this.style.backgroundColor='white'">
-                                                                    <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
-                                                                    <div>
-                                                                        <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
-                                                                        ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
-                                                                        <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
-                                                                        ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
-                                                                    </div>
-                                                                </label>
-                                                            `).join('')}
+                                                                        <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
+                                                                               onmouseover="this.style.backgroundColor='#f0f8ff'" 
+                                                                               onmouseout="this.style.backgroundColor='white'">
+                                                                            <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
+                                                                            <div>
+                                                                                <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
+                                                                                ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
+                                                                                <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
+                                                                                ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
+                                                                            </div>
+                                                                        </label>
+                                                                    `).join('')}
                         </div>
                     </div>
                 `,
@@ -7003,10 +7018,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                                <tr>
-                                                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                                </tr>
-                                                                                `).join('')}
+                                                                                        <tr>
+                                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                                        </tr>
+                                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -7118,8 +7133,8 @@
 
     <script>
         /*=========================================================
-                                                            FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                            =========================================================*/
+                                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -7148,8 +7163,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                                    FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                                    =========================================================*/
+                                                                                                                                    FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                                                    =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
