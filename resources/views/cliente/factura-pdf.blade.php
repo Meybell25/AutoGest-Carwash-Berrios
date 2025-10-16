@@ -25,7 +25,7 @@
 
     <div class="invoice-info">
         <div>
-            <strong>Nº Factura:</strong> FACT-{{ str_pad($cita->id, 6, '0', STR_PAD_LEFT }}<br>
+            <strong>Nº Factura:</strong> FACT-{{ str_pad($cita->id, 6, '0', STR_PAD_LEFT) }}<br>
             <strong>Fecha de Emisión:</strong> {{ now()->format('d/m/Y') }}<br>
             <strong>Fecha de Servicio:</strong> {{ $cita->fecha_hora->format('d/m/Y H:i') }}
         </div>

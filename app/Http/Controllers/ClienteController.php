@@ -64,7 +64,7 @@ class ClienteController extends Controller
             $facturas_dashboard = $citas->filter(function ($cita) {
                 return $cita->estado === 'finalizada' && $cita->pago;
             })->sortByDesc('fecha_hora')
-              ->take(3);
+                ->take(3);
 
             // ESTADÍSTICAS DE FACTURAS MEJORADAS
             $citasFinalizadasConPago = $citas->where('estado', 'finalizada')
@@ -74,10 +74,10 @@ class ClienteController extends Controller
                 'total_facturas' => $citasFinalizadasConPago->count(),
                 'total_gastado' => $citasFinalizadasConPago->sum(fn($cita) => $cita->pago->monto),
                 'facturas_mes_actual' => $citasFinalizadasConPago
-                    ->filter(fn($cita) => $cita->fecha_hora->month == now()->month && 
-                                         $cita->fecha_hora->year == now()->year)
+                    ->filter(fn($cita) => $cita->fecha_hora->month == now()->month &&
+                        $cita->fecha_hora->year == now()->year)
                     ->count(),
-                'promedio_por_factura' => $citasFinalizadasConPago->count() > 0 ? 
+                'promedio_por_factura' => $citasFinalizadasConPago->count() > 0 ?
                     $citasFinalizadasConPago->sum(fn($cita) => $cita->pago->monto) / $citasFinalizadasConPago->count() : 0,
                 'vehiculo_mas_utilizado' => $this->getVehiculoMasUtilizado($citasFinalizadasConPago),
                 'servicio_mas_solicitado' => $this->getServicioMasSolicitado($citasFinalizadasConPago),
@@ -105,7 +105,6 @@ class ClienteController extends Controller
                 'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count(),
                 'servicios' => $servicios
             ]);
-
         } catch (\Exception $e) {
             Log::error('Dashboard error', [
                 'error' => $e->getMessage(),
@@ -180,7 +179,7 @@ class ClienteController extends Controller
         }
 
         $serviciosCount = [];
-        
+
         foreach ($citasFinalizadas as $cita) {
             foreach ($cita->servicios as $servicio) {
                 if (!isset($serviciosCount[$servicio->id])) {
@@ -1587,7 +1586,7 @@ class ClienteController extends Controller
         ]);
     }
     /**
-     * Obtener horarios disponibles para una fecha específica (método público para rutas)
+     * Obtener horarios disponibles para una fecha específica 
      */
     public function getHorariosDisponiblesPorFecha($fecha, Request $request)
     {
@@ -1623,7 +1622,7 @@ class ClienteController extends Controller
         }
     }
 
-     /**
+    /**
      * Mostrar listado de facturas del cliente (CITAS FINALIZADAS CON PAGO)
      */
     public function facturas(Request $request)
@@ -1651,15 +1650,15 @@ class ClienteController extends Controller
 
         // Estadísticas para mostrar
         $citasFiltradas = (clone $query)->get();
-        
+
         $estadisticas = [
             'total_facturas' => $citasFiltradas->count(),
-            'total_pagado' => $citasFiltradas->sum(function($cita) {
+            'total_pagado' => $citasFiltradas->sum(function ($cita) {
                 return $cita->pago ? $cita->pago->monto : 0;
             }),
             'facturas_este_mes' => $citasFiltradas->where('fecha_hora', '>=', now()->startOfMonth())->count(),
-            'promedio_por_factura' => $citasFiltradas->count() > 0 ? 
-                $citasFiltradas->sum(function($cita) {
+            'promedio_por_factura' => $citasFiltradas->count() > 0 ?
+                $citasFiltradas->sum(function ($cita) {
                     return $cita->pago ? $cita->pago->monto : 0;
                 }) / $citasFiltradas->count() : 0,
         ];
@@ -1752,10 +1751,10 @@ class ClienteController extends Controller
 
         // Generar PDF
         $pdf = PDF::loadView('cliente.factura-pdf', compact('cita'));
-        
+
         // Descargar con nombre personalizado
         $fileName = 'factura-' . $cita->id . '-' . now()->format('Y-m-d') . '.pdf';
-        
+
         return $pdf->download($fileName);
     }
 
