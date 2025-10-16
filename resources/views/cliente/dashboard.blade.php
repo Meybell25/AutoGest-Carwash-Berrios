@@ -3233,7 +3233,7 @@
                         @endif
                     </div>
                 </div>
-
+            </div>
 
                 <!-- Sección Sidebar -->
                 <div class="sidebar-section">
