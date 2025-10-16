@@ -1695,6 +1695,12 @@ class ClienteController extends Controller
         // Calcular total de servicios
         $totalServicios = $cita->servicios->sum('precio');
 
+        // Asegurar que el total sea un número
+        $total = $cita->pago->monto;
+        if (!is_numeric($total)) {
+            $total = floatval($total);
+        }
+
         return response()->json([
             'success' => true,
             'factura' => [
@@ -1716,12 +1722,12 @@ class ClienteController extends Controller
                     return [
                         'nombre' => $servicio->nombre,
                         'descripcion' => $servicio->descripcion,
-                        'precio' => $servicio->precio,
+                        'precio' => floatval($servicio->precio), 
                         'duracion' => $servicio->duracion_min
                     ];
                 }),
-                'subtotal' => $totalServicios,
-                'total' => $cita->pago->monto,
+                'subtotal' => floatval($totalServicios),
+                'total' => $total, 
                 'metodo_pago' => $this->getMetodoPagoFormatted($cita->pago->metodo),
                 'referencia_pago' => $cita->pago->referencia,
                 'estado_pago' => $this->getEstadoPagoFormatted($cita->pago->estado),

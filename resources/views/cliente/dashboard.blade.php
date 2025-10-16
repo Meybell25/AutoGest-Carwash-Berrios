@@ -3220,7 +3220,8 @@
                         @if ($facturas_dashboard->count() > 0)
                             <div
                                 style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f3f4;">
-                               <a href="{{ route('cliente.facturas') }}" class="btn btn-outline" style="padding: 10px 20px;">
+                                <a href="{{ route('cliente.facturas') }}" class="btn btn-outline"
+                                    style="padding: 10px 20px;">
                                     <i class="fas fa-history"></i> Ver Historial Completo de Facturas
                                 </a>
                                 <div style="margin-top: 10px;">
@@ -3235,215 +3236,214 @@
                 </div>
             </div>
 
-                <!-- Sección Sidebar -->
-                <div class="sidebar-section">
-                    <!-- Perfil del Cliente -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>
-                                <div class="icon">
-                                    <i class="fas fa-user-circle"></i>
-                                </div>
-                                Mi Perfil
-                            </h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="profile-summary">
-                                <div class="profile-avatar">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <div class="profile-info">
-                                    <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
-                                    <p>
-                                        <i class="fas fa-envelope"
-                                            style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
-                                        {{ $user->email ?? 'No especificado' }}
-                                    </p>
-                                    <p>
-                                        <i class="fas fa-phone"
-                                            style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
-                                        {{ $user->telefono ?? 'No especificado' }}
-                                    </p>
-                                    <p>
-                                        <i class="fas fa-calendar"
-                                            style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
-                                        Cliente desde: {{ $user->created_at->format('M Y') }}
-                                    </p>
-                                </div>
-
-                                <button onclick="openEditModal()" class="btn btn-outline"
-                                    style="margin-top: 15px; width: 100%;">
-                                    <i class="fas fa-edit"></i> Editar Perfil
-                                </button>
+            <!-- Sección Sidebar -->
+            <div class="sidebar-section">
+                <!-- Perfil del Cliente -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-user-circle"></i>
                             </div>
-                        </div>
+                            Mi Perfil
+                        </h2>
                     </div>
-
-                    <!-- Notificaciones -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>
-                                <div class="icon">
-                                    <i class="fas fa-bell"></i>
-                                </div>
-                                Notificaciones
-                                {{-- Comentado temporalmente hasta que tengamos los controladores --}}
-                                <!-- @if ($notificacionesNoLeidas > 0)
-<span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
-@endif -->
-                                <span
-                                    style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">0</span>
-                            </h2>
-                        </div>
-                        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                            {{-- Comentado el forelse original --}}
-                            <!-- @forelse($notificaciones as $notificacion)
--->
-
-                            {{-- Ejemplo estático de notificación (puedes dejarlo o quitarlo) --}}
-                            <div class="notification-item unread">
-                                <div class="notification-icon info">
-                                    <i class="fas fa-bell"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <h4>Notificación del Sistema</h4>
-                                    <p>Ejemplo de notificación (modo desarrollo)</p>
-                                </div>
-                                <div class="notification-time">
-                                    Hace unos momentos <span style="color: #4facfe;">(Hoy)</span>
-                                </div>
+                    <div class="card-body">
+                        <div class="profile-summary">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-info">
+                                <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
+                                <p>
+                                    <i class="fas fa-envelope"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    {{ $user->email ?? 'No especificado' }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-phone"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    {{ $user->telefono ?? 'No especificado' }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-calendar"
+                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                    Cliente desde: {{ $user->created_at->format('M Y') }}
+                                </p>
                             </div>
 
-                            {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
-                        <!-- @empty -->
-                            <div class="empty-state" style="padding: 20px;">
-                                <i class="fas fa-bell-slash"></i>
-                                <h3>No hay notificaciones</h3>
-                                <p>No tienes ninguna notificación pendiente</p>
-                            </div>
-                            <!--
-@endforelse -->
-                            {{-- Comentado el enlace a todas las notificaciones --}}
-                            <!-- @if ($notificaciones->count() > 0)
--->
-                            <div style="text-align: center; margin-top: 15px;">
-                                <a href="#" class="btn btn-outline">
-                                    <i class="fas fa-list"></i> Ver todas las notificaciones
-                                </a>
-                            </div>
-                            <!--
-@endif -->
-                        </div>
-                    </div>
-
-                    <!-- Mis Vehículos -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>
-                                <div class="icon">
-                                    <i class="fas fa-car"></i>
-                                </div>
-                                Mis Vehículos
-                            </h2>
-                        </div>
-                        <div class="card-body" id="misVehiculosContainer">
-                            @if (isset($vehiculos_dashboard) && count($vehiculos_dashboard) > 0)
-                                @foreach ($vehiculos_dashboard as $vehiculo)
-                                    <div class="service-history-item" style="margin-bottom: 15px;">
-                                        <div class="service-icon" style="background: var(--secondary-gradient);">
-                                            @switch($vehiculo->tipo)
-                                                @case('sedan')
-                                                    <i class="fas fa-car"></i>
-                                                @break
-
-                                                @case('pickup')
-                                                    <i class="fas fa-truck-pickup"></i>
-                                                @break
-
-                                                @case('camion')
-                                                    <i class="fas fa-truck"></i>
-                                                @break
-
-                                                @case('moto')
-                                                    <i class="fas fa-motorcycle"></i>
-                                                @break
-
-                                                @default
-                                                    <i class="fas fa-car"></i>
-                                            @endswitch
-                                        </div>
-                                        <div class="service-details">
-                                            <h4>{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
-                                            <p><i class="fas fa-palette"></i> {{ $vehiculo->color }}</p>
-                                            <p><i class="fas fa-id-card"></i> {{ $vehiculo->placa }}</p>
-                                        </div>
-                                        <button class="btn btn-sm btn-primary"
-                                            onclick="openCitaModal('{{ $vehiculo->id }}')">
-                                            <i class="fas fa-calendar-plus"></i>
-                                        </button>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="empty-state">
-                                    <i class="fas fa-car"></i>
-                                    <h3>No tienes vehículos registrados</h3>
-                                    <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
-                                </div>
-                            @endif
-                            <button type="button" id="openVehiculoBtn" class="btn btn-outline"
-                                style="width: 100%; margin-top: 10px;" onclick="openVehiculoModal()">
-                                <i class="fas fa-plus"></i>
-                                Agregar Vehículo
+                            <button onclick="openEditModal()" class="btn btn-outline"
+                                style="margin-top: 15px; width: 100%;">
+                                <i class="fas fa-edit"></i> Editar Perfil
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Modal para editar perfil -->
-        <div id="editProfileModal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal" onclick="closeEditModal()">&times;</span>
-                <h2 style="color: #4facfe; margin-bottom: 20px;">
-                    <i class="fas fa-user-edit"></i> Editar Perfil
-                </h2>
-                <form id="profileForm">
-                    @csrf
-                    <div class="form-group">
-                        <label for="modalNombre">Nombre:</label>
-                        <input type="text" id="modalNombre" name="nombre" value="{{ $user->nombre ?? '' }}"
-                            required>
+                <!-- Notificaciones -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            Notificaciones
+                            {{-- Comentado temporalmente hasta que tengamos los controladores --}}
+                            <!-- @if ($notificacionesNoLeidas > 0)
+<span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
+@endif -->
+                            <span
+                                style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">0</span>
+                        </h2>
                     </div>
-                    <div class="form-group">
-                        <label for="modalTelefono">Teléfono:</label>
-                        <input type="text" id="modalTelefono" name="telefono"
-                            value="{{ $user->telefono ?? '' }}">
-                    </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Guardar Cambios
-                    </button>
-                </form>
-            </div>
-        </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        {{-- Comentado el forelse original --}}
+                        <!-- @forelse($notificaciones as $notificacion)
+-->
 
-        <!-- Modal para imprimir recibo -->
-        <div id="receiptModal" class="modal">
-            <div class="modal-content" style="max-width: 600px;">
-                <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
-                <div id="receiptContent" style="background: white; padding: 20px; border-radius: 10px;">
-                    <!-- Contenido del recibo se generará dinámicamente -->
+                        {{-- Ejemplo estático de notificación (puedes dejarlo o quitarlo) --}}
+                        <div class="notification-item unread">
+                            <div class="notification-icon info">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h4>Notificación del Sistema</h4>
+                                <p>Ejemplo de notificación (modo desarrollo)</p>
+                            </div>
+                            <div class="notification-time">
+                                Hace unos momentos <span style="color: #4facfe;">(Hoy)</span>
+                            </div>
+                        </div>
+
+                        {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
+                    <!-- @empty -->
+                        <div class="empty-state" style="padding: 20px;">
+                            <i class="fas fa-bell-slash"></i>
+                            <h3>No hay notificaciones</h3>
+                            <p>No tienes ninguna notificación pendiente</p>
+                        </div>
+                        <!--
+@endforelse -->
+                        {{-- Comentado el enlace a todas las notificaciones --}}
+                        <!-- @if ($notificaciones->count() > 0)
+-->
+                        <div style="text-align: center; margin-top: 15px;">
+                            <a href="#" class="btn btn-outline">
+                                <i class="fas fa-list"></i> Ver todas las notificaciones
+                            </a>
+                        </div>
+                        <!--
+@endif -->
+                    </div>
                 </div>
-                <div style="text-align: center; margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="printReceipt()">
-                        <i class="fas fa-print"></i> Imprimir Recibo
-                    </button>
-                    <button class="btn btn-outline" onclick="downloadReceipt()">
-                        <i class="fas fa-download"></i> Descargar PDF
-                    </button>
+
+                <!-- Mis Vehículos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>
+                            <div class="icon">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            Mis Vehículos
+                        </h2>
+                    </div>
+                    <div class="card-body" id="misVehiculosContainer">
+                        @if (isset($vehiculos_dashboard) && count($vehiculos_dashboard) > 0)
+                            @foreach ($vehiculos_dashboard as $vehiculo)
+                                <div class="service-history-item" style="margin-bottom: 15px;">
+                                    <div class="service-icon" style="background: var(--secondary-gradient);">
+                                        @switch($vehiculo->tipo)
+                                            @case('sedan')
+                                                <i class="fas fa-car"></i>
+                                            @break
+
+                                            @case('pickup')
+                                                <i class="fas fa-truck-pickup"></i>
+                                            @break
+
+                                            @case('camion')
+                                                <i class="fas fa-truck"></i>
+                                            @break
+
+                                            @case('moto')
+                                                <i class="fas fa-motorcycle"></i>
+                                            @break
+
+                                            @default
+                                                <i class="fas fa-car"></i>
+                                        @endswitch
+                                    </div>
+                                    <div class="service-details">
+                                        <h4>{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
+                                        <p><i class="fas fa-palette"></i> {{ $vehiculo->color }}</p>
+                                        <p><i class="fas fa-id-card"></i> {{ $vehiculo->placa }}</p>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary"
+                                        onclick="openCitaModal('{{ $vehiculo->id }}')">
+                                        <i class="fas fa-calendar-plus"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-car"></i>
+                                <h3>No tienes vehículos registrados</h3>
+                                <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
+                            </div>
+                        @endif
+                        <button type="button" id="openVehiculoBtn" class="btn btn-outline"
+                            style="width: 100%; margin-top: 10px;" onclick="openVehiculoModal()">
+                            <i class="fas fa-plus"></i>
+                            Agregar Vehículo
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Modal para editar perfil -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            <h2 style="color: #4facfe; margin-bottom: 20px;">
+                <i class="fas fa-user-edit"></i> Editar Perfil
+            </h2>
+            <form id="profileForm">
+                @csrf
+                <div class="form-group">
+                    <label for="modalNombre">Nombre:</label>
+                    <input type="text" id="modalNombre" name="nombre" value="{{ $user->nombre ?? '' }}"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="modalTelefono">Teléfono:</label>
+                    <input type="text" id="modalTelefono" name="telefono" value="{{ $user->telefono ?? '' }}">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para imprimir recibo -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
+            <div id="receiptContent" style="background: white; padding: 20px; border-radius: 10px;">
+                <!-- Contenido del recibo se generará dinámicamente -->
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="printReceipt()">
+                    <i class="fas fa-print"></i> Imprimir Recibo
+                </button>
+                <button class="btn btn-outline" onclick="downloadReceipt()">
+                    <i class="fas fa-download"></i> Descargar PDF
+                </button>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- Modal para agregar vehículo -->
@@ -3693,8 +3693,8 @@
 
     <script>
         /*=========================================================
-                            FUNCIONAMIENTO DE FACTURAS
-                            =========================================================*/
+                                FUNCIONAMIENTO DE FACTURAS
+                                =========================================================*/
 
         // Función para ver el detalle de una factura
         function verDetalleFactura(citaId) {
@@ -3735,15 +3735,21 @@
 
         // Función para mostrar modal con detalles de factura
         function mostrarModalFactura(factura) {
-            const serviciosList = factura.servicios.map(servicio =>
-                `<li>${servicio.nombre} - $${servicio.precio.toFixed(2)}</li>`
-            ).join('');
+            // Asegurar que total sea un número
+            const total = typeof factura.total === 'number' ? factura.total : parseFloat(factura.total) || 0;
+
+            const serviciosList = factura.servicios.map(servicio => {
+                const precio = typeof servicio.precio === 'number' ? servicio.precio : parseFloat(servicio
+                    .precio) || 0;
+                return `<li>${servicio.nombre} - $${precio.toFixed(2)}</li>`;
+            }).join('');
 
             const htmlContent = `
         <div style="text-align: left;">
             <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
                 <h3 style="color: #4facfe; margin-bottom: 5px;">Factura #${factura.numero}</h3>
-                <p><strong>Fecha:</strong> ${factura.fecha}</p>
+                <p><strong>Fecha de emisión:</strong> ${factura.fecha_emision}</p>
+                <p><strong>Fecha de servicio:</strong> ${factura.fecha_servicio} ${factura.hora_servicio}</p>
                 <p><strong>Estado:</strong> <span style="color: #28a745;">${factura.estado}</span></p>
             </div>
             
@@ -3757,8 +3763,9 @@
             <div style="margin-bottom: 15px;">
                 <h4>Vehículo</h4>
                 <p>${factura.vehiculo_marca} ${factura.vehiculo_modelo}<br>
-                Placa: ${factura.vehiculo_placa || 'No especificada'}<br>
-                Color: ${factura.vehiculo_color || 'No especificado'}</p>
+                ${factura.vehiculo_placa ? `Placa: ${factura.vehiculo_placa}<br>` : ''}
+                Color: ${factura.vehiculo_color || 'No especificado'}<br>
+                Tipo: ${factura.vehiculo_tipo}</p>
             </div>
             
             <div style="margin-bottom: 15px;">
@@ -3770,16 +3777,18 @@
             
             <div style="border-top: 2px solid #4facfe; padding-top: 10px; font-weight: bold;">
                 <p style="text-align: right; font-size: 1.2em;">
-                    Total: $${factura.total.toFixed(2)}
+                    Total: $${total.toFixed(2)}
                 </p>
             </div>
             
             ${factura.metodo_pago ? `
-                                <div style="margin-top: 15px; background: #f8f9fa; padding: 10px; border-radius: 5px;">
-                                    <p><strong>Método de pago:</strong> ${factura.metodo_pago}</p>
-                                    ${factura.referencia_pago ? `<p><strong>Referencia:</strong> ${factura.referencia_pago}</p>` : ''}
-                                </div>
-                                ` : ''}
+                    <div style="margin-top: 15px; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                        <p><strong>Método de pago:</strong> ${factura.metodo_pago}</p>
+                        ${factura.referencia_pago ? `<p><strong>Referencia:</strong> ${factura.referencia_pago}</p>` : ''}
+                        <p><strong>Estado del pago:</strong> ${factura.estado_pago}</p>
+                        ${factura.fecha_pago !== 'N/A' ? `<p><strong>Fecha de pago:</strong> ${factura.fecha_pago}</p>` : ''}
+                    </div>
+                ` : ''}
         </div>
     `;
 
@@ -5129,10 +5138,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                                                <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                                                                    Agendar Cita
-                                                                                                                                                                                                                </button>` : ''}
+                                                                                                                                                                                                                    <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                                                    <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                                                        Agendar Cita
+                                                                                                                                                                                                                    </button>` : ''}
                 </div>
             `;
                     return;
@@ -6051,14 +6060,14 @@
                             <p><strong>Conflictos encontrados:</strong> ${data.data.citas_superpuestas.length}</p>
                             
                             ${data.data.citas_superpuestas.map(cita => `
-                                                                                                                                                    <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                                                                                                                                                        <p><strong>Cita ID:</strong> ${cita.id}</p>
-                                                                                                                                                        <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
-                                                                                                                                                        <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
-                                                                                                                                                        <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
-                                                                                                                                                        <p><strong>Estado:</strong> ${cita.estado}</p>
-                                                                                                                                                    </div>
-                                                                                                                                                `).join('')}
+                                                                                                                                                        <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                                                                                                                                            <p><strong>Cita ID:</strong> ${cita.id}</p>
+                                                                                                                                                            <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
+                                                                                                                                                            <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
+                                                                                                                                                            <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
+                                                                                                                                                            <p><strong>Estado:</strong> ${cita.estado}</p>
+                                                                                                                                                        </div>
+                                                                                                                                                    `).join('')}
                             
                             <p><strong>Horarios disponibles:</strong> ${data.data.horarios_disponibles.join(', ') || 'Ninguno'}</p>
                         </div>
@@ -6213,18 +6222,18 @@
                         </p>
                         <div style="max-height: 300px; overflow-y: auto;">
                             ${vehiculos.map(v => `
-                                                        <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
-                                                               onmouseover="this.style.backgroundColor='#f0f8ff'" 
-                                                               onmouseout="this.style.backgroundColor='white'">
-                                                            <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
-                                                            <div>
-                                                                <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
-                                                                ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
-                                                                <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
-                                                                ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
-                                                            </div>
-                                                        </label>
-                                                    `).join('')}
+                                                            <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
+                                                                   onmouseover="this.style.backgroundColor='#f0f8ff'" 
+                                                                   onmouseout="this.style.backgroundColor='white'">
+                                                                <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
+                                                                <div>
+                                                                    <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
+                                                                    ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
+                                                                    <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
+                                                                    ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
+                                                                </div>
+                                                            </label>
+                                                        `).join('')}
                         </div>
                     </div>
                 `,
@@ -6881,10 +6890,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                                        <tr>
-                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                                        </tr>
-                                                                        `).join('')}
+                                                                            <tr>
+                                                                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                            </tr>
+                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -6996,8 +7005,8 @@
 
     <script>
         /*=========================================================
-                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
-                                                    =========================================================*/
+                                                        FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                        =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -7026,8 +7035,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                                                                    FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                                                                    =========================================================*/
+                                                                                                            FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                            =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {
