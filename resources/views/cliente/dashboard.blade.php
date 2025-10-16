@@ -351,8 +351,9 @@
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 40px;
+            margin-bottom: 35px;
+            padding: 0 10px;
         }
 
         .main-section {
@@ -365,6 +366,7 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            padding-right: 10px;
         }
 
         /* Cards Base */
@@ -835,6 +837,52 @@
         .service-card input[type="checkbox"]:checked+div {
             font-weight: bold;
             color: #4facfe;
+        }
+
+        /*Facturas y recibos*/
+        .stats-mini {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .stat-mini {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-mini:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-mini {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            flex-direction: column;
+            text-align: center;
+        }
+
+
+        @media (max-width: 480px) {
+            .stats-mini {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Perfil del Cliente - Sidebar */
@@ -1333,11 +1381,14 @@
         @media (max-width: 1200px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
+                gap: 25px;
+                padding: 0;
             }
 
             .sidebar-section {
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 25px;
+                padding-left: 0;
             }
 
             .header-content {
@@ -1350,6 +1401,11 @@
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 10px;
             }
+
+            .main-section {
+                padding-right: 0;
+            }
+
         }
 
         @media (max-width: 992px) {
@@ -1514,8 +1570,13 @@
             }
 
             @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
             }
 
             .notification-item {
@@ -1798,7 +1859,7 @@
         .close-modal:hover {
             color: #333;
         }
-        
+
         /* Estilos para SweetAlert modales grandes (agendado) */
         .swal-large-modal {
             max-width: 900px !important;
@@ -1808,7 +1869,7 @@
             background: linear-gradient(145deg, #ffffff, #f8f9fa) !important;
             border: 1px solid rgba(79, 172, 254, 0.2) !important;
         }
-        
+
         /* Mejoras al título del modal */
         .swal-large-modal .swal2-title {
             color: #2c3e50 !important;
@@ -1817,12 +1878,12 @@
             text-align: center !important;
             margin-bottom: 20px !important;
         }
-        
+
         .swal-large-content {
             font-size: 16px !important;
             line-height: 1.6 !important;
         }
-        
+
         /* Mejoras específicas para formularios de agendado */
         .swal-large-modal .swal2-html-container {
             margin: 1.5em 0 !important;
@@ -1830,29 +1891,29 @@
             overflow-y: auto !important;
             padding: 0 10px !important;
         }
-        
+
         /* Estilos para los elementos de selección de vehículos */
         .swal-large-modal label {
             transition: all 0.3s ease !important;
             border: 2px solid #e3e8ef !important;
             background: #f8f9fa !important;
         }
-        
+
         .swal-large-modal label:hover {
             border-color: #4facfe !important;
             background: #f0f8ff !important;
             transform: translateY(-2px) !important;
             box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
         }
-        
-        .swal-large-modal input[type="radio"]:checked + div {
+
+        .swal-large-modal input[type="radio"]:checked+div {
             color: #4facfe !important;
         }
-        
+
         .swal-large-modal input[type="radio"]:checked {
             accent-color: #4facfe !important;
         }
-        
+
         /* Estilos mejorados para inputs de fecha y hora */
         .swal-large-modal input[type="date"],
         .swal-large-modal input[type="time"] {
@@ -1867,7 +1928,7 @@
             min-height: 55px !important;
             position: relative !important;
         }
-        
+
         /* Mejoras específicas para el input de fecha - hacer el ícono del calendario más visible */
         .swal-large-modal input[type="date"] {
             padding-right: 60px !important;
@@ -1878,7 +1939,7 @@
             cursor: pointer !important;
             box-shadow: inset 0 0 0 1px rgba(79, 172, 254, 0.2) !important;
         }
-        
+
         /* Mejoras específicas para el input de hora - hacer el ícono del reloj más visible */
         .swal-large-modal input[type="time"] {
             padding-right: 60px !important;
@@ -1889,7 +1950,7 @@
             cursor: pointer !important;
             box-shadow: inset 0 0 0 1px rgba(79, 172, 254, 0.2) !important;
         }
-        
+
         .swal-large-modal input[type="date"]:focus,
         .swal-large-modal input[type="time"]:focus {
             border-color: #4facfe !important;
@@ -1897,14 +1958,14 @@
             box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.15) !important;
             transform: translateY(-1px) !important;
         }
-        
+
         .swal-large-modal input[type="date"]:hover,
         .swal-large-modal input[type="time"]:hover {
             border-color: #4facfe !important;
             transform: translateY(-1px) !important;
             box-shadow: 0 4px 12px rgba(79, 172, 254, 0.1) !important;
         }
-        
+
         /* Mejoras para las etiquetas de fecha y hora */
         .swal-large-modal div[style*="margin-bottom: 15px"] label {
             display: block !important;
@@ -1913,7 +1974,7 @@
             font-size: 16px !important;
             color: #2c3e50 !important;
         }
-        
+
         /* Estilos adicionales para mejorar la visibilidad del calendario */
         .swal-large-modal input[type="date"]::-webkit-calendar-picker-indicator {
             opacity: 0 !important;
@@ -1927,7 +1988,7 @@
             bottom: 0 !important;
             transform: none !important;
         }
-        
+
         .swal-large-modal input[type="time"]::-webkit-calendar-picker-indicator {
             opacity: 0 !important;
             width: 100% !important;
@@ -1940,19 +2001,19 @@
             bottom: 0 !important;
             transform: none !important;
         }
-        
+
         /* Animación suave al hacer clic en los inputs */
         .swal-large-modal input[type="date"]:active,
         .swal-large-modal input[type="time"]:active {
             transform: translateY(0px) !important;
             box-shadow: 0 0 0 6px rgba(79, 172, 254, 0.25) !important;
         }
-        
+
         /* Container para los inputs */
-        .swal-large-modal div[style*="text-align: left"] > div {
+        .swal-large-modal div[style*="text-align: left"]>div {
             margin-bottom: 25px !important;
         }
-        
+
         /* Responsive para móviles */
         @media (max-width: 768px) {
             .swal-large-modal {
@@ -1960,12 +2021,12 @@
                 width: 95% !important;
                 margin: 10px !important;
             }
-            
+
             .swal-large-modal .swal2-html-container {
                 font-size: 14px !important;
                 max-height: 70vh !important;
             }
-            
+
             /* Inputs de fecha y hora más grandes en móvil */
             .swal-large-modal input[type="date"],
             .swal-large-modal input[type="time"] {
@@ -1974,7 +2035,7 @@
                 padding: 18px 22px !important;
                 padding-right: 55px !important;
             }
-            
+
             /* Iconos más grandes y visible en móvil */
             .swal-large-modal input[type="date"],
             .swal-large-modal input[type="time"] {
@@ -1983,12 +2044,12 @@
                 padding-right: 65px !important;
             }
         }
-        
+
         /* Mejoras en los botones */
         .swal-large-modal .swal2-actions {
             margin-top: 25px !important;
         }
-        
+
         .swal-large-modal .swal2-confirm {
             background: linear-gradient(135deg, #4facfe, #00f2fe) !important;
             border: none !important;
@@ -1998,12 +2059,12 @@
             font-weight: 600 !important;
             transition: all 0.3s ease !important;
         }
-        
+
         .swal-large-modal .swal2-confirm:hover {
             transform: translateY(-2px) !important;
             box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3) !important;
         }
-        
+
         .swal-large-modal .swal2-cancel {
             background: #6c757d !important;
             border: none !important;
@@ -2012,7 +2073,7 @@
             font-size: 16px !important;
             margin-right: 15px !important;
         }
-        
+
         .swal-large-modal .swal2-cancel:hover {
             background: #5a6268 !important;
         }
@@ -2671,7 +2732,8 @@
                                 </div>
                                 Próximas Citas Confirmadas
                             </h2>
-                            <a href="{{ route('cliente.citas') }}" class="btn btn-outline" style="padding: 8px 12px;">
+                            <a href="{{ route('cliente.citas') }}" class="btn btn-outline"
+                                style="padding: 8px 12px;">
                                 <i class="fas fa-list"></i> Ver Todas Las Citas
                             </a>
                         </div>
@@ -2855,26 +2917,30 @@
                     </div>
                     <div class="card-body">
                         <div class="services-grid" id="servicesGrid">
-                            @if(isset($servicios) && $servicios->count() > 0)
+                            @if (isset($servicios) && $servicios->count() > 0)
                                 @php
                                     $serviciosMostrados = 0;
                                     $totalServicios = $servicios->count();
                                 @endphp
-                                @foreach($servicios->groupBy('categoria') as $categoria => $serviciosCategoria)
-                                    @foreach($serviciosCategoria as $servicio)
-                                        @if($serviciosMostrados < 4)
-                                            <div class="service-card" data-servicio-id="{{ $servicio->id }}" data-categoria="{{ $servicio->categoria }}">
+                                @foreach ($servicios->groupBy('categoria') as $categoria => $serviciosCategoria)
+                                    @foreach ($serviciosCategoria as $servicio)
+                                        @if ($serviciosMostrados < 4)
+                                            <div class="service-card" data-servicio-id="{{ $servicio->id }}"
+                                                data-categoria="{{ $servicio->categoria }}">
                                                 <div class="service-icon">
                                                     @switch($servicio->categoria)
                                                         @case('auto')
                                                             <i class="fas fa-car"></i>
-                                                            @break
+                                                        @break
+
                                                         @case('suv')
                                                             <i class="fas fa-truck"></i>
-                                                            @break
+                                                        @break
+
                                                         @case('moto')
                                                             <i class="fas fa-motorcycle"></i>
-                                                            @break
+                                                        @break
+
                                                         @default
                                                             <i class="fas fa-spray-can"></i>
                                                     @endswitch
@@ -2883,7 +2949,8 @@
                                                 <p class="description">{{ $servicio->descripcion }}</p>
                                                 <div class="price">${{ number_format($servicio->precio, 2) }}</div>
                                                 <div class="duration">⏱️ {{ $servicio->duracion_formatted }}</div>
-                                                <button class="btn btn-primary quick-book-btn" onclick="quickBookService({{ $servicio->id }}, '{{ $servicio->categoria }}', this)">
+                                                <button class="btn btn-primary quick-book-btn"
+                                                    onclick="quickBookService({{ $servicio->id }}, '{{ $servicio->categoria }}', this)">
                                                     <i class="fas fa-calendar-plus"></i>
                                                     Agendar Ahora
                                                 </button>
@@ -2892,16 +2959,21 @@
                                         @endif
                                     @endforeach
                                 @endforeach
-                                @if($totalServicios > 4)
-                                    <div class="service-card view-all-card" onclick="verTodosLosServiciosCliente()" style="cursor: pointer; border: 2px dashed #4facfe; background: rgba(79, 172, 254, 0.05);">
-                                        <div class="service-icon" style="background: rgba(79, 172, 254, 0.1); color: #4facfe;">
+                                @if ($totalServicios > 4)
+                                    <div class="service-card view-all-card" onclick="verTodosLosServiciosCliente()"
+                                        style="cursor: pointer; border: 2px dashed #4facfe; background: rgba(79, 172, 254, 0.05);">
+                                        <div class="service-icon"
+                                            style="background: rgba(79, 172, 254, 0.1); color: #4facfe;">
                                             <i class="fas fa-list"></i>
                                         </div>
                                         <h3 style="color: #4facfe;">Ver Todos</h3>
-                                        <p class="description" style="color: #666;">{{ $totalServicios - 4 }} servicios más disponibles</p>
-                                        <div class="price" style="color: #4facfe; font-weight: 600;">{{ $totalServicios }} total</div>
+                                        <p class="description" style="color: #666;">{{ $totalServicios - 4 }}
+                                            servicios más disponibles</p>
+                                        <div class="price" style="color: #4facfe; font-weight: 600;">
+                                            {{ $totalServicios }} total</div>
                                         <div class="duration" style="color: #666;">📋 Catálogo completo</div>
-                                        <button class="btn btn-outline" style="border-color: #4facfe; color: #4facfe;">
+                                        <button class="btn btn-outline"
+                                            style="border-color: #4facfe; color: #4facfe;">
                                             <i class="fas fa-eye"></i>
                                             Ver Catálogo
                                         </button>
@@ -2913,7 +2985,8 @@
                                         <i class="fas fa-spray-can"></i>
                                     </div>
                                     <h3>Lavado Completo</h3>
-                                    <p class="description">Exterior e interior completo, aspirado y limpieza de tapicería</p>
+                                    <p class="description">Exterior e interior completo, aspirado y limpieza de
+                                        tapicería</p>
                                     <div class="price">$25.00</div>
                                     <div class="duration">⏱️ 30-40 min</div>
                                     <button class="btn btn-primary" onclick="showNoServicesAlert()">
@@ -2937,48 +3010,193 @@
                         </h2>
                     </div>
                     <div class="card-body">
-                        @if (isset($mis_citas) && count($mis_citas) > 0)
+                        <!-- Estadísticas Mini -->
+                        <div class="stats-mini"
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                            <div class="stat-mini"
+                                style="background: linear-gradient(135deg, #667eea20, #764ba220); padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #667eea;">
+                                <span class="number"
+                                    style="font-size: 1.5rem; font-weight: 700; color: #667eea; display: block;">
+                                    {{ $estadisticas_facturas['total_facturas'] }}
+                                </span>
+                                <span class="label"
+                                    style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Facturas Totales
+                                </span>
+                            </div>
+                            <div class="stat-mini"
+                                style="background: linear-gradient(135deg, #4facfe20, #00f2fe20); padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #4facfe;">
+                                <span class="number"
+                                    style="font-size: 1.5rem; font-weight: 700; color: #4facfe; display: block;">
+                                    ${{ number_format($estadisticas_facturas['total_gastado'], 2) }}
+                                </span>
+                                <span class="label"
+                                    style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Total Gastado
+                                </span>
+                            </div>
+                            <div class="stat-mini"
+                                style="background: linear-gradient(135deg, #3dd26e20, #35ebc920); padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #3dd26e;">
+                                <span class="number"
+                                    style="font-size: 1.5rem; font-weight: 700; color: #3dd26e; display: block;">
+                                    {{ $estadisticas_facturas['facturas_mes_actual'] }}
+                                </span>
+                                <span class="label"
+                                    style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Este Mes
+                                </span>
+                            </div>
+                            @if ($estadisticas_facturas['total_facturas'] > 0)
+                                <div class="stat-mini"
+                                    style="background: linear-gradient(135deg, #fa709a20, #fee14020); padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #fa709a;">
+                                    <span class="number"
+                                        style="font-size: 1.5rem; font-weight: 700; color: #fa709a; display: block;">
+                                        ${{ number_format($estadisticas_facturas['promedio_por_factura'], 2) }}
+                                    </span>
+                                    <span class="label"
+                                        style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Promedio/Factura
+                                    </span>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Información Adicional de Estadísticas -->
+                        @if ($estadisticas_facturas['vehiculo_mas_utilizado'] || $estadisticas_facturas['servicio_mas_solicitado'])
+                            <div
+                                style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #764ba2;">
+                                <h4 style="color: #764ba2; margin-bottom: 10px; font-size: 1rem;">
+                                    <i class="fas fa-chart-line"></i> Tus Estadísticas
+                                </h4>
+                                <div
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; font-size: 0.85rem;">
+                                    @if ($estadisticas_facturas['vehiculo_mas_utilizado'])
+                                        <div>
+                                            <strong>🚗 Vehículo Más Usado:</strong><br>
+                                            {{ $estadisticas_facturas['vehiculo_mas_utilizado']['vehiculo']->marca }}
+                                            {{ $estadisticas_facturas['vehiculo_mas_utilizado']['vehiculo']->modelo }}
+                                            <small
+                                                style="color: #666;">({{ $estadisticas_facturas['vehiculo_mas_utilizado']['cantidad'] }}
+                                                facturas)</small>
+                                        </div>
+                                    @endif
+
+                                    @if ($estadisticas_facturas['servicio_mas_solicitado'])
+                                        <div>
+                                            <strong>✨ Servicio Favorito:</strong><br>
+                                            {{ $estadisticas_facturas['servicio_mas_solicitado']['servicio']->nombre }}
+                                            <small
+                                                style="color: #666;">({{ $estadisticas_facturas['servicio_mas_solicitado']['cantidad'] }}
+                                                veces)</small>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Lista de Facturas Recientes -->
+                        @if ($facturas_dashboard->count() > 0)
                             <div class="services-grid">
-                                @foreach ($mis_citas->take(3) as $cita)
-                                    <div class="service-card" style="text-align: left;">
+                                @foreach ($facturas_dashboard as $cita)
+                                    @php
+                                        $total = $cita->pago ? $cita->pago->monto : $cita->servicios->sum('precio');
+                                        $fechaFormateada = $cita->fecha_hora->format('d M Y');
+                                        $numeroFactura = 'FACT-' . str_pad($cita->id, 6, '0', STR_PAD_LEFT);
+                                        $metodoPago = $cita->pago ? $cita->pago->metodo_formatted : 'No especificado';
+                                    @endphp
+
+                                    <div class="service-card"
+                                        style="text-align: left; position: relative; overflow: hidden;">
+                                        <!-- Badge de método de pago -->
+                                        <div style="position: absolute; top: 10px; right: 10px;">
+                                            @if ($cita->pago)
+                                                @switch($cita->pago->metodo)
+                                                    @case('efectivo')
+                                                        <span
+                                                            style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 600;">
+                                                            💵 Efectivo
+                                                        </span>
+                                                    @break
+
+                                                    @case('transferencia')
+                                                        <span
+                                                            style="background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 600;">
+                                                            🏦 Transferencia
+                                                        </span>
+                                                    @break
+
+                                                    @case('pasarela')
+                                                        <span
+                                                            style="background: #6f42c1; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 600;">
+                                                            💳 Tarjeta
+                                                        </span>
+                                                    @break
+                                                @endswitch
+                                            @endif
+                                        </div>
+
                                         <div
                                             style="display: flex; justify-content: space-between; margin-bottom: 15px;">
                                             <div>
-                                                <h3>Factura
-                                                    #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}-{{ date('Y') }}
+                                                <h3 style="color: #4facfe; margin-bottom: 5px;">{{ $numeroFactura }}
                                                 </h3>
-                                                <p style="color: #666; font-size: 0.9rem;">
-                                                    {{ \Carbon\Carbon::parse($cita->fecha_hora)->format('d M Y') }}
+                                                <p style="color: #666; font-size: 0.9rem; margin-bottom: 5px;">
+                                                    <i class="fas fa-calendar"></i> {{ $fechaFormateada }}
+                                                </p>
+                                                <p style="color: #666; font-size: 0.8rem;">
+                                                    <i class="fas fa-car"></i> {{ $cita->vehiculo->marca }}
+                                                    {{ $cita->vehiculo->modelo }}
                                                 </p>
                                             </div>
-                                            <div>
-                                                @php
-                                                    $total = $cita->servicios->sum('precio');
-                                                @endphp
-                                                <div
-                                                    style="font-weight: 700; color: #4facfe; font-size: 1.3rem; text-align: right;">
-                                                    ${{ number_format($total, 2) }}</div>
+                                            <div style="text-align: right;">
+                                                <div style="font-weight: 700; color: #4facfe; font-size: 1.3rem;">
+                                                    ${{ number_format($total, 2) }}
+                                                </div>
                                                 <span
-                                                    style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; margin-top: 5px;">PAGADO</span>
+                                                    style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; margin-top: 5px;">
+                                                    <i class="fas fa-check-circle"></i> COMPLETADA
+                                                </span>
                                             </div>
                                         </div>
 
                                         <div style="margin-bottom: 15px;">
-                                            <p><strong>Servicios:</strong></p>
-                                            <ul style="padding-left: 20px; margin-top: 5px;">
-                                                @foreach ($cita->servicios as $servicio)
-                                                    <li>{{ $servicio->nombre }} -
-                                                        ${{ number_format($servicio->precio, 2) }}</li>
+                                            <p style="font-weight: 600; color: #333; margin-bottom: 8px;">
+                                                <i class="fas fa-spray-can"></i> Servicios:
+                                            </p>
+                                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                                @foreach ($cita->servicios->take(3) as $servicio)
+                                                    <span
+                                                        style="background: #e9ecef; color: #495057; padding: 3px 8px; border-radius: 15px; font-size: 0.75rem;">
+                                                        {{ $servicio->nombre }}
+                                                    </span>
                                                 @endforeach
-                                            </ul>
+                                                @if ($cita->servicios->count() > 3)
+                                                    <span
+                                                        style="background: #4facfe; color: white; padding: 3px 8px; border-radius: 15px; font-size: 0.75rem;">
+                                                        +{{ $cita->servicios->count() - 3 }} más
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
 
+                                        @if ($cita->pago && $cita->pago->referencia)
+                                            <div
+                                                style="background: #fff3cd; padding: 8px; border-radius: 5px; margin-bottom: 15px; border-left: 3px solid #ffc107;">
+                                                <small style="color: #856404;">
+                                                    <i class="fas fa-receipt"></i>
+                                                    <strong>Referencia:</strong> {{ $cita->pago->referencia }}
+                                                </small>
+                                            </div>
+                                        @endif
+
                                         <div style="display: flex; gap: 10px; margin-top: 15px;">
-                                            <button class="btn btn-sm btn-outline" style="flex: 1;">
-                                                <i class="fas fa-eye"></i> Ver
+                                            <button class="btn btn-sm btn-outline" style="flex: 1;"
+                                                onclick="verDetalleFactura({{ $cita->id }})">
+                                                <i class="fas fa-eye"></i> Ver Detalle
                                             </button>
-                                            <button class="btn btn-sm btn-primary" style="flex: 1;">
-                                                <i class="fas fa-download"></i> PDF
+                                            <button class="btn btn-sm btn-primary" style="flex: 1;"
+                                                onclick="descargarFactura({{ $cita->id }})">
+                                                <i class="fas fa-download"></i> Descargar PDF
                                             </button>
                                         </div>
                                     </div>
@@ -2986,229 +3204,250 @@
                             </div>
                         @else
                             <div class="empty-state">
-                                <i class="fas fa-file-invoice"></i>
-                                <h3>No hay facturas disponibles</h3>
-                                <p>Agenda tu primera cita para generar facturas</p>
+                                <i class="fas fa-file-invoice"
+                                    style="font-size: 3rem; color: #4facfe; margin-bottom: 15px; opacity: 0.7;"></i>
+                                <h3 style="color: #333; margin-bottom: 10px; font-weight: 600;">No hay facturas
+                                    disponibles</h3>
+                                <p style="color: #666; line-height: 1.5;">
+                                    Aún no tienes servicios finalizados con facturas generadas.<br>
+                                    Tus facturas aparecerán aquí una vez que completes tus servicios.
+                                </p>
+                                <div style="margin-top: 20px;">
+                                    <a href="{{ route('cliente.citas') }}" class="btn btn-primary">
+                                        <i class="fas fa-calendar-plus"></i> Agendar Servicio
+                                    </a>
+                                </div>
                             </div>
                         @endif
 
-                        <div style="text-align: center; margin-top: 20px;">
-                            <button class="btn btn-outline">
-                                <i class="fas fa-history"></i> Ver Todas las Facturas
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sección Sidebar -->
-            <div class="sidebar-section">
-                <!-- Perfil del Cliente -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-user-circle"></i>
+                        @if ($facturas_dashboard->count() > 0)
+                            <div
+                                style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f3f4;">
+                                <a href="{{ route('cliente.facturas') }}" class="btn btn-outline"
+                                    style="padding: 10px 20px;">
+                                    <i class="fas fa-history"></i> Ver Historial Completo de Facturas
+                                </a>
+                                <div style="margin-top: 10px;">
+                                    <small style="color: #666;">
+                                        <i class="fas fa-info-circle"></i>
+                                        Tienes {{ $estadisticas_facturas['total_facturas'] }} facturas en total
+                                    </small>
+                                </div>
                             </div>
-                            Mi Perfil
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="profile-summary">
-                            <div class="profile-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="profile-info">
-                                <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
-                                <p>
-                                    <i class="fas fa-envelope"
-                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
-                                    {{ $user->email ?? 'No especificado' }}
-                                </p>
-                                <p>
-                                    <i class="fas fa-phone"
-                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
-                                    {{ $user->telefono ?? 'No especificado' }}
-                                </p>
-                                <p>
-                                    <i class="fas fa-calendar"
-                                        style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
-                                    Cliente desde: {{ $user->created_at->format('M Y') }}
-                                </p>
-                            </div>
-
-                            <button onclick="openEditModal()" class="btn btn-outline"
-                                style="margin-top: 15px; width: 100%;">
-                                <i class="fas fa-edit"></i> Editar Perfil
-                            </button>
-                        </div>
+                        @endif
                     </div>
                 </div>
 
-                <!-- Notificaciones -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-bell"></i>
+
+                <!-- Sección Sidebar -->
+                <div class="sidebar-section">
+                    <!-- Perfil del Cliente -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>
+                                <div class="icon">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                Mi Perfil
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="profile-summary">
+                                <div class="profile-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="profile-info">
+                                    <h3>{{ $user->nombre ?? 'Cliente' }}</h3>
+                                    <p>
+                                        <i class="fas fa-envelope"
+                                            style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                        {{ $user->email ?? 'No especificado' }}
+                                    </p>
+                                    <p>
+                                        <i class="fas fa-phone"
+                                            style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                        {{ $user->telefono ?? 'No especificado' }}
+                                    </p>
+                                    <p>
+                                        <i class="fas fa-calendar"
+                                            style="background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 5px; border-radius: 3px;"></i>
+                                        Cliente desde: {{ $user->created_at->format('M Y') }}
+                                    </p>
+                                </div>
+
+                                <button onclick="openEditModal()" class="btn btn-outline"
+                                    style="margin-top: 15px; width: 100%;">
+                                    <i class="fas fa-edit"></i> Editar Perfil
+                                </button>
                             </div>
-                            Notificaciones
-                            {{-- Comentado temporalmente hasta que tengamos los controladores --}}
-                            <!-- @if ($notificacionesNoLeidas > 0)
+                        </div>
+                    </div>
+
+                    <!-- Notificaciones -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>
+                                <div class="icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                Notificaciones
+                                {{-- Comentado temporalmente hasta que tengamos los controladores --}}
+                                <!-- @if ($notificacionesNoLeidas > 0)
 <span style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">{{ $notificacionesNoLeidas }}</span>
 @endif -->
-                            <span
-                                style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">0</span>
-                        </h2>
-                    </div>
-                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                        {{-- Comentado el forelse original --}}
-                        <!-- @forelse($notificaciones as $notificacion)
+                                <span
+                                    style="background: #ff4757; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: auto;">0</span>
+                            </h2>
+                        </div>
+                        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                            {{-- Comentado el forelse original --}}
+                            <!-- @forelse($notificaciones as $notificacion)
 -->
 
-                        {{-- Ejemplo estático de notificación (puedes dejarlo o quitarlo) --}}
-                        <div class="notification-item unread">
-                            <div class="notification-icon info">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            <div class="notification-content">
-                                <h4>Notificación del Sistema</h4>
-                                <p>Ejemplo de notificación (modo desarrollo)</p>
-                            </div>
-                            <div class="notification-time">
-                                Hace unos momentos <span style="color: #4facfe;">(Hoy)</span>
-                            </div>
-                        </div>
-
-                        {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
-                    <!-- @empty -->
-                        <div class="empty-state" style="padding: 20px;">
-                            <i class="fas fa-bell-slash"></i>
-                            <h3>No hay notificaciones</h3>
-                            <p>No tienes ninguna notificación pendiente</p>
-                        </div>
-                        <!--
-@endforelse -->
-                        {{-- Comentado el enlace a todas las notificaciones --}}
-                        <!-- @if ($notificaciones->count() > 0)
--->
-                        <div style="text-align: center; margin-top: 15px;">
-                            <a href="#" class="btn btn-outline">
-                                <i class="fas fa-list"></i> Ver todas las notificaciones
-                            </a>
-                        </div>
-                        <!--
-@endif -->
-                    </div>
-                </div>
-
-                <!-- Mis Vehículos -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2>
-                            <div class="icon">
-                                <i class="fas fa-car"></i>
-                            </div>
-                            Mis Vehículos
-                        </h2>
-                    </div>
-                    <div class="card-body" id="misVehiculosContainer">
-                        @if (isset($vehiculos_dashboard) && count($vehiculos_dashboard) > 0)
-                            @foreach ($vehiculos_dashboard as $vehiculo)
-                                <div class="service-history-item" style="margin-bottom: 15px;">
-                                    <div class="service-icon" style="background: var(--secondary-gradient);">
-                                        @switch($vehiculo->tipo)
-                                            @case('sedan')
-                                                <i class="fas fa-car"></i>
-                                            @break
-
-                                            @case('pickup')
-                                                <i class="fas fa-truck-pickup"></i>
-                                            @break
-
-                                            @case('camion')
-                                                <i class="fas fa-truck"></i>
-                                            @break
-
-                                            @case('moto')
-                                                <i class="fas fa-motorcycle"></i>
-                                            @break
-
-                                            @default
-                                                <i class="fas fa-car"></i>
-                                        @endswitch
-                                    </div>
-                                    <div class="service-details">
-                                        <h4>{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
-                                        <p><i class="fas fa-palette"></i> {{ $vehiculo->color }}</p>
-                                        <p><i class="fas fa-id-card"></i> {{ $vehiculo->placa }}</p>
-                                    </div>
-                                    <button class="btn btn-sm btn-primary"
-                                        onclick="openCitaModal('{{ $vehiculo->id }}')">
-                                        <i class="fas fa-calendar-plus"></i>
-                                    </button>
+                            {{-- Ejemplo estático de notificación (puedes dejarlo o quitarlo) --}}
+                            <div class="notification-item unread">
+                                <div class="notification-icon info">
+                                    <i class="fas fa-bell"></i>
                                 </div>
-                            @endforeach
-                        @else
-                            <div class="empty-state">
-                                <i class="fas fa-car"></i>
-                                <h3>No tienes vehículos registrados</h3>
-                                <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
+                                <div class="notification-content">
+                                    <h4>Notificación del Sistema</h4>
+                                    <p>Ejemplo de notificación (modo desarrollo)</p>
+                                </div>
+                                <div class="notification-time">
+                                    Hace unos momentos <span style="color: #4facfe;">(Hoy)</span>
+                                </div>
                             </div>
-                        @endif
-                        <button type="button" id="openVehiculoBtn" class="btn btn-outline"
-                            style="width: 100%; margin-top: 10px;" onclick="openVehiculoModal()">
-                            <i class="fas fa-plus"></i>
-                            Agregar Vehículo
-                        </button>
+
+                            {{-- Estado vacío (si prefieres mostrar esto en lugar del ejemplo) --}}
+                        <!-- @empty -->
+                            <div class="empty-state" style="padding: 20px;">
+                                <i class="fas fa-bell-slash"></i>
+                                <h3>No hay notificaciones</h3>
+                                <p>No tienes ninguna notificación pendiente</p>
+                            </div>
+                            <!--
+@endforelse -->
+                            {{-- Comentado el enlace a todas las notificaciones --}}
+                            <!-- @if ($notificaciones->count() > 0)
+-->
+                            <div style="text-align: center; margin-top: 15px;">
+                                <a href="#" class="btn btn-outline">
+                                    <i class="fas fa-list"></i> Ver todas las notificaciones
+                                </a>
+                            </div>
+                            <!--
+@endif -->
+                        </div>
+                    </div>
+
+                    <!-- Mis Vehículos -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>
+                                <div class="icon">
+                                    <i class="fas fa-car"></i>
+                                </div>
+                                Mis Vehículos
+                            </h2>
+                        </div>
+                        <div class="card-body" id="misVehiculosContainer">
+                            @if (isset($vehiculos_dashboard) && count($vehiculos_dashboard) > 0)
+                                @foreach ($vehiculos_dashboard as $vehiculo)
+                                    <div class="service-history-item" style="margin-bottom: 15px;">
+                                        <div class="service-icon" style="background: var(--secondary-gradient);">
+                                            @switch($vehiculo->tipo)
+                                                @case('sedan')
+                                                    <i class="fas fa-car"></i>
+                                                @break
+
+                                                @case('pickup')
+                                                    <i class="fas fa-truck-pickup"></i>
+                                                @break
+
+                                                @case('camion')
+                                                    <i class="fas fa-truck"></i>
+                                                @break
+
+                                                @case('moto')
+                                                    <i class="fas fa-motorcycle"></i>
+                                                @break
+
+                                                @default
+                                                    <i class="fas fa-car"></i>
+                                            @endswitch
+                                        </div>
+                                        <div class="service-details">
+                                            <h4>{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
+                                            <p><i class="fas fa-palette"></i> {{ $vehiculo->color }}</p>
+                                            <p><i class="fas fa-id-card"></i> {{ $vehiculo->placa }}</p>
+                                        </div>
+                                        <button class="btn btn-sm btn-primary"
+                                            onclick="openCitaModal('{{ $vehiculo->id }}')">
+                                            <i class="fas fa-calendar-plus"></i>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="empty-state">
+                                    <i class="fas fa-car"></i>
+                                    <h3>No tienes vehículos registrados</h3>
+                                    <p>Agrega tu primer vehículo para comenzar a agendar citas</p>
+                                </div>
+                            @endif
+                            <button type="button" id="openVehiculoBtn" class="btn btn-outline"
+                                style="width: 100%; margin-top: 10px;" onclick="openVehiculoModal()">
+                                <i class="fas fa-plus"></i>
+                                Agregar Vehículo
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal para editar perfil -->
-    <div id="editProfileModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeEditModal()">&times;</span>
-            <h2 style="color: #4facfe; margin-bottom: 20px;">
-                <i class="fas fa-user-edit"></i> Editar Perfil
-            </h2>
-            <form id="profileForm">
-                @csrf
-                <div class="form-group">
-                    <label for="modalNombre">Nombre:</label>
-                    <input type="text" id="modalNombre" name="nombre" value="{{ $user->nombre ?? '' }}"
-                        required>
-                </div>
-                <div class="form-group">
-                    <label for="modalTelefono">Teléfono:</label>
-                    <input type="text" id="modalTelefono" name="telefono" value="{{ $user->telefono ?? '' }}">
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Guardar Cambios
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal para imprimir recibo -->
-    <div id="receiptModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
-            <div id="receiptContent" style="background: white; padding: 20px; border-radius: 10px;">
-                <!-- Contenido del recibo se generará dinámicamente -->
-            </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="btn btn-primary" onclick="printReceipt()">
-                    <i class="fas fa-print"></i> Imprimir Recibo
-                </button>
-                <button class="btn btn-outline" onclick="downloadReceipt()">
-                    <i class="fas fa-download"></i> Descargar PDF
-                </button>
+        <!-- Modal para editar perfil -->
+        <div id="editProfileModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeEditModal()">&times;</span>
+                <h2 style="color: #4facfe; margin-bottom: 20px;">
+                    <i class="fas fa-user-edit"></i> Editar Perfil
+                </h2>
+                <form id="profileForm">
+                    @csrf
+                    <div class="form-group">
+                        <label for="modalNombre">Nombre:</label>
+                        <input type="text" id="modalNombre" name="nombre" value="{{ $user->nombre ?? '' }}"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalTelefono">Teléfono:</label>
+                        <input type="text" id="modalTelefono" name="telefono"
+                            value="{{ $user->telefono ?? '' }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </form>
             </div>
         </div>
-    </div>
+
+        <!-- Modal para imprimir recibo -->
+        <div id="receiptModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
+                <div id="receiptContent" style="background: white; padding: 20px; border-radius: 10px;">
+                    <!-- Contenido del recibo se generará dinámicamente -->
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="printReceipt()">
+                        <i class="fas fa-print"></i> Imprimir Recibo
+                    </button>
+                    <button class="btn btn-outline" onclick="downloadReceipt()">
+                        <i class="fas fa-download"></i> Descargar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal para agregar vehículo -->
@@ -3273,22 +3512,30 @@
     </div>
 
     <!-- Modal de Navegación: Vehículos -->
-    <div id="vehiculosNavModal" style="display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
-        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+    <div id="vehiculosNavModal"
+        style="display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
             <!-- Header compacto -->
-            <div style="padding: 12px 20px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div
+                style="padding: 12px 20px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <i class="fas fa-car" style="font-size: 1.2rem; color: white;"></i>
                     <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
                         Mis Vehículos
                     </h2>
                 </div>
-                <span class="close-modal" onclick="closeModalNav('vehiculosNavModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+                <span class="close-modal" onclick="closeModalNav('vehiculosNavModal')"
+                    style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'"
+                    onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
             </div>
             <!-- Contenido del modal -->
             <div id="vehiculosNavContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
                 <div class="text-center" style="padding: 60px 20px;">
-                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #4facfe; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <div
+                        style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #4facfe; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;">
+                    </div>
                     <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
                 </div>
             </div>
@@ -3296,22 +3543,30 @@
     </div>
 
     <!-- Modal de Navegación: Configuración -->
-    <div id="configuracionNavModal" style="display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
-        <div class="modal-content" style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+    <div id="configuracionNavModal"
+        style="display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: white; border-radius: 12px; width: 85%; max-width: 1400px; height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
             <!-- Header compacto -->
-            <div style="padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div
+                style="padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <i class="fas fa-cog" style="font-size: 1.2rem; color: white;"></i>
                     <h2 style="margin: 0; color: white; font-size: 1.2rem; font-weight: 600;">
                         Configuración de Cuenta
                     </h2>
                 </div>
-                <span class="close-modal" onclick="closeModalNav('configuracionNavModal')" style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
+                <span class="close-modal" onclick="closeModalNav('configuracionNavModal')"
+                    style="font-size: 24px; cursor: pointer; color: white; line-height: 1; transition: all 0.2s ease; opacity: 0.9; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.opacity='1'"
+                    onmouseout="this.style.background='transparent'; this.style.opacity='0.9'">&times;</span>
             </div>
             <!-- Contenido del modal -->
             <div id="configuracionNavContent" style="flex: 1; overflow: hidden; background: #f5f5f5;">
                 <div class="text-center" style="padding: 60px 20px;">
-                    <div style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #667eea; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <div
+                        style="width: 50px; height: 50px; margin: 0 auto 20px; border: 4px solid #667eea; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;">
+                    </div>
                     <p style="color: #6c757d; font-size: 0.95rem;">Cargando contenido...</p>
                 </div>
             </div>
@@ -3442,8 +3697,107 @@
 
     <script>
         /*=========================================================
-                        FUNCIONAMIENTO DE CREAR CITAS
-                        =========================================================*/
+                            FUNCIONAMIENTO DE FACTURAS
+                            =========================================================*/
+
+        // Función para ver el detalle de una factura
+        function verDetalleFactura(citaId) {
+            Swal.fire({
+                title: 'Cargando factura...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            fetch(`/cliente/facturas/${citaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.close();
+                        // Aquí puedes mostrar un modal con los detalles de la factura
+                        mostrarModalFactura(data.factura);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'No se pudo cargar la factura: ' + error.message, 'error');
+                });
+        }
+
+        // Función para descargar factura en PDF
+        function descargarFactura(citaId) {
+            Swal.fire({
+                title: 'Generando PDF...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            // Abrir en una nueva pestaña para descargar
+            window.open(`/cliente/facturas/${citaId}/descargar`, '_blank');
+            Swal.close();
+        }
+
+        // Función para mostrar modal con detalles de factura
+        function mostrarModalFactura(factura) {
+            const serviciosList = factura.servicios.map(servicio =>
+                `<li>${servicio.nombre} - $${servicio.precio.toFixed(2)}</li>`
+            ).join('');
+
+            const htmlContent = `
+        <div style="text-align: left;">
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <h3 style="color: #4facfe; margin-bottom: 5px;">Factura #${factura.numero}</h3>
+                <p><strong>Fecha:</strong> ${factura.fecha}</p>
+                <p><strong>Estado:</strong> <span style="color: #28a745;">${factura.estado}</span></p>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <h4>Información del Cliente</h4>
+                <p>${factura.cliente_nombre}<br>
+                ${factura.cliente_email}<br>
+                ${factura.cliente_telefono || 'Sin teléfono'}</p>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <h4>Vehículo</h4>
+                <p>${factura.vehiculo_marca} ${factura.vehiculo_modelo}<br>
+                Placa: ${factura.vehiculo_placa || 'No especificada'}<br>
+                Color: ${factura.vehiculo_color || 'No especificado'}</p>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <h4>Servicios</h4>
+                <ul style="padding-left: 20px;">
+                    ${serviciosList}
+                </ul>
+            </div>
+            
+            <div style="border-top: 2px solid #4facfe; padding-top: 10px; font-weight: bold;">
+                <p style="text-align: right; font-size: 1.2em;">
+                    Total: $${factura.total.toFixed(2)}
+                </p>
+            </div>
+            
+            ${factura.metodo_pago ? `
+                                <div style="margin-top: 15px; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                                    <p><strong>Método de pago:</strong> ${factura.metodo_pago}</p>
+                                    ${factura.referencia_pago ? `<p><strong>Referencia:</strong> ${factura.referencia_pago}</p>` : ''}
+                                </div>
+                                ` : ''}
+        </div>
+    `;
+
+            Swal.fire({
+                title: 'Detalle de Factura',
+                html: htmlContent,
+                width: '600px',
+                showCloseButton: true,
+                showConfirmButton: false
+            });
+        }
+        /*=========================================================
+        FUNCIONAMIENTO DE CREAR CITAS
+        =========================================================*/
 
         // Variables globales
         let horariosDisponibles = [];
@@ -3459,7 +3813,7 @@
             },
             buttonsStyling: true
         });
-        
+
         // Configuración específica para modales de agendado (más grandes y mejor visualización)
         const swalLargeModal = Swal.mixin({
             customClass: {
@@ -4779,10 +5133,10 @@
                     <h3>${emptyMessage}</h3>
                     <p>${emptyDescription}</p>
                     ${tipo === 'próximas' ? `
-                                                                                                                                                                                        <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
-                                                                                                                                                                                        <i class="fas fa-calendar-plus"></i>
-                                                                                                                                                                                            Agendar Cita
-                                                                                                                                                                                        </button>` : ''}
+                                                                                                                                                                                                                <button onclick="openCitaModal()" class="btn btn-primary" style="margin-top: 15px;">
+                                                                                                                                                                                                                <i class="fas fa-calendar-plus"></i>
+                                                                                                                                                                                                                    Agendar Cita
+                                                                                                                                                                                                                </button>` : ''}
                 </div>
             `;
                     return;
@@ -5701,14 +6055,14 @@
                             <p><strong>Conflictos encontrados:</strong> ${data.data.citas_superpuestas.length}</p>
                             
                             ${data.data.citas_superpuestas.map(cita => `
-                                                                                                                            <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
-                                                                                                                                <p><strong>Cita ID:</strong> ${cita.id}</p>
-                                                                                                                                <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
-                                                                                                                                <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
-                                                                                                                                <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
-                                                                                                                                <p><strong>Estado:</strong> ${cita.estado}</p>
-                                                                                                                            </div>
-                                                                                                                        `).join('')}
+                                                                                                                                                    <div style="border: 1px solid #ff6b6b; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                                                                                                                                        <p><strong>Cita ID:</strong> ${cita.id}</p>
+                                                                                                                                                        <p><strong>Horario:</strong> ${cita.fecha_hora} (${cita.duracion_total} min)</p>
+                                                                                                                                                        <p><strong>Servicios:</strong> ${cita.servicios.join(', ')}</p>
+                                                                                                                                                        <p><strong>Vehículo:</strong> ${cita.vehiculo}</p>
+                                                                                                                                                        <p><strong>Estado:</strong> ${cita.estado}</p>
+                                                                                                                                                    </div>
+                                                                                                                                                `).join('')}
                             
                             <p><strong>Horarios disponibles:</strong> ${data.data.horarios_disponibles.join(', ') || 'Ninguno'}</p>
                         </div>
@@ -5779,10 +6133,10 @@
 
             try {
                 console.log('Iniciando agendado rápido para servicio:', servicioId, 'categoría:', categoria);
-                
+
                 // Verificar si el usuario tiene vehículos
                 const vehiculosCompatibles = await getVehiculosCompatibles(categoria);
-                
+
                 if (vehiculosCompatibles.length === 0) {
                     await showNoVehiclesAlert(categoria);
                     return;
@@ -5818,7 +6172,7 @@
         // Obtener vehículos compatibles con la categoría del servicio
         async function getVehiculosCompatibles(categoria) {
             const vehiculos = @json($mis_vehiculos ?? []);
-            
+
             // Filtrar vehículos por categoría compatible
             return vehiculos.filter(vehiculo => {
                 return vehiculo.tipo.toLowerCase() === categoria.toLowerCase();
@@ -5840,7 +6194,7 @@
             });
 
             if (result.isConfirmed) {
-                window.location.href = '{{ route("vehiculos.create") }}';
+                window.location.href = '{{ route('vehiculos.create') }}';
             }
         }
 
@@ -5848,8 +6202,10 @@
         async function selectVehicleDialog(vehiculos, categoria) {
             const vehiculosCount = vehiculos.length;
             const categoryName = categoria === 'sedan' ? 'sedán' : categoria === 'pickup' ? 'SUV/Pickup' : categoria;
-            
-            const { value: vehiculoId } = await swalLargeModal.fire({
+
+            const {
+                value: vehiculoId
+            } = await swalLargeModal.fire({
                 title: `Selecciona tu vehículo ${categoryName.toUpperCase()}`,
                 html: `
                     <div style="text-align: left;">
@@ -5861,18 +6217,18 @@
                         </p>
                         <div style="max-height: 300px; overflow-y: auto;">
                             ${vehiculos.map(v => `
-                                <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
-                                       onmouseover="this.style.backgroundColor='#f0f8ff'" 
-                                       onmouseout="this.style.backgroundColor='white'">
-                                    <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
-                                    <div>
-                                        <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
-                                        ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
-                                        <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
-                                        ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
-                                    </div>
-                                </label>
-                            `).join('')}
+                                                        <label style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
+                                                               onmouseover="this.style.backgroundColor='#f0f8ff'" 
+                                                               onmouseout="this.style.backgroundColor='white'">
+                                                            <input type="radio" name="vehicle-select" value="${v.id}" style="margin-right: 10px;">
+                                                            <div>
+                                                                <strong style="color: #2c3e50;">${v.marca} ${v.modelo}</strong>
+                                                                ${v.placa ? `<br><small style="color: #7f8c8d;">Placa: ${v.placa}</small>` : ''}
+                                                                <br><small style="color: #27ae60; font-weight: 600;">Tipo: ${categoryName}</small>
+                                                                ${v.color ? `<br><small style="color: #8e44ad;">Color: ${v.color}</small>` : ''}
+                                                            </div>
+                                                        </label>
+                                                    `).join('')}
                         </div>
                     </div>
                 `,
@@ -5902,8 +6258,10 @@
             const today = new Date();
             const maxDate = new Date();
             maxDate.setMonth(maxDate.getMonth() + 1);
-            
-            const { value: formData } = await swalLargeModal.fire({
+
+            const {
+                value: formData
+            } = await swalLargeModal.fire({
                 title: 'Selecciona fecha y hora',
                 html: `
                     <div style="text-align: left;">
@@ -5936,17 +6294,21 @@
                 didOpen: () => {
                     const dateInput = document.getElementById('swal-date-input');
                     const hourInput = document.getElementById('swal-hour-input');
-                    
+
                     dateInput.addEventListener('change', async function() {
                         if (this.value) {
-                            hourInput.innerHTML = '<option value="">Cargando horarios...</option>';
+                            hourInput.innerHTML =
+                                '<option value="">Cargando horarios...</option>';
                             const horarios = await loadAvailableHoursForQuickBook(this.value);
-                            
+
                             if (horarios.length === 0) {
-                                hourInput.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                                hourInput.innerHTML =
+                                    '<option value="">No hay horarios disponibles</option>';
                             } else {
-                                hourInput.innerHTML = '<option value="">Selecciona una hora</option>' +
-                                    horarios.map(h => `<option value="${h}">${h}</option>`).join('');
+                                hourInput.innerHTML =
+                                    '<option value="">Selecciona una hora</option>' +
+                                    horarios.map(h => `<option value="${h}">${h}</option>`)
+                                    .join('');
                             }
                         }
                     });
@@ -5955,7 +6317,7 @@
                     const fecha = document.getElementById('swal-date-input').value;
                     const hora = document.getElementById('swal-hour-input').value;
                     const observaciones = document.getElementById('swal-observations-input').value;
-                    
+
                     if (!fecha) {
                         Swal.showValidationMessage('Debes seleccionar una fecha');
                         return false;
@@ -5964,7 +6326,7 @@
                         Swal.showValidationMessage('Debes seleccionar una hora');
                         return false;
                     }
-                    
+
                     return {
                         fecha: fecha,
                         hora: hora,
@@ -5979,12 +6341,12 @@
         // Cargar horarios disponibles para el agendado rápido
         async function loadAvailableHoursForQuickBook(fecha) {
             try {
-                const baseUrl = '{{ url("/cliente/horarios-disponibles") }}';
+                const baseUrl = '{{ url('/cliente/horarios-disponibles') }}';
                 const response = await fetch(`${baseUrl}/${fecha}`);
                 if (!response.ok) {
                     throw new Error('Error al cargar horarios');
                 }
-                
+
                 const horarios = await response.json();
                 return horarios.map(h => h.hora).filter(h => h);
             } catch (error) {
@@ -5997,21 +6359,21 @@
         async function createQuickBooking(vehiculoId, servicioId, citaData) {
             try {
                 const fechaHora = `${citaData.fecha} ${citaData.hora}`;
-                
+
                 // Debug: verificar token CSRF
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
                 console.log('CSRF Token:', csrfToken ? 'Existe' : 'No encontrado');
-                
+
                 const requestData = {
                     vehiculo_id: vehiculoId,
                     fecha_hora: fechaHora,
                     servicios: [servicioId],
                     observaciones: citaData.observaciones || null
                 };
-                
+
                 console.log('Datos a enviar:', requestData);
-                
-                const response = await fetch('{{ route("cliente.citas.store-simple") }}', {
+
+                const response = await fetch('{{ route('cliente.citas.store-simple') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -6024,7 +6386,7 @@
 
                 console.log('Response status:', response.status);
                 console.log('Response ok:', response.ok);
-                
+
                 const data = await response.json();
                 console.log('Response data:', data);
 
@@ -6127,13 +6489,13 @@
 
             } catch (error) {
                 console.error('Error al crear cita rápida:', error);
-                
+
                 // Mostrar más detalles del error
                 let errorMessage = 'No se pudo procesar tu solicitud.';
                 if (error.message) {
                     errorMessage += ' Detalle: ' + error.message;
                 }
-                
+
                 await swalWithBootstrapButtons.fire({
                     title: 'Error de conexión',
                     text: errorMessage,
@@ -6166,10 +6528,10 @@
                     throw new Error('Error al cargar los servicios');
                 }
                 const servicios = await response.json();
-                
+
                 let serviciosHtml = '';
                 let serviciosPorCategoria = {};
-                
+
                 // Agrupar servicios por categoría
                 servicios.forEach(servicio => {
                     const categoria = servicio.categoria || 'otros';
@@ -6178,17 +6540,17 @@
                     }
                     serviciosPorCategoria[categoria].push(servicio);
                 });
-                
+
                 // Generar HTML por categorías
                 Object.keys(serviciosPorCategoria).forEach(categoria => {
-                    const categoriaIcon = categoria === 'sedan' ? '🚗' : 
-                                        categoria === 'pickup' ? '🚙' : 
-                                        categoria === 'moto' ? '🏍️' : '🚙';
-                    const categoriaNombre = categoria === 'sedan' ? 'Sedán' : 
-                                           categoria === 'pickup' ? 'Pickup/SUV' : 
-                                           categoria === 'moto' ? 'Motocicleta' : 
-                                           categoria.charAt(0).toUpperCase() + categoria.slice(1);
-                    
+                    const categoriaIcon = categoria === 'sedan' ? '🚗' :
+                        categoria === 'pickup' ? '🚙' :
+                        categoria === 'moto' ? '🏍️' : '🚙';
+                    const categoriaNombre = categoria === 'sedan' ? 'Sedán' :
+                        categoria === 'pickup' ? 'Pickup/SUV' :
+                        categoria === 'moto' ? 'Motocicleta' :
+                        categoria.charAt(0).toUpperCase() + categoria.slice(1);
+
                     serviciosHtml += `
                         <div style="margin-bottom: 25px;">
                             <h4 style="color: #4facfe; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #4facfe; padding-bottom: 8px;">
@@ -6196,7 +6558,7 @@
                             </h4>
                             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
                     `;
-                    
+
                     serviciosPorCategoria[categoria].forEach(servicio => {
                         serviciosHtml += `
                             <div class="service-card-modal" style="background: #f8f9fa; border-radius: 12px; padding: 18px; border: 1px solid #e3e8ef; transition: all 0.3s ease;">
@@ -6222,10 +6584,10 @@
                             </div>
                         `;
                     });
-                    
+
                     serviciosHtml += '</div></div>';
                 });
-                
+
                 swalLargeModal.fire({
                     title: 'Todos los Servicios Disponibles',
                     html: `
@@ -6247,7 +6609,7 @@
                         popup: 'swal-large-modal services-catalog-modal'
                     }
                 });
-                
+
                 // Agregar estilos adicionales al modal
                 const style = document.createElement('style');
                 style.textContent = `
@@ -6258,7 +6620,7 @@
                     }
                 `;
                 document.head.appendChild(style);
-                
+
             } catch (error) {
                 console.error('Error al cargar servicios:', error);
                 Swal.fire({
@@ -6523,10 +6885,10 @@
                             </thead>
                             <tbody>
                                 ${data.servicios.map(servicio => `
-                                                <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
-                                                </tr>
-                                                `).join('')}
+                                                                        <tr>
+                                                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${servicio.nombre}</td>                                                                                                                                                <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">$${servicio.precio.toFixed(2)}</td>
+                                                                        </tr>
+                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -6638,8 +7000,8 @@
 
     <script>
         /*=========================================================
-                            FUNCIONAMIENTO DE MODAL VEHICULOS
-                            =========================================================*/
+                                                    FUNCIONAMIENTO DE MODAL VEHICULOS
+                                                    =========================================================*/
         function openVehiculoModal() {
             document.getElementById('vehiculoModal').style.display = 'block';
         }
@@ -6668,8 +7030,8 @@
     @push('scripts')
         <script>
             /*=========================================================
-                                                    FUNCIONAMIENTO DE CRUD VEHICULOS
-                                                    =========================================================*/
+                                                                                                    FUNCIONAMIENTO DE CRUD VEHICULOS
+                                                                                                    =========================================================*/
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('vehiculoForm');
                 form?.addEventListener('submit', async function(e) {

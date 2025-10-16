@@ -74,7 +74,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        
+
         // Dashboard y otras rutas existentes...
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/dashboard-data', [AdminController::class, 'getDashboardData'])->name('dashboard.data');
@@ -110,7 +110,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::get('/{cita}/info', [PagoController::class, 'getInfoPago'])->name('info');
             Route::post('/{cita}/reembolsar', [PagoController::class, 'reembolsarPago'])->name('reembolsar');
             Route::get('/{cita}/verificar-pago', [AdminController::class, 'verificarPagoCita'])->name('verificar-pago');
-            
+
             // Rutas adicionales para mejor funcionalidad
             Route::get('/{cita}/historial', [PagoController::class, 'historialPagos'])->name('historial');
             
@@ -140,7 +140,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::get('/{id}/editar', [GastoController::class, 'edit'])->name('edit');
             Route::put('/{id}', [GastoController::class, 'update'])->name('update');
             Route::delete('/{id}', [GastoController::class, 'destroy'])->name('destroy');
-            
+
             Route::get('/tipo/{tipo}', [GastoController::class, 'filtrarPorTipo'])->name('tipo');
             Route::post('/filtrar-fechas', [GastoController::class, 'filtrarPorFechas'])->name('filtrar-fechas');
             Route::get('/estadisticas/resumen', [GastoController::class, 'resumen'])->name('resumen');
@@ -216,8 +216,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
         Route::get('/dashboard-data', [ClienteController::class, 'getDashboardData'])->name('dashboard.data');
 
         // Datos para formularios 
-
-        // En lugar de la closure larga, usa:
         Route::get('/horarios-disponibles/{fecha}', [ClienteController::class, 'getHorariosDisponiblesPorFecha'])
             ->name('horarios-disponibles.fecha');
 
@@ -258,6 +256,11 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':client
 
         // Servicios
         Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
+
+        // Rutas para facturas del cliente
+        Route::get('/facturas', [ClienteController::class, 'facturas'])->name('cliente.facturas');
+        Route::get('/facturas/{cita}', [ClienteController::class, 'verFactura'])->name('cliente.facturas.ver');
+        Route::get('/facturas/{cita}/descargar', [ClienteController::class, 'descargarFactura'])->name('cliente.facturas.descargar');
     });
 
 // Rutas de perfil
@@ -388,7 +391,7 @@ Route::post('/cliente/debug-horarios', [ClienteController::class, 'debugHorarios
     ->middleware('auth');
 
 // Ruta temporal de debug para citas (SIN CSRF para testing)
-Route::post('/debug/test-cita', function(Request $request) {
+Route::post('/debug/test-cita', function (Request $request) {
     return response()->json([
         'received_data' => $request->all(),
         'headers' => $request->headers->all(),
@@ -403,5 +406,3 @@ Route::post('/debug/test-cita', function(Request $request) {
 Route::post('/cliente/citas/store-simple', [ClienteController::class, 'storeCitaSimple'])
     ->name('cliente.citas.store-simple')
     ->middleware('auth');
-
-

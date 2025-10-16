@@ -9,12 +9,14 @@ use App\Models\Servicio;
 use App\Models\Usuario;
 use App\Models\DiaNoLaborable;
 use App\Models\Horario;
+use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class ClienteController extends Controller
 {
@@ -27,9 +29,10 @@ class ClienteController extends Controller
         }
 
         try {
-
+            // Procesar citas expiradas primero
             $this->procesarCitasExpiradas();
 
+            // Obtener vehículos del usuario
             $vehiculos = $user->vehiculos()
                 ->withCount('citas')
                 ->orderByDesc('citas_count')
@@ -39,7 +42,7 @@ class ClienteController extends Controller
 
             // Obtener todas las citas del usuario
             $citas = $user->citas()
-                ->with(['vehiculo', 'servicios'])
+                ->with(['vehiculo', 'servicios', 'pago'])
                 ->orderBy('fecha_hora', 'desc')
                 ->get();
 
@@ -57,8 +60,32 @@ class ClienteController extends Controller
                 return in_array($cita->estado, ['finalizada', 'cancelada']);
             });
 
-            // Obtener próximos días no laborables para mostrar en dashboard
+            // FACTURAS DISPONIBLES - Últimas 3 facturas para el dashboard
+            $facturas_dashboard = $citas->filter(function ($cita) {
+                return $cita->estado === 'finalizada' && $cita->pago;
+            })->sortByDesc('fecha_hora')
+              ->take(3);
+
+            // ESTADÍSTICAS DE FACTURAS MEJORADAS
+            $citasFinalizadasConPago = $citas->where('estado', 'finalizada')
+                ->filter(fn($cita) => $cita->pago);
+
+            $estadisticasFacturas = [
+                'total_facturas' => $citasFinalizadasConPago->count(),
+                'total_gastado' => $citasFinalizadasConPago->sum(fn($cita) => $cita->pago->monto),
+                'facturas_mes_actual' => $citasFinalizadasConPago
+                    ->filter(fn($cita) => $cita->fecha_hora->month == now()->month && 
+                                         $cita->fecha_hora->year == now()->year)
+                    ->count(),
+                'promedio_por_factura' => $citasFinalizadasConPago->count() > 0 ? 
+                    $citasFinalizadasConPago->sum(fn($cita) => $cita->pago->monto) / $citasFinalizadasConPago->count() : 0,
+                'vehiculo_mas_utilizado' => $this->getVehiculoMasUtilizado($citasFinalizadasConPago),
+                'servicio_mas_solicitado' => $this->getServicioMasSolicitado($citasFinalizadasConPago),
+            ];
+
+            // Obtener próximos días no laborables
             $proximosDiasNoLaborables = DiaNoLaborable::getProximosNoLaborables(3);
+
             return view('cliente.dashboard', [
                 'user' => $user,
                 'stats' => [
@@ -67,6 +94,8 @@ class ClienteController extends Controller
                     'citas_pendientes' => $citas->where('estado', 'pendiente')->count(),
                     'citas_confirmadas' => $citas->where('estado', 'confirmada')->count(),
                 ],
+                'estadisticas_facturas' => $estadisticasFacturas,
+                'facturas_dashboard' => $facturas_dashboard,
                 'mis_vehiculos' => $vehiculos,
                 'vehiculos_dashboard' => $vehiculosDashboard,
                 'proximas_citas' => $proximas_citas,
@@ -76,11 +105,23 @@ class ClienteController extends Controller
                 'notificacionesNoLeidas' => $user->notificaciones()->where('leido', false)->count(),
                 'servicios' => $servicios
             ]);
+
         } catch (\Exception $e) {
             Log::error('Dashboard error', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $user->id ?? 'unknown'
             ]);
+
+            // Datos por defecto en caso de error
+            $defaultStats = [
+                'total_facturas' => 0,
+                'total_gastado' => 0,
+                'facturas_mes_actual' => 0,
+                'promedio_por_factura' => 0,
+                'vehiculo_mas_utilizado' => null,
+                'servicio_mas_solicitado' => null,
+            ];
 
             return view('cliente.dashboard', [
                 'user' => $user,
@@ -90,8 +131,10 @@ class ClienteController extends Controller
                     'citas_pendientes' => 0,
                     'citas_confirmadas' => 0,
                 ],
+                'estadisticas_facturas' => $defaultStats,
+                'facturas_dashboard' => collect(),
                 'mis_vehiculos' => collect(),
-                'mis_citas' => collect(),
+                'vehiculos_dashboard' => collect(),
                 'proximas_citas' => collect(),
                 'historial_citas' => collect(),
                 'proximos_dias_no_laborables' => collect(),
@@ -100,6 +143,68 @@ class ClienteController extends Controller
                 'servicios' => collect()
             ]);
         }
+    }
+
+    /**
+     * Obtener el vehículo más utilizado en las facturas
+     */
+    private function getVehiculoMasUtilizado($citasFinalizadas)
+    {
+        if ($citasFinalizadas->isEmpty()) {
+            return null;
+        }
+
+        $vehiculosCount = $citasFinalizadas->groupBy('vehiculo_id')
+            ->map(function ($citas) {
+                return [
+                    'count' => $citas->count(),
+                    'vehiculo' => $citas->first()->vehiculo
+                ];
+            })
+            ->sortByDesc('count')
+            ->first();
+
+        return $vehiculosCount ? [
+            'vehiculo' => $vehiculosCount['vehiculo'],
+            'cantidad' => $vehiculosCount['count']
+        ] : null;
+    }
+
+    /**
+     * Obtener el servicio más solicitado en las facturas
+     */
+    private function getServicioMasSolicitado($citasFinalizadas)
+    {
+        if ($citasFinalizadas->isEmpty()) {
+            return null;
+        }
+
+        $serviciosCount = [];
+        
+        foreach ($citasFinalizadas as $cita) {
+            foreach ($cita->servicios as $servicio) {
+                if (!isset($serviciosCount[$servicio->id])) {
+                    $serviciosCount[$servicio->id] = [
+                        'servicio' => $servicio,
+                        'count' => 0
+                    ];
+                }
+                $serviciosCount[$servicio->id]['count']++;
+            }
+        }
+
+        if (empty($serviciosCount)) {
+            return null;
+        }
+
+        $servicioMasSolicitado = collect($serviciosCount)
+            ->sortByDesc('count')
+            ->first();
+
+        return [
+            'servicio' => $servicioMasSolicitado['servicio'],
+            'cantidad' => $servicioMasSolicitado['count']
+        ];
     }
 
     public function vehiculos(): View
@@ -582,7 +687,6 @@ class ClienteController extends Controller
                     'precio_total' => $servicios->sum('precio')
                 ]
             ]);
-
         } catch (ValidationException $e) {
             DB::rollBack();
             return response()->json([
@@ -1224,7 +1328,7 @@ class ClienteController extends Controller
 
         // Obtener citas para historial - SOLO finalizadas y canceladas
         $query = $user->citas()
-             ->with(['servicios', 'vehiculo', 'pago']) 
+            ->with(['servicios', 'vehiculo', 'pago'])
             ->whereIn('estado', [Cita::ESTADO_FINALIZADA, Cita::ESTADO_CANCELADA]);
 
         // CREAR UNA COPIA DE LA QUERY PARA LOS CONTADORES (sin paginación)
@@ -1517,6 +1621,170 @@ class ClienteController extends Controller
 
             return response()->json([], 500);
         }
+    }
+
+     /**
+     * Mostrar listado de facturas del cliente (CITAS FINALIZADAS CON PAGO)
+     */
+    public function facturas(Request $request)
+    {
+        $user = auth()->user();
+
+        // Obtener citas finalizadas que tengan pago
+        $query = $user->citas()
+            ->with(['servicios', 'vehiculo', 'pago'])
+            ->where('estado', Cita::ESTADO_FINALIZADA)
+            ->whereHas('pago');
+
+        // Aplicar filtros si existen
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('fecha_hora', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('fecha_hora', '<=', $request->fecha_hasta);
+        }
+
+        if ($request->filled('vehiculo_id')) {
+            $query->where('vehiculo_id', $request->vehiculo_id);
+        }
+
+        // Estadísticas para mostrar
+        $citasFiltradas = (clone $query)->get();
+        
+        $estadisticas = [
+            'total_facturas' => $citasFiltradas->count(),
+            'total_pagado' => $citasFiltradas->sum(function($cita) {
+                return $cita->pago ? $cita->pago->monto : 0;
+            }),
+            'facturas_este_mes' => $citasFiltradas->where('fecha_hora', '>=', now()->startOfMonth())->count(),
+            'promedio_por_factura' => $citasFiltradas->count() > 0 ? 
+                $citasFiltradas->sum(function($cita) {
+                    return $cita->pago ? $cita->pago->monto : 0;
+                }) / $citasFiltradas->count() : 0,
+        ];
+
+        $facturas = $query->orderBy('fecha_hora', 'desc')->paginate(10);
+
+        // Obtener vehículos del usuario para filtros
+        $vehiculos = $user->vehiculos()->get();
+
+        return view('cliente.facturas', compact('facturas', 'estadisticas', 'vehiculos'));
+    }
+
+    /**
+     * Ver detalle de una factura específica
+     */
+    public function verFactura(Cita $cita)
+    {
+        // Verificar que la cita pertenece al usuario
+        if ($cita->usuario_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para ver esta factura'
+            ], 403);
+        }
+
+        // Verificar que la cita es facturable (finalizada y con pago)
+        if ($cita->estado !== Cita::ESTADO_FINALIZADA || !$cita->pago) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Esta cita no tiene una factura disponible'
+            ], 404);
+        }
+
+        // Calcular total de servicios
+        $totalServicios = $cita->servicios->sum('precio');
+
+        return response()->json([
+            'success' => true,
+            'factura' => [
+                'id' => $cita->id,
+                'numero' => 'FACT-' . str_pad($cita->id, 6, '0', STR_PAD_LEFT),
+                'fecha_emision' => now()->format('d/m/Y'),
+                'fecha_servicio' => $cita->fecha_hora->format('d/m/Y'),
+                'hora_servicio' => $cita->fecha_hora->format('h:i A'),
+                'estado' => 'Completada',
+                'cliente_nombre' => $cita->usuario->nombre,
+                'cliente_email' => $cita->usuario->email,
+                'cliente_telefono' => $cita->usuario->telefono,
+                'vehiculo_marca' => $cita->vehiculo->marca,
+                'vehiculo_modelo' => $cita->vehiculo->modelo,
+                'vehiculo_placa' => $cita->vehiculo->placa,
+                'vehiculo_color' => $cita->vehiculo->color,
+                'vehiculo_tipo' => $cita->vehiculo->tipo_formatted ?? ucfirst($cita->vehiculo->tipo),
+                'servicios' => $cita->servicios->map(function ($servicio) {
+                    return [
+                        'nombre' => $servicio->nombre,
+                        'descripcion' => $servicio->descripcion,
+                        'precio' => $servicio->precio,
+                        'duracion' => $servicio->duracion_min
+                    ];
+                }),
+                'subtotal' => $totalServicios,
+                'total' => $cita->pago->monto,
+                'metodo_pago' => $this->getMetodoPagoFormatted($cita->pago->metodo),
+                'referencia_pago' => $cita->pago->referencia,
+                'estado_pago' => $this->getEstadoPagoFormatted($cita->pago->estado),
+                'fecha_pago' => $cita->pago->fecha_pago ? $cita->pago->fecha_pago->format('d/m/Y H:i') : 'N/A',
+                'observaciones' => $cita->observaciones
+            ]
+        ]);
+    }
+
+    /**
+     * Descargar factura en PDF
+     */
+    public function descargarFactura(Cita $cita)
+    {
+        // Verificar que la cita pertenece al usuario
+        if ($cita->usuario_id !== auth()->id()) {
+            abort(403, 'No tienes permiso para descargar esta factura');
+        }
+
+        // Verificar que la cita es facturable
+        if ($cita->estado !== Cita::ESTADO_FINALIZADA || !$cita->pago) {
+            abort(404, 'Esta cita no tiene una factura disponible');
+        }
+
+        // Cargar todas las relaciones necesarias
+        $cita->load(['usuario', 'vehiculo', 'servicios', 'pago']);
+
+        // Generar PDF
+        $pdf = PDF::loadView('cliente.factura-pdf', compact('cita'));
+        
+        // Descargar con nombre personalizado
+        $fileName = 'factura-' . $cita->id . '-' . now()->format('Y-m-d') . '.pdf';
+        
+        return $pdf->download($fileName);
+    }
+
+    /**
+     * Obtener método de pago formateado
+     */
+    private function getMetodoPagoFormatted($metodo)
+    {
+        $metodos = [
+            'efectivo' => 'Efectivo',
+            'transferencia' => 'Transferencia Bancaria',
+            'pasarela' => 'Pasarela de Pago'
+        ];
+
+        return $metodos[$metodo] ?? $metodo;
+    }
+
+    /**
+     * Obtener estado de pago formateado
+     */
+    private function getEstadoPagoFormatted($estado)
+    {
+        $estados = [
+            'pendiente' => 'Pendiente',
+            'pagado' => 'Pagado',
+            'rechazado' => 'Rechazado'
+        ];
+
+        return $estados[$estado] ?? $estado;
     }
 
     public function debugHorarios(Request $request)
