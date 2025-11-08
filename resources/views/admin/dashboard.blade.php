@@ -9087,21 +9087,58 @@ Chart.register({
                                 elem.style.marginBottom = '0.5rem';
                             });
 
-                            // IMPORTANTE: Interceptar modales internos para ajustar z-index
+                            // IMPORTANTE: mantener los modales internos por encima de sus backdrops
+                            const ensureModalStacking = () => {
+                                iframeDoc.querySelectorAll('.modal').forEach(modal => {
+                                    modal.style.zIndex = '1200';
+                                });
+
+                                iframeDoc.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                                    backdrop.style.zIndex = '1190';
+                                });
+
+                                iframeDoc.querySelectorAll('.swal2-container').forEach(alert => {
+                                    alert.style.zIndex = '1300';
+                                });
+
+                                iframeDoc.querySelectorAll('.swal2-backdrop').forEach(backdrop => {
+                                    backdrop.style.zIndex = '1290';
+                                });
+                            };
+
+                            ensureModalStacking();
+
                             const observer = new MutationObserver((mutations) => {
+                                let needsUpdate = false;
+
                                 mutations.forEach((mutation) => {
+                                    if (mutation.type === 'attributes' && mutation.target.classList &&
+                                        (mutation.target.classList.contains('modal') || mutation.target.classList.contains('swal2-container'))) {
+                                        needsUpdate = true;
+                                    }
+
                                     mutation.addedNodes.forEach((node) => {
                                         if (node.nodeType === 1 && node.classList &&
-                                            (node.classList.contains('modal') || node.classList.contains('swal2-container'))) {
-                                            node.style.zIndex = '1100';
-                                            const backdrop = iframeDoc.querySelector('.modal-backdrop, .swal2-backdrop');
-                                            if (backdrop) backdrop.style.zIndex = '1090';
+                                            (node.classList.contains('modal') ||
+                                                node.classList.contains('modal-backdrop') ||
+                                                node.classList.contains('swal2-container') ||
+                                                node.classList.contains('swal2-backdrop'))) {
+                                            needsUpdate = true;
                                         }
                                     });
                                 });
+
+                                if (needsUpdate) {
+                                    ensureModalStacking();
+                                }
                             });
 
-                            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                            observer.observe(iframeDoc.body, {
+                                childList: true,
+                                subtree: true,
+                                attributes: true,
+                                attributeFilter: ['class']
+                            });
                         } catch(e) {
                             console.log('No se pudo modificar iframe:', e);
                         }
