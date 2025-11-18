@@ -75,7 +75,8 @@ class EmpleadoController extends Controller
             ->byFecha($fecha)
             ->with(['usuario', 'vehiculo', 'servicios'])
             ->orderBy('fecha_hora')
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
         // Si es petición AJAX, retornar JSON
         if ($request->wantsJson() || $request->ajax()) {
@@ -365,16 +366,16 @@ class EmpleadoController extends Controller
                 $cambio = 0;
             }
 
-            // Crear el pago
+            // Crear el pago usando las columnas reales de la tabla
             $pago = Pago::create([
                 'cita_id' => $cita->id,
                 'monto' => $totalCita,
-                'metodo_pago' => $request->metodo_pago,
-                'estado' => 'completado',
+                'metodo' => $request->metodo_pago, // La columna es 'metodo' no 'metodo_pago'
+                'estado' => 'pagado', // El estado es 'pagado' no 'completado'
                 'fecha_pago' => now(),
                 'monto_recibido' => $montoRecibido,
-                'cambio' => $cambio,
-                'comprobante' => 'COMP-' . str_pad($cita->id, 6, '0', STR_PAD_LEFT) . '-' . date('YmdHis')
+                'vuelto' => $cambio, // La columna es 'vuelto' no 'cambio'
+                'referencia' => 'COMP-' . str_pad($cita->id, 6, '0', STR_PAD_LEFT) . '-' . date('YmdHis') // La columna es 'referencia' no 'comprobante'
             ]);
 
             // Actualizar estado de la cita a finalizada
@@ -412,7 +413,7 @@ class EmpleadoController extends Controller
                 'success' => true,
                 'message' => 'Cita finalizada correctamente',
                 'pago' => [
-                    'comprobante' => $pago->comprobante,
+                    'referencia' => $pago->referencia,
                     'total' => $totalCita,
                     'metodo_pago' => $request->metodo_pago,
                     'cambio' => $cambio
@@ -464,7 +465,7 @@ class EmpleadoController extends Controller
             'total_servicios' => $totalQuery->count(),
             'ingresos_generados' => Pago::whereHas('cita', function($q) {
                 $q->where('estado', 'finalizada');
-            })->where('estado', 'completado')->sum('monto'),
+            })->where('estado', 'pagado')->sum('monto'),
             'servicios_hoy' => Cita::where('estado', 'finalizada')
                 ->whereDate('fecha_hora', today())
                 ->count(),

@@ -36,7 +36,7 @@ class DiaNoLaborable extends Model
         return $this->fecha ? $this->fecha->format('d/m/Y') : '';
     }
 
-    public function getFechaCompleraAttribute(): string
+    public function getFechaCompletaAttribute(): string
     {
         return $this->fecha ? $this->fecha->format('l, d \de F \de Y') : '';
     }

@@ -18,14 +18,17 @@ class Bitacora extends Model
         'accion',
         'ip',
         'fecha',
+        'tabla_afectada',
+        'registro_id',
+        'detalles',
     ];
 
     protected $casts = [
         'fecha' => 'datetime',
     ];
 
-    // Desactivar timestamps automáticos ya que usamos 'fecha'
-    public $timestamps = false;
+    // Habilitar timestamps automáticos
+    public $timestamps = true;
 
     // Tipos de acciones
     const ACCION_LOGIN = 'login';
