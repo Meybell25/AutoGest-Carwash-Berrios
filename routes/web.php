@@ -180,7 +180,7 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':emplea
     Route::get('/citas', [EmpleadoController::class, 'citas'])->name('citas');
 
     // Rutas actualizadas para evitar conflictos
-    Route::post('/citas/{id}/cambiar-estado', [EmpleadoController::class, 'cambiarEstadoCita'])->name('citas.cambiar-estado');
+    Route::post('/citas/{id}/cambiar-estado', [EmpleadoController::class, 'cambiarEstado'])->name('citas.cambiar-estado');
     Route::post('/citas/{id}/agregar-observaciones', [EmpleadoController::class, 'agregarObservaciones'])->name('citas.agregar-observaciones');
     Route::post('/citas/{id}/finalizar-completa', [EmpleadoController::class, 'finalizarCitaCompleta'])->name('citas.finalizar-completa');
     Route::post('/citas/finalizar-simple', [EmpleadoController::class, 'finalizarCitaSimple'])->name('citas.finalizar-simple');

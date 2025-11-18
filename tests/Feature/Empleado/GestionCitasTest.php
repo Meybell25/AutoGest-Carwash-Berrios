@@ -46,14 +46,14 @@ class GestionCitasTest extends TestCase
             'nombre' => 'Empleado Test',
             'email' => 'empleado@test.com',
             'rol' => 'empleado',
-            'estado' => 'activo',
+            'estado' => true,
         ]);
 
         $this->cliente = Usuario::factory()->create([
             'nombre' => 'Cliente Test',
             'email' => 'cliente@test.com',
             'rol' => 'cliente',
-            'estado' => 'activo',
+            'estado' => true,
         ]);
 
         $this->vehiculo = Vehiculo::factory()->create([
