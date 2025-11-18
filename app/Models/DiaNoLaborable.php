@@ -19,8 +19,16 @@ class DiaNoLaborable extends Model
     ];
 
     protected $casts = [
-        'fecha' => 'date',
+        'fecha' => 'date:Y-m-d',
     ];
+
+    /**
+     * Set the fecha attribute to ensure it's stored as Y-m-d format
+     */
+    public function setFechaAttribute($value)
+    {
+        $this->attributes['fecha'] = Carbon::parse($value)->format('Y-m-d');
+    }
 
     // Tipos de motivos comunes
     const MOTIVO_FERIADO = 'feriado';
@@ -139,8 +147,8 @@ class DiaNoLaborable extends Model
         $mes = $mes ?? Carbon::now()->month;
         $año = $año ?? Carbon::now()->year;
 
-        $inicioMes = Carbon::create($año, $mes, 1);
-        $finMes = $inicioMes->copy()->endOfMonth();
+        $inicioMes = Carbon::create($año, $mes, 1)->format('Y-m-d');
+        $finMes = Carbon::create($año, $mes, 1)->endOfMonth()->format('Y-m-d');
 
         return self::enRango($inicioMes, $finMes)
             ->ordenadoPorFecha()

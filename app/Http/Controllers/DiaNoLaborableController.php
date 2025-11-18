@@ -13,26 +13,10 @@ class DiaNoLaborableController extends Controller
      */
     public function index(Request $request)
     {
-        // Si es una petición AJAX, devolver JSON
-        if ($request->ajax()) {
-            $dias = DiaNoLaborable::ordenadoPorFecha()->get();
-            
-            // Formatear las fechas para JavaScript
-            $dias = $dias->map(function($dia) {
-                return [
-                    'id' => $dia->id,
-                    'fecha' => $dia->fecha->format('Y-m-d'), // Formato consistente para JavaScript
-                    'fecha_formateada' => $dia->fecha->format('d/m/Y'), // Fecha ya formateada
-                    'motivo' => $dia->motivo,
-                    'es_hoy' => $dia->es_hoy,
-                    'es_futuro' => $dia->es_futuro,
-                    'es_pasado' => $dia->es_pasado,
-                    'dias_restantes' => $dia->dias_restantes,
-                    'created_at' => $dia->created_at,
-                    'updated_at' => $dia->updated_at
-                ];
-            });
-            
+        // Si es una petición AJAX o espera JSON, devolver JSON con paginación
+        if ($request->expectsJson()) {
+            $dias = DiaNoLaborable::ordenadoPorFecha()->paginate(10);
+
             return response()->json($dias);
         }
 
@@ -83,7 +67,7 @@ class DiaNoLaborableController extends Controller
             'detalles' => "Creó día no laborable: {$dia->fecha->format('d/m/Y')} - {$dia->motivo}",
         ]);
 
-        if ($request->ajax()) {
+        if ($request->expectsJson()) {
             return response()->json($dia, 201);
         }
 
@@ -98,12 +82,12 @@ class DiaNoLaborableController extends Controller
     {
         $dia = DiaNoLaborable::findOrFail($id);
 
-        if ($request->ajax()) {
+        if ($request->expectsJson()) {
             // Formatear la fecha para JavaScript
             $diaFormatted = $dia->toArray();
             $diaFormatted['fecha'] = $dia->fecha->format('Y-m-d'); // Formato para input date
             $diaFormatted['fecha_formateada'] = $dia->fecha->format('d/m/Y'); // Formato para mostrar
-            
+
             return response()->json($diaFormatted);
         }
 
@@ -157,7 +141,7 @@ class DiaNoLaborableController extends Controller
             'detalles' => "Actualizó día no laborable de {$fechaAnterior} - {$motivoAnterior} a {$dia->fecha->format('d/m/Y')} - {$dia->motivo}",
         ]);
 
-        if ($request->ajax()) {
+        if ($request->expectsJson()) {
             return response()->json($dia);
         }
 
@@ -185,9 +169,9 @@ class DiaNoLaborableController extends Controller
             'detalles' => "Eliminó día no laborable: {$fechaEliminada} - {$motivoEliminado}",
         ]);
 
-        if ($request->ajax()) {
+        if ($request->expectsJson()) {
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Día no laborable eliminado correctamente.'
             ]);
         }
@@ -224,7 +208,7 @@ class DiaNoLaborableController extends Controller
         $dias = DiaNoLaborable::getDiasLaborablesEnRango($request->inicio, $request->fin);
         return response()->json([
             'dias_laborables' => $dias,
-            'total' => count($dias)
+            'cantidad' => count($dias)
         ]);
     }
 

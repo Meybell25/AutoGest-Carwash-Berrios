@@ -15,8 +15,12 @@ return new class extends Migration
         $table->id();
         $table->foreignId('usuario_id')->nullable()->constrained('usuarios')->onDelete('set null');
         $table->text('accion');
+        $table->string('tabla_afectada')->nullable();
+        $table->unsignedBigInteger('registro_id')->nullable();
+        $table->text('detalles')->nullable();
         $table->string('ip')->nullable();
         $table->timestamp('fecha')->useCurrent();
+        $table->timestamps();
     });
     }
 

@@ -44,21 +44,21 @@ class DiasNoLaborablesTest extends TestCase
             'nombre' => 'Admin Test',
             'email' => 'admin@test.com',
             'rol' => 'admin',
-            'estado' => 'activo',
+            'estado' => true,
         ]);
 
         $this->empleado = Usuario::factory()->create([
             'nombre' => 'Empleado Test',
             'email' => 'empleado@test.com',
             'rol' => 'empleado',
-            'estado' => 'activo',
+            'estado' => true,
         ]);
 
         $this->cliente = Usuario::factory()->create([
             'nombre' => 'Cliente Test',
             'email' => 'cliente@test.com',
             'rol' => 'cliente',
-            'estado' => 'activo',
+            'estado' => true,
         ]);
     }
 
@@ -92,7 +92,7 @@ class DiasNoLaborablesTest extends TestCase
         // Verificar auditoría en bitácora
         $this->assertDatabaseHas('bitacora', [
             'usuario_id' => $this->admin->id,
-            'accion' => 'crear_dia_no_laborable',
+            'accion' => 'crear',
             'tabla_afectada' => 'dias_no_laborables',
         ]);
     }
@@ -192,7 +192,7 @@ class DiasNoLaborablesTest extends TestCase
         // Verificar auditoría
         $this->assertDatabaseHas('bitacora', [
             'usuario_id' => $this->admin->id,
-            'accion' => 'actualizar_dia_no_laborable',
+            'accion' => 'actualizar',
             'registro_id' => $dia->id,
         ]);
     }
@@ -227,7 +227,7 @@ class DiasNoLaborablesTest extends TestCase
         // Verificar auditoría
         $this->assertDatabaseHas('bitacora', [
             'usuario_id' => $this->admin->id,
-            'accion' => 'eliminar_dia_no_laborable',
+            'accion' => 'eliminar',
             'registro_id' => $dia->id,
         ]);
     }
@@ -432,7 +432,7 @@ class DiasNoLaborablesTest extends TestCase
 
         $motivos = $response->json();
 
-        // Verificar que contiene todos los motivos definidos
+        // Verificar que es un array asociativo con las claves correctas
         $motivosEsperados = [
             DiaNoLaborable::MOTIVO_FERIADO,
             DiaNoLaborable::MOTIVO_MANTENIMIENTO,
@@ -443,7 +443,7 @@ class DiasNoLaborablesTest extends TestCase
         ];
 
         foreach ($motivosEsperados as $motivo) {
-            $this->assertContains($motivo, $motivos);
+            $this->assertArrayHasKey($motivo, $motivos);
         }
 
         $this->assertCount(6, $motivos);

@@ -158,14 +158,16 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':admin'
             Route::get('/', [DiaNoLaborableController::class, 'index'])->name('index');
             Route::get('/crear', [DiaNoLaborableController::class, 'create'])->name('create');
             Route::post('/', [DiaNoLaborableController::class, 'store'])->name('store');
-            Route::get('/{id}', [DiaNoLaborableController::class, 'show'])->name('show');
-            Route::get('/{id}/editar', [DiaNoLaborableController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [DiaNoLaborableController::class, 'update'])->name('update');
-            Route::delete('/{id}', [DiaNoLaborableController::class, 'destroy'])->name('destroy');
+            // Rutas específicas ANTES de las rutas con parámetros dinámicos
             Route::get('/proximos', [DiaNoLaborableController::class, 'proximos'])->name('proximos');
             Route::get('/del-mes', [DiaNoLaborableController::class, 'delMes'])->name('del-mes');
             Route::get('/laborables', [DiaNoLaborableController::class, 'diasLaborables'])->name('laborables');
             Route::get('/motivos', [DiaNoLaborableController::class, 'motivos'])->name('motivos');
+            // Rutas con parámetros dinámicos AL FINAL
+            Route::get('/{id}', [DiaNoLaborableController::class, 'show'])->name('show');
+            Route::get('/{id}/editar', [DiaNoLaborableController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [DiaNoLaborableController::class, 'update'])->name('update');
+            Route::delete('/{id}', [DiaNoLaborableController::class, 'destroy'])->name('destroy');
         });
 
         // Rutas para horarios
